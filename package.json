@@ -1,0 +1,24 @@
+{
+  "name": "music_vibe_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build_codepen.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betelgeuze-kang/-1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/betelgeuze-kang/-1/issues"
+  },
+  "homepage": "https://github.com/betelgeuze-kang/-1#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

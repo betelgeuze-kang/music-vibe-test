@@ -22,7 +22,15 @@ const TRANSLATIONS = {
             btn_main: "메인으로",
             disclaimer: "본 테스트는 오락 목적으로 제작되었으며, 공식 MBTI® 검사와는 무관합니다.",
             vibe_collection: "모든 바이브 보기",
-            share_error: "이미지 저장에 실패했습니다."
+            share_error: "이미지 저장에 실패했습니다.",
+            match_label_best: "💖 Perfect",
+            match_label_worst: "💔 Worst",
+            match_click: "클릭해서 궁합보기",
+            match_modal_best: "환상의 케미",
+            match_modal_worst: "아쉬운 케미",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "닫기"
         },
         questions: [
             "새로운 모임? 완전 내 무대지. 분위기 띄우는 건 내 담당! 🙋‍♀️",
@@ -208,7 +216,15 @@ const TRANSLATIONS = {
             btn_main: "Back to Main",
             disclaimer: "This test is for entertainment purposes only and is not affiliated with the official MBTI® assessment.",
             vibe_collection: "Vibe Collection",
-            share_error: "Image save failed."
+            share_error: "Image save failed.",
+            match_label_best: "💖 Perfect",
+            match_label_worst: "💔 Worst",
+            match_click: "Click to view",
+            match_modal_best: "Best Chemistry",
+            match_modal_worst: "Worst Chemistry",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "Close"
         },
         questions: [
             "I'm the CEO of making plans and dragging friends out.",
@@ -394,7 +410,15 @@ const TRANSLATIONS = {
             btn_main: "メインへ戻る",
             disclaimer: "この診断はエンターテイメント目的であり、公式のMBTI®とは関係ありません。",
             vibe_collection: "全バイブコレクション",
-            share_error: "画像の保存に失敗しました。"
+            share_error: "画像の保存に失敗しました。",
+            match_label_best: "💖 Perfect",
+            match_label_worst: "💔 Worst",
+            match_click: "相性を見る",
+            match_modal_best: "最高の相性",
+            match_modal_worst: "残念な相性",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "閉じる"
         },
         questions: [
             "新しい出会いしか勝たん！自分からガンガン誘うタイプ✨",
@@ -580,7 +604,15 @@ const TRANSLATIONS = {
             btn_main: "Volver al Inicio",
             disclaimer: "Este test es solo para entretenimiento y no está afiliado con el MBTI® oficial.",
             vibe_collection: "Colección de Vibes",
-            share_error: "Error al guardar la imagen."
+            share_error: "Error al guardar la imagen.",
+            match_label_best: "💖 Perfect",
+            match_label_worst: "💔 Worst",
+            match_click: "Ver compatibilidad",
+            match_modal_best: "Pareja Ideal",
+            match_modal_worst: "Peor Pareja",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "Cerrar"
         },
         questions: [
             "Soy el CEO de hacer amigos nuevos. Si hay fiesta, yo soy el main character. 💅",
@@ -766,7 +798,15 @@ const TRANSLATIONS = {
             btn_main: "Voltar ao Início",
             disclaimer: "Este teste é para entretenimento e não tem vínculo com o MBTI® oficial.",
             vibe_collection: "Coleção de Vibes",
-            share_error: "Falha ao salvar a imagem."
+            share_error: "Falha ao salvar a imagem.",
+            match_label_best: "💖 Perfect",
+            match_label_worst: "💔 Worst",
+            match_click: "Ver compatibilidade",
+            match_modal_best: "Par Perfeito",
+            match_modal_worst: "Pior Par",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "Fechar"
         },
         questions: [
             "Conhecer gente nova é minha religião. Onde tem rolê, eu tô lá agitando! 🥳",

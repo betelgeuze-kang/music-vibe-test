@@ -371,6 +371,12 @@ function renderResult() {
     const prosList = finalResult.pros.map(p => `<li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-green-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${p}</span></li>`).join('');
     const consList = finalResult.cons.map(c => `<li class="flex items-start gap-2"><i data-lucide="x-octagon" class="w-4 h-4 text-red-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${c}</span></li>`).join('');
 
+    // Match Data Lookup (For Viral Feature)
+    const bestType = finalResult.match ? finalResult.match.best : null;
+    const worstType = finalResult.match ? finalResult.match.worst : null;
+    const bestData = bestType ? RESULTS_DATA[bestType] : null;
+    const worstData = worstType ? RESULTS_DATA[worstType] : null;
+
     // **[스크롤 최종 해결]** h-full, overflow-y-auto, flex-col, flex-grow, min-h-0 클래스를 모두 적용하여 스크롤 영역을 명확히 지정합니다.
     appContainer.innerHTML = `
         <div class="h-full overflow-y-auto hide-scrollbar flex flex-col flex-grow min-h-0 relative"> 
@@ -383,7 +389,7 @@ function renderResult() {
             <div class="px-6 py-8 flex flex-col items-center text-center animate-slide-up pb-20 relative z-10">
                 
                 <!-- Main Result Card: Glassmorphism Update -->
-                <div class="w-full max-w-sm bg-black/30 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden mb-6 group select-none transition-all">
+                <div id="result-card" class="w-full max-w-sm bg-black/30 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden mb-6 group select-none transition-all">
                     <div id="card-bg" class="absolute inset-0 bg-gradient-to-br ${finalResult.color} opacity-20 transition-opacity duration-1000"></div>
                     
                     <div class="flex justify-between items-center text-gray-400 text-[10px] font-mono mb-6 opacity-70 relative z-10">
@@ -519,6 +525,48 @@ function renderResult() {
                                 </ul>
                             </div>
                         </div>
+                        
+                        <!-- Match & Mismatch (Viral) -->
+                        ${bestType && worstType ? `
+                        <!-- Match & Mismatch (Mini LP Ver.) -->
+                        <div class="grid grid-cols-2 gap-4 mt-8 mb-2 w-full">
+                            <!-- Best Match -->
+                            <div onclick="openMatchModal('${finalResult.mbti}', '${finalResult.match.best}', true)" class="group cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center transition-all hover:bg-white/10 hover:border-pink-400/50 active:scale-95 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="text-[11px] font-black text-pink-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${T.match_label_best}</div>
+                                
+                                <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear">
+                                    <div class="absolute inset-0 rounded-full border-[3px] border-white/10"></div>
+                                    <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative">
+                                        <img src="${bestData ? bestData.image : ''}" class="w-full h-full object-cover opacity-80">
+                                        <div class="absolute inset-0 bg-yellow-500/10 mix-blend-overlay"></div>
+                                    </div>
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rounded-full border border-gray-700"></div>
+                                </div>
+                                
+                                <div class="text-sm font-black text-white relative z-10">${bestData ? bestData.genre : ''}</div>
+                                <div class="text-[0.6rem] text-pink-200/60 mt-1 relative z-10">${T.match_click}</div>
+                            </div>
+
+                            <!-- Worst Match -->
+                            <div onclick="openMatchModal('${finalResult.mbti}', '${finalResult.match.worst}', false)" class="group cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center transition-all hover:bg-white/10 hover:border-blue-400/50 active:scale-95 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="text-[11px] font-black text-blue-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${T.match_label_worst}</div>
+                                
+                                <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear">
+                                    <div class="absolute inset-0 rounded-full border-[3px] border-white/10"></div>
+                                    <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative">
+                                        <img src="${worstData ? worstData.image : ''}" class="w-full h-full object-cover opacity-80 backdrop-grayscale">
+                                    </div>
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rounded-full border border-gray-700"></div>
+                                </div>
+                                
+                                <div class="text-sm font-black text-gray-400 group-hover:text-white transition-colors relative z-10">${worstData ? worstData.genre : ''}</div>
+                                <div class="text-[0.6rem] text-blue-200/60 mt-1 relative z-10">${T.match_click}</div>
+                            </div>
+                        </div>
+                        ` : ''}
+
                     </div>
                 </div>
 
@@ -554,7 +602,63 @@ function renderResult() {
                 </div>
             </div>
         </div>
-    `;
+            </div>
+            
+            <!-- Match Detail Modal -->
+            <div id="match-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeMatchModal()"></div>
+                <div class="relative bg-[#1a1a1c] border border-white/10 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl animate-slide-up overflow-hidden">
+                    <!-- Background Glow -->
+                    <div id="modal-glow" class="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-purple-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+
+                    <!-- Close Button -->
+                    <button onclick="closeMatchModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-2 z-20">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+
+                    <!-- Content -->
+                    <div class="flex flex-col items-center text-center relative z-10 mt-2">
+                        <div id="modal-header" class="mb-6">
+                            <!-- Dynamic Header -->
+                        </div>
+                        
+                        <div class="flex items-center justify-center gap-4 mb-6 w-full">
+                            <!-- My LP -->
+                            <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
+                                <img src="${finalResult.image}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/20"></div>
+                            </div>
+                            
+                            <!-- Connection Icon -->
+                            <div id="modal-conn-icon" class="text-2xl animate-pulse">
+                                💖
+                            </div>
+
+                            <!-- Match LP -->
+                            <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
+                                <img id="modal-match-img" src="" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+
+                        <h3 id="modal-match-title" class="text-xl font-black text-white mb-4 tracking-tight">
+                            <!-- Dynamic Genre Name -->
+                        </h3>
+
+                        <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
+
+                        <div class="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            <p id="modal-desc" class="text-gray-300 text-[0.95rem] leading-7 break-keep font-light text-left">
+                                <!-- Detailed Description -->
+                            </p>
+                        </div>
+                        
+                        <button onclick="closeMatchModal()" class="mt-6 w-full py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all">
+                            ${T.match_close}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
     lucide.createIcons();
 
     // 결과 화면 진입 시 자동 재생
@@ -597,7 +701,11 @@ function toggleAudio() {
         if (cardBg) cardBg.classList.replace('opacity-20', 'opacity-40');
         if (recDot) recDot.classList.add('animate-ping');
 
-        if (lpDisk) lpDisk.classList.add('animate-spin-slow');
+        if (lpDisk) {
+            lpDisk.style.animationPlayState = 'running';
+            lpDisk.classList.remove('paused');
+            lpDisk.classList.add('animate-spin-slow');
+        }
         if (lpGlow) lpGlow.classList.add('scale-110', 'opacity-60');
 
         if (playerBtn) {
@@ -622,7 +730,12 @@ function toggleAudio() {
         }
         if (recDot) recDot.classList.remove('animate-ping');
 
-        if (lpDisk) lpDisk.classList.remove('animate-spin-slow');
+        if (lpDisk) {
+            // Smooth Stop: Use .paused class to freeze animation at current angle
+            lpDisk.style.animationPlayState = 'paused';
+            lpDisk.classList.add('paused');
+            // Note: We don't remove animate-spin-slow immediately to avoid jump
+        }
         if (lpGlow) lpGlow.classList.remove('scale-110', 'opacity-60');
 
         if (playerBtn) {
@@ -742,8 +855,11 @@ function shareResult() {
 }
 
 async function saveImage() {
-    const input = document.getElementById('app'); // Or specific container
-    if (!input) return;
+    const input = document.getElementById('result-card'); // Targeted capture
+    if (!input) {
+        console.error("Result card not found");
+        return;
+    }
 
     // Temporary Visual Adjustments for Screenshot
     const originalStyle = input.style.cssText;
@@ -772,3 +888,45 @@ async function saveImage() {
 
 // 앱 시작
 init();
+
+// --- Viral Feature: Match Modal Logic ---
+window.openMatchModal = function (myTypeKey, targetType, isBest) {
+    const T = TRANSLATIONS[currentLang].ui;
+    const myType = myTypeKey;
+    const myData = RESULTS_DATA[myType];
+    const targetData = RESULTS_DATA[targetType];
+
+    const modal = document.getElementById('match-modal');
+    const header = document.getElementById('modal-header');
+    const title = document.getElementById('modal-match-title');
+    const desc = document.getElementById('modal-desc');
+    const matchImg = document.getElementById('modal-match-img');
+    const connIcon = document.getElementById('modal-conn-icon');
+    const glow = document.getElementById('modal-glow');
+
+    // UI Reset/Set
+    matchImg.src = targetData.image;
+    title.innerText = targetData.genre;
+
+    if (isBest) {
+        header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">${T.match_header_sub_best}</span><span class="text-2xl font-black text-white">${T.match_modal_best}</span>`;
+        connIcon.textContent = "💖";
+        desc.innerText = myData.match.bestDesc || "데이터 준비 중입니다...";
+        glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-pink-500/20 animate-pulse";
+    } else {
+        header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">${T.match_header_sub_worst}</span><span class="text-2xl font-black text-gray-300">${T.match_modal_worst}</span>`;
+        connIcon.textContent = "💔";
+        desc.innerText = myData.match.worstDesc || "데이터 준비 중입니다...";
+        glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-blue-500/20 animate-pulse";
+    }
+
+    modal.classList.remove('hidden');
+    // Prevent background scroll
+    document.body.style.overflow = 'hidden';
+}
+
+window.closeMatchModal = function () {
+    const modal = document.getElementById('match-modal');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
