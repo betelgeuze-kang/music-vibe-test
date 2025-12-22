@@ -3420,6 +3420,8 @@ body {
         window.onerror = function (msg, url, line) {
             appendToScreen("ERROR: " + msg + " at " + line, 'red');
         };
+
+        console.log("Debug System Ready");
     })();
 </script>
 
@@ -6244,7 +6246,10 @@ function renderResult() {
                 </div>
             </div>
         `;
-    lucide.createIcons();
+    // Safe Lucide Init
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
 
     // 결과 화면 진입 시 자동 재생
     setTimeout(() => {

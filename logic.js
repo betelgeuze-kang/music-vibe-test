@@ -662,7 +662,10 @@ function renderResult() {
                 </div>
             </div>
         `;
-    lucide.createIcons();
+    // Safe Lucide Init
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
 
     // 결과 화면 진입 시 자동 재생
     setTimeout(() => {
