@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const baseDir = __dirname;
-const indexHtmlPath = path.join(baseDir, 'index.html');
+const indexHtmlPath = path.join(baseDir, 'index_template.html');
 const questionsJsPath = path.join(baseDir, 'questions.js');
 const logicJsPath = path.join(baseDir, 'logic.js');
 const resultsJsPath = path.join(baseDir, 'results.js');

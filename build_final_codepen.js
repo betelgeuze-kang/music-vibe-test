@@ -3,11 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 const baseDir = __dirname;
-const outputPath = path.join(baseDir, 'music_vibe_codepen_full.html');
+const outputPath = path.join(baseDir, 'index.html');
 
 console.log('Reading source files...');
 
-let indexHtml = fs.readFileSync(path.join(baseDir, 'index.html'), 'utf8');
+let indexHtml = fs.readFileSync(path.join(baseDir, 'index_template.html'), 'utf8');
 const questionsJs = fs.readFileSync(path.join(baseDir, 'questions.js'), 'utf8');
 let resultsJs = fs.readFileSync(path.join(baseDir, 'results.js'), 'utf8');
 const logicJs = fs.readFileSync(path.join(baseDir, 'logic.js'), 'utf8');
@@ -58,6 +58,16 @@ console.log('Inlining scripts...');
 indexHtml = indexHtml.replace('<script src="questions.js"></script>', `<script>\n${questionsJs}\n</script>`);
 indexHtml = indexHtml.replace('<script src="results.js"></script>', `<script>\n${resultsJs}\n</script>`);
 indexHtml = indexHtml.replace('<script src="logic.js"></script>', `<script>\n${logicJs}\n</script>`);
+
+// Inline CSS
+console.log('Inlining CSS...');
+const styleCssPath = path.join(baseDir, 'style.css');
+if (fs.existsSync(styleCssPath)) {
+    const styleCss = fs.readFileSync(styleCssPath, 'utf8');
+    indexHtml = indexHtml.replace('<link href="./style.css" rel="stylesheet">', `<style>\n${styleCss}\n</style>`);
+} else {
+    console.warn('style.css not found, skipping inline CSS.');
+}
 
 // Add CodePen specific comment
 const headerComment = `<!-- 
