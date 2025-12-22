@@ -38,9 +38,13 @@ if (imageMatches) {
     });
 }
 
+const langJs = fs.readFileSync(path.join(baseDir, 'lang.js'), 'utf8');
+
 console.log('Inlining scripts...');
 
 // Replace script tags with inline code
+// Ensure lang.js is inlined first if it's a dependency, or just handle its specific tag
+indexHtml = indexHtml.replace('<script src="lang.js"></script>', `<script>\n${langJs}\n</script>`);
 indexHtml = indexHtml.replace('<script src="questions.js"></script>', `<script>\n${questionsJs}\n</script>`);
 indexHtml = indexHtml.replace('<script src="results.js"></script>', `<script>\n${resultsJs}\n</script>`);
 indexHtml = indexHtml.replace('<script src="logic.js"></script>', `<script>\n${logicJs}\n</script>`);
