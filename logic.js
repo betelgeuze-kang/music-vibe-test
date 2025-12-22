@@ -53,9 +53,20 @@ function detectLanguage() {
 
 // 초기화
 function init() {
-    currentLang = detectLanguage();
-    console.log("App Language Set to:", currentLang);
-    renderScreen('intro');
+    console.log("init() called");
+    try {
+        currentLang = detectLanguage();
+        console.log("App Language Set to:", currentLang);
+
+        if (!TRANSLATIONS) throw new Error("TRANSLATIONS not defined");
+        if (!RESULTS_DATA) throw new Error("RESULTS_DATA not defined");
+        if (!QUESTIONS) throw new Error("QUESTIONS not defined");
+
+        console.log("Data checks passed");
+        renderScreen('intro');
+    } catch (e) {
+        console.error("Critical Init Error: " + e.message);
+    }
 }
 
 // 인트로 화면으로 돌아가기 (되돌아가기 버튼 기능)
@@ -73,7 +84,14 @@ function resetTest() {
 
 // 화면 렌더링 라우터
 function renderScreen(state) {
+    console.log("renderScreen:", state);
     currentState = state;
+
+    if (!appContainer) {
+        console.error("appContainer is null!");
+        return;
+    }
+
     appContainer.innerHTML = ''; // 기존 내용 삭제
     stopAudio(); // 화면 전환 시 오디오 정지
 
@@ -95,13 +113,14 @@ function renderScreen(state) {
             break;
     }
     // 아이콘 리렌더링
-    if (window.lucide) {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
     }
 }
 
 // [Intro] 화면
 function renderIntro() {
+    console.log("Rendering Intro...");
     const T = TRANSLATIONS[currentLang].ui;
 
     appContainer.innerHTML = `
