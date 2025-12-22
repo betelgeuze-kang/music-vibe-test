@@ -63,6 +63,46 @@
     <script src="results.js"></script>
     <script src="lang.js"></script> <!-- Localization Data -->
     <script src="logic.js"></script>
+
+    <!-- Hidden Export Card (Instagram Story Size: 1080x1920) -->
+    <div id="export-card"
+        class="fixed top-0 left-0 w-[1080px] h-[1920px] bg-[#09090b] z-[-1] opacity-0 pointer-events-none flex flex-col items-center justify-center p-20 text-center text-white hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-gray-900 to-black z-0"></div>
+        <div id="export-bg-pattern" class="absolute inset-0 opacity-30 z-0"></div>
+
+        <!-- Content -->
+        <div class="relative z-10 flex flex-col items-center w-full h-full justify-between py-24">
+            <!-- Badge -->
+            <div class="px-8 py-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-xl mb-10">
+                <span class="text-3xl font-bold tracking-[0.3em] text-white/80">MY MUSIC VIBE</span>
+            </div>
+
+            <!-- Main Icon -->
+            <div class="relative w-[600px] h-[600px] my-auto">
+                <div id="export-glow" class="absolute inset-0 rounded-full blur-[100px] opacity-50 bg-purple-500"></div>
+                <div
+                    class="relative w-full h-full rounded-full border-[6px] border-white/10 shadow-2xl z-10 overflow-hidden bg-black">
+                    <img id="export-img" src="" class="w-full h-full object-cover opacity-90">
+                </div>
+            </div>
+
+            <!-- Text Info -->
+            <div class="flex flex-col items-center gap-6 mt-16 mb-20">
+                <h2 id="export-genre"
+                    class="text-8xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-amber-300 drop-shadow-lg font-display uppercase">
+                    GENRE TITLE</h2>
+                <p id="export-subtitle" class="text-4xl text-gray-300 font-medium tracking-wide">Subtitle</p>
+                <div class="w-32 h-2 bg-gradient-to-r from-transparent via-white/30 to-transparent my-6"></div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-auto flex flex-col items-center gap-4">
+                <p class="text-xl text-gray-500 font-mono tracking-widest uppercase">
+                    betelgeuze-kang.github.io/music-vibe-test</p>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

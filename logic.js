@@ -32,6 +32,18 @@ const OPTION_LABELS = {
     tw: ['非常不同意', '不同意', '普通', '同意', '非常同意']
 };
 
+// Haptic Feedback Helper
+function triggerHaptic() {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(10); // Light vibration
+    }
+}
+
+function startTest() {
+    triggerHaptic();
+    renderScreen('test');
+}
+
 function detectLanguage() {
     let navLang = 'en';
     if (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) {
@@ -66,10 +78,29 @@ function init() {
         if (!QUESTIONS) throw new Error("QUESTIONS not defined");
 
         console.log("Data checks passed");
+
+        // Start Preloading (Silent)
+        preloadAssets();
+
         renderScreen('intro');
     } catch (e) {
         console.error("Critical Init Error: " + e.message);
     }
+}
+
+// Preload Images and Audio
+function preloadAssets() {
+    console.log("Starting asset preload...");
+    Object.values(RESULTS_DATA).forEach(data => {
+        // Preload Image
+        const img = new Image();
+        img.src = data.image;
+
+        // Preload Audio (Metadata only to save bandwidth but establishing connection)
+        const audio = new Audio();
+        audio.src = data.audioSrc;
+        audio.preload = 'metadata';
+    });
 }
 
 // 인트로 화면으로 돌아가기 (되돌아가기 버튼 기능)
@@ -172,7 +203,7 @@ function renderIntro() {
                 </p>
 
                 <!-- Start Button -->
-                <button onclick="renderScreen('test')" class="group relative w-full h-16 bg-gray-900 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] overflow-hidden mb-4 border border-purple-500/30">
+                <button onclick="startTest()" class="group relative w-full h-16 bg-gray-900 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] overflow-hidden mb-4 border border-purple-500/30">
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-amber-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div class="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-purple-500 via-amber-400 to-purple-500"></div>
                     <span class="relative flex items-center justify-center gap-3 text-white font-bold text-lg tracking-widest w-full h-full">
@@ -296,6 +327,9 @@ function handleAnswer(type, score) {
         b.classList.add('cursor-not-allowed', 'opacity-70');
         b.disabled = true;
     });
+
+    // Haptic Feedback
+    triggerHaptic();
 
     // 점수 반영
     scores[type] = (scores[type] || 0) + score;
@@ -883,34 +917,57 @@ function shareResult() {
 }
 
 async function saveImage() {
-    const input = document.getElementById('result-card'); // Targeted capture
-    if (!input) {
-        console.error("Result card not found");
+    const exportCard = document.getElementById('export-card');
+
+    if (!exportCard || !finalResult) {
+        console.error("Export card or result check failed");
         return;
     }
 
-    // Temporary Visual Adjustments for Screenshot
-    const originalStyle = input.style.cssText;
-    // input.style.width = "1080px"; // Optional: Force standard width
-    // input.style.height = "1920px"; // Optional
+    // Populate Data
+    const exGenre = document.getElementById('export-genre');
+    const exSub = document.getElementById('export-subtitle');
+    const exImg = document.getElementById('export-img');
+    const exGlow = document.getElementById('export-glow');
+    // const exBg = document.getElementById('export-bg-pattern'); // Optional pattern logic
+
+    exGenre.innerText = finalResult.genre;
+    exSub.innerText = finalResult.subTitle;
+    exImg.src = finalResult.image;
+
+    // Apply dynamic colors
+    if (finalResult.color) {
+        // rough gradient mapping for glow
+        exGlow.className = `absolute inset-0 rounded-full blur-[100px] opacity-50 bg-gradient-to-br ${finalResult.color}`;
+    }
+
+    // Temporarily show for capture (must be visible to DOM for html2canvas, but can be hidden via z-index or absolute position off-screen if supported, 
+    // but standard display:block is safest for rendering correctness)
+    exportCard.classList.remove('hidden');
 
     try {
-        const canvas = await html2canvas(input, {
-            scale: 2,
+        const canvas = await html2canvas(exportCard, {
+            scale: 1, // 1080x1920 is already large enough
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#09090b', // Force background color
-            logging: false
+            backgroundColor: '#09090b',
+            logging: false,
+            width: 1080,
+            height: 1920,
+            windowWidth: 1080,
+            windowHeight: 1920
         });
 
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
         link.href = image;
-        link.download = `music_vibe_${finalResult.mbti}.png`;
+        link.download = `MY_VIBE_${finalResult.mbti}.png`;
         link.click();
     } catch (err) {
         console.error("Image save failed:", err);
         alert(TRANSLATIONS[currentLang].ui.share_error || "Save failed.");
+    } finally {
+        exportCard.classList.add('hidden');
     }
 }
 
