@@ -21,6 +21,59 @@
         crossorigin="anonymous"></script>
     <script>console.log("Version Check: Updated at " + new Date().toLocaleString());</script>
 </head>
+<style>
+    #debug-console {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 150px;
+        background: rgba(0, 0, 0, 0.8);
+        color: lime;
+        font-family: monospace;
+        font-size: 10px;
+        overflow-y: scroll;
+        z-index: 9999;
+        pointer-events: none;
+        padding: 5px;
+        border-top: 1px solid lime;
+        display: none;
+        /* Hide by default, show on error */
+    }
+</style>
+<div id="debug-console"></div>
+<script>
+    (function () {
+        var console = document.getElementById('debug-console');
+        if (!console) return;
+
+        var originalLog = window.console.log;
+        var originalError = window.console.error;
+
+        function appendToScreen(msg, color) {
+            var div = document.createElement('div');
+            div.textContent = "> " + msg;
+            div.style.color = color || 'lime';
+            console.appendChild(div);
+            console.scrollTop = console.scrollHeight;
+            console.style.display = 'block'; // Show on first log
+        }
+
+        window.console.log = function (msg) {
+            originalLog.apply(window.console, arguments);
+            appendToScreen(JSON.stringify(msg), 'lime');
+        };
+
+        window.console.error = function (msg) {
+            originalError.apply(window.console, arguments);
+            appendToScreen(JSON.stringify(msg), 'red');
+        };
+
+        window.onerror = function (msg, url, line) {
+            appendToScreen("ERROR: " + msg + " at " + line, 'red');
+        };
+    })();
+</script>
 
 <body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
 
