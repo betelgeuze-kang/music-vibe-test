@@ -930,3 +930,10 @@ window.closeMatchModal = function () {
     if (modal) modal.classList.add('hidden');
     document.body.style.overflow = '';
 }
+
+// Initialize App
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

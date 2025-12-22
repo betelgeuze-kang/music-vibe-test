@@ -6460,6 +6460,13 @@ window.closeMatchModal = function () {
     document.body.style.overflow = '';
 }
 
+// Initialize App
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
 </script>
 </body>
 
