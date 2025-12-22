@@ -200,7 +200,10 @@ function renderIntro() {
             
         </div>
     `;
-    lucide.createIcons();
+    // Safe Lucide Init
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
 }
 
 // [Quiz] 화면
@@ -887,7 +890,8 @@ async function saveImage() {
 }
 
 // 앱 시작
-init();
+// init(); // Removed redundant call
+
 
 // --- Viral Feature: Match Modal Logic ---
 window.openMatchModal = function (myTypeKey, targetType, isBest) {
