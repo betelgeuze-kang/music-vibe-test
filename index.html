@@ -3369,68 +3369,8 @@ body {
         crossorigin="anonymous"></script>
     <script>console.log("Version Check: Updated at " + new Date().toLocaleString());</script>
 </head>
-<style>
-    #debug-console {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 150px;
-        background: rgba(0, 0, 0, 0.8);
-        color: lime;
-        font-family: monospace;
-        font-size: 10px;
-        overflow-y: scroll;
-        z-index: 9999;
-        pointer-events: none;
-        padding: 5px;
-        border-top: 1px solid lime;
-        display: none;
-        /* Hide by default, show on error */
-    }
-</style>
-<div id="debug-console"></div>
-<script>
-    (function () {
-        var debugConsoleDiv = document.getElementById('debug-console');
-        if (!debugConsoleDiv) return;
 
-        var originalLog = window.console.log;
-        var originalError = window.console.error;
 
-        function appendToScreen(msg, color) {
-            var div = document.createElement('div');
-            div.textContent = "> " + msg;
-            div.style.color = color || 'lime';
-            debugConsoleDiv.appendChild(div);
-            debugConsoleDiv.scrollTop = debugConsoleDiv.scrollHeight;
-            debugConsoleDiv.style.display = 'block'; // Show on first log
-        }
-
-        window.console.log = function (msg) {
-            if (originalLog) originalLog.apply(window.console, arguments);
-            // Handle multiple arguments or non-string objects gracefully
-            var args = Array.prototype.slice.call(arguments).map(arg => {
-                return (typeof arg === 'object') ? JSON.stringify(arg) : String(arg);
-            }).join(' ');
-            appendToScreen(args, 'lime');
-        };
-
-        window.console.error = function (msg) {
-            if (originalError) originalError.apply(window.console, arguments);
-            var args = Array.prototype.slice.call(arguments).map(arg => {
-                return (typeof arg === 'object') ? JSON.stringify(arg) : String(arg);
-            }).join(' ');
-            appendToScreen(args, 'red');
-        };
-
-        window.onerror = function (msg, url, line) {
-            appendToScreen("ERROR: " + msg + " at " + line, 'red');
-        };
-
-        console.log("Debug System Ready");
-    })();
-</script>
 
 <body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
 
@@ -3459,6 +3399,10 @@ body {
         </div>
 
         <div id="app-container" class="flex-1 relative z-10 pt-14 pb-0 overflow-y-auto hide-scrollbar flex flex-col">
+            <!-- Initial Loading State -->
+            <div class="flex flex-col items-center justify-center h-full text-white/50 animate-pulse">
+                <p>Loading Experience...</p>
+            </div>
         </div>
 
     </div>
@@ -5624,7 +5568,10 @@ const OPTION_LABELS = {
 };
 
 function detectLanguage() {
-    const navLang = navigator.language || navigator.userLanguage;
+    let navLang = 'en';
+    if (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) {
+        navLang = navigator.language || navigator.userLanguage;
+    }
     const langCode = navLang.toLowerCase();
 
     console.log("Detected Browser Lang:", langCode);

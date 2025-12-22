@@ -33,7 +33,10 @@ const OPTION_LABELS = {
 };
 
 function detectLanguage() {
-    const navLang = navigator.language || navigator.userLanguage;
+    let navLang = 'en';
+    if (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) {
+        navLang = navigator.language || navigator.userLanguage;
+    }
     const langCode = navLang.toLowerCase();
 
     console.log("Detected Browser Lang:", langCode);
