@@ -28,7 +28,7 @@ if (imageMatches) {
         // const filename = path.basename(relativePath); // Not needed for URL replacement
 
         // CDN URL (GitHub Pages)
-        const cdnUrl = `https://betelgeuze-kang.github.io/-1/${relativePath}`;
+        const cdnUrl = `https://betelgeuze-kang.github.io/music-vibe-test/${relativePath}`;
 
         console.log(`Replacing ${relativePath} -> ${cdnUrl}`);
 
