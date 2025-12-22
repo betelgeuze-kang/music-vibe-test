@@ -3392,8 +3392,8 @@ body {
 <div id="debug-console"></div>
 <script>
     (function () {
-        var console = document.getElementById('debug-console');
-        if (!console) return;
+        var debugConsoleDiv = document.getElementById('debug-console');
+        if (!debugConsoleDiv) return;
 
         var originalLog = window.console.log;
         var originalError = window.console.error;
@@ -3402,19 +3402,26 @@ body {
             var div = document.createElement('div');
             div.textContent = "> " + msg;
             div.style.color = color || 'lime';
-            console.appendChild(div);
-            console.scrollTop = console.scrollHeight;
-            console.style.display = 'block'; // Show on first log
+            debugConsoleDiv.appendChild(div);
+            debugConsoleDiv.scrollTop = debugConsoleDiv.scrollHeight;
+            debugConsoleDiv.style.display = 'block'; // Show on first log
         }
 
         window.console.log = function (msg) {
-            originalLog.apply(window.console, arguments);
-            appendToScreen(JSON.stringify(msg), 'lime');
+            if (originalLog) originalLog.apply(window.console, arguments);
+            // Handle multiple arguments or non-string objects gracefully
+            var args = Array.prototype.slice.call(arguments).map(arg => {
+                return (typeof arg === 'object') ? JSON.stringify(arg) : String(arg);
+            }).join(' ');
+            appendToScreen(args, 'lime');
         };
 
         window.console.error = function (msg) {
-            originalError.apply(window.console, arguments);
-            appendToScreen(JSON.stringify(msg), 'red');
+            if (originalError) originalError.apply(window.console, arguments);
+            var args = Array.prototype.slice.call(arguments).map(arg => {
+                return (typeof arg === 'object') ? JSON.stringify(arg) : String(arg);
+            }).join(' ');
+            appendToScreen(args, 'red');
         };
 
         window.onerror = function (msg, url, line) {
