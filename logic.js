@@ -13,6 +13,8 @@ audioPlayer.loop = true;
 audioPlayer.volume = 0.5;
 audioPlayer.preload = 'auto'; // 빠른 재생을 위한 설정
 let currentLang = 'en'; // Default language
+let friendRef = null; // Viral Loop: Stores the MBTI of the friend who invited you (from URL)
+let vizInterval = null; // Visualizer Interval
 
 const appContainer = document.getElementById('app-container');
 
@@ -72,6 +74,15 @@ function init() {
     try {
         currentLang = detectLanguage();
         console.log("App Language Set to:", currentLang);
+
+        // [Viral] Parse URL for Friend Match
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawRef = urlParams.get('ref');
+        friendRef = rawRef ? rawRef.toUpperCase() : null;
+        if (friendRef) console.log("Invited by friend type:", friendRef);
+
+        // [Viral] Init Visualizer
+        initVisualizer();
 
         if (!TRANSLATIONS) throw new Error("TRANSLATIONS not defined");
         if (!RESULTS_DATA) throw new Error("RESULTS_DATA not defined");
@@ -392,7 +403,9 @@ function calculateResult() {
 
         finalResult = { ...baseData, ...localData, mbti: finalMbti };
 
-        renderScreen('result');
+
+        // [Viral] Sound Modal Check: Instead of showing result immediately, ask for headphones
+        checkSoundAndRevealResult();
     }, 2500);
 }
 
@@ -431,8 +444,19 @@ function renderResult() {
     const consList = finalResult.cons.map(c => `<li class="flex items-start gap-2"><i data-lucide="x-octagon" class="w-4 h-4 text-red-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${c}</span></li>`).join('');
 
     // Match Data Lookup (For Viral Feature)
-    const bestType = finalResult.match ? finalResult.match.best : null;
+    // [Viral Update] Friend Match Override Logic
+    let bestType = finalResult.match ? finalResult.match.best : null;
     const worstType = finalResult.match ? finalResult.match.worst : null;
+
+    let labelBest = T.match_label_best;
+    let isFriendMatch = false;
+
+    if (friendRef && RESULTS_DATA[friendRef]) {
+        bestType = friendRef; // Override: Show Friend in the Best Match Slot
+        labelBest = T.match_label_friend || "💌 Friend";
+        isFriendMatch = true;
+    }
+
     const bestData = bestType ? RESULTS_DATA[bestType] : null;
     const worstData = worstType ? RESULTS_DATA[worstType] : null;
 
@@ -447,6 +471,9 @@ function renderResult() {
 
             <div class="px-6 py-8 flex flex-col items-center text-center animate-slide-up pb-20 relative z-10">
                 
+                <!-- [Viral] Friend Match Card (If invited) -->
+                ${friendRef ? renderFriendMatchCard(T) : ''}
+
                 <!-- Main Result Card: Glassmorphism Update -->
                 <div id="result-card" class="w-full max-w-sm bg-black/30 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden mb-6 group select-none transition-all">
                     <div id="card-bg" class="absolute inset-0 bg-gradient-to-br ${finalResult.color} opacity-20 transition-opacity duration-1000"></div>
@@ -589,10 +616,10 @@ function renderResult() {
                         ${bestType && worstType ? `
                         <!-- Match & Mismatch (Mini LP Ver.) -->
                         <div class="grid grid-cols-2 gap-4 mt-8 mb-2 w-full">
-                            <!-- Best Match -->
-                            <div onclick="openMatchModal('${finalResult.mbti}', '${finalResult.match.best}', true)" class="group cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center transition-all hover:bg-white/10 hover:border-pink-400/50 active:scale-95 relative overflow-hidden">
+                            <!-- Best Match (or Friend Match) -->
+                            <div onclick="openMatchModal('${finalResult.mbti}', '${bestType}', true, ${isFriendMatch})" class="group cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center transition-all hover:bg-white/10 hover:border-pink-400/50 active:scale-95 relative overflow-hidden">
                                 <div class="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="text-[11px] font-black text-pink-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${T.match_label_best}</div>
+                                <div class="text-[11px] font-black text-pink-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${labelBest}</div>
                                 
                                 <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear">
                                     <div class="absolute inset-0 rounded-full border-[3px] border-white/10"></div>
@@ -723,10 +750,10 @@ function renderResult() {
         lucide.createIcons();
     }
 
-    // 결과 화면 진입 시 자동 재생
+    // 결과 화면 진입 시 자동 재생 (Sound Modal에서 이미 체크했으므로 100% 실행)
     setTimeout(() => {
-        toggleAudio();
-    }, 100);
+        if (!isPlaying) toggleAudio();
+    }, 500);
 }
 
 // 오디오 토글 로직 & UI 업데이트
@@ -783,6 +810,9 @@ function toggleAudio() {
         if (playerStatus) playerStatus.innerText = TRANSLATIONS[currentLang].ui.audio_playing; // Localized
         if (songTitle) songTitle.classList.add(finalResult.textColor.split(' ')[0]);
 
+        // [Viral] Start Visualizer Loop
+        toggleVisualizer(true);
+
     } else {
         audioPlayer.pause();
 
@@ -798,6 +828,9 @@ function toggleAudio() {
             lpDisk.classList.add('paused');
             // Note: We don't remove animate-spin-slow immediately to avoid jump
         }
+
+        // [Viral] Stop Visualizer
+        toggleVisualizer(false);
         if (lpGlow) lpGlow.classList.remove('scale-110', 'opacity-60');
 
         if (playerBtn) {
@@ -976,7 +1009,7 @@ async function saveImage() {
 
 
 // --- Viral Feature: Match Modal Logic ---
-window.openMatchModal = function (myTypeKey, targetType, isBest) {
+window.openMatchModal = function (myTypeKey, targetType, isBest, isFriendOverride = false) {
     const T = TRANSLATIONS[currentLang].ui;
     const myType = myTypeKey;
     const myData = RESULTS_DATA[myType];
@@ -994,7 +1027,15 @@ window.openMatchModal = function (myTypeKey, targetType, isBest) {
     matchImg.src = targetData.image;
     title.innerText = targetData.genre;
 
-    if (isBest) {
+    if (isFriendOverride) {
+        // [Viral] Friend Match Modal
+        const fTitle = T.match_modal_friend || "Friend Compatibility";
+        header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">FRIEND CHECK</span><span class="text-2xl font-black text-white">${fTitle}</span>`;
+        connIcon.textContent = "💌";
+        // Show the Friend's Persona Description
+        desc.innerText = targetData.desc;
+        glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-purple-500/20 animate-pulse";
+    } else if (isBest) {
         header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">${T.match_header_sub_best}</span><span class="text-2xl font-black text-white">${T.match_modal_best}</span>`;
         connIcon.textContent = "💖";
         desc.innerText = myData.match.bestDesc || "데이터 준비 중입니다...";
@@ -1011,11 +1052,221 @@ window.openMatchModal = function (myTypeKey, targetType, isBest) {
     document.body.style.overflow = 'hidden';
 }
 
+
 window.closeMatchModal = function () {
     const modal = document.getElementById('match-modal');
     if (modal) modal.classList.add('hidden');
     document.body.style.overflow = '';
 }
+
+// ==========================================
+// [Viral] Helper Functions
+// ==========================================
+
+// 1. Sound Modal Logic (Moved to Loading Phase)
+window.checkSoundAndRevealResult = function () {
+    triggerHaptic();
+
+    // Check if modal exists
+    const modal = document.getElementById('sound-modal');
+    if (!modal) { renderResult(); return; }
+
+    // Set Text based on currentLang
+    const T = TRANSLATIONS[currentLang].ui;
+    // Safe check if element exists (it should)
+    const elTitle = document.getElementById('modal-title');
+    const elDesc = document.getElementById('modal-desc');
+    const elBtn = document.getElementById('modal-btn');
+
+    if (elTitle) elTitle.innerText = T.sound_modal_title || "Headphones ON?";
+    if (elDesc) elDesc.innerHTML = T.sound_modal_desc || "For best experience, use headphones.";
+    if (elBtn) elBtn.innerText = T.sound_modal_btn || "I'm Ready";
+
+    // Show Modal
+    modal.classList.remove('pointer-events-none', 'opacity-0');
+    // Scale effect
+    const content = document.getElementById('sound-modal-content');
+    if (content) {
+        content.classList.replace('scale-90', 'scale-100');
+    }
+}
+
+window.confirmSound = function () {
+    triggerHaptic();
+    const modal = document.getElementById('sound-modal');
+    if (modal) {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        // Scale down
+        const content = document.getElementById('sound-modal-content');
+        if (content) content.classList.replace('scale-100', 'scale-90');
+    }
+
+    // Start Result Logic
+    setTimeout(() => {
+        renderResult();
+    }, 300);
+}
+
+// 2. Visualizer Logic
+window.initVisualizer = function () {
+    const container = document.getElementById('global-visualizer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Create 12 bars (mobile friendly)
+    for (let i = 0; i < 12; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'w-2 md:w-3 bg-gradient-to-t from-purple-500/80 to-amber-400/80 rounded-t-full transition-all duration-150 ease-out shadow-[0_0_10px_rgba(168,85,247,0.3)] origin-bottom';
+        bar.style.height = '10px';
+        container.appendChild(bar);
+    }
+}
+
+window.toggleVisualizer = function (active) {
+    const container = document.getElementById('global-visualizer');
+    if (!container) return;
+
+    if (active) {
+        container.classList.remove('opacity-0');
+        if (!vizInterval) loopVisualizer();
+    } else {
+        container.classList.add('opacity-0');
+        setTimeout(() => {
+            if (!isPlaying && container) {
+                // reset bars
+                Array.from(container.children).forEach(b => b.style.height = '10px');
+            }
+        }, 500);
+    }
+}
+
+window.loopVisualizer = function () {
+    if (!isPlaying) {
+        vizInterval = null;
+        return;
+    }
+
+    const container = document.getElementById('global-visualizer');
+    if (container) {
+        Array.from(container.children).forEach((bar, i) => {
+            // Pseudo-random beat simulation
+            const random = Math.random();
+            const height = 10 + (random * 30); // 10% to 40% height relative to container
+
+            // React to bass (simulated) - center bars higher
+            const centerMultiplier = 1 + (1 - Math.abs(i - 6) / 6);
+
+            bar.style.height = `${(height * centerMultiplier)}%`;
+        });
+    }
+
+    vizInterval = setTimeout(loopVisualizer, 100); // 100ms beat
+}
+
+// 3. Friend Rendering
+window.renderFriendMatchCard = function (T) {
+    if (!friendRef || !finalResult) return '';
+
+    const friendData = RESULTS_DATA[friendRef];
+    if (!friendData) return ''; // Invalid Ref
+
+    const myMbti = finalResult.mbti;
+    let score = 50;
+    let label = "So-So";
+    let color = "text-gray-400";
+
+    // Check specific best/worst matches from data
+    if (finalResult.match && finalResult.match.best === friendRef) {
+        score = 98;
+        label = T.match_label_best || "Perfect Match";
+        color = "text-pink-400";
+    } else if (finalResult.match && finalResult.match.worst === friendRef) {
+        score = 12;
+        label = T.match_label_worst || "Worst Match";
+        color = "text-blue-400";
+    } else if (myMbti === friendRef) {
+        score = 95;
+        label = "Soulmate?";
+        color = "text-purple-400";
+    } else {
+        // Fallback calculation
+        const diff = [...myMbti].filter((c, i) => c !== friendRef[i]).length;
+        if (diff === 1) { score = 85; label = "Good Vibe"; color = "text-green-400"; }
+        else if (diff === 2) { score = 60; label = "Not Bad"; color = "text-yellow-400"; }
+        else { score = 30; label = "Chaos"; color = "text-red-400"; }
+    }
+
+    return `
+    <div class="w-full max-w-sm mb-6 animate-fade-in-down">
+         <div class="glass-panel p-4 rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/40 to-black/40 relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/5 animate-pulse-slow"></div>
+            
+            <div class="relative z-10 flex justify-between items-center mb-4">
+                <span class="text-xs font-bold text-gray-300 uppercase tracking-widest">${T.friend_match_title || "Friend Match"}</span>
+            </div>
+            
+            <div class="flex items-center justify-between gap-4">
+                <!-- Me -->
+                <div class="flex flex-col items-center gap-2">
+                     <div class="w-14 h-14 rounded-full border-2 border-purple-500 overflow-hidden shadow-lg">
+                        <img src="${finalResult.image}" class="w-full h-full object-cover">
+                     </div>
+                     <span class="text-[10px] font-bold text-gray-400">YOU</span>
+                </div>
+                
+                <!-- Score -->
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl font-black ${color} drop-shadow-glow">${score}%</span>
+                    <span class="text-[10px] uppercase font-bold text-white/50">${label}</span>
+                </div>
+                
+                <!-- Friend -->
+                <div class="flex flex-col items-center gap-2">
+                     <div class="w-14 h-14 rounded-full border-2 border-gray-500 overflow-hidden shadow-lg grayscale opacity-80">
+                        <img src="${friendData.image}" class="w-full h-full object-cover">
+                     </div>
+                     <span class="text-[10px] font-bold text-gray-400">FRIEND</span>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-white/10 text-center">
+                <p class="text-xs text-gray-400 leading-tight">
+                    ${T.friend_match_desc || "Compatibility with:"} <span class="font-bold text-white">${friendData.genre}</span>
+                </p>
+            </div>
+         </div>
+    </div>
+    `;
+}
+
+// 4. Update Share URL
+window.getShareUrl = function () {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const ref = finalResult ? finalResult.mbti : '';
+    // Append ref if exists
+    return ref ? `${baseUrl}?ref=${ref}` : baseUrl;
+}
+// Override shareResult to use getShareUrl
+window.shareResult = function () {
+    triggerHaptic();
+    const url = getShareUrl();
+    const T = TRANSLATIONS[currentLang].ui;
+
+    if (navigator.share) {
+        navigator.share({
+            title: T.title_main,
+            text: T.desc_html.replace(/<[^>]*>/g, '').trim(),
+            url: url
+        }).catch(err => console.log('Share failed:', err));
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert(T.copy_success);
+        }).catch(() => {
+            prompt("Copy this link:", url);
+        });
+    }
+}
+
 
 // Initialize App
 if (document.readyState === 'loading') {

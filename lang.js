@@ -30,7 +30,16 @@ const TRANSLATIONS = {
             match_modal_worst: "아쉬운 케미",
             match_header_sub_best: "PERFECT MATCH",
             match_header_sub_worst: "WORST MATCH",
-            match_close: "닫기"
+            match_close: "닫기",
+            sound_modal_title: "저기요, 이어폰 꼈어? 🎧",
+            sound_modal_desc: "이 테스트는 사운드가 생명임.<br>빵빵하게 들으면서 즐겨보세요! 🔊",
+            sound_modal_btn: "ㅇㅇ 준비됨",
+            friend_match_title: "우리 궁합 몇 점?",
+            friend_match_desc: "당신을 초대한 친구:",
+            friend_match_score: "궁합 점수:",
+            friend_match_btn_invite: "친구 초대하고 궁합 보기",
+            match_label_friend: "💌 Friend",
+            match_modal_friend: "친구와의 궁합 분석"
         },
         questions: [
             "새로운 모임? 완전 내 무대지. 분위기 띄우는 건 내 담당! 🙋‍♀️",
@@ -224,7 +233,16 @@ const TRANSLATIONS = {
             match_modal_worst: "Worst Chemistry",
             match_header_sub_best: "PERFECT MATCH",
             match_header_sub_worst: "WORST MATCH",
-            match_close: "Close"
+            match_close: "Close",
+            sound_modal_title: "Headphones ON? 🎧",
+            sound_modal_desc: "This test hits different with sound.<br>Turn it up for the full experience! 🔊",
+            sound_modal_btn: "Let's Go!",
+            friend_match_title: "Vibe Check",
+            friend_match_desc: "Friend who invited you:",
+            friend_match_score: "Vibe Score:",
+            friend_match_btn_invite: "Invite Bestie to Compare",
+            match_label_friend: "💌 Friend",
+            match_modal_friend: "Friend Compatibility"
         },
         questions: [
             "I'm the CEO of making plans and dragging friends out.",
@@ -418,7 +436,16 @@ const TRANSLATIONS = {
             match_modal_worst: "残念な相性",
             match_header_sub_best: "PERFECT MATCH",
             match_header_sub_worst: "WORST MATCH",
-            match_close: "閉じる"
+            match_close: "閉じる",
+            sound_modal_title: "イヤホン推奨だよ！🎧",
+            sound_modal_desc: "音がないと魅力半減かも…？<br>音量ONで楽しんでね！🔊",
+            sound_modal_btn: "準備OK！",
+            friend_match_title: "相性チェッカー",
+            friend_match_desc: "招待してくれた友達:",
+            friend_match_score: "バイブスコア:",
+            friend_match_btn_invite: "友達を招待して診断",
+            match_label_friend: "💌 Friend",
+            match_modal_friend: "友達との相性"
         },
         questions: [
             "新しい出会いしか勝たん！自分からガンガン誘うタイプ✨",
@@ -612,7 +639,16 @@ const TRANSLATIONS = {
             match_modal_worst: "Peor Pareja",
             match_header_sub_best: "PERFECT MATCH",
             match_header_sub_worst: "WORST MATCH",
-            match_close: "Cerrar"
+            match_close: "Cerrar",
+            sound_modal_title: "¿Traes audífonos? 🎧",
+            sound_modal_desc: "La música es el alma de este test.<br>Súbele al volumen para sentir la vibra. 🔊",
+            sound_modal_btn: "¡Listo, dale!",
+            friend_match_title: "Compatibilidad",
+            friend_match_desc: "Amix que te invitó:",
+            friend_match_score: "Puntaje:",
+            friend_match_btn_invite: "Invitar amix a comparar",
+            match_label_friend: "💌 Friend",
+            match_modal_friend: "Compatibilidad"
         },
         questions: [
             "Soy el CEO de hacer amigos nuevos. Si hay fiesta, yo soy el main character. 💅",
@@ -806,7 +842,14 @@ const TRANSLATIONS = {
             match_modal_worst: "Pior Par",
             match_header_sub_best: "PERFECT MATCH",
             match_header_sub_worst: "WORST MATCH",
-            match_close: "Fechar"
+            match_close: "Fechar",
+            sound_modal_title: "Tá de fone? 🎧",
+            sound_modal_desc: "A vibe não é a mesma sem som.<br>Aumenta aí pra curtir 100%! 🔊",
+            sound_modal_btn: "Bora!",
+            friend_match_title: "Compatibilidade",
+            friend_match_desc: "Sua vibe com:",
+            friend_match_score: "Nota:",
+            friend_match_btn_invite: "Chamar amigo pra testar"
         },
         questions: [
             "Conhecer gente nova é minha religião. Onde tem rolê, eu tô lá agitando! 🥳",
@@ -992,7 +1035,22 @@ const TRANSLATIONS = {
             btn_main: "Ke Menu Utama",
             disclaimer: "Tes ini cuma buat seru-seruan aja, nggak ada hubungannya sama MBTI® resmi.",
             vibe_collection: "Koleksi Vibe",
-            share_error: "Gagal menyimpan gambar."
+            share_error: "Gagal menyimpan gambar.",
+            match_label_best: "💖 Bestie Sejati",
+            match_label_worst: "💔 Musuh Bebuyutan",
+            match_click: "Cek kecocokan",
+            match_modal_best: "Kita tuh sefrekuensi!",
+            match_modal_worst: "Vibe kita tabrakan...",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "Tutup",
+            sound_modal_title: "Pake Earphone Dong 🎧",
+            sound_modal_desc: "Serius, ini tes musik.<br>Kalo ga ada suaranya, kurang nendang! 🔊",
+            sound_modal_btn: "Oke, Gaskeun!",
+            friend_match_title: "Cek Cocoklogi",
+            friend_match_desc: "Kecocokan lo sama:",
+            friend_match_score: "Skor Vibe:",
+            friend_match_btn_invite: "Ajak Temen Cek Vibe"
         },
         questions: [
             "Gue suka banget ketemu orang baru dan jadi leader di tongkrongan.",
@@ -1178,7 +1236,22 @@ const TRANSLATIONS = {
             btn_main: "Về Trang Chủ",
             disclaimer: "Bài test này chỉ để giải trí, không liên quan đến trắc nghiệm MBTI® chính thức.",
             vibe_collection: "Bộ Sưu Tập Vibe",
-            share_error: "Lưu ảnh thất bại."
+            share_error: "Lưu ảnh thất bại.",
+            match_label_best: "💖 Cạ Cứng",
+            match_label_worst: "💔 Khắc Tinh",
+            match_click: "Xem độ hợp",
+            match_modal_best: "Hợp Nhau Đến Lạ",
+            match_modal_worst: "Trái Dấu Hút Nhau?",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "Đóng",
+            sound_modal_title: "Đeo Tai Nghe Vào Nhé 🎧",
+            sound_modal_desc: "Không có nhạc là mất 50% trải nghiệm.<br>Bật volume lên nào! 🔊",
+            sound_modal_btn: "Okela, Chiến Luôn!",
+            friend_match_title: "So Kèo Vibe",
+            friend_match_desc: "Độ hợp của bạn với:",
+            friend_match_score: "Điểm Vibe:",
+            friend_match_btn_invite: "Rủ Bạn Check Vibe"
         },
         questions: [
             "Tui thích gặp gỡ người mới và cầm trịch các cuộc vui.",
@@ -1364,7 +1437,22 @@ const TRANSLATIONS = {
             btn_main: "回到主頁",
             disclaimer: "本測驗僅供娛樂，與官方 MBTI® 評量無關。",
             vibe_collection: "Vibe 圖鑑",
-            share_error: "圖片儲存失敗。"
+            share_error: "圖片儲存失敗。",
+            match_label_best: "💖 天生一對",
+            match_label_worst: "💔 八字不合",
+            match_click: "點擊看默契",
+            match_modal_best: "靈魂伴侶",
+            match_modal_worst: "相愛相殺",
+            match_header_sub_best: "PERFECT MATCH",
+            match_header_sub_worst: "WORST MATCH",
+            match_close: "關閉",
+            sound_modal_title: "耳機戴好了嗎？🎧",
+            sound_modal_desc: "沒音樂就沒靈魂了！<br>把聲音打開體驗最佳 Vibe。🔊",
+            sound_modal_btn: "準備好了！",
+            friend_match_title: "默契大考驗",
+            friend_match_desc: "你跟他的契合度：",
+            friend_match_score: "Vibe 分數：",
+            friend_match_btn_invite: "邀請朋友測測看"
         },
         questions: [
             "我喜歡認識新朋友，通常是聚會中的氣氛擔當。",
