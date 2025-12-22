@@ -25,30 +25,16 @@ if (imageMatches) {
     uniqueImages.forEach(imgStr => {
         // imgStr is like "assets/icon_istj.png"
         const relativePath = imgStr.replace(/"/g, '');
-        const filename = path.basename(relativePath);
+        // const filename = path.basename(relativePath); // Not needed for URL replacement
 
-        // Look for the RESIZED image in assets/dist
-        const resizedPath = path.join(baseDir, 'assets', 'dist', filename);
-        const originalPath = path.join(baseDir, 'assets', filename);
+        // CDN URL (GitHub Pages)
+        const cdnUrl = `https://betelgeuze-kang.github.io/-1/${relativePath}`;
 
-        let targetPath = originalPath;
-        if (fs.existsSync(resizedPath)) {
-            console.log(`Using resized image for: ${filename}`);
-            targetPath = resizedPath;
-        } else {
-            console.warn(`Resized image not found, using original: ${filename}`);
-        }
+        console.log(`Replacing ${relativePath} -> ${cdnUrl}`);
 
-        if (fs.existsSync(targetPath)) {
-            const imgData = fs.readFileSync(targetPath);
-            const base64Image = `data:image/png;base64,${imgData.toString('base64')}`;
-
-            // Replace ALL occurrences in resultsJs
-            // We use split/join for simple global replacement of the specific string
-            resultsJs = resultsJs.split(relativePath).join(base64Image);
-        } else {
-            console.error(`Image file not found: ${targetPath}`);
-        }
+        // Replace ALL occurrences in resultsJs
+        // We use split/join for simple global replacement of the specific string
+        resultsJs = resultsJs.split(relativePath).join(cdnUrl);
     });
 }
 
