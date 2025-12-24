@@ -2,13 +2,13 @@ const TRANSLATIONS = {
     // 1. 한국어 (Original MZ)
     kr: {
         ui: {
-            title_main: "나의 음악 성격 찾기",
-            title_sub: "내 성격과 싱크로율 100%",
-            desc_html: "나의 진짜 성격에 딱 맞는<br><span class='text-amber-300 font-bold drop-shadow-glow'>음악을 매칭해보세요</span> 👻<br><span class='text-xs opacity-70 mt-2 block font-mono'>#취향저격 #성격분석 #바이브체크</span>",
-            btn_start: "나의 바이브 확인하기",
+            title_main: "<span class='text-white'>내 안의</span><br><span class='text-white'>숨겨진</span><br><span class='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-amber-300'>BGM 찾기 🎧</span>",
+            title_sub: "",
+            desc_html: "내가 주인공인 영화가 있다면,<br><span class='text-amber-300 font-bold drop-shadow-glow'>이 노래가 OST일 확률 1000%</span> 🎬✨<br><span class='text-xs opacity-70 mt-2 block font-mono'>#도파민충전 #성격테스트 #바이브분석</span>",
+            btn_start: "내 바이브 확인하러 가기 🔥",
             btn_all_types: "전체 유형 카드 보기",
-            loading_text: "당신의 영혼을 분석하는 중...",
-            loading_sub: "잠시만 기다려주세요...",
+            loading_text: "당신의 뇌파를 튜닝하는 중... 📡",
+            loading_sub: "소울 분석중... 잠시만 기다려주세요",
             result_title: "나의 음악적 페르소나는?",
             result_pro: "이런 점이 쩔어요 (Good)",
             result_con: "이건 좀 조심... (Bad)",
@@ -39,7 +39,70 @@ const TRANSLATIONS = {
             friend_match_score: "궁합 점수:",
             friend_match_btn_invite: "친구 초대하고 궁합 보기",
             match_label_friend: "💌 Friend",
-            match_modal_friend: "친구와의 궁합 분석"
+            match_modal_friend: "친구와의 궁합 분석",
+            rarity_label: "✨ Vibe Rarity: Top",
+            footer_copy: "© 2025 Music Vibe Test. All rights reserved.",
+            btn_share_friend: "나랑 찰떡인 친구 찾기 (공유)",
+            saving_img: "고화질 카드 인화 중... 📸",
+            footer_privacy: "개인정보 처리방침",
+            footer_terms: "이용약관",
+            footer_contact: "문의하기",
+            about_title: "테스트 소개 (About)",
+            about_content: `
+                <div class='text-left space-y-6 text-gray-300 text-[13px] leading-relaxed break-keep'>
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='microscope' class='w-4 h-4'></i> 1. 음악 성향 테스트의 과학적 배경
+                        </h4>
+                        <p>음악적 선호도는 단순한 유행이 아니라 개인의 심리적 기제와 밀접하게 연결되어 있습니다. 본 테스트는 케임브리지 대학의 데이비드 그린버그(David Greenberg) 박사 등이 연구한 <strong>'음악적 성격 이론'</strong>을 기반으로 설계되었습니다. 공감 능력이 뛰어난 '공감주의자(Empathizers)'는 부드럽고 감성적인 음악을, 시스템의 규칙을 중시하는 '체계주의자(Systemizers)'는 구조적으로 복잡한 재즈나 클래식을 선호한다는 이론적 가설을 MBTI 16가지 성격 유형과 매칭하였습니다.</p>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='audio-lines' class='w-4 h-4'></i> 2. 성격 유형별 주파수 분석 (Vibe Analysis)
+                        </h4>
+                        <p>우리는 단순히 장르를 묻지 않습니다. 사용자가 선택하는 답변 속에서 다음 3가지 핵심 요소를 추출합니다:</p>
+                        <ul class='list-disc ml-5 space-y-2 mt-2 opacity-80'>
+                            <li><strong>에너지 인덱스 (BPM & Dynamics)</strong>: 외향적 에너지(E)는 높은 에너지를 가진 댄스나 힙합의 파동과 일치하며, 내향적 에너지(I)는 고요한 앰비언트나 로파이(Lo-fi)의 파동에 공명합니다.</li>
+                            <li><strong>추상성 지수 (Texture & Lyrics)</strong>: 직관형(N)은 은유가 풍부한 가사와 몽환적인 신디사이저 사운드에, 감각형(S)은 직관적인 가사와 선명한 악기 구성에 더 큰 매력을 느낍니다.</li>
+                            <li><strong>정서적 공명 (Harmony & Tone)</strong>: 감정형(F)은 멜로디의 화성과 호소력에, 사고형(T)은 곡의 구성과 기술적 완성도에 집중하는 경향을 반영합니다.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='shield-check' class='w-4 h-4'></i> 3. 검사 결과의 전문성과 활용
+                        </h4>
+                        <p><strong>Music Vibe Test</strong>의 결과는 단순한 오락을 넘어, 자신의 내면 세계를 시각적·청각적으로 이해하는 도구로 활용될 수 있습니다. 16가지의 독창적인 'Vibe Card'는 각 성격 유형이 가진 고유의 미학과 철학을 담고 있으며, 이는 사용자가 일상에서 영감을 얻거나 타인과 깊이 공감하는 새로운 통로가 될 것입니다.</p>
+                    </section>
+
+                    <section class='pt-4 border-t border-white/5'>
+                        <p class='text-gray-500 italic text-[11px]'>※ 본 서비스는 MBTI®의 공식 검사를 대체할 수 없으며, 심리학적 데이터를 현대적인 음악 알고리즘으로 재해석한 창작물임을 밝힙니다.</p>
+                    </section>
+                </div>
+            `,
+            legal_privacy_content: `
+                <h3 class='text-xl font-bold mb-4'>개인정보 처리방침</h3>
+                <div class='text-left space-y-4 text-sm text-gray-400'>
+                    <p>본 사이트('Music Vibe Test')는 사용자의 개인정보를 중요하게 생각하며, 관련 법령을 준수합니다.</p>
+                    <p><strong>1. 수집 항목:</strong> 본 테스트는 사용자의 이름을 제외한 어떠한 개인 식별 정보도 서버에 저장하지 않습니다. 테스트 결과는 브라우저 내에서만 처리됩니다.</p>
+                    <p><strong>2. 쿠키 사용:</strong> 서비스 개선 및 분석(Google Analytics)을 위해 쿠키가 사용될 수 있습니다.</p>
+                    <p><strong>3. 광고 관련:</strong> 본 사이트는 Google AdSense를 통해 광고를 게재하며, Google은 사용자의 방문 기록을 바탕으로 맞춤형 광고를 제공하기 위해 쿠키를 사용합니다.</p>
+                </div>
+            `,
+            legal_terms_content: `
+                <h3 class='text-xl font-bold mb-4'>이용약관</h3>
+                <div class='text-left space-y-4 text-sm text-gray-400'>
+                    <p>1. 본 서비스는 오락 목적으로 제공되며, 결과에 대한 법적 책임은 지지 않습니다.</p>
+                    <p>2. 사용자는 본 서비스가 제공하는 결과 카드를 자유롭게 공유할 수 있습니다.</p>
+                    <p>3. 무단 복제 및 상업적 이용은 금지됩니다.</p>
+                </div>
+            `,
+            cookie_text: "우리는 서비스 개선을 위해 쿠키를 사용합니다. 🍪",
+            cookie_btn: "확인",
+            pwa_install: "앱으로 설치하기",
+            preview_title: "이미지 미리보기",
+            preview_btn: "갤러리에 저장",
         },
         questions: [
             "새로운 모임? 완전 내 무대지. 분위기 띄우는 건 내 담당! 🙋‍♀️",
@@ -242,7 +305,70 @@ const TRANSLATIONS = {
             friend_match_score: "Vibe Score:",
             friend_match_btn_invite: "Invite Bestie to Compare",
             match_label_friend: "💌 Friend",
-            match_modal_friend: "Friend Compatibility"
+            match_modal_friend: "Friend Compatibility",
+            rarity_label: "✨ Vibe Rarity: Top",
+            footer_copy: "© 2025 Music Vibe Test. All rights reserved.",
+            btn_share_friend: "Find My Vibe Twin (Share)",
+            saving_img: "Developing HD Card... 📸",
+            footer_privacy: "Privacy Policy",
+            footer_terms: "Terms of Service",
+            footer_contact: "Contact",
+            about_title: "About the Test",
+            about_content: `
+                <div class='text-left space-y-6 text-gray-300 text-[13px] leading-relaxed break-keep'>
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='microscope' class='w-4 h-4'></i> 1. The Psychological Foundation of Musical Preferences
+                        </h4>
+                        <p>Music preference is not merely a matter of taste; it is deeply rooted in individual psychological mechanisms. This test is designed based on the <strong>'Musical Persona Theory'</strong> researched by specialists like Dr. David Greenberg from the University of Cambridge. The theory suggests that 'Empathizers' prefer mellow and emotional music, while 'Systemizers' who value structure and rules favor complex genres like jazz or classical. We have mapped these scientific hypotheses to the 16 MBTI personality types.</p>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='audio-lines' class='w-4 h-4'></i> 2. The Vibe Analysis Framework
+                        </h4>
+                        <p>We do more than just ask about your favorite genres. We extract three core elements from your responses to determine your sonic signature:</p>
+                        <ul class='list-disc ml-5 space-y-2 mt-2 opacity-80'>
+                            <li><strong>Energy Index (BPM & Dynamics)</strong>: Extroverted energy (E) aligns with the high-energy waves of dance or hip-hop, while introverted energy (I) resonates with the tranquility of ambient or lo-fi soundscapes.</li>
+                            <li><strong>Texture & Abstraction</strong>: Intuitives (N) are often drawn to metaphorical lyrics and ethereal synthesizer textures, whereas Sensors (S) find more resonance in literal storytelling and clear, acoustic instrumentation.</li>
+                            <li><strong>Harmonic Resonance</strong>: Feelers (F) tend to focus on the emotional warmth of melodies and harmonies, while Thinkers (T) appreciate the technical complexity and structural integrity of a composition.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='shield-check' class='w-4 h-4'></i> 3. Professional Insight & Use Case
+                        </h4>
+                        <p>The <strong>Music Vibe Test</strong> serves as a tool for understanding your inner self through a visual and auditory lens. Each of the 16 unique 'Vibe Cards' encapsulates the specific aesthetics and philosophy of a personality type, providing a new way for users to find inspiration in daily life and connect more deeply with others through the universal language of music.</p>
+                    </section>
+
+                    <section class='pt-4 border-t border-white/5'>
+                        <p class='text-gray-500 italic text-[11px]'>* This service is intended for entertainment and self-reflection. It is not an official MBTI® assessment but a creative interpretation using modern musical algorithms.</p>
+                    </section>
+                </div>
+            `,
+            legal_privacy_content: `
+                <h3 class='text-xl font-bold mb-4'>Privacy Policy</h3>
+                <div class='text-left space-y-4 text-sm text-gray-400'>
+                    <p>At 'Music Vibe Test', we take your privacy seriously. This policy outlines how we handle your data.</p>
+                    <p><strong>1. Data Collection:</strong> We do not store any personally identifiable information (PII) on our servers, excluding names optionally provided for results. All processing happens locally in your browser.</p>
+                    <p><strong>2. Cookies:</strong> We may use cookies for performance tracking and Google Analytics to improve user experience.</p>
+                    <p><strong>3. Advertising:</strong> This site uses Google AdSense. Google uses cookies to serve ads based on your prior visits to this or other websites.</p>
+                </div>
+            `,
+            legal_terms_content: `
+                <h3 class='text-xl font-bold mb-4'>Terms of Service</h3>
+                <div class='text-left space-y-4 text-sm text-gray-400'>
+                    <p>1. This service is provided for entertainment purposes. We are not liable for any decisions made based on the test results.</p>
+                    <p>2. Users are free to share their result cards for personal use on social media.</p>
+                    <p>3. Unauthorized commercial use or redistribution of the test's assets is prohibited.</p>
+                </div>
+            `,
+            cookie_text: "We use cookies to improve your experience. 🍪",
+            cookie_btn: "Got it",
+            pwa_install: "Install App",
+            preview_title: "Image Preview",
+            preview_btn: "Save to Gallery",
         },
         questions: [
             "I'm the CEO of making plans and dragging friends out.",
