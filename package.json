@@ -5,7 +5,7 @@
   "main": "build_codepen.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tailwindcss -i ./input.css -o ./style.css --minify"
+    "build": "tailwindcss -i ./input.css -o ./styles.css --minify"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,8 @@
   "homepage": "https://github.com/betelgeuze-kang/-1#readme",
   "devDependencies": {
     "tailwindcss": "^3.4.17"
+  },
+  "dependencies": {
+    "jimp": "^1.6.0"
   }
 }
