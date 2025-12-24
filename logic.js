@@ -420,6 +420,11 @@ function calculateResult() {
 
         finalResult = { ...baseData, ...localData, mbti: finalMbti };
 
+        // Deep Merge for 'match' to preserve IDs from baseData and Descs from localData
+        if (baseData.match && localData.match) {
+            finalResult.match = { ...baseData.match, ...localData.match };
+        }
+
         // [UI Enhancement] Match background to result
         updateBackground(finalResult.color);
 
@@ -466,6 +471,11 @@ function selectTypeAndShowResult(mbtiKey) {
         : {};
 
     finalResult = { ...baseData, ...localData, mbti: finalMbti };
+
+    // Deep Merge for 'match' to preserve IDs from baseData and Descs from localData
+    if (baseData.match && localData.match) {
+        finalResult.match = { ...baseData.match, ...localData.match };
+    }
 
     renderScreen('result');
 }
@@ -575,7 +585,7 @@ function renderResult() {
                         <!-- Rarity Badge (Viral) -->
                         <div class="inline-block px-3 py-1 bg-gradient-to-r from-amber-200/20 to-yellow-400/20 rounded-full mb-3 border border-amber-300/30 backdrop-blur-md ml-2">
                              <span class="text-[11px] font-bold text-amber-300 tracking-widest drop-shadow-sm">
-                                ${T.rarity_label} ${finalResult.rarity || '5%'}
+                                ${T.rarity_label} ${finalResult.rarity || 'Unknown'}
                              </span>
                         </div>
 
@@ -628,7 +638,6 @@ function renderResult() {
 
                         <div class="grid grid-cols-1 gap-4">
                             <!-- Strengths: Adaptive Color (Matches Result) -->
-                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group transition-colors hover:border-white/30">
                                 <div class="absolute inset-0 bg-gradient-to-br ${finalResult.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                                 <h4 class="flex items-center gap-2 text-md font-bold mb-4 relative z-10">
                                     <i data-lucide="zap" class="w-5 h-5 text-transparent bg-clip-text bg-gradient-to-br ${finalResult.color}"></i> 
@@ -644,25 +653,25 @@ function renderResult() {
                                 </ul>
                             </div>
 
-                            <!-- Weaknesses: Consistent Rose/Red -->
-                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-red-500/30 transition-colors">
-                                <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <h4 class="flex items-center gap-2 text-md font-bold text-rose-300 mb-4 relative z-10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
-                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 fill-rose-400/20"></i> ${T.result_con}
-                                </h4>
-                                <ul class="space-y-3 list-none p-0 relative z-10">
-                                    ${finalResult.cons.map(c => `
+                            <!--Weaknesses: Consistent Rose / Red-- >
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-red-500/30 transition-colors">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <h4 class="flex items-center gap-2 text-md font-bold text-rose-300 mb-4 relative z-10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 fill-rose-400/20"></i> ${T.result_con}
+            </h4>
+            <ul class="space-y-3 list-none p-0 relative z-10">
+                ${finalResult.cons.map(c => `
                                         <li class="flex items-start gap-3">
                                             <div class="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shadow-[0_0_8px_rgba(251,113,133,0.8)] shrink-0"></div>
                                             <span class="text-gray-300 text-[13px] leading-relaxed break-keep font-medium opacity-90">${c}</span>
                                         </li>
                                     `).join('')}
-                                </ul>
-                            </div>
-                        </div>
+            </ul>
+        </div>
+                        </div >
                         
-                        <!-- Match & Mismatch (Viral) -->
-                        ${bestType && worstType ? `
+                        < !--Match & Mismatch(Viral)-- >
+        ${bestType && worstType ? `
                         <!-- Match & Mismatch (Mini LP Ver.) -->
                         <div class="grid grid-cols-2 gap-4 mt-8 mb-2 w-full">
                             <!-- Best Match (or Friend Match) -->
@@ -688,7 +697,7 @@ function renderResult() {
                                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div class="text-[11px] font-black text-blue-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${T.match_label_worst}</div>
                                 
-                                <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear">
+                                <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear overflow-hidden">
                                     <div class="absolute inset-0 rounded-full border-[3px] border-white/10"></div>
                                     <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative">
                                         <img src="${worstData ? worstData.image : ''}" class="w-full h-full object-cover opacity-80 backdrop-grayscale">
@@ -700,89 +709,97 @@ function renderResult() {
                                 <div class="text-[0.6rem] text-blue-200/60 mt-1 relative z-10">${T.match_click}</div>
                             </div>
                         </div>
-                        ` : ''}
+                        ` : ''
+        }
 
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-3 w-full max-w-sm">
-                    <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
-                    </button>
-                    
-                    <div class="flex gap-2">
-                         <button onclick="location.reload()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
-                           ${T.btn_retry}
-                        </button>
-                         <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
-                           ${T.btn_share}
-                        </button>
-                    </div>
-                     <button onclick="renderIntro()" class="w-full text-gray-500 text-[10px] uppercase font-bold tracking-widest hover:text-white mt-2 transition-colors">
-                        ${T.btn_main}
-                    </button>
-                    <p class="text-[10px] text-gray-600 text-center px-4 leading-tight mt-4 opacity-50">
-                        ${T.disclaimer}
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Match Detail Modal -->
-            <div id="match-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeMatchModal()"></div>
-        <div class="relative bg-[#1a1a1c] border border-white/10 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl animate-slide-up overflow-hidden">
-            <!-- Background Glow -->
-            <div id="modal-glow" class="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-purple-500/20 rounded-full blur-[60px] pointer-events-none"></div>
-
-            <!-- Close Button -->
-            <button onclick="closeMatchModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-2 z-20">
-                <i data-lucide="x" class="w-6 h-6"></i>
+        <div class="flex flex-col gap-3 w-full max-w-sm">
+            <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
             </button>
 
-            <!-- Content -->
-            <div class="flex flex-col items-center text-center relative z-10 mt-2">
-                <div id="modal-header" class="mb-6">
-                    <!-- Dynamic Header -->
-                </div>
-
-                <div class="flex items-center justify-center gap-4 mb-6 w-full">
-                    <!-- My LP -->
-                    <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
-                        <img src="${finalResult.image}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/20"></div>
-                    </div>
-
-                    <!-- Connection Icon -->
-                    <div id="modal-conn-icon" class="text-2xl animate-pulse">
-                        💖
-                    </div>
-
-                    <!-- Match LP -->
-                    <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
-                        <img id="modal-match-img" src="" class="w-full h-full object-cover">
-                    </div>
-                </div>
-
-                <h3 id="modal-match-title" class="text-xl font-black text-white mb-4 tracking-tight">
-                    <!-- Dynamic Genre Name -->
-                </h3>
-
-                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
-
-                <div class="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    <p id="modal-desc" class="text-gray-300 text-[0.95rem] leading-7 break-keep font-light text-left">
-                        <!-- Detailed Description -->
-                    </p>
-                </div>
-
-                <button onclick="closeMatchModal()" class="mt-6 w-full py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all">
-                    ${T.match_close}
+            <div class="flex gap-2">
+                <button onclick="location.reload()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+                    ${T.btn_retry}
+                </button>
+                <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+                    ${T.btn_share}
                 </button>
             </div>
+
+            <!-- [Feature] See Other Types Button -->
+            <button onclick="renderAllTypes()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2">
+                <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
+                ${T.btn_all_types || "All Vibe Types"}
+            </button>
+
+            <button onclick="renderIntro()" class="w-full text-gray-500 text-[10px] uppercase font-bold tracking-widest hover:text-white mt-2 transition-colors">
+                ${T.btn_main}
+            </button>
+            <p class="text-[10px] text-gray-600 text-center px-4 leading-tight mt-4 opacity-50">
+                ${T.disclaimer}
+            </p>
         </div>
-    </div>
-`;
+            </div>
+            
+            <!--Match Detail Modal-->
+        <div id="match-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeMatchModal()"></div>
+            <div class="relative bg-[#1a1a1c] border border-white/10 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl animate-slide-up overflow-hidden">
+                <!-- Background Glow -->
+                <div id="modal-glow" class="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-purple-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+
+                <!-- Close Button -->
+                <button onclick="closeMatchModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-2 z-20">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+
+                <!-- Content -->
+                <div class="flex flex-col items-center text-center relative z-10 mt-2">
+                    <div id="modal-header" class="mb-6">
+                        <!-- Dynamic Header -->
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 mb-6 w-full">
+                        <!-- My LP -->
+                        <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
+                            <img src="${finalResult.image}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/20"></div>
+                        </div>
+
+                        <!-- Connection Icon -->
+                        <div id="modal-conn-icon" class="text-2xl animate-pulse">
+                            💖
+                        </div>
+
+                        <!-- Match LP -->
+                        <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
+                            <img id="modal-match-img" src="" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+
+                    <h3 id="modal-match-title" class="text-xl font-black text-white mb-4 tracking-tight">
+                        <!-- Dynamic Genre Name -->
+                    </h3>
+
+                    <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
+
+                    <div class="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        <p id="modal-desc" class="text-gray-300 text-[0.95rem] leading-7 break-keep font-light text-left">
+                            <!-- Detailed Description -->
+                        </p>
+                    </div>
+
+                    <button onclick="closeMatchModal()" class="mt-6 w-full py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all">
+                        ${T.match_close}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
     // Safe Lucide Init
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
@@ -895,51 +912,63 @@ function stopAudio() {
 
 // [All Types] 전체 유형 보기 (Mini LP Collection Style)
 function renderAllTypes() {
-    const typesHTML = Object.entries(RESULTS_DATA).map(([key, data]) => `
-    <div onclick="selectTypeAndShowResult('${key}')" class="group relative flex flex-col items-center text-center p-4 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-black/40 hover:-translate-y-1.5 shadow-lg hover:shadow-2xl overflow-hidden">
+    triggerHaptic();
+    const localResults = TRANSLATIONS[currentLang].results || {};
+    const T = TRANSLATIONS[currentLang].ui;
+
+    const typesHTML = Object.entries(RESULTS_DATA).map(([key, data]) => {
+        const localData = localResults[key] || {};
+        // Merge localized data (genre, subTitle, etc.)
+        const finalData = { ...data, ...localData };
+
+        return `
+        <div onclick="selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="group relative flex flex-col items-center text-center p-4 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-black/40 hover:-translate-y-1.5 shadow-lg hover:shadow-2xl overflow-hidden">
             
-            <!-- Adaptive Glow -->
-            <div class="absolute inset-0 bg-gradient-to-br ${data.color} opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
+            <!--Adaptive Glow-->
+            <div class="absolute inset-0 bg-gradient-to-br ${finalData.color} opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
             
-            <!-- Mini LP Design -->
+            <!--Mini LP Design-->
             <div class="relative w-24 h-24 mb-4 rounded-full shadow-xl group-hover:scale-105 transition-transform duration-500 ease-out shrink-0">
                  <!-- Vinyl Ring (Adaptive Color) -->
-                 <div class="absolute -inset-1 rounded-full bg-gradient-to-br ${data.color} opacity-40 blur-md group-hover:opacity-70 transition-opacity"></div>
-                 <div class="absolute -inset-[2px] rounded-full bg-gradient-to-br ${data.color} opacity-80"></div>
+                 <div class="absolute -inset-1 rounded-full bg-gradient-to-br ${finalData.color} opacity-40 blur-md group-hover:opacity-70 transition-opacity"></div>
+                 <div class="absolute -inset-[2px] rounded-full bg-gradient-to-br ${finalData.color} opacity-80"></div>
                  
                  <!-- Album Art -->
                  <div class="absolute inset-0 rounded-full overflow-hidden border-2 border-[#1a1a1a] z-10 w-full h-full">
-                    <img src="${data.image}" alt="${data.genre}" class="w-full h-full object-cover opacity-90">
+                    <img src="${finalData.image}" alt="${finalData.genre}" class="w-full h-full object-cover opacity-90">
                  </div>
                  
                  <!-- Vinyl Hole -->
                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#1a1a1a] rounded-full z-20 border border-white/10 shadow-inner"></div>
             </div>
 
-            <!-- Text Content -->
+            <!--Text Content-->
             <div class="relative z-10 w-full">
                 <span class="inline-block px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase bg-black/50 border border-white/10 text-gray-400 mb-2 group-hover:text-white transition-colors shadow-sm">${key}</span>
-                <h3 class="text-sm font-bold text-gray-100 mb-1 leading-tight group-hover:text-amber-400 transition-all truncate px-1">${data.genre}</h3>
-                <p class="text-[10px] text-gray-500 line-clamp-1 group-hover:text-gray-300 transition-colors">${data.subTitle}</p>
+                <h3 class="text-sm font-bold text-gray-100 mb-1 leading-tight group-hover:text-amber-400 transition-all truncate px-1">${finalData.genre}</h3>
+                <p class="text-[10px] text-gray-500 line-clamp-1 group-hover:text-gray-300 transition-colors">${finalData.subTitle}</p>
             </div>
             
-            <!-- Play Icon Overlay -->
+            <!--Play Icon Overlay-->
             <div class="absolute top-4 right-4 text-white/0 group-hover:text-white/40 transition-all duration-300">
                 <i data-lucide="play-circle" class="w-4 h-4"></i>
             </div>
         </div>
-    `).join('');
+        `}).join('');
 
-    appContainer.innerHTML = `
-    <div class="h-full overflow-y-auto hide-scrollbar relative z-20 animate-fade-in flex flex-col bg-[#09090b]">
+    const modal = document.createElement('div');
+    modal.id = 'all-types-modal';
+    modal.className = 'fixed inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar';
+    modal.innerHTML = `
+        <div class="max-w-4xl mx-auto min-h-full flex flex-col">
              
-             <!-- Glass Header -->
-             <div class="sticky top-0 z-30 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between shadow-lg">
+             <!--Glass Header-->
+             <div class="sticky top-0 z-30 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between shadow-lg -mx-6 -mt-6 rounded-b-2xl mb-8">
                 <div class="flex items-center gap-3">
-                    <button onclick="goToIntro()" class="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+                    <button onclick="document.getElementById('all-types-modal').remove()" class="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     </button>
-                    <span class="text-lg font-black italic text-white tracking-tighter">${TRANSLATIONS[currentLang].ui.vibe_collection}</span>
+                    <span class="text-lg font-black italic text-white tracking-tighter">${T.vibe_collection || "Vibe Collection"}</span>
                 </div>
                 <div class="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
                     <i data-lucide="disc" class="w-3 h-3 text-amber-500"></i>
@@ -947,13 +976,14 @@ function renderAllTypes() {
                 </div>
              </div>
  
-             <!-- Grid Layout -->
-    <div class="p-5 grid grid-cols-2 gap-x-4 gap-y-6 pb-24">
-        ${typesHTML}
-    </div>
+             <!--Grid Layout-->
+             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-24 animate-slide-up">
+                ${typesHTML}
+             </div>
         </div>
-    `;
-    lucide.createIcons();
+        `;
+    document.body.appendChild(modal);
+    if (window.lucide) lucide.createIcons();
 }
 
 // 결과 공유하기
@@ -996,7 +1026,7 @@ window.saveImage = async function () {
     const T = TRANSLATIONS[currentLang].ui;
 
     // Set Loading State
-    btn.innerHTML = `<svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> ${T.saving_img}`;
+    btn.innerHTML = `< svg class="w-5 h-5 animate-spin" xmlns = "http://www.w3.org/2000/svg" width = "24" height = "24" viewBox = "0 0 24 24" fill = "none" stroke = "currentColor" stroke - width="2" stroke - linecap="round" stroke - linejoin="round" > <path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg > ${T.saving_img} `;
     btn.disabled = true;
 
     // 1. Prepare Export Logic
@@ -1020,15 +1050,15 @@ window.saveImage = async function () {
 
     // Enhanced Styling
     if (finalResult.color) {
-        exBg.className = `absolute inset-0 z-0 bg-gradient-to-br ${finalResult.color}`;
-        exGlow.className = `absolute inset-[-40px] rounded-full blur-[80px] opacity-60 bg-gradient-to-br ${finalResult.color}`;
+        exBg.className = `absolute inset - 0 z - 0 bg - gradient - to - br ${finalResult.color} `;
+        exGlow.className = `absolute inset - [-40px] rounded - full blur - [80px] opacity - 60 bg - gradient - to - br ${finalResult.color} `;
         exOverlay.style.background = finalResult.coverPattern || '';
     }
 
     // Dynamic Tags (Select 3 pros as tags)
     exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
-        <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
-    `).join('');
+        < span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90" > #${pro.split(' ').pop()}</span >
+            `).join('');
 
     // 2. Capture (Hidden but visible to html2canvas)
     exportCard.classList.remove('hidden');
@@ -1071,21 +1101,21 @@ function showPreviewModal(dataUrl) {
     modal.id = 'preview-modal';
     modal.className = 'fixed inset-0 z-[300] flex items-center justify-center p-6 animate-fade-in';
     modal.innerHTML = `
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closePreview()"></div>
-        <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
-            <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
-            
-            <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
-                <img src="${dataUrl}" class="w-full h-full object-contain">
-            </div>
+            < div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick = "closePreview()" ></div >
+                <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
+                    <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
 
-            <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
-                ${T.preview_btn}
-            </button>
-            <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
-                ${T.match_close}
-            </button>
-        </div>
+                    <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
+                        <img src="${dataUrl}" class="w-full h-full object-contain">
+                    </div>
+
+                    <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
+                        ${T.preview_btn}
+                    </button>
+                    <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
+                        ${T.match_close}
+                    </button>
+                </div>
     `;
     document.body.appendChild(modal);
 }
@@ -1110,9 +1140,24 @@ window.downloadCapturedImage = function (dataUrl) {
 // --- Viral Feature: Match Modal Logic ---
 window.openMatchModal = function (myTypeKey, targetType, isBest, isFriendOverride = false) {
     const T = TRANSLATIONS[currentLang].ui;
-    const myType = myTypeKey;
-    const myData = RESULTS_DATA[myType];
-    const targetData = RESULTS_DATA[targetType];
+
+    // Helper to get merged data (Deep merge for match)
+    const getMergedData = (key) => {
+        if (!key) return null;
+        const base = RESULTS_DATA[key];
+        const local = TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[key]
+            ? TRANSLATIONS[currentLang].results[key]
+            : {};
+
+        const merged = { ...base, ...local };
+        if (base.match && local.match) {
+            merged.match = { ...base.match, ...local.match };
+        }
+        return merged;
+    };
+
+    const myData = getMergedData(myTypeKey);
+    const targetData = getMergedData(targetType);
 
     const modal = document.getElementById('match-modal');
     const header = document.getElementById('modal-header');
@@ -1124,7 +1169,7 @@ window.openMatchModal = function (myTypeKey, targetType, isBest, isFriendOverrid
 
     // UI Reset/Set
     matchImg.src = targetData.image;
-    title.innerText = targetData.genre;
+    title.innerHTML = targetData.genre;
 
     if (isFriendOverride) {
         // [Viral] Friend Match Modal
@@ -1132,17 +1177,17 @@ window.openMatchModal = function (myTypeKey, targetType, isBest, isFriendOverrid
         header.innerHTML = `< span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1" > FRIEND CHECK</span > <span class="text-2xl font-black text-white">${fTitle}</span>`;
         connIcon.textContent = "💌";
         // Show the Friend's Persona Description
-        desc.innerText = targetData.desc;
+        desc.innerHTML = targetData.desc;
         glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-purple-500/20 animate-pulse";
     } else if (isBest) {
         header.innerHTML = `< span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1" > ${T.match_header_sub_best}</span > <span class="text-2xl font-black text-white">${T.match_modal_best}</span>`;
         connIcon.textContent = "💖";
-        desc.innerText = myData.match.bestDesc || "데이터 준비 중입니다...";
+        desc.innerHTML = myData.match.bestDesc || "데이터 준비 중입니다...";
         glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-pink-500/20 animate-pulse";
     } else {
         header.innerHTML = `< span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1" > ${T.match_header_sub_worst}</span > <span class="text-2xl font-black text-gray-300">${T.match_modal_worst}</span>`;
         connIcon.textContent = "💔";
-        desc.innerText = myData.match.worstDesc || "데이터 준비 중입니다...";
+        desc.innerHTML = myData.match.worstDesc || "데이터 준비 중입니다...";
         glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-blue-500/20 animate-pulse";
     }
 
@@ -1296,46 +1341,46 @@ window.renderFriendMatchCard = function (T) {
     }
 
     return `
-    < div class="w-full max-w-sm mb-6 animate-fade-in-down" >
-        <div class="glass-panel p-4 rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/40 to-black/40 relative overflow-hidden">
-            <div class="absolute inset-0 bg-white/5 animate-pulse-slow"></div>
+        < div class="w-full max-w-sm mb-6 animate-fade-in-down" >
+            <div class="glass-panel p-4 rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/40 to-black/40 relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/5 animate-pulse-slow"></div>
 
-            <div class="relative z-10 flex justify-between items-center mb-4">
-                <span class="text-xs font-bold text-gray-300 uppercase tracking-widest">${T.friend_match_title || "Friend Match"}</span>
-            </div>
+                <div class="relative z-10 flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold text-gray-300 uppercase tracking-widest">${T.friend_match_title || "Friend Match"}</span>
+                </div>
 
-            <div class="flex items-center justify-between gap-4">
-                <!-- Me -->
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 rounded-full border-2 border-purple-500 overflow-hidden shadow-lg">
-                        <img src="${finalResult.image}" class="w-full h-full object-cover">
+                <div class="flex items-center justify-between gap-4">
+                    <!-- Me -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-14 h-14 rounded-full border-2 border-purple-500 overflow-hidden shadow-lg">
+                            <img src="${finalResult.image}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400">YOU</span>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400">YOU</span>
-                </div>
 
-                <!-- Score -->
-                <div class="flex flex-col items-center">
-                    <span class="text-2xl font-black ${color} drop-shadow-glow">${score}%</span>
-                    <span class="text-[10px] uppercase font-bold text-white/50">${label}</span>
-                </div>
-
-                <!-- Friend -->
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 rounded-full border-2 border-gray-500 overflow-hidden shadow-lg grayscale opacity-80">
-                        <img src="${friendData.image}" class="w-full h-full object-cover">
+                    <!-- Score -->
+                    <div class="flex flex-col items-center">
+                        <span class="text-2xl font-black ${color} drop-shadow-glow">${score}%</span>
+                        <span class="text-[10px] uppercase font-bold text-white/50">${label}</span>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400">FRIEND</span>
+
+                    <!-- Friend -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-14 h-14 rounded-full border-2 border-gray-500 overflow-hidden shadow-lg grayscale opacity-80">
+                            <img src="${friendData.image}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400">FRIEND</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/10 text-center">
+                    <p class="text-xs text-gray-400 leading-tight">
+                        ${T.friend_match_desc || "Compatibility with:"} <span class="font-bold text-white">${friendData.genre}</span>
+                    </p>
                 </div>
             </div>
-
-            <div class="mt-4 pt-4 border-t border-white/10 text-center">
-                <p class="text-xs text-gray-400 leading-tight">
-                    ${T.friend_match_desc || "Compatibility with:"} <span class="font-bold text-white">${friendData.genre}</span>
-                </p>
-            </div>
-        </div>
     </div >
-    `;
+        `;
 }
 
 // 4. Update Share URL
@@ -1375,7 +1420,62 @@ window.shareResult = async function () {
 }
 
 
-// 5. Legal Modal Logic (Adsense Requirement)
+    }
+}
+
+// 5. View All Types Logic
+window.renderAllTypes = function () {
+    triggerHaptic();
+    const T = TRANSLATIONS[currentLang].ui;
+    const container = document.getElementById('screen-result');
+
+    // Create Modal Overlay
+    const modal = document.createElement('div');
+    modal.id = 'all-types-modal';
+    modal.className = 'fixed inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar';
+
+    // Grid Content
+    const types = Object.keys(RESULTS_DATA);
+    let gridHtml = '';
+
+    types.forEach(key => {
+        // We need merged data to get the localized Genre/Subtitle
+        const local = TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[key] ? TRANSLATIONS[currentLang].results[key] : {};
+        const base = RESULTS_DATA[key];
+        const merged = { ...base, ...local };
+
+        gridHtml += `
+        < div onclick = "window.location.href='?ref=${key}'" class="cursor-pointer glass-panel p-4 rounded-2xl border border-white/10 hover:border-white/40 hover:bg-white/5 transition-all active:scale-95 flex flex-col items-center text-center gap-3" >
+                <div class="w-16 h-16 rounded-full overflow-hidden shadow-lg border border-white/10">
+                    <img src="${merged.image}" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">${key}</h3>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest truncate max-w-[120px]">${merged.genre}</p>
+                </div>
+            </div >
+        `;
+    });
+
+    modal.innerHTML = `
+        < div class="max-w-4xl mx-auto" >
+            <div class="flex justify-between items-center mb-6 sticky top-0 bg-black/90 z-10 py-4 border-b border-white/10">
+                <h2 class="text-2xl font-black text-white italic tracking-tighter">${T.vibe_collection || "Vibe Collection"}</h2>
+                <button onclick="document.getElementById('all-types-modal').remove()" class="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-10 animate-slide-up">
+                ${gridHtml}
+            </div>
+        </div >
+        `;
+
+    document.body.appendChild(modal);
+}
+
+
+// 6. Legal Modal Logic (Adsense Requirement)
 window.showLegal = function (type) {
     const modal = document.getElementById('legal-modal');
     const content = document.getElementById('legal-content');
@@ -1415,10 +1515,10 @@ function showCookieBanner() {
 
     const T = TRANSLATIONS[currentLang].ui;
     banner.innerHTML = `
-        <div class="flex items-center gap-3 text-white/90 text-sm">
+        < div class="flex items-center gap-3 text-white/90 text-sm" >
             <span class="p-2 bg-amber-500/20 rounded-lg"><i data-lucide="cookie" class="w-5 h-5 text-amber-400"></i></span>
             <p>${T.cookie_text}</p>
-        </div>
+        </div >
         <button onclick="acceptCookies()" class="px-6 py-2 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap">
             ${T.cookie_btn}
         </button>
@@ -1464,21 +1564,21 @@ function showPreviewModal(dataUrl) {
     modal.id = 'preview-modal';
     modal.className = 'fixed inset-0 z-[300] flex items-center justify-center p-6 animate-fade-in';
     modal.innerHTML = `
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closePreview()"></div>
-        <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
-            <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
-            
-            <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
-                <img src="${dataUrl}" class="w-full h-full object-contain">
-            </div>
+        < div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick = "closePreview()" ></div >
+            <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
+                <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
 
-            <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
-                ${T.preview_btn}
-            </button>
-            <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
-                ${T.match_close}
-            </button>
-        </div>
+                <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
+                    <img src="${dataUrl}" class="w-full h-full object-contain">
+                </div>
+
+                <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
+                    ${T.preview_btn}
+                </button>
+                <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
+                    ${T.match_close}
+                </button>
+            </div>
     `;
     document.body.appendChild(modal);
 }

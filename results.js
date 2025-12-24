@@ -5,520 +5,150 @@ const RESULTS_DATA = {
     // Licensed under Creative Commons: By Attribution 4.0 License
     // http://creativecommons.org/licenses/by/4.0/
 
-    "ISTJ": {
-        genre: "CLASSIC & OST",
-        subTitle: "원칙을 지키는 클래식 마에스트로",
-        desc: `당신은 혼돈스러운 세상 속에서 흔들리지 않는 질서와 규율의 성벽을 쌓아 올리는 고결한 원칙주의자이자 침묵의 수행자입니다.\n\n심리학적으로 당신의 자아는 객관적인 사실과 검증된 데이터에 깊이 뿌리박혀 있으며, 예측 불가능한 감정이나 추상적인 개념보다는 만질 수 있는 현실과 지켜져야 할 전통에서 안정을 찾습니다. 타인들은 당신을 그저 보수적이거나 딱딱한 사람으로 오해할 수 있지만, 당신의 내면에는 그 누구보다 강한 책임감과 약속을 생명처럼 여기는 고귀한 신념이 흐르고 있습니다. 당신이 침묵하는 것은 할 말이 없어서가 아니라, 성급한 말보다는 완벽한 행동으로 증명하는 것이 옳다고 믿기 때문입니다.\n\n이러한 당신의 성향은 수백 년의 세월 동안 다듬어지고 정제된 클래식 음악이나, 완벽한 기승전결의 서사를 가진 영화 음악과 깊은 영혼의 공명을 일으킵니다. 클래식 음악의 엄격한 화성학적 규칙과 그 안에서 피어나는 절제된 아름다움은, 당신이 삶을 대하는 태도와 완벽하게 일치합니다.\n\n당신에게 이 음악은 단순한 청각적 유희가 아닙니다. 그것은 복잡하고 시끄러운 세상의 소음 속에서 당신의 지친 이성을 정화하는 성스러운 의식이며, 논리와 감성이 완벽한 균형을 이룰 때 느껴지는 지적 희열을 선사합니다. 장엄한 교향곡의 피날레처럼, 당신의 삶 또한 성실함과 인내 끝에 반드시 위대한 결실을 맺을 것입니다.`,
-        bestSong: "Divertimento K131",
+    "ISTJ": {        bestSong: "Night in Venice",
         color: "from-slate-900 via-gray-800 to-black",
         textColor: "text-slate-300",
-        image: "assets/icon_istj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Divertimento%20K131.mp3", // Classic
+        image: "assets/icon_istj.webp",
+        audioSrc: "assets/audio/Night_in_Venice.mp3", // Calm/Jazz
         coverPattern: "repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 10px)",
-        animClass: "animate-spin-slow",
-        pros: [
-            "한 번 맡은 일은 반드시 끝내는 불굴의 책임감",
-            "감정에 휘둘리지 않는 냉철하고 객관적인 판단력",
-            "복잡한 자료를 체계적으로 정리하는 탁월한 조직력",
-            "주변의 얕은 유행에 흔들리지 않는 굳건한 신념",
-            "위기 상황에서도 당황하지 않는 침착한 멘탈"
-        ],
-        cons: [
-            "급격한 변화나 예상치 못한 상황에 대한 스트레스",
-            "타인의 감정을 있는 그대로 공감하는 데 어려움",
-            "융통성이 부족하고 고집이 세다는 오해를 받음",
-            "스스로 설정한 지나치게 높은 기준에 의한 압박감",
-            "새로운 아이디어를 수용하는 데 시간이 걸림"
-        ],
-        match: {
-            best: "ESTP",
-            bestDesc: "이보다 더 완벽한 보완은 없습니다! 철저한 계획과 원칙을 중시하는 당신(ISTJ)에게, 톡톡 튀는 즉흥성과 거침없는 행동력을 가진 ESTP는 닫혀있던 세상의 문을 열어주는 열쇠와 같습니다. 당신이 설계도를 그리면 ESTP는 그것을 현실에 건설하는 환상의 콤비죠. 클래식의 정교함에 힙합의 비트가 더해진 듯한 이 조합은 지루할 틈 없는 시너지를 폭발시킵니다.",
-            worst: "ENFP",
-            worstDesc: "마치 물과 기름처럼 섞이기 힘든 관계입니다. 체계와 안정을 최우선으로 여기는 당신에게, 기분파에 계획이라곤 없는 ENFP의 자유분방함은 순수한 악몽으로 다가옵니다. 당신의 논리정연한 조언을 그들은 '잔소리'로, 그들의 창의적인 아이디어를 당신은 '망상'으로 치부하기 쉽습니다. 서로 이해하려면 우주를 건너는 노력이 필요할지도 모릅니다."
-        }
+        animClass: "animate-spin-slow",        rarity: "11.6%",
+        match: {             best: "ESTP",            worst: "ENFP",         }
     },
-    "ISFJ": {
-        genre: "ACOUSTIC BALLAD",
-        subTitle: "따뜻한 온기의 수호천사",
-        desc: `당신은 차가운 세상 속에서 타인의 상처를 가장 먼저 알아채고 보듬어주는 따뜻한 온기의 수호천사이자 헌신적인 치유자입니다.\n\n당신의 무의식 깊은 곳에는 타인에 대한 깊은 연민과 이타심이 내재되어 있으며, 자신의 안위보다 소중한 사람들의 행복을 지키기 위해 기꺼이 희생하는 고귀한 영혼을 지녔습니다. 심리학적 관점에서 당신은 감각적 공감 능력이 매우 발달하여, 상대방의 미세한 표정 변화나 목소리의 떨림까지도 감지해냅니다. 하지만 정작 자신의 내면이 곪아가는 것은 외면한 채, 타인의 기대에 부응하려다 소진되기 쉬운 여린 마음의 소유자이기도 합니다.\n\n화려한 기계음이나 자극적인 비트보다는, 사람의 숨결이 느껴지는 어쿠스틱 악기와 담백한 목소리가 어우러진 어쿠스틱 발라드가 당신의 영혼을 가장 부드럽게 어루만져 줍니다. 이 장르는 꾸미지 않은 순수함과 진정성을 담고 있어, 관계 속에서 지친 당신에게 너는 충분히 잘하고 있다는 위로의 메시지를 속삭입니다.\n\n당신에게 음악은 마음의 빗장을 풀고 쉴 수 있는 유일한 안식처입니다. 따뜻한 기타 선율이 공간을 채울 때, 당신은 비로소 타인을 향해 뻗어있던 신경을 거두고, 오롯이 당신 자신만을 위한 포근한 담요 같은 평온함을 느끼며 다시금 사랑할 힘을 얻게 될 것입니다.`,
-        bestSong: "Somewhere Sunny",
+    "ISFJ": {        bestSong: "Lobby Time",
         color: "from-amber-200 via-orange-300 to-amber-600",
         textColor: "text-amber-100",
-        image: "assets/icon_isfj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Somewhere%20Sunny.mp3", // Acoustic/Warm
+        image: "assets/icon_isfj.webp",
+        audioSrc: "assets/audio/Lobby_Time.mp3", // Smooth/Classy
         coverPattern: "radial-gradient(circle, rgba(255,255,255,0.2) 2px, transparent 2.5px)",
-        animClass: "animate-float-slow",
-        pros: [
-            "타인의 감정을 섬세하게 살피는 뛰어난 공감력",
-            "보이지 않는 곳에서 묵묵히 지원하는 헌신적 태도",
-            "사소한 디테일까지 기억하는 놀라운 기억력",
-            "안정적이고 조화로운 분위기를 만드는 평화주의자",
-            "맡은 역할에 대해 끝까지 책임을 다하는 성실함"
-        ],
-        cons: [
-            "거절을 잘 못하여 혼자서 과도한 짐을 짊어짐",
-            "비판을 개인적인 비난으로 받아들여 깊게 상처받음",
-            "자신의 욕구를 억누르다 내부에서 폭발할 수 있음",
-            "변화에 대한 두려움으로 현재 상태에 안주하려 함",
-            "지나치게 타인의 시선을 의식하여 위축될 수 있음"
-        ],
-        match: {
-            best: "ESFP",
-            bestDesc: "서로의 다정함이 배가 되는 힐링 조합입니다. 섬세하고 배려심 깊은 당신(ISFJ)과, 밝고 에너지 넘치는 ESFP는 만나자마자 따뜻한 온기를 나눕니다. 당신이 세심하게 챙겨주면 ESFP는 리액션 부자답게 확실한 사랑으로 보답하죠. 잔잔한 어쿠스틱 발라드 위에 트로피컬 하우스의 경쾌함이 얹힌 듯, 함께 있으면 세상 근심이 사라지는 포근한 관계입니다.",
-            worst: "ENTP",
-            worstDesc: "창과 방패의 싸움입니다. 전통과 조화를 중시하는 당신에게, 기존 질서를 뒤엎고 끊임없이 '왜?'라고 따지는 ENTP는 감당하기 벅찬 스트레스 유발자입니다. 당신의 배려를 그들은 당연하게 여기거나 논리적으로 분석하려 들어 상처를 줍니다. 당신의 따뜻한 감성이 그들의 차가운 논리에 얼어붙을 수 있으니 주의하세요."
-        }
+        animClass: "animate-float-slow",        rarity: "13.8%",
+        match: {             best: "ESFP",            worst: "ENTP",         }
     },
-    "INFJ": {
-        genre: "DREAM POP & SHOEGAZE",
-        subTitle: "심연을 들여다보는 예언자",
-        desc: `당신은 인구의 1%만이 공유하는 희귀한 영혼으로, 현실 너머의 본질을 꿰뚫어 보는 통찰력 있는 예언자이자 고독한 이상주의자입니다.\n\n겉으로 보이는 당신은 조용하고 신비로워 보이지만, 당신의 내면 우주는 그 어떤 드라마보다 격렬하고 방대합니다. 당신은 타인의 무의식적인 동기나 감정의 흐름을 본능적으로 감지하는 영적인 레이더를 지녔으며, 인류애와 도덕적 신념을 위해 끊임없이 고뇌합니다. 사람들은 당신이 너무 생각이 많다고 말하지만, 당신에게 생각은 멈출 수 없는 호흡과도 같습니다. 현실의 불완전함과 당신이 꿈꾸는 이상향 사이의 괴리는 때로 깊은 우울감을 주기도 하지만, 그것이 바로 당신이 가진 창조성의 원천입니다.\n\n몽환적인 리버브와 현실과 환상의 경계를 허무는 드림팝과 슈게이징 장르는 당신의 복잡한 내면 풍경을 소리로 그려낸 듯합니다. 층층이 쌓인 소리의 벽 속에서 당신은 말로 표현할 수 없는 감정의 해방을 느끼며, 비로소 물질적인 세계의 중력에서 벗어나 자유롭게 부유합니다.\n\n당신에게 음악은 우주와 교신하는 주파수와 같습니다. 그 신비로운 멜로디 속에서 당신은 타인은 결코 이해할 수 없는 영적인 깨달음을 얻고, 당신의 깊은 슬픔조차 아름다운 예술로 승화시키는 카타르시스를 경험합니다.`,
-        bestSong: "Fluidscape",
+    "INFJ": {        rarity: "1.5% (SUPER RARE!)",        bestSong: "Dreamy Flashback",
         color: "from-indigo-400 via-purple-400 to-indigo-800",
         textColor: "text-indigo-100",
-        image: "assets/icon_infj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluidscape.mp3", // Atmospheric/Dreamy
+        image: "assets/icon_infj.webp",
+        audioSrc: "assets/audio/Dreamy_Flashback.mp3", // Dreamy
         coverPattern: "linear-gradient(135deg, rgba(255,255,255,0.1) 25%, transparent 25%) -50px 0, linear-gradient(225deg, rgba(255,255,255,0.1) 25%, transparent 25%) -50px 0",
         coverSize: "100px 100px",
-        animClass: "animate-pulse-slow",
-        pros: [
-            "사물의 본질과 사람의 속마음을 꿰뚫는 통찰력",
-            "도덕적 신념과 인류애를 추구하는 고결한 가치관",
-            "복잡한 문제를 창의적이고 은유적으로 해결",
-            "깊이 있는 대화를 통해 타인에게 영감을 줌",
-            "계획적이고 단호하게 목표를 향해 나아가는 추진력"
-        ],
-        cons: [
-            "현실 감각이 부족하여 사소한 일상 관리에 소홀함",
-            "너무 높은 이상주의적 기준으로 인해 쉽게 좌절함",
-            "자신의 속마음을 좀처럼 드러내지 않아 이해받기 어려움",
-            "지나친 완벽주의로 스스로를 끊임없이 괴롭힘",
-            "갈등 상황을 극도로 회피하려다 문제를 키울 수 있음"
-        ],
-        match: {
-            best: "ENFP",
-            bestDesc: "서로의 영혼 깊은 곳을 알아보는 운명적인 만남입니다. 내면이 깊고 고요한 당신(INFJ)에게, 불꽃처럼 타오르는 열정의 ENFP는 당신이 꿈꾸던 이상향을 현실로 끌어내 줄 뮤즈입니다. 당신의 복잡한 속마음을 말하지 않아도 알아채는 직관의 텔레파시가 통하며, 몽환적인 드림팝과 시티팝이 만나 우주를 유영하는 듯한 신비로운 케미를 만들어냅니다.",
-            worst: "ESTJ",
-            worstDesc: "감성과 효율성의 정면충돌입니다. 보이지 않는 가치와 이상을 좇는 당신에게, 눈에 보이는 성과와 팩트만 따지는 ESTJ는 감정 없는 로봇처럼 느껴집니다. 당신의 섬세한 고민을 그들은 '시간 낭비'라고 일축해버리죠. 당신의 영혼이 그들의 강압적인 통제 속에 질식할 수도 있는 위험한 관계입니다."
-        }
+        animClass: "animate-pulse-slow",        match: {             best: "ENFP",            worst: "ESTJ",         }
     },
-    "INTJ": {
-        genre: "PROGRESSIVE ROCK",
-        subTitle: "차가운 이성의 설계자",
-        desc: `당신은 감정의 동요 없이 오직 논리와 전략만으로 미래를 설계하는 차가운 이성의 건축가이자 마스터마인드입니다.\n\n심리학적으로 당신의 사고 회로는 효율성과 시스템 개선에 최적화되어 있습니다. 당신에게 세상은 거대한 체스판과 같아서, 남들이 현재의 문제에 허덕일 때 당신은 이미 다섯 수 앞을 내다보고 승리를 위한 최적의 경로를 계산합니다. 권위나 관습 따위는 당신에게 중요하지 않으며, 오직 '그것이 논리적으로 타당한가?'만이 유일한 판단 기준입니다. 때로 오만하거나 냉소적이라는 평가를 받지만, 그것은 당신이 진실을 찾기 위해 불필요한 사교적 가식을 벗어던졌기 때문입니다.\n\n변칙적인 박자, 고도의 연주 테크닉, 그리고 철학적인 주제를 다루는 프로그레시브 락은 당신의 복잡하고 지적인 뇌를 자극하는 유일한 장르입니다. 뻔한 사랑 노래나 단순한 멜로디는 당신에게 지루한 소음일 뿐입니다.\n\n당신에게 음악은 감상하는 것이 아니라 해독하고 분석해야 할 고차원적인 퍼즐입니다. 정교하게 설계된 곡의 구조를 파악하고 그 안의 숨겨진 의도를 발견할 때, 당신은 단순한 쾌감을 넘어선 지적 희열을 느낍니다. 이 음악은 당신의 고독한 천재성을 증명하는 배경음악이며, 당신이 꿈꾸는 완벽한 시스템의 청각적 청사진입니다.`,
-        bestSong: "Hitman",
+    "INTJ": {        rarity: "2.1% (RARE)",        bestSong: "Tech Talk",
         color: "from-blue-600 via-blue-800 to-slate-900",
         textColor: "text-blue-200",
-        image: "assets/icon_intj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hitman.mp3", // Dark/Complex
+        image: "assets/icon_intj.webp",
+        audioSrc: "assets/audio/Tech_Talk.mp3", // Analytical/Driving
         coverPattern: "repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 4px)",
-        animClass: "animate-spin-slow",
-        pros: [
-            "복잡한 문제의 핵심을 파악하는 전략적 사고능력",
-            "장기적인 비전을 수립하고 실현하는 추진력",
-            "감정에 치우치지 않는 냉철하고 객관적인 결정",
-            "끊임없이 지식을 탐구하고 자기 계발에 힘씀",
-            "비효율적인 관습을 타파하는 혁신적인 마인드"
-        ],
-        cons: [
-            "타인의 감정을 고려하지 않는 직설적인 화법",
-            "자신의 지적 능력에 대한 오만함으로 비칠 수 있음",
-            "사소한 실수나 비논리적인 상황을 참지 못함",
-            "지나친 분석으로 인해 행동이 늦어질 수 있음",
-            "사회적 규범이나 예의를 무시하여 고립될 수 있음"
-        ],
-        match: {
-            best: "ENTP",
-            bestDesc: "지적 희열을 공유하는 천재들의 만남입니다. 치밀한 전략가인 당신(INTJ)과 기상천외한 발상가인 ENTP는 대화만으로도 밤을 새울 수 있는 최고의 지적 파트너입니다. 당신의 차가운 논리에 그들의 폭발적인 아이디어가 더해지면 세상을 바꿀 혁신이 탄생합니다. 프로그레시브 락의 난해함을 서로만이 이해하며 씩 웃을 수 있는 소름 돋는 관계입니다.",
-            worst: "ESFJ",
-            worstDesc: "외계인과 지구인의 대화 같습니다. 논리와 이성을 중시하는 당신에게, 감정과 친목 도모를 최우선으로 하는 ESFJ는 이해 불가한 존재입니다. 당신의 침묵을 그들은 무시로 받아들이고, 그들의 사교적 참견을 당신은 침해로 느낍니다. 서로가 추구하는 가치가 평행선처럼 영원히 만나지 못할 수도 있습니다."
-        }
+        animClass: "animate-spin-slow",        match: {             best: "ENTP",            worst: "ESFJ",         }
     },
-    "ISTP": {
-        genre: "TECHNO & GARAGE",
-        subTitle: "고독한 기술의 장인",
-        desc: `당신은 말이 아닌 행동으로, 이론이 아닌 실전 감각으로 세상을 조율하는 고독한 기술의 장인이자 만능 재주꾼입니다.\n\n심리학적으로 당신은 최소한의 노력으로 최대의 효율을 추구하는 에너지 절약형 천재입니다. 복잡한 감정싸움이나 형이상학적인 논쟁에는 하품을 하지만, 고장 난 기계를 고치거나 위기 상황을 돌파해야 할 때 당신의 눈빛은 무서울 정도로 예리하게 빛납니다. 당신은 그 누구의 간섭도 받지 않는 절대적인 자유를 갈망하며, 자신의 영역이 침범받는 것을 극도로 싫어하는 고양이 같은 독립성을 지녔습니다. 당신의 손과 감각은 현존하는 그 어떤 매뉴얼보다 정확합니다.\n\n기계적이고 반복적인 비트, 차가우면서도 세련된 질감의 테크노와 개러지 음악은 당신의 군더더기 없는 성향을 완벽하게 대변합니다. 감정을 강요하는 멜로디 없이, 오직 리듬과 소리의 질감만으로 승부하는 이 장르는 당신에게 최적의 몰입감을 선사합니다.\n\n당신에게 음악은 복잡한 머릿속을 비워주는 백색 소음이자, 심장 박동을 튜닝하는 도구입니다. 차가운 비트 위를 유영하며 당신은 세상의 모든 귀찮은 의무로부터 로그아웃하고, 오직 당신의 감각만이 살아 숨 쉬는 쿨하고 시크한 무아지경의 상태에 빠져들게 됩니다.`,
+    "ISTP": {        rarity: "5.4%",
         bestSong: "Ice Flow",
         color: "from-zinc-500 via-slate-700 to-black",
         textColor: "text-zinc-300",
-        image: "assets/icon_istp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ice%20Flow.mp3", // Cool/Techno
+        image: "assets/icon_istp.webp",
+        audioSrc: "assets/audio/Ice_Flow.mp3", // Phonk/Trap vibe
         coverPattern: "radial-gradient(rgba(255,255,255,0.1) 8%, transparent 8%)",
         coverSize: "20px 20px",
-        animClass: "animate-pulse-fast",
-        pros: [
-            "위기 상황에서 당황하지 않고 해결책을 찾는 순발력",
-            "도구나 기계를 다루는 탁월한 손재주와 감각",
-            "불필요한 감정 소모를 하지 않는 쿨한 태도",
-            "효율성을 극대화하여 빠르게 목표를 달성함",
-            "편견 없이 사실 그대로를 받아들이는 유연함"
-        ],
-        cons: [
-            "타인과의 감정적인 유대나 깊은 대화를 회피함",
-            "쉽게 지루함을 느껴 끈기 있게 마무리하지 못함",
-            "지나치게 위험을 감수하거나 스릴을 추구함",
-            "계획 없이 충동적으로 행동하여 주변을 불안하게 함",
-            "무표정하고 무뚝뚝하여 차갑다는 오해를 많이 받음"
-        ],
-        match: {
-            best: "ESTJ",
-            bestDesc: "군더더기 없는 최강의 효율 콤비입니다. 도구의 장인인 당신(ISTP)과 지휘관인 ESTJ는 감정 소모 없이 일 처리가 척척 맞는 환상의 짝꿍입니다. 당신이 기술적 해법을 제시하면 ESTJ는 그것을 대규모로 실행에 옮기죠. 쿨한 테크노 비트와 강렬한 락 사운드처럼, 서로의 영역을 침범하지 않으면서도 목표를 향해 무섭게 질주하는 파워풀한 조합입니다.",
-            worst: "ENFJ",
-            worstDesc: "너무 뜨거워서 데일 수 있는 관계입니다. 혼자만의 시간과 자유가 필수인 당신에게, 끊임없이 감정적 교류와 헌신을 요구하는 ENFJ는 숨 막히는 족쇄와 같습니다. 당신의 무심한 한마디에 그들은 격렬하게 상처받고, 그들의 과도한 열정을 당신은 부담스러워 도망치고 싶어질 것입니다."
-        }
+        animClass: "animate-pulse-fast",        match: {             best: "ESTJ",            worst: "ENFJ",         }
     },
-    "ISFP": {
-        genre: "INDIE SOUL & NEO SOUL",
-        subTitle: "영혼을 그리는 예술가",
-        desc: `당신은 세상의 모든 색채와 소리를 당신만의 고유한 감성 필터로 받아들이는 영혼을 그리는 예술가이자 침대 위의 철학자입니다.\n\n심리학적으로 당신은 타인의 평가나 사회적 성공보다는, '내가 진정으로 느끼는가?'라는 내면의 진실성을 최우선 가치로 둡니다. 당신은 말로 표현하기 힘든 미묘한 감정의 결을 감각적으로 포착해내는 섬세함을 지녔으며, 갈등과 경쟁을 피해 조용히 자신만의 아름다운 소우주를 가꾸어갑니다. 겉으로는 유순하고 수줍어 보이지만, 내면에는 그 누구도 꺾을 수 없는 예술적 고집과 뜨거운 열정이 용암처럼 흐르고 있습니다.\n\n그루브가 살아있는 비트 위에 감성적인 보컬이 얹혀진 인디 소울과 네오 소울은 당신의 섬세한 취향을 저격하는 음악입니다. 너무 시끄럽지도, 너무 처지지도 않는 세련된 리듬은 당신의 심장 박동과 동기화되어 편안한 흐름을 만들어냅니다.\n\n당신에게 음악은 영혼을 비추는 거울이자, 세상으로부터 숨을 수 있는 나만의 아지트입니다. 흐느적거리는 소울 음악에 몸을 맡길 때, 당신은 비로소 타인의 시선이라는 감옥에서 벗어나 온전히 당신 자신으로 존재하게 됩니다. 그 순간, 당신의 모든 감각은 깨어나고 아주 평범한 일상조차 영화의 한 장면처럼 낭만적으로 변모합니다.`,
-        bestSong: "Deuces",
+    "ISFP": {        rarity: "8.8%",
+        bestSong: "Cool Vibes",
         color: "from-rose-300 via-pink-400 to-rose-600",
         textColor: "text-rose-100",
-        image: "assets/icon_isfp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Deuces.mp3", // Smooth/Soul
+        image: "assets/icon_isfp.webp",
+        audioSrc: "assets/audio/Cool_Vibes.mp3", // Hip/Cool
         coverPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.2' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")",
-        animClass: "animate-wave",
-        pros: [
-            "타인을 편안하게 해주는 온화하고 겸손한 태도",
-            "남들이 보지 못하는 미적 아름다움을 발견하는 감각",
-            "형식에 얽매이지 않고 유연하게 상황을 받아들임",
-            "현재의 순간을 소중히 여기고 즐길 줄 아는 여유",
-            "말로 표현하지 않아도 행동으로 보여주는 따뜻한 배려"
-        ],
-        cons: [
-            "자신의 능력을 과소평가하고 자신감이 부족함",
-            "거절을 못 하고 속으로만 끙끙 앓는 성격",
-            "장기적인 계획을 세우거나 실행하는 데 약함",
-            "갈등 상황을 지나치게 회피하여 문제를 키움",
-            "비판을 받으면 쉽게 상처받고 의기소침해짐"
-        ],
-        match: {
-            best: "ESFJ",
-            bestDesc: "서로를 보석처럼 아껴주는 따뜻한 관계입니다. 섬세한 감성의 소유자인 당신(ISFP)을 ESFJ는 세심하게 챙기고 보호해 줍니다. 당신의 예술적 취향을 그들은 진심으로 존중해주며, 당신이 쭈뼛거릴 때 그들이 나서서 든든한 바람막이가 되어줍니다. 인디 소울의 감성과 K-POP의 밝음이 어우러져, 바라만 봐도 미소가 지어지는 사랑스러운 커플입니다.",
-            worst: "ENTJ",
-            worstDesc: "감수성과 효율성의 전쟁입니다. 과정과 감정을 중시하는 당신에게, 오직 결과와 성취만 따지는 ENTJ는 피도 눈물도 없는 독재자처럼 보입니다. 당신의 여유로움을 그들은 게으름으로 몰아세우고, 그들의 직설적인 독설에 당신의 유리 멘탈은 산산조각 날 수 있습니다."
-        }
+        animClass: "animate-wave",        match: {             best: "ESFJ",            worst: "ENTJ",         }
     },
-    "INFP": {
-        genre: "LO-FI & BEDROOM POP",
-        subTitle: "별을 헤아리는 몽상가",
-        desc: `당신은 부조리한 현실 세계에 발을 딛고 있지만, 영혼은 언제나 저 먼 이상향을 부유하는 별을 헤아리는 몽상가이자 상처 입은 치유자입니다.\n\n당신은 이 세상의 언어로는 다 표현할 수 없는 깊은 슬픔과 아름다움을 동시에 품고 사는 사람입니다. 심리학적으로 당신은 타인의 고통을 마치 자신의 것처럼 느끼는 초공감 능력을 지녔으며, 진정성 없는 가식적인 관계나 속물적인 성공을 경멸합니다. 당신은 끊임없이 '나는 누구인가?'라는 실존적 질문을 던지며, 자신만의 고유한 정체성을 찾기 위해 내면의 깊은 숲속을 헤매는 방랑자입니다.\n\n약간의 노이즈가 섞인 낡은 카세트테이프 소리, 빗소리처럼 젖어 든 멜로디의 로파이와 베드룸 팝은 당신의 우울하면서도 낭만적인 감수성과 완벽하게 공명합니다. 화려하지 않고 소박하며, 어딘가 결핍된 듯한 이 음악은 완벽하지 않은 당신의 모습 그대로를 안아줍니다.\n\n당신에게 음악은 상처 입은 영혼을 위한 붕대이자, 현실의 중력을 끊어내는 마법의 주문입니다. 비 오는 날 창가에 기대어 이 음악을 들을 때, 당신은 고독조차 달콤한 친구로 받아들이게 되며, 당신의 슬픔은 세상에서 가장 아름다운 시가 되어 흐를 것입니다.`,
-        bestSong: "Peace of Mind",
+    "INFP": {        bestSong: "Dream Catcher",
         color: "from-teal-200 via-emerald-300 to-teal-600",
         textColor: "text-teal-100",
-        image: "assets/icon_infp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Peace%20of%20Mind.mp3", // Lofi/Calm
+        image: "assets/icon_infp.webp",
+        audioSrc: "assets/audio/Dream_Catcher.mp3", // Dreamy/Sweet
         coverPattern: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E\")",
-        animClass: "animate-float-slow",
-        pros: [
-            "타인의 감정을 깊이 이해하고 위로하는 공감력",
-            "자신만의 독창적이고 창의적인 세계관 보유",
-            "이해타산을 따지지 않는 순수하고 진정성 있는 태도",
-            "언어적 재능이 뛰어나 글이나 말로 감동을 줌",
-            "개방적이고 편견 없이 다양성을 존중함"
-        ],
-        cons: [
-            "현실적인 경제 관념이나 시간 관리에 매우 취약함",
-            "작은 비난에도 세상이 무너진 듯 상처받음",
-            "생각만 하다가 정작 행동으로 옮기지 못함",
-            "혼자만의 세계에 갇혀 외부와 단절될 위험",
-            "지나친 이상주의로 인해 현실에 늘 불만족함"
-        ],
-        match: {
-            best: "ENFJ",
-            bestDesc: "영혼의 쌍둥이를 찾았습니다! 몽상가인 당신(INFP)의 깊은 슬픔과 이상을 ENFJ는 누구보다 깊이 이해하고 공감해 줍니다. 당신이 방황할 때 그들은 등대가 되어주고, 당신의 여린 마음을 그들의 열정으로 따뜻하게 감싸 안습니다. 로파이 감성과 가스펠의 숭고함이 만나, 서로의 상처를 치유하고 더 나은 세상으로 나아가는 구원 서사를 써 내려갑니다.",
-            worst: "ESTJ",
-            worstDesc: "현실의 벽에 부딪힌 꿈입니다. 낭만과 자유를 꿈꾸는 당신에게, 규칙과 통제를 강요하는 ESTJ는 감옥의 간수와 같습니다. 당신의 풍부한 감수성을 그들은 '쓸데없는 감정 낭비'라 비난하고, 그들의 딱딱한 현실 논리에 당신의 상상력은 날개가 꺾인 채 질식해 버릴지도 모릅니다."
-        }
+        animClass: "animate-float-slow",        rarity: "4.4%",
+        match: {             best: "ENFJ",            worst: "ESTJ",         }
     },
-    "INTP": {
-        genre: "IDM & EXPERIMENTAL",
-        subTitle: "진리를 탐구하는 괴짜",
-        desc: `당신은 우주의 모든 현상을 해체하여 그 이면의 논리적 구조를 밝혀내려는 진리를 탐구하는 괴짜이자 지적 방랑자입니다.\n\n당신의 머릿속은 거대한 도서관이자 24시간 돌아가는 연구소입니다. 심리학적으로 당신은 기존의 관습이나 권위에 맹목적으로 따르는 것을 "지적 태만"으로 간주하며, 끊임없이 "왜?"라는 질문을 던져 기존 질서를 전복시키는 아이디어 뱅크입니다. 당신에게 사교적 대화나 감정적 위로는 비효율적인 데이터 교환일 뿐이며, 오직 새로운 지식과 추상적인 이론만이 당신의 도파민을 자극합니다. 당신은 남들이 보지 못하는 패턴을 보지만, 양말 짝을 맞추는 법은 자주 잊어버립니다.\n\n불규칙한 박자, 기계적인 소음과 서정적인 멜로디가 기이하게 섞인 IDM(지능형 댄스 뮤직)과 실험 음악은 당신의 뇌 구조를 청각화한 것입니다. 예측할 수 없는 전개와 난해한 사운드는 당신의 지적 호기심을 끊임없이 자극합니다.\n\n당신에게 음악은 감동을 위한 것이 아니라 탐구를 위한 대상입니다. 소리의 질서와 무질서 사이를 줄타기하는 이 난해한 음악 속에서, 당신은 역설적이게도 가장 명쾌한 논리의 아름다움을 발견합니다. 남들은 소음이라 부르는 것에서 당신은 우주의 수학적 질서를 듣고 있는 것입니다.`,
-        bestSong: "Pamgaea",
+    "INTP": {        bestSong: "Cipher",
         color: "from-violet-500 via-fuchsia-600 to-purple-900",
         textColor: "text-violet-200",
-        image: "assets/icon_intp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pamgaea.mp3", // Complex/Trance
+        image: "assets/icon_intp.webp",
+        audioSrc: "assets/audio/Cipher.mp3", // Electronic/Glitchy
         coverPattern: "repeating-radial-gradient(circle, transparent, transparent 3.5px, rgba(255,255,255,0.1) 3.5px, rgba(255,255,255,0.1) 4px)",
-        animClass: "animate-pulse-fast",
-        pros: [
-            "복잡한 문제를 논리적으로 분해하고 해결하는 능력",
-            "고정관념을 깬 독창적이고 천재적인 아이디어",
-            "관심 있는 분야에 대한 엄청난 몰입과 전문성",
-            "감정에 치우치지 않는 객관적이고 비판적인 시각",
-            "끊임없이 배우고 성장하려는 지적 욕구"
-        ],
-        cons: [
-            "타인의 감정을 이해하거나 공감하는 능력이 부족함",
-            "생각을 설명할 때 너무 어렵게 말해 소통이 힘듦",
-            "지나친 회의주의로 인해 결론을 내리지 못함",
-            "청소나 정리 정돈 같은 일상적인 규율을 무시함",
-            "사회적 눈치를 보지 않아 엉뚱한 행동을 함"
-        ],
-        match: {
-            best: "ENTJ",
-            bestDesc: "세상을 지배할 두뇌와 실행력의 결합입니다. 방구석 천재인 당신(INTP)의 기상천외한 아이디어를 ENTJ는 완벽한 계획으로 실현시켜 줍니다. 당신이 설계를 맡고 그들이 시공을 맡는 셈이죠. 감정적인 군더더기 없이 오직 논리와 비전으로 소통하는 두 사람은, 난해한 IDM과 웅장한 오케스트라처럼 거대하고 압도적인 제국을 건설할 수 있는 최강의 파트너입니다.",
-            worst: "ESFJ",
-            worstDesc: "주파수가 전혀 맞지 않는 라디오입니다. 논리적 분석이 취미인 당신에게, 사교적 예의와 감정적 유대를 강요하는 ESFJ는 벅찬 과제와 같습니다. 당신의 무뚝뚝한 팩트 폭격에 그들은 상처받고, 그들의 끊임없는 관심과 참견에 당신은 피로감을 느껴 동굴 속으로 더 깊이 숨어버릴 것입니다."
-        }
+        animClass: "animate-pulse-fast",        rarity: "3.3%",
+        match: {             best: "ENTJ",            worst: "ESFJ",         }
     },
-    "ESTP": {
-        genre: "HIPHOP & TRAP",
-        subTitle: "본능적인 승부사",
-        desc: `당신은 위험한 상황일수록 심장이 뜨겁게 뛰는 본능적인 승부사이자 아스팔트 위의 야수입니다.\n\n당신에게 인생은 리허설이 없는 실전이며, 고민할 시간에 일단 저지르고 보는 행동파입니다. 심리학적으로 당신은 오감을 통해 들어오는 현재의 자극에 극도로 예민하며, 복잡한 이론보다는 눈앞의 이익과 확실한 결과를 선호합니다. 당신은 탁월한 임기응변과 넘치는 자신감으로 좌중을 압도하며, 꽉 막힌 규율을 비웃으며 자신만의 길을 개척하는 스타일입니다. 당신을 가두려 하면 할수록 당신은 더 높이 튀어 오를 것입니다.\n\n심장을 강타하는 808 베이스와 공격적인 랩핑이 돋보이는 힙합과 트랩은 당신의 끓어오르는 혈기를 분출하는 완벽한 배출구입니다. 이 음악의 거친 질감과 폭발적인 에너지는 당신의 야성적 본능과 100% 동기화됩니다.\n\n당신에게 음악은 전투가가 전장에 나가기 전 듣는 전투 함성입니다. 볼륨을 최대로 높이고 비트에 몸을 맡기는 순간, 당신은 세상의 주인공이 된 듯한 전능감을 느끼며, 당신 앞을 가로막는 모든 장애물을 부숴버릴 듯한 폭발적인 에너지를 얻게 됩니다. "일단 해보자", 그것이 당신의 유일한 철학이기 때문입니다.`,
-        bestSong: "District Four",
+    "ESTP": {        bestSong: "Griphop",
         color: "from-red-500 via-red-700 to-black",
         textColor: "text-red-300",
-        image: "assets/icon_estp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/District%20Four.mp3", // Energetic/Driving
+        image: "assets/icon_estp.webp",
+        audioSrc: "assets/audio/Griphop.mp3", // Bouncy/HipHop
         coverPattern: "linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent)",
         coverSize: "20px 20px",
-        animClass: "animate-bounce-slow",
-        pros: [
-            "어떤 위기 상황도 기회로 바꾸는 임기응변",
-            "좌중을 휘어잡는 카리스마와 유머 감각",
-            "직설적이고 솔직한 화법으로 문제를 빠르게 해결",
-            "새로운 도전과 모험을 두려워하지 않는 용기",
-            "타의 추종을 불허하는 행동력과 실행력"
-        ],
-        cons: [
-            "장기적인 결과를 생각하지 않는 충동적인 행동",
-            "지루함을 참지 못해 벌려놓은 일을 마무리 못 함",
-            "타인의 감정을 고려하지 않는 직설적인 언행",
-            "규칙이나 약속을 억압이라 느껴 어기는 경향",
-            "진지하고 깊은 대화를 회피하고 가벼움만 추구"
-        ],
-        match: {
-            best: "ISTJ",
-            bestDesc: "브레이크와 액셀의 환상적인 주행입니다. 거침없이 질주하는 야수 같은 당신(ESTP)에게, ISTJ는 안정적인 내비게이션이자 든든한 브레이크가 되어줍니다. 당신은 그들에게 모험의 즐거움을 알려주고, 그들은 당신이 사고 치지 않도록 뒤를 봐줍니다. 힙합의 에너지와 클래식의 절제가 만나면, 세상 무서울 것 없는 최강의 시너지를 발휘합니다.",
-            worst: "INFJ",
-            worstDesc: "서로 다른 층위를 사는 관계입니다. 눈에 보이는 현실을 즐기는 당신에게, 보이지 않는 의미와 철학을 탐구하는 INFJ는 뜬구름 잡는 외계인처럼 보입니다. 당신의 직설적인 조언이 그들에게는 비수가 되어 꽂히고, 그들의 진지한 고민을 당신은 '중2병'이라고 놀려버릴지도 모릅니다. 소통 주파수를 맞추기가 매우 어렵습니다."
-        }
+        animClass: "animate-bounce-slow",        rarity: "4.3%",
+        match: {             best: "ISTJ",            worst: "INFJ",         }
     },
-    "ESFP": {
-        genre: "TROPICAL HOUSE",
-        subTitle: "무대 위의 슈퍼스타",
-        desc: `당신은 전생에 조명이 쏟아지는 무대의 주인공이었을 것이 분명한 천부적인 슈퍼스타이자 인간 비타민입니다.\n\n당신이 있는 곳에는 언제나 웃음과 활기가 넘쳐흐릅니다. 심리학적으로 당신은 타인의 관심과 사랑을 먹고 자라는 존재이며, "인생은 즐기기에도 너무 짧다"는 명언을 몸소 실천하는 쾌락주의자입니다. 당신은 슬픈 분위기를 본능적으로 거부하며, 당신의 밝은 에너지는 우울한 사람조차 춤추게 만드는 전염성을 가지고 있습니다. 하지만 그 밝음 뒤엔, 홀로 남겨지는 것에 대한 깊은 두려움이 숨겨져 있을지도 모릅니다. 그래도 당신은 웁니다, 슬퍼서가 아니라 아직 즐거운 일이 너무 많이 남았기 때문입니다.\n\n청량한 바다와 뜨거운 태양, 칵테일 한 잔의 여유가 느껴지는 트로피컬 하우스는 당신의 영혼을 위한 주제곡입니다. 경쾌한 리듬과 시원한 신시사이저 소리는 당신의 심장을 다시 뛰게 만드는 아드레날린 주사기입니다.\n\n당신에게 음악은 혼자가 아님을 확인시켜주는 축제입니다. 이 음악이 흐르면 당신은 언제 어디서든 자신만의 런웨이를 걷게 됩니다. 복잡한 고민은 잠시 접어두세요. 지금 이 순간, 쏟아지는 비트 위에서 춤추는 당신이야말로 진정 살아있는 존재입니다.`,
-        bestSong: "Island Meet and Greet",
+    "ESFP": {        bestSong: "Arroz Con Pollo",
         color: "from-yellow-300 via-orange-400 to-red-500",
         textColor: "text-amber-100",
-        image: "assets/icon_esfp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Island%20Meet%20and%20Greet.mp3", // Tropical/Happy
+        image: "assets/icon_esfp.webp",
+        audioSrc: "assets/audio/Arroz_Con_Pollo.mp3", // Latin/Party
         coverPattern: "radial-gradient(circle, rgba(255,255,255,0.4) 2px, transparent 2.5px)",
-        animClass: "animate-spin-slow",
-        pros: [
-            "주변 사람들을 즐겁게 만드는 탁월한 엔터테이너 기질",
-            "어떤 환경에서도 적응하고 친구를 만드는 사교성",
-            "미적 감각이 뛰어나고 패션과 유행을 선도함",
-            "현재의 삶을 긍정적으로 바라보는 낙천적인 태도",
-            "타인을 돕고 기쁘게 하는 데서 에너지를 얻음"
-        ],
-        cons: [
-            "진지한 상황을 견디지 못하고 장난으로 넘기려 함",
-            "계획성 없이 돈이나 시간을 낭비하는 경향",
-            "내면의 부정적인 감정을 외면하고 회피함",
-            "비판을 받으면 쉽게 토라지거나 감정적으로 대응",
-            "미래에 대한 대비 없이 당장의 즐거움만 좇음"
-        ],
-        match: {
-            best: "ISFJ",
-            bestDesc: "무대 위의 스타와 그를 사랑하는 1호 팬의 만남입니다. 주목받는 것을 좋아하는 당신(ESFP)에게, 뒤에서 묵묵히 챙겨주는 ISFJ는 최고의 안식처입니다. 당신이 화려한 쇼를 펼치면 ISFJ는 따뜻한 박수를 보냅니다. 트로피컬 하우스의 신남을 어쿠스틱의 부드러움이 감싸주듯, 서로가 서로에게 긍정적인 에너지를 채워주는 사랑스러운 단짝입니다.",
-            worst: "INTJ",
-            worstDesc: "물과 불의 만남입니다. 순간의 즐거움과 감각을 추구하는 당신에게, 먼 미래를 계획하고 차갑게 분석하는 INTJ는 지루한 꼰대처럼 느껴집니다. 당신의 해맑음을 그들은 가볍다고 무시하고, 그들의 심각한 표정을 당신은 이해할 수 없어 답답해합니다. 함께 있으면 서로의 에너지가 고갈될 수 있습니다."
-        }
+        animClass: "animate-spin-slow",        rarity: "8.5%",
+        match: {             best: "ISFJ",            worst: "INTJ",         }
     },
-    "ENFP": {
-        genre: "CITY POP & SYNTHWAVE",
-        subTitle: "가능성의 혁명가",
-        desc: `당신은 지루한 현실 세계에 마법의 가루를 뿌리고 다니는 가능성의 혁명가이자 영원한 피터팬입니다.\n\n당신의 눈은 남들이 보지 못하는 무지갯빛 미래를 보고 있습니다. 심리학적으로 당신은 외부 세계의 다양한 가능성을 탐색하는 직관 기능이 폭발적으로 발달하여, 한 가지에 얽매이기보다는 끊임없이 새로운 자극과 영감을 찾아 떠도는 영혼입니다. 당신은 사람들을 자석처럼 끌어당기는 매력을 가졌으며, 타인의 잠재력을 발견하고 불을 지펴주는 인간 기폭제 역할을 합니다. 하지만 당신의 열정은 쉽게 타오르는 만큼 쉽게 식기도 하여, 벌려놓은 일은 많으나 수습은 남의 몫이 되기도 합니다.\n\n도시의 화려한 네온사인과 낭만적인 밤거리를 연상시키는 시티팝과 신스웨이브는 당신의 세련된 감수성과 복고풍의 낭만을 자극합니다. 어딘가 그리우면서도 설레는 이 멜로디는 당신이 꿈꾸는 이상적인 세계의 배경음악입니다.\n\n당신에게 음악은 현실 도피를 위한 우주선입니다. 이 몽환적인 사운드에 몸을 실으면, 당신은 반복되는 일상의 지루함에서 탈출하여 영화 속 주인공이 됩니다. 당신의 삶은 이 음악처럼 언제나 예측할 수 없고, 반짝이며, 가슴 벅찬 모험으로 가득 차야만 합니다.`,
-        bestSong: "Who Likes to Party",
+    "ENFP": {        bestSong: "Funkorama",
         color: "from-pink-400 via-purple-500 to-indigo-600",
         textColor: "text-pink-100",
-        image: "assets/icon_enfp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Who%20Likes%20to%20Party.mp3", // Party/Fun
+        image: "assets/icon_enfp.webp",
+        audioSrc: "assets/audio/Funkorama.mp3", // Funky/Groovy
         coverPattern: "repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255,255,255,0.1) 20px)",
-        animClass: "animate-bounce-slow",
-        pros: [
-            "창의적인 아이디어와 영감이 끊임없이 샘솟음",
-            "타인의 장점을 발견하고 칭찬해 주는 따뜻한 마음",
-            "어떤 상황에서도 긍정적인 면을 찾아내는 능력",
-            "말솜씨가 뛰어나고 설득력이 좋음",
-            "변화를 두려워하지 않고 새로운 도전을 즐김"
-        ],
-        cons: [
-            "집중력이 부족하여 한 가지 일을 끝까지 못 함",
-            "세부적인 계획이나 반복적인 업무에 극도로 취약",
-            "감정 기복이 심해 주변 사람을 당황하게 함",
-            "지나치게 남의 인정을 갈구하고 거절을 못 함",
-            "현실적인 문제를 무시하고 이상만 좇을 수 있음"
-        ],
-        match: {
-            best: "INFJ",
-            bestDesc: "영혼의 스파크가 튀는 마법 같은 관계입니다. 톡톡 튀는 아이디어 뱅크인 당신(ENFP)과, 깊은 통찰력을 가진 INFJ는 만나자마자 서로의 내면 세계에 매료됩니다. 당신이 벌려놓은 일들을 INFJ가 의미 있게 매듭지어 주며, 서로의 영감을 무한대로 증폭시킵니다. 시티팝의 낭만과 드림팝의 신비로움이 섞여, 현실을 잊게 만드는 환상의 듀엣을 이룹니다.",
-            worst: "ISTJ",
-            worstDesc: "자유로운 새와 튼튼한 우리입니다. 얽매이는 것을 죽기보다 싫어하는 당신에게, 규칙과 질서를 강요하는 ISTJ는 숨 막히는 족쇄입니다. 당신의 즉흥적인 제안을 그들은 칼같이 거절하고, 그들의 꼼꼼한 지적은 당신의 열정에 찬물을 끼얹습니다. 서로가 서로를 괴롭히는 관계가 될 수 있습니다."
-        }
+        animClass: "animate-bounce-slow",        rarity: "8.1%",
+        match: {             best: "INFJ",            worst: "ISTJ",         }
     },
-    "ENTP": {
-        genre: "GLITCH HOP & HYPERPOP",
-        subTitle: "유쾌한 소란꾼",
-        desc: `당신은 평온한 호수에 기어이 돌을 던져 파문을 일으키는 유쾌한 소란꾼이자 지적 악동입니다.\n\n당신에게 "원래 그런 것"은 세상에서 가장 참을 수 없는 말입니다. 심리학적으로 당신은 기존의 체제와 권위의 모순을 찾아내어 비트는 데서 희열을 느끼며, 논쟁은 당신에게 싸움이 아니라 즐거운 스포츠입니다. 당신의 뇌는 남들과 다른 각도로 배선되어 있어, 엉뚱하지만 천재적인 발상을 쏟아냅니다. 사람들은 당신을 두고 '미친 천재' 아니면 '그냥 미친 사람'이라고 부르지만, 당신은 그 두 평가를 모두 즐깁니다. 당신은 혼돈 속에서 질서를 창조하는 것이 아니라, 질서 속에서 혼돈을 창조하여 새로운 가능성을 엽니다.\n\n소리의 규칙을 파괴하고, 예측 불가능한 변주와 스위칭이 난무하는 글리치 합과 하이퍼팝은 당신의 뇌 속 풍경을 그대로 옮겨놓은 듯합니다. 정상적인 멜로디를 비틀고 찢어발기는 이 파격적인 사운드는 당신의 파괴적 혁신 본능을 만족시킵니다.\n\n당신에게 음악은 세상을 조롱하는 유쾌한 농담입니다. 어디로 튈지 모르는 비트 위에서 당신은 지루한 상식의 틀을 깨부수고, 당신만의 기괴하고도 매력적인 논리를 증명해 보입니다. 정상적이지 않아서 더 완벽한, 그것이 바로 당신의 바이브입니다.`,
-        bestSong: "Spazzmatica Polka",
+    "ENTP": {        bestSong: "Pixel Peeker Polka - faster",
         color: "from-lime-300 via-green-400 to-lime-600",
         textColor: "text-lime-200",
-        image: "assets/icon_entp.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Spazzmatica%20Polka.mp3", // Quirky/Fast
+        image: "assets/icon_entp.webp",
+        audioSrc: "assets/audio/Pixel_Peeker_Polka_faster.mp3", // Chaotic/Fun
         coverPattern: "repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 10px, transparent 10px, transparent 20px)",
-        animClass: "animate-pulse-fast",
-        pros: [
-            "누구도 생각 못한 독창적인 관점과 아이디어",
-            "논리적인 분석력과 언변으로 상대를 설득함",
-            "새로운 지식과 기술을 스펀지처럼 흡수하는 두뇌",
-            "복잡한 문제를 다양한 각도에서 해결하는 능력",
-            "실패를 두려워하지 않고 끊임없는 도전 정신"
-        ],
-        cons: [
-            "타인의 감정을 고려하지 않는 공격적인 토론 태도",
-            "마무리가 약하고 뒷심이 부족해 용두사미가 됨",
-            "일상적인 업무나 세부 사항을 지루해하고 소홀함",
-            "자신이 흥미 없는 일에는 철저히 무관심함",
-            "약속 시간이나 규칙을 가볍게 여기는 경향"
-        ],
-        match: {
-            best: "INTJ",
-            bestDesc: "세상을 뒤집어 놓을 악당 듀오의 탄생입니다! 도발적인 당신(ENTP)의 아이디어에 INTJ의 치밀한 전략이 더해지면 불가능은 없습니다. 서로의 지적 능력을 진심으로 존경하며, 밤새도록 토론해도 지루하지 않은 최고의 라이벌이자 파트너입니다. 글리치 합의 파격과 프로그레시브 락의 웅장함이 만나 기존의 판을 깨부수는 혁명을 일으킵니다.",
-            worst: "ISFJ",
-            worstDesc: "언어가 통하지 않는 답답함. 논쟁과 변화를 즐기는 당신에게, 평화와 안정을 추구하는 ISFJ는 너무나 지루한 상대입니다. 당신의 장난스러운 비판에 그들은 눈물을 흘리고, 그들의 감성적인 호소를 당신은 비논리적이라며 무시하게 됩니다. 서로에게 상처만 남길 수 있는 위태로운 조합입니다."
-        }
+        animClass: "animate-pulse-fast",        rarity: "3.2%",
+        match: {             best: "INTJ",            worst: "ISFJ",         }
     },
-    "ESTJ": {
-        genre: "POP ROCK & ANTHEM",
-        subTitle: "불도저 같은 사령관",
-        desc: `당신은 목표를 향해 거침없이 돌진하는 불도저 같은 사령관이자 현실 세계의 지배자입니다.\n\n당신의 사전에는 '대충'이나 '게으름'이라는 단어가 없습니다. 심리학적으로 당신은 외향적 사고를 통해 세상을 효율적으로 조직화하고 통제하려는 욕구가 강하며, 전통과 질서를 수호하는 기둥 역할을 자처합니다. 당신은 모호한 말장난을 혐오하며, 눈에 보이는 성과와 데이터를 신뢰합니다. 리더의 자리는 당신이 원해서가 아니라, 남들이 우왕좌왕할 때 당신만이 명확한 답을 제시하기 때문에 자연스럽게 당신의 차지가 됩니다. 당신의 카리스마는 따뜻함이 아니라 확실함에서 나옵니다.\n\n강렬한 드럼 비트, 시원하게 뻗어 나가는 기타 리프, 그리고 확실한 클라이맥스가 있는 팝 락과 앤썸 장르는 당신의 직선적인 성격을 대변합니다. 흐지부지 끝나는 곡은 딱 질색입니다. 시작과 끝이 분명하고 에너지가 넘치는 이 음악은 당신의 전투력을 상승시킵니다.\n\n당신에게 음악은 승리를 위한 행진곡입니다. 출근길이나 운동할 때 이 음악을 들으며 당신은 '오늘도 세상을 정복하러 간다'는 전의를 다집니다. 비트가 강해질수록 당신의 확신도 강해집니다. 당신은 틀리지 않았습니다, 언제나 그랬듯이 당신의 길은 정답이 될 것입니다.`,
-        bestSong: "Rock on Chicago",
+    "ESTJ": {        bestSong: "Movement Proposition",
         color: "from-blue-500 via-cyan-600 to-blue-800",
         textColor: "text-blue-200",
-        image: "assets/icon_estj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Rock%20on%20Chicago.mp3", // Rock
+        image: "assets/icon_estj.webp",
+        audioSrc: "assets/audio/Movement_Proposition.mp3", // Driving/Action
         coverPattern: "linear-gradient(90deg, rgba(255,255,255,0.1) 50%, transparent 50%)",
         coverSize: "40px 100%",
-        animClass: "animate-bounce-slow",
-        pros: [
-            "목표를 달성하기 위한 구체적인 계획과 실행력",
-            "조직을 체계적으로 관리하고 이끄는 리더십",
-            "맡은 책임은 무슨 일이 있어도 완수하는 성실함",
-            "공과 사를 명확히 구분하는 객관적인 태도",
-            "효율성을 높여 불필요한 시간과 자원을 절약함"
-        ],
-        cons: [
-            "자신의 방식만 고집하고 타인의 의견을 무시함",
-            "직설적인 화법으로 상대방에게 상처를 줄 수 있음",
-            "변화에 저항하고 기존 방식을 고수하려는 보수성",
-            "일 중독 성향으로 인해 휴식을 취하지 못함",
-            "감정적인 호소나 인간적인 사정을 봐주지 않음"
-        ],
-        match: {
-            best: "ISTP",
-            bestDesc: "최강의 실전형 콤비입니다. 리더십 강한 당신(ESTJ)이 방향을 지시하면, 기술적 해결사인 ISTP가 그것을 완벽하게 처리합니다. 감정적인 군더더기 없이 일로 승부하는 두 사람은 척하면 척 통하는 사이입니다. 락 앤썸의 강렬함과 테크노의 쿨함이 만나, 목표를 향해 직진하는 무적의 탱크 같은 시너지를 보여줍니다.",
-            worst: "INFP",
-            worstDesc: "서로를 이해 못 하는 물과 기름. 팩트와 효율이 전부인 당신에게, 감정과 이상을 좇는 INFP는 답답한 몽상가일 뿐입니다. 당신의 채찍질은 그들의 영혼을 파괴하고, 그들의 우유부단함은 당신의 화를 돋웁니다. 당신의 강철 멘탈로도 감당하기 힘든 감성 에너지를 가진 상대입니다."
-        }
+        animClass: "animate-bounce-slow",        rarity: "8.7%",
+        match: {             best: "ISTP",            worst: "INFP",         }
     },
-    "ESFJ": {
-        genre: "K-POP & TEEN POP",
-        subTitle: "모두의 다정할 친구",
-        desc: `당신은 사람과 사람 사이를 따뜻한 온기로 연결하는 모두의 다정한 친구이자 관계의 마법사입니다.\n\n당신의 하루는 "오늘 기분 어때?"라는 안부 인사로 시작됩니다. 심리학적으로 당신은 타인의 감정 상태를 살피고 조화를 이루는 데서 자신의 존재 가치를 느끼며, 그룹 내에 갈등이 생기면 누구보다도 괴로워하는 평화주의자입니다. 당신은 타고난 오지랖으로 주변 사람들을 챙기며, 칭찬과 인정이라는 연료가 있어야만 움직이는 사랑스러운 관심종자이기도 합니다. 당신이 없는 모임은 앙꼬 없는 찐빵처럼 삭막할 것입니다.\n\n밝고 경쾌하며, 모두가 따라 부를 수 있는 친숙한 멜로디의 K-POP과 틴 팝은 당신의 밝은 에너지를 상징합니다. 혼자 듣는 심오한 음악보다는, 친구들과 함께 떼창하고 춤출 수 있는 대중적인 음악이 당신의 심장을 뛰게 합니다.\n\n당신에게 음악은 '함께함'의 기쁨입니다. 유행하는 노래를 들으며 트렌드를 공유하고, 신나는 리듬에 맞춰 사람들과 어우러질 때 당신은 비로소 완전한 행복을 느낍니다. 이 음악은 당신이 세상에 전하고 싶은 해피 바이러스이며, 우리 모두 하나로 묶어주는 사랑의 연결 고리입니다.`,
-        bestSong: "Life of Riley",
-        color: "from-pink-200 via-pink-400 to-rose-500",
+    "ESFJ": {        bestSong: "Fretless",
+        color: "from-pink-200 via-pink-400 to-rose-600",
         textColor: "text-white",
-        image: "assets/icon_esfj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Life%20of%20Riley.mp3", // Happy/Upbeat
+        image: "assets/icon_esfj.webp",
+        audioSrc: "assets/audio/Fretless.mp3", // Uplifting/Pop
         coverPattern: "radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2.5px)",
-        animClass: "animate-spin-slow",
-        pros: [
-            "타인을 배려하고 돕는 따뜻하고 친절한 성품",
-            "조직의 분위기를 밝고 조화롭게 만드는 능력",
-            "책임감이 강하고 맡은 역할을 충실히 수행함",
-            "소속감이 강하고 사람들과의 유대를 소중히 여김",
-            "현실적인 감각이 뛰어나고 생활력이 강함"
-        ],
-        cons: [
-            "타인의 시선과 평가에 지나치게 민감함",
-            "거절을 못 하고 싫은 소리를 못 해 스트레스받음",
-            "자신이 베푼 만큼 보상받지 못하면 서운해함",
-            "비판을 받으면 방어적으로 변하고 상처받음",
-            "변화보다는 익숙하고 안정적인 것을 과도하게 선호"
-        ],
-        match: {
-            best: "ISFP",
-            bestDesc: "서로에게 편안한 안식처가 되는 관계. 사람을 챙기는 당신(ESFJ)에게, 온화하고 다툼을 싫어하는 ISFP는 가장 마음 편한 상대입니다. 당신의 과도한 친절을 ISFP는 부담 없이 받아주고, ISFP의 섬세한 감성을 당신은 엄마처럼 보듬어줍니다. K-POP의 발랄함과 인디 소울의 감성이 어우러져, 소소하지만 확실한 행복을 만들어가는 커플입니다.",
-            worst: "INTP",
-            worstDesc: "분석 당하는 기분, 최악입니다. 감정적 교감을 원하는 당신에게, 모든 것을 논리로 해체하려 드는 INTP는 차가운 로봇 같습니다. '사랑해'라는 말에 '사랑의 정의가 뭔데?'라고 묻는 그들에게 당신은 지쳐버릴 것입니다. 당신의 따뜻한 관심이 그들에게는 귀찮은 간섭으로 느껴질 뿐입니다."
-        }
+        animClass: "animate-spin-slow",        rarity: "12.3%",
+        match: {             best: "ISFP",            worst: "INTP",         }
     },
-    "ENFJ": {
-        genre: "GOSPEL & SOUL",
-        subTitle: "열정적인 선동가",
-        desc: `당신은 사람들의 가슴속에 잠든 불꽃을 점화시키는 열정적인 선동가이자 인류애의 화신입니다.\n\n당신은 단순히 밥을 먹고 살기 위해 사는 것이 아니라, 더 나은 세상을 만들기 위해 태어났다고 믿습니다. 심리학적으로 당신은 타인의 잠재력을 꿰뚫어 보고 그들이 성장하도록 돕는 데서 최고의 희열을 느끼는 멘토형 리더입니다. 당신의 말에는 사람을 움직이는 힘이 있으며, 당신의 진심 어린 호소는 차가운 이성보다 뜨거운 감동으로 세상을 변화시킵니다. 때로 "너무 이상적이다"라는 비판을 받지만, 당신 같은 몽상가들이 없었다면 세상은 여전히 차가운 얼음장이었을 것입니다.\n\n영혼을 울리는 웅장한 보컬과 가슴 벅찬 멜로디의 가스펠과 소울 음악은 당신의 숭고한 정신세계를 대변합니다. 고통 속에서도 희망을 노래하고, 결국에는 사랑과 화합으로 귀결되는 이 드라마틱한 음악은 당신의 눈시울을 붉게 만듭니다.\n\n당신에게 음악은 영혼을 정화하는 성수이자, 사람들을 하나로 묶는 기도입니다. 벅차오르는 고음과 풍성한 하모니 속에서 당신은 인류를 향한 벅찬 사랑을 느끼며, 다시 한번 세상을 따뜻하게 안아줄 용기를 얻습니다. 당신은 혼자가 아닙니다, 이 음악이 당신의 숭고한 여정을 응원하고 있으니까요.`,
-        bestSong: "George Street Shuffle",
+    "ENFJ": {        bestSong: "Disco Medusae",
         color: "from-amber-300 via-yellow-400 to-orange-500",
         textColor: "text-amber-100",
-        image: "assets/icon_enfj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/George%20Street%20Shuffle.mp3", // Soul/Jazz
+        image: "assets/icon_enfj.webp",
+        audioSrc: "assets/audio/Disco_Medusae.mp3", // Disco/Funky
         coverPattern: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.1) 180deg, transparent 360deg)",
-        animClass: "animate-pulse-slow",
-        pros: [
-            "사람들에게 영감과 동기를 부여하는 카리스마",
-            "뛰어난 공감 능력과 타인을 이끄는 리더십",
-            "언변이 뛰어나고 설득력이 좋음",
-            "공동체의 이익과 화합을 위해 헌신함",
-            "긍정적인 에너지로 주변을 변화시키는 힘"
-        ],
-        cons: [
-            "타인의 문제에 지나치게 감정 이입하여 힘들어함",
-            "비판을 개인적인 공격으로 받아들이고 예민함",
-            "모든 사람을 만족시키려다 자신이 지침",
-            "이상과 현실의 괴리에서 오는 큰 좌절감",
-            "성급한 결정으로 세부 사항을 놓칠 수 있음"
-        ],
-        match: {
-            best: "INFP",
-            bestDesc: "영혼을 구원하는 운명의 파트너. 세상을 더 좋게 만들고 싶은 당신(ENFJ)에게, 순수한 이상을 품은 INFP는 지켜주고 싶은 보석입니다. 당신은 INFP를 세상 밖으로 이끌어주고, INFP는 당신에게 깊은 영감을 줍니다. 가스펠의 숭고함과 로파이의 감성이 만나, 서로의 상처를 치유하고 사랑으로 세상을 채우는 아름다운 동화 같은 관계입니다.",
-            worst: "ISTP",
-            worstDesc: "너무나 차가운 벽. 끊임없이 소통하고 확인받고 싶은 당신에게, 혼자만의 동굴이 필요한 ISTP는 풀리지 않는 숙제입니다. 당신의 헌신을 그들은 부담스러워하고, 그들의 무반응에 당신은 서서히 말라 죽어갑니다. 열정과 무심함 사이의 거리는 좁혀지기 힘듭니다."
-        }
+        animClass: "animate-pulse-slow",        rarity: "2.5% (RARE)",
+        match: {             best: "INFP",            worst: "ISTP",         }
     },
-    "ENTJ": {
-        genre: "EPIC ORCHESTRA",
-        subTitle: "제국의 황제",
-        desc: `당신은 스스로 운명을 개척하고 세상을 자신의 뜻대로 재편하는 제국의 황제이자 불멸의 전략가입니다.\n\n당신에게 만족이란 없습니다, 오직 성취만이 있을 뿐입니다. 심리학적으로 당신은 태어날 때부터 지휘봉을 쥐고 태어난 리더이며, 혼돈스러운 상황을 정리하고 효율적인 시스템을 구축하는 데 병적인 집착을 보입니다. 당신은 감정에 휘둘리는 것을 나약함으로 간주하며, 목표 달성을 위해서라면 자신조차 도구로 써버리는 냉혹한 결단력을 지녔습니다. 사람들은 당신의 압도적인 추진력을 두려워하면서도 경외합니다. 당신은 길을 찾는 사람이 아니라, 길이 없으면 길을 만드는 사람입니다.\n\n전장을 울리는 웅장한 북소리, 비장한 현악기 선율, 압도적인 스케일의 에픽 오케스트라 음악만이 당신의 거대한 야망을 담을 수 있습니다. 평범하고 잔잔한 음악은 당신의 끓어오르는 정복욕을 감당하지 못합니다.\n\n당신에게 음악은 대관식의 배경음악입니다. 웅장하게 고조되는 클라이맥스를 들으며 당신은 자신이 이룩할 거대한 제국을 상상합니다. 이 음악은 당신에게 명령합니다. "일어나라, 그리고 증명하라. 네가 바로 이 세상의 주인임을." 당신의 심장 박동은 이미 승리의 팡파르와 함께 뛰고 있습니다.`,
-        bestSong: "Heroic Age",
+    "ENTJ": {        bestSong: "Volatile Reaction",
         color: "from-red-700 via-red-900 to-black",
         textColor: "text-red-300",
-        image: "assets/icon_entj.png",
-        audioSrc: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Heroic%20Age.mp3", // Epic
+        image: "assets/icon_entj.webp",
+        audioSrc: "assets/audio/Volatile_Reaction.mp3", // Intense/Epic
         coverPattern: "repeating-linear-gradient(to bottom, transparent, transparent 5px, rgba(255,255,255,0.1) 5px, rgba(255,255,255,0.1) 10px)",
-        animClass: "animate-spin-slow",
-        pros: [
-            "장기적인 안목과 전략적 계획 수립 능력",
-            "강력한 추진력으로 목표를 반드시 달성함",
-            "비효율적인 시스템을 과감하게 개선하는 혁신성",
-            "어려운 결정도 냉철하게 내리는 결단력",
-            "지적 능력에 대한 자신감과 카리스마"
-        ],
-        cons: [
-            "자신의 기준을 타인에게 강요하여 압박줌",
-            "감정적인 배려가 부족해 차갑다다는 평가를 받음",
-            "자신의 실수나 실패를 인정하기 어려워함",
-            "일 중독으로 인해 건강과 인간관계를 소홀히 함",
-            "타인의 능력을 무시하거나 오만해 보일 수 있음"
-        ],
-        match: {
-            best: "INTP",
-            bestDesc: "세계를 정복할 브레인 듀오. 야망 있는 당신(ENTJ)에게, 천재적인 분석력을 가진 INTP는 최고의 참모입니다. 당신이 큰 그림을 그리면 그들은 디테일한 논리를 채워줍니다. 감정 싸움 따위는 없는 쿨하고 생산적인 관계! 에픽 오케스트라의 웅장함과 IDM의 정교함이 결합하여, 그 어떤 난관도 돌파하는 최강의 전력을 자랑합니다.",
-            worst: "ISFP",
-            worstDesc: "속도가 맞지 않는 관계. 빠르고 효율적인 결과를 원하는 당신에게, 느긋하고 자신의 감정에 충실한 ISFP는 게으른 베짱이로 보입니다. 당신의 독촉은 ISFP를 숨 2게 만들고, 그들의 감정적인 태도는 당신의 성질을 긁어놓습니다. 함께 일하다가는 서로의 멘탈이 남아나지 않을 것입니다."
-        }
+        animClass: "animate-spin-slow",        rarity: "1.8% (SUPER RARE!)",
+        match: {             best: "INTP",            worst: "ISFP",         }
     }
 };
