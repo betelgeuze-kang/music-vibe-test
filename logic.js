@@ -731,9 +731,22 @@ function renderResult() {
             <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
                 ${T.btn_share}
             </button>
+        </div>
+
+        <!-- Social Share Row -->
+        <div class="flex gap-2">
             <button onclick="shareKakao()" class="flex-1 bg-[#FAE100] border border-[#FAE100] text-[#371D1E] text-xs font-bold py-3 rounded-xl hover:bg-[#FFEB3B] active:scale-95 transition-all flex items-center justify-center gap-1">
                  <i data-lucide="message-circle" class="w-4 h-4 text-[#371D1E]"></i> ${T.kakao_share_btn || "Kakao"}
             </button>
+            
+            <button onclick="shareTwitter()" class="flex-1 bg-black border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-gray-900 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-lg">
+                 <i data-lucide="twitter" class="w-4 h-4 text-white"></i> X (트위터)
+            </button>
+            
+            <button onclick="shareInstagram()" class="flex-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white text-xs font-bold py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-lg">
+                 <i data-lucide="instagram" class="w-4 h-4 text-white"></i> Insta
+            </button>
+        </div>
         </div>
 
         <!-- [Feature] See Other Types Button -->
@@ -1624,6 +1637,104 @@ window.shareKakao = function () {
         ],
     });
 };
+
+// [Viral] Twitter Share Logic
+window.shareTwitter = function () {
+    const text = `내 음악적 성격은? 🎧\n🎵 ${finalResult.genre} (${finalResult.mbti})\n\n👉 테스트 하러가기:`;
+    const url = "https://my-music-vibe.com";
+    const hashtags = "MusicVibeTest,MBTI,음악성격";
+
+    // Use Twitter Web Intent
+    const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags)}`;
+    window.open(intentUrl, '_blank', 'width=550,height=420');
+};
+
+// [Viral] Instagram Share Logic (Web Fallback)
+window.shareInstagram = async function () {
+    // 1. Try Native Share (Mobile) - "Stories" often accept image shares
+    if (navigator.canShare && navigator.share) {
+        try {
+            // We need a file to share to Instagram properly
+            // Reuse the logic from saveImage to get a blob, but streamlined
+            const exportCard = document.getElementById('export-card');
+            const exImg = document.getElementById('export-img');
+            const exGenre = document.getElementById('export-genre');
+            const exMbti = document.getElementById('export-mbti');
+            const exSong = document.getElementById('export-song');
+            const exMatch = document.getElementById('export-match-type');
+            const exTags = document.getElementById('export-tags');
+            const exBg = document.getElementById('export-bg-gradient');
+            const exGlow = document.getElementById('export-avatar-glow');
+            const exOverlay = document.getElementById('export-bg-overlay');
+
+            // Sync Data (Same as saveImage)
+            exImg.src = finalResult.image;
+            exGenre.innerText = finalResult.genre;
+            exMbti.innerText = finalResult.mbti;
+            exSong.innerText = finalResult.bestSong;
+            exMatch.innerText = RESULTS_DATA[finalResult.match.best].genre;
+
+            if (finalResult.color) {
+                exBg.className = `absolute inset-0 z-0 bg-gradient-to-br ${finalResult.color}`;
+                exGlow.className = `absolute inset-[-40px] rounded-full blur-[80px] opacity-60 bg-gradient-to-br ${finalResult.color}`;
+                exOverlay.style.background = finalResult.coverPattern || '';
+            }
+
+            exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
+                <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
+            `).join('');
+
+            exportCard.classList.remove('hidden');
+
+            // Wait for image
+            await new Promise(resolve => {
+                if (exImg.complete) resolve();
+                else exImg.onload = resolve;
+            });
+
+            const canvas = await html2canvas(exportCard, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#09090b',
+                logging: false,
+                width: 1080,
+                height: 1920
+            });
+
+            exportCard.classList.add('hidden');
+
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], "music_vibe_result.png", { type: "image/png" });
+
+                try {
+                    // Attempt native share with file
+                    await navigator.share({
+                        files: [file],
+                        title: 'My Music Vibe',
+                        text: 'Check out my music vibe! 🎧'
+                    });
+                } catch (err) {
+                    console.log("Native share failed/cancelled", err);
+                    // Fallback if user cancels or app doesn't support file share
+                }
+            }, 'image/png');
+
+            return; // Exit if native share attempted
+
+        } catch (e) {
+            console.log("Blob generation or share processing failed", e);
+            // Fallback to manual download
+        }
+    }
+
+    // 2. Fallback: Save Image & Alert
+    // If we are here, native sharing failed or isn't supported. 
+    // Just trigger the normal save logic and show a toast/alert.
+    await saveImage();
+    alert("이미지가 저장되었습니다! 📸\n인스타그램 스토리/피드에 직접 업로드해주세요.");
+};
+
 
 // Initialize App
 if (document.readyState === 'loading') {
