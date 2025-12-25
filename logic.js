@@ -1084,8 +1084,8 @@ window.saveImage = async function () {
     const originalText = btn.innerHTML;
     const T = TRANSLATIONS[currentLang].ui;
 
-    // Set Loading State
-    btn.innerHTML = `<svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> ${T.saving_img}`;
+    // Set Loading State (Clean SVG to avoid code exposure)
+    btn.innerHTML = `<svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> ${T.saving_img}`;
     btn.disabled = true;
 
     // 1. Prepare Export Logic
@@ -1127,8 +1127,9 @@ window.saveImage = async function () {
         <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
     `).join('');
 
-    // 2. Capture (Always rendered at left-[-9999px], just ensuring opacity/z-index for capture)
+    // 2. Capture (Using safer visibility/opacity for html2canvas)
     exportCard.style.opacity = '1';
+    exportCard.style.visibility = 'visible';
     exportCard.style.zIndex = '9999';
 
     try {
@@ -1158,6 +1159,7 @@ window.saveImage = async function () {
         alert(T.share_error);
     } finally {
         exportCard.style.opacity = '0';
+        exportCard.style.visibility = 'hidden';
         exportCard.style.zIndex = '-1';
         btn.innerHTML = originalText;
         btn.disabled = false;
@@ -1672,7 +1674,7 @@ window.shareKakao = function () {
         content: {
             title: '나의 음악 주파수(Vibe)는? 🎧',
             description: `내 결과: ${finalResult.genre} (#${finalResult.mbti})\n당신의 소울 바이브도 찾아보세요!`,
-            imageUrl: finalResult.image,
+            imageUrl: window.location.origin + '/' + finalResult.image,
             link: {
                 mobileWebUrl: 'https://my-music-vibe.com',
                 webUrl: 'https://my-music-vibe.com',
