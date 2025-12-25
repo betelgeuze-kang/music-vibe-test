@@ -1926,415 +1926,467 @@ if (document.readyState === 'loading') {
     setTimeout(initKakao, 1000);
 }
 
-// OVERRIDE: Corrected saveImage function with Container Strategy (Fixes Viewport Clipping & Gradient Errors)
-window.saveImage = async function () {
-    // 1. Prepare for Capture
-    const btn = document.getElementById('save-image-btn');
-    const originalText = btn.innerHTML;
-    const T = TRANSLATIONS[currentLang].ui;
-
-    // Get Export Elements
-    const exportCard = document.getElementById('export-card');
-    const exImg = document.getElementById('export-img');
-    const exGenreEn = document.getElementById('export-genre-en');
-    const exGenreKr = document.getElementById('export-genre-kr');
-    const exMbti = document.getElementById('export-mbti');
-    const exMbtiIcon = document.getElementById('export-mbti-icon');
-    const exSong = document.getElementById('export-song');
-    const exMatch = document.getElementById('export-match-type');
-    const exTags = document.getElementById('export-tags');
-    const exBg = document.getElementById('export-bg-gradient');
-    const exOverlay = document.getElementById('export-bg-overlay');
-    const exRarity = document.getElementById('export-rarity-badge');
-    const exEnergyVal = document.getElementById('export-energy-value');
-    const exEnergyBar = document.getElementById('export-energy-bar');
-    const exResultId = document.getElementById('export-result-id');
-
-    // Container for Capture
-    let captureContainer = null;
-
-    try {
-        // Loading State
-        btn.innerHTML = `<span class="animate-pulse">⏳ ${T.loading || "Saving"}...</span>`;
-        btn.disabled = true;
-
-        console.log("SaveImage (Override): Syncing data...", { mbti: finalResult.mbti });
-
-        // --- DATA SYNC ---
-        if (exImg) {
-            exImg.crossOrigin = "anonymous";
-            exImg.src = finalResult.image;
-        }
-
-        const genreText = finalResult.genre;
-        if (genreText && genreText.includes('&')) {
-            const parts = genreText.split('&');
-            if (exGenreEn) exGenreEn.innerHTML = `${parts[0].trim()}<br>& ${parts[1].trim()}`;
-        } else {
-            if (exGenreEn) exGenreEn.innerText = genreText || "";
-        }
-
-        const localResult = (TRANSLATIONS['kr'].results && TRANSLATIONS['kr'].results[finalResult.id]) ? TRANSLATIONS['kr'].results[finalResult.id] : {};
-        if (exGenreKr) exGenreKr.innerText = localResult.genre || "";
-
-        if (exMbti) exMbti.innerText = finalResult.mbti;
-        if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti ? finalResult.mbti.substring(0, 2) : "";
-        if (exSong) exSong.innerText = finalResult.bestSong || "";
-        if (exResultId) exResultId.innerText = `#MV-2025-${Math.floor(Math.random() * 9000) + 1000}`;
-
-        const rarityMap = { 'INFJ': 1.5, 'ENTP': 3.2, 'INTJ': 2.1, 'ENFJ': 2.5, 'INFP': 4.4, 'ENFP': 8.1, 'ISFP': 8.8, 'INTP': 3.3, 'ESFP': 8.5, 'ESTP': 4.3, 'ISFJ': 13.8, 'ESFJ': 12.3, 'ISTJ': 11.6, 'ESTJ': 8.7, 'ISTP': 5.4, 'ENTJ': 1.8 };
-        const rarity = rarityMap[finalResult.mbti] || 5.0;
-        if (exRarity) exRarity.innerText = `TOP ${rarity}%`;
-
-        const energy = Math.floor(80 + Math.random() * 19);
-        if (exEnergyVal) exEnergyVal.innerText = `${energy}%`;
-        if (exEnergyBar) exEnergyBar.style.width = `${energy}%`;
-
-        const bestMatchKey = finalResult.match ? finalResult.match.best : null;
-        if (bestMatchKey && RESULTS_DATA[bestMatchKey]) {
-            const localMatch = (TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[bestMatchKey]) ? TRANSLATIONS[currentLang].results[bestMatchKey] : {};
-            if (exMatch) exMatch.innerText = localMatch.genre || RESULTS_DATA[bestMatchKey].genre;
-        } else {
-            if (exMatch) exMatch.innerText = "Unknown";
-        }
-
-        // Enhanced Styling
-        if (finalResult.color) {
-            const colorMap = {
-                'from-purple-600': 'linear-gradient(135deg, #4c1d95, #1e1b4b, #000000)',
-                'from-pink-600': 'linear-gradient(135deg, #831843, #1a1a1c, #000000)',
-                'from-blue-600': 'linear-gradient(135deg, #0e7490, #082f49, #000000)',
-                'from-amber-600': 'linear-gradient(135deg, #92400e, #09090b, #000000)',
-                'from-emerald-600': 'linear-gradient(135deg, #065f46, #022c22, #000000)'
-            };
-            const baseGradient = finalResult.color.split(' ')[0];
-            const richGradient = colorMap[baseGradient] || `linear-gradient(135deg, #4c1d95, #000000)`;
-
-            if (exBg) {
-                exBg.className = 'absolute inset-0 z-0';
-                exBg.style.background = richGradient;
-                exBg.style.width = '100%';
-                exBg.style.height = '100%';
-            }
-            if (exOverlay) {
-                exOverlay.className = 'absolute inset-0 z-0 opacity-40 mix-blend-screen';
-                exOverlay.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%)';
-                exOverlay.style.width = '100%';
-                exOverlay.style.height = '100%';
-            }
-        }
-
-        if (exTags && finalResult.pros) {
-            exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
-                <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
-            `).join('');
-        }
-
-        console.log("SaveImage (Container): Preparing capture...");
-
-        // --- CONTAINER STRATEGY ---
-        captureContainer = document.createElement('div');
-        captureContainer.id = 'capture-container';
-        captureContainer.style.position = 'absolute';
-        captureContainer.style.top = '0';
-        captureContainer.style.left = '0';
-        captureContainer.style.width = '1080px';
-        captureContainer.style.height = '1920px';
-        captureContainer.style.overflow = 'hidden';
-        captureContainer.style.zIndex = '-9999';
-        captureContainer.style.visibility = 'visible';
-        document.body.appendChild(captureContainer);
-
-        const clone = exportCard.cloneNode(true);
-        clone.id = 'export-card-clone';
-
-        clone.style.display = 'flex';
-        clone.style.position = 'absolute';
-        clone.style.top = '0';
-        clone.style.left = '0';
-        clone.style.width = '100%';
-        clone.style.height = '100%';
-        clone.style.transform = 'none';
-        clone.style.opacity = '1';
-        clone.style.visibility = 'visible';
-        clone.style.zIndex = 'auto';
-
-        const cloneBg = clone.querySelector('#export-bg-gradient');
-        const cloneOverlay = clone.querySelector('#export-bg-overlay');
-
-        if (cloneBg) {
-            cloneBg.style.width = '1080px';
-            cloneBg.style.height = '1920px';
-        }
-        if (cloneOverlay) {
-            cloneOverlay.style.width = '1080px';
-            cloneOverlay.style.height = '1920px';
-        }
-
-        captureContainer.appendChild(clone);
-        console.log("SaveImage: Container ready.");
-
-        window.scrollTo(0, 0);
-        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 500)));
-
-        if (typeof html2canvas === 'undefined') throw new Error("html2canvas not loaded");
-
-        const cloneImg = clone.querySelector('#export-img');
-        if (cloneImg && !cloneImg.complete) {
-            await new Promise((resolve) => {
-                cloneImg.onload = resolve;
-                cloneImg.onerror = resolve;
-                setTimeout(resolve, 1500);
-            });
-        }
-
-        const canvas = await html2canvas(captureContainer, {
-            scale: 1,
-            useCORS: true,
-            backgroundColor: '#09090b',
-            logging: false,
-            width: 1080,
-            height: 1920,
-            windowWidth: 1080,
-            windowHeight: 1920,
-            scrollX: 0,
-            scrollY: 0,
-            x: 0,
-            y: 0,
-            ignoreElements: (element) => element.classList.contains('exclude-export')
-        });
-
-        console.log("SaveImage: Capture complete.");
-        const dataUrl = canvas.toDataURL('image/png');
-        showPreviewModal(dataUrl);
-
-    } catch (err) {
-        console.error("Capture failed:", err);
-        alert((T.share_error || "Image save failed.") + "\n(" + (err.message || "Unknown") + ")");
-    } finally {
-        if (captureContainer && captureContainer.parentNode) {
-            captureContainer.parentNode.removeChild(captureContainer);
-        }
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-
-        if (exportCard) {
-            exportCard.style.transform = 'translateY(200%)';
-            exportCard.style.opacity = '0';
-            exportCard.style.visibility = 'hidden';
-            exportCard.style.zIndex = '-1';
-        }
-    }
-};
 
 // ============================================================
-// FINAL FIX: Native Canvas Drawing Strategy
-// ============================================================
-// This implementation abandons html2canvas entirely to avoid
-// browser-specific rendering bugs (non-finite gradients, clipping).
-// instead, we manually draw the result card to a 1080x1920 canvas.
+// PREMIUM EXPORT SYSTEM (Safe Native Canvas)
 // ============================================================
 
-// --- Helper: Load Image for Canvas ---
-function loadCanvasImage(src) {
-    return new Promise((resolve, reject) => {
+/**
+ * 1. Safe Image Loader with Timeout
+ */
+function loadCanvasImageSafe(src, timeoutMs = 5000) {
+    return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+
+        const timeoutId = setTimeout(() => {
+            console.warn("Image load timed out:", src);
+            resolve(null);
+        }, timeoutMs);
+
+        img.onload = () => {
+            clearTimeout(timeoutId);
+            resolve(img);
+        };
+
+        img.onerror = () => {
+            clearTimeout(timeoutId);
+            console.warn("Image load failed:", src);
+            resolve(null);
+        };
+
         img.src = src;
     });
 }
 
-// --- CORE: Native Canvas Drawing (Bypasses html2canvas) ---
-async function drawResultToCanvas(result) {
+/**
+ * 2. Identity Profile Card Drawing Logic
+ */
+async function drawEtherealVinylCanvasSafe(result) {
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1920;
     const ctx = canvas.getContext('2d');
+    const centerX = 1080 / 2;
 
-    // 1. Background Gradient
-    // Map tailwind classes to Canvas Gradients
-    let gradient = ctx.createLinearGradient(0, 0, 1080, 1920);
-    const colorCode = result.color ? result.color.split(' ')[0] : 'from-purple-600';
+    // --- 1. AURA BACKGROUND (Layered "Aura" Effect) ---
+    // Fix: Use result.mbti as the key (result.id might be undefined)
+    const mbtiKey = result.mbti || "ISTJ";
 
-    const gradientStops = {
-        'from-purple-600': ['#4c1d95', '#1e1b4b', '#000000'],
-        'from-pink-600': ['#831843', '#1a1a1c', '#000000'],
-        'from-blue-600': ['#0e7490', '#082f49', '#000000'],
-        'from-amber-600': ['#92400e', '#09090b', '#000000'],
-        'from-emerald-600': ['#065f46', '#022c22', '#000000']
+    // Precise Layered Color Mapping (Synchronized with Result Screen Atmospheres)
+    const auraColors = {
+        'ISTJ': { base: '#0f172a', glow: 'rgba(51, 65, 85, 0.6)', accent: 'rgba(30, 41, 59, 0.5)' }, // Slate Deep
+        'ISFJ': { base: '#1e1b10', glow: 'rgba(180, 83, 9, 0.5)', accent: 'rgba(251, 191, 36, 0.3)' }, // Amber Warm
+        'INFJ': { base: '#1e1b4b', glow: 'rgba(79, 70, 229, 0.6)', accent: 'rgba(129, 140, 248, 0.4)' }, // Indigo Mystical
+        'INTJ': { base: '#0f172a', glow: 'rgba(30, 58, 138, 0.6)', accent: 'rgba(37, 99, 235, 0.4)' },  // Blue Deep
+        'ISTP': { base: '#18181b', glow: 'rgba(82, 82, 91, 0.5)', accent: 'rgba(39, 39, 42, 0.4)' },  // Zinc Tech
+        'ISFP': { base: '#310a1a', glow: 'rgba(225, 29, 72, 0.6)', accent: 'rgba(251, 113, 133, 0.4)' }, // Rose Artistic
+        'INFP': { base: '#064e3b', glow: 'rgba(5, 150, 105, 0.6)', accent: 'rgba(16, 185, 129, 0.4)' }, // Emerald Dreamy
+        'INTP': { base: '#2e1065', glow: 'rgba(124, 58, 237, 0.6)', accent: 'rgba(139, 92, 246, 0.4)' }, // Violet Intellectual
+        'ESTP': { base: '#450a0a', glow: 'rgba(220, 38, 38, 0.6)', accent: 'rgba(153, 27, 27, 0.5)' },  // Red Energetic
+        'ESFP': { base: '#431407', glow: 'rgba(234, 88, 12, 0.6)', accent: 'rgba(194, 65, 12, 0.4)' },  // Orange Vibrant
+        'ENFP': { base: '#430641', glow: 'rgba(217, 70, 239, 0.6)', accent: 'rgba(162, 28, 175, 0.4)' },  // Fuchsia Social
+        'ENTP': { base: '#1a2e05', glow: 'rgba(101, 163, 13, 0.6)', accent: 'rgba(77, 124, 15, 0.4)' },  // Lime Curious
+        'ESTJ': { base: '#0c4a6e', glow: 'rgba(2, 132, 199, 0.6)', accent: 'rgba(3, 105, 161, 0.4)' },  // Cyan Efficient
+        'ESFJ': { base: '#2d0a31', glow: 'rgba(147, 51, 234, 0.7)', accent: 'rgba(192, 38, 211, 0.5)' },  // Purple-Pink K-Pop
+        'ENFJ': { base: '#451a03', glow: 'rgba(245, 158, 11, 0.6)', accent: 'rgba(217, 119, 6, 0.5)' },  // Amber Charismatic
+        'ENTJ': { base: '#450a0a', glow: 'rgba(185, 28, 28, 0.7)', accent: 'rgba(153, 27, 27, 0.5)' }   // Crimson Strategic (Deep Red Sync)
     };
 
-    const stops = gradientStops[colorCode] || gradientStops['from-purple-600'];
-    gradient.addColorStop(0, stops[0]);
-    gradient.addColorStop(0.5, stops[1]);
-    gradient.addColorStop(1, stops[2]);
+    const colors = auraColors[mbtiKey] || auraColors['ISTJ'];
 
-    ctx.fillStyle = gradient;
+    // Multi-layer Gradient for Richer Aura
+    ctx.fillStyle = colors.base;
     ctx.fillRect(0, 0, 1080, 1920);
 
-    // 2. Grain/Noise Overlay (Simulated)
-    let overlayGrad = ctx.createLinearGradient(0, 0, 0, 1920);
-    overlayGrad.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
-    overlayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = overlayGrad;
+    // 1. Back Glow (Deeper, broader)
+    const backGlow = ctx.createRadialGradient(centerX, 400, 0, centerX, 400, 1400);
+    backGlow.addColorStop(0, colors.glow);
+    backGlow.addColorStop(0.6, colors.glow.replace('0.4', '0.05').replace('0.5', '0.05').replace('0.6', '0.05').replace('0.7', '0.05'));
+    backGlow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = backGlow;
     ctx.fillRect(0, 0, 1080, 1920);
 
+    // 2. Front Aura (Vibrant, directional)
+    const frontAura = ctx.createLinearGradient(0, -200, 1080, 1000);
+    frontAura.addColorStop(0, colors.accent);
+    frontAura.addColorStop(0.5, 'rgba(0,0,0,0)');
+    frontAura.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = frontAura;
+    ctx.fillRect(0, 0, 1080, 1920);
 
-    // 3. Main Image (Circle Record Style)
-    try {
-        if (result.image) {
-            const mainImg = await loadCanvasImage(result.image);
+    // 3. Bottom Shadow (Grounding)
+    const bottomShadow = ctx.createLinearGradient(0, 1500, 0, 1920);
+    bottomShadow.addColorStop(0, 'rgba(0,0,0,0)');
+    bottomShadow.addColorStop(1, 'rgba(0,0,0,0.6)');
+    ctx.fillStyle = bottomShadow;
+    ctx.fillRect(0, 0, 1080, 1920);
 
-            const imgW = 750;
-            const imgH = 750;
-            const imgX = (1080 - imgW) / 2;
-            const imgY = 280;
+    // --- 2. MINI LP RECORD (Centerpiece) ---
+    const iconY = 320;
+    const lpRadius = 240;
+    const labelRadius = 90;
 
-            // Shadow
-            ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-            ctx.shadowBlur = 40;
-            ctx.shadowOffsetY = 20;
-
-            // Clip to Circle
+    if (result.image) {
+        const lpImg = await loadCanvasImageSafe(result.image);
+        if (lpImg) {
+            // Draw Vinyl Base
             ctx.save();
-            ctx.beginPath();
-            ctx.arc(1080 / 2, imgY + imgH / 2, imgW / 2, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.clip();
-
-            ctx.drawImage(mainImg, imgX, imgY, imgW, imgH);
-            ctx.restore(); // Restore clip and shadow
-
-            ctx.shadowColor = "transparent";
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-        }
-    } catch (e) {
-        console.warn("Canvas Image Load Failed", e);
-    }
-
-    // 4. Typography & Text setup
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffffff';
-
-    // A. Genre (Top Title)
-    let genreText = result.genre || "Unknown Vibe";
-
-    if (genreText.includes('&')) {
-        const parts = genreText.split('&');
-        ctx.font = 'bold 100px "Pretendard", sans-serif';
-        ctx.fillText(parts[0].trim(), 1080 / 2, 1150);
-
-        ctx.font = '300 60px "Pretendard", sans-serif';
-        ctx.fillText('&', 1080 / 2, 1230);
-
-        ctx.font = 'bold 100px "Pretendard", sans-serif';
-        ctx.fillText(parts[1].trim(), 1080 / 2, 1310);
-    } else {
-        ctx.font = 'bold 110px "Pretendard", sans-serif';
-        ctx.fillText(genreText, 1080 / 2, 1200);
-    }
-
-    // B. Korean Genre (Subtitle) / MBTI
-    const subtitle = (TRANSLATIONS['kr'] && TRANSLATIONS['kr'].results[result.id])
-        ? TRANSLATIONS['kr'].results[result.id].genre
-        : (result.mbti || "");
-
-    ctx.font = '300 40px "Pretendard", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.fillText(subtitle, 1080 / 2, 1420);
-
-
-    // C. Best Song (Bottom)
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 50px "Pretendard", sans-serif';
-    ctx.fillText("🎧 " + (result.bestSong || ""), 1080 / 2, 1550);
-
-
-    // D. Tags (Pills)
-    if (result.pros && result.pros.length > 0) {
-        const tags = result.pros.slice(0, 3).map(p => "#" + p.split(' ').pop());
-
-        const startY = 1700;
-        const gap = 30;
-        ctx.font = 'bold 32px "Pretendard", sans-serif';
-
-        // Measure total width
-        let totalW = 0;
-        const tagMetrics = tags.map(tag => {
-            const m = ctx.measureText(tag);
-            const w = m.width + 60; // Padding
-            totalW += w;
-            return { text: tag, w: w };
-        });
-        totalW += (tags.length - 1) * gap;
-
-        let curX = (1080 - totalW) / 2;
-
-        tagMetrics.forEach(tag => {
-            // Draw Pill
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-            const r = 30;
-            const x = curX;
-            const y = startY;
-            const w = tag.w;
-            const h = 60;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 40;
 
             ctx.beginPath();
-            ctx.roundRect(x, y, w, h, r);
+            ctx.arc(centerX, iconY, lpRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#111111';
             ctx.fill();
 
-            // Border
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 2;
+            // Draw Grooves
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 1;
+            for (let r = 110; r < lpRadius - 5; r += 6) {
+                ctx.beginPath();
+                ctx.arc(centerX, iconY, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Draw Label (Image)
+            ctx.beginPath();
+            ctx.arc(centerX, iconY, labelRadius, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(lpImg, centerX - labelRadius, iconY - labelRadius, labelRadius * 2, labelRadius * 2);
+            ctx.restore();
+
+            // Label Border & Hole
+            ctx.beginPath();
+            ctx.arc(centerX, iconY, labelRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(255,255,255,0.2)";
+            ctx.lineWidth = 4;
             ctx.stroke();
 
-            // Text
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(tag.text, x + w / 2, y + h / 2 + 2);
+            ctx.beginPath();
+            ctx.arc(centerX, iconY, 8, 0, Math.PI * 2);
+            ctx.fillStyle = colors.base;
+            ctx.fill();
 
-            curX += w + gap;
-        });
+            // Shine Reflect
+            const shine = ctx.createLinearGradient(centerX - lpRadius, iconY - lpRadius, centerX + lpRadius, iconY + lpRadius);
+            shine.addColorStop(0, 'rgba(255,255,255,0)');
+            shine.addColorStop(0.48, 'rgba(255,255,255,0.05)');
+            shine.addColorStop(0.5, 'rgba(255,255,255,0.15)');
+            shine.addColorStop(0.52, 'rgba(255,255,255,0.05)');
+            shine.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = shine;
+            ctx.beginPath();
+            ctx.arc(centerX, iconY, lpRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
-    // E. Branding
-    ctx.font = '300 24px "Pretendard", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.fillText("Music Vibe Test 2025", 1080 / 2, 1850);
+    // --- 3. VIBE TITLE (Aesthetic Artist Header) ---
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 72px "Pretendard", sans-serif'; // Kept 900 as per original, instruction was ambiguous
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 15;
+    ctx.fillText(result.genre.toUpperCase(), centerX, 640);
+    ctx.shadowBlur = 0;
+
+    // Small decorative line
+    ctx.beginPath();
+    ctx.moveTo(centerX - 40, 680);
+    ctx.lineTo(centerX + 40, 680);
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // --- 4. CHARACTER ANALYSIS (Lyrics Panel) ---
+    const analysisY = 780;
+    const padding = 120;
+    const maxWidth = 1080 - (padding * 2);
+
+    // Glass Panel for Text
+    drawGlassPanel(ctx, padding / 2, analysisY - 80, 1080 - padding, 820, 60);
+
+    // Detailed Text Wrapping
+    const kData = (TRANSLATIONS['kr'] && TRANSLATIONS['kr'].results[result.id]) || {};
+    const fullDesc = kData.desc || result.desc || "";
+
+    ctx.font = '700 48px "Pretendard", sans-serif'; // Bolder font weight
+    ctx.fillStyle = 'rgba(255,255,255,1)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+
+    // Smart Text Wrapping (Conclusion on complete sentence)
+    wrapTextBySentence(ctx, fullDesc, padding + 40, analysisY, maxWidth - 80, 66, 11);
+
+    // --- 5. IDENTITY HASHTAGS ---
+    const hashtagY = 1660;
+    ctx.textAlign = 'center';
+    ctx.font = '700 52px "Pretendard", sans-serif';
+    ctx.fillStyle = '#fbbf24'; // amber-400
+
+    // Fix: Improved Hashtag Extraction (Ensure complete phrases/keywords)
+    const traits = kData.pros || result.pros || ["심층분석", "유니크바이브"];
+    // Extract keywords (usually the last or longest word in a trait phrase works best for KR)
+    const hashtags = traits.slice(0, 3).map(t => {
+        const parts = t.replace(/[.,]/g, '').split(/\s+/);
+        return "#" + (parts.length > 1 ? parts[parts.length - 1] : parts[0]);
+    });
+
+    const hashtagStr = hashtags.join('     ');
+    ctx.fillText(hashtagStr, centerX, hashtagY);
+
+    // --- 6. MINI RESULT PLAYER FOOTER (Refinement) ---
+    const footerY = 1730; // Slightly higher
+    const footerW = 880;  // Slightly wider for better balance
+    const footerH = 130;
+    const footerX = centerX - (footerW / 2);
+
+    // 1. Player Glass Panel
+    drawGlassPanel(ctx, footerX, footerY, footerW, footerH, 30);
+
+    // 2. Playback Icon (Mini clone)
+    const iconSize = 90; // Slightly larger for better icon visibility
+    const iconMargin = 20;
+    const iconX = footerX + iconMargin;
+    const footerIconY = footerY + (footerH - iconSize) / 2;
+
+    // Draw Gradient Icon Base
+    ctx.save();
+    const iconGrad = ctx.createLinearGradient(iconX, footerIconY, iconX + iconSize, footerIconY + iconSize);
+    iconGrad.addColorStop(0, colors.glow.replace('0.6', '1').replace('0.7', '1'));
+    iconGrad.addColorStop(1, colors.accent.replace('0.4', '1').replace('0.5', '1'));
+
+    ctx.beginPath();
+    roundRect(ctx, iconX, footerIconY, iconSize, iconSize, 20);
+    ctx.fillStyle = iconGrad;
+    ctx.fill();
+
+    // Draw Small Play Triangle on Icon
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    const triSize = 28;
+    const triX = iconX + iconSize / 2 - 5;
+    const triY = footerIconY + iconSize / 2;
+    ctx.moveTo(triX, triY - triSize / 2);
+    ctx.lineTo(triX + triSize, triY);
+    ctx.lineTo(triX, triY + triSize / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 3. Playback Text (Song Info)
+    const textX = iconX + iconSize + 35;
+    const statusT = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].ui.audio_preview) || "NOW PLAYING";
+
+    // Status Text
+    ctx.textAlign = 'left';
+    ctx.font = '700 24px "Pretendard", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(statusT.toUpperCase(), textX, footerY + 45);
+
+    // Song Title (Truncate if too long)
+    const maxSongW = footerX + footerW - textX - 100;
+    let songTitle = result.bestSong || "Vibe Masterpiece";
+    ctx.font = '800 38px "Pretendard", sans-serif';
+    ctx.fillStyle = '#ffffff';
+
+    if (ctx.measureText(songTitle).width > maxSongW) {
+        while (ctx.measureText(songTitle + "...").width > maxSongW && songTitle.length > 0) {
+            songTitle = songTitle.slice(0, -1);
+        }
+        songTitle += "...";
+    }
+    ctx.fillText(songTitle, textX, footerY + 90);
+
+    // 4. Mini Control Circle (Right side)
+    const controlRadius = 28;
+    const controlX = footerX + footerW - 65;
+    const controlY = footerY + footerH / 2;
+
+    ctx.beginPath();
+    ctx.arc(controlX, controlY, controlRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Small play icon in circle
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath();
+    const sTriSize = 14;
+    ctx.moveTo(controlX - 4, controlY - sTriSize / 2);
+    ctx.lineTo(controlX + 10, controlY);
+    ctx.lineTo(controlX - 4, controlY + sTriSize / 2);
+    ctx.fill();
 
     return canvas;
 }
 
-// OVERRIDE: Update saveImage to use drawResultToCanvas
+/**
+ * Helper: RoundRect
+ */
+function roundRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+}
+
+/**
+ * 3. Helper Functions
+ */
+function wrapTextBySentence(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    let currentY = y;
+    let lineCount = 0;
+    const paragraphGap = 20; // Extra gap between sentences (paragraphs)
+
+    for (let i = 0; i < sentences.length; i++) {
+        const sentence = sentences[i].trim() + " ";
+        const words = sentence.split(/\s+/);
+        let tempLineCount = 0;
+        let line = "";
+
+        // Trial wrap to see if sentence fits
+        for (let word of words) {
+            let testLine = line + word + " ";
+            if (ctx.measureText(testLine).width > maxWidth) {
+                tempLineCount++;
+                line = word + " ";
+            } else {
+                line = testLine;
+            }
+        }
+        if (line) tempLineCount++;
+
+        // If adding this sentence exceeds maxLines, we stop here
+        if (lineCount + tempLineCount > maxLines) break;
+
+        // Actually draw the sentence
+        line = "";
+        for (let word of words) {
+            let testLine = line + word + " ";
+            if (ctx.measureText(testLine).width > maxWidth) {
+                ctx.fillText(line, x, currentY);
+                line = word + " ";
+                currentY += lineHeight;
+                lineCount++;
+            } else {
+                line = testLine;
+            }
+        }
+        if (line) {
+            ctx.fillText(line, x, currentY);
+            currentY += lineHeight + paragraphGap; // Add paragraph gap after each sentence
+            lineCount++;
+        }
+    }
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+    const words = text.split(/\s+/);
+    let line = '';
+    let lineCount = 0;
+
+    for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + ' ';
+        let metrics = ctx.measureText(testLine);
+        let testWidth = metrics.width;
+
+        if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+            lineCount++;
+            if (lineCount >= maxLines) return;
+        } else {
+            line = testLine;
+        }
+    }
+    if (lineCount < maxLines) {
+        ctx.fillText(line, x, y);
+    }
+}
+
+function drawGlassPanel(ctx, x, y, width, height, radius) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+    ctx.shadowColor = "rgba(0,0,0,0.2)";
+    ctx.shadowBlur = 40;
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const shine = ctx.createLinearGradient(x, y, x + width, y + height);
+    shine.addColorStop(0, "rgba(255,255,255,0.05)");
+    shine.addColorStop(0.5, "rgba(255,255,255,0)");
+    shine.addColorStop(1, "rgba(255,255,255,0.02)");
+    ctx.fillStyle = shine;
+    ctx.fill();
+
+    ctx.restore();
+}
+
+/**
+ * 4. Override: Main saveImage Function
+ */
 window.saveImage = async function () {
     const btn = document.getElementById('save-image-btn');
     const originalText = btn.innerHTML;
     const T = TRANSLATIONS[currentLang].ui;
 
     try {
-        // Loading State
-        btn.innerHTML = `<span class="animate-pulse">⏳ ${T.loading || "Rendering"}...</span>`;
+        btn.innerHTML = `<span class="animate-pulse">✨ ${T.loading || "Designing"}...</span>`;
         btn.disabled = true;
 
-        console.log("saveImage: Starting Native Canvas Drawing...");
+        if (!finalResult) throw new Error("Result data missing");
 
-        // DRAW
-        const canvas = await drawResultToCanvas(finalResult);
+        await new Promise(r => setTimeout(r, 50));
 
-        // EXPORT
+        const canvas = await Promise.race([
+            drawEtherealVinylCanvasSafe(finalResult),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Generation Timeout (15s)")), 15000))
+        ]);
+
         const dataUrl = canvas.toDataURL('image/png');
-        console.log("saveImage: Canvas rendered. Opening preview.");
 
-        showPreviewModal(dataUrl);
+        if (typeof showPreviewModal === 'function') {
+            showPreviewModal(dataUrl);
+        } else {
+            const link = document.createElement('a');
+            link.download = `music_vibe_${finalResult.id}.png`;
+            link.href = dataUrl;
+            link.click();
+        }
 
     } catch (err) {
-        console.error("Native Canvas generation failed:", err);
-        alert((T.share_error || "Image save failed.") + "\nUse screenshot instead.\n(" + err.message + ")");
+        console.error("Design generation failed:", err);
+        alert((T.share_error || "Image save failed.") + "\n[Debug: " + (err.message || "Unknown Error") + "]");
     } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 };
+
