@@ -1179,6 +1179,8 @@ window.saveImage = async function () {
 
     // 2. Capture (Using safer positioning for html2canvas)
     // Instead of left-[-9999px], we move it within a visible-ish space but absolute positioned/clipped
+    // 2. Capture (Fixed for hanging issues)
+    exportCard.style.position = 'fixed';
     exportCard.style.left = '0';
     exportCard.style.top = '0';
     exportCard.style.transform = 'none';
@@ -1186,27 +1188,34 @@ window.saveImage = async function () {
     exportCard.style.visibility = 'visible';
     exportCard.style.zIndex = '9999';
 
+    // Force a reflow/repaint before generic capture
+    await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
+
     try {
         // Wait for image load with timeout
         await Promise.race([
             new Promise(resolve => {
-                if (exImg.complete) resolve();
+                if (exImg.complete && exImg.naturalHeight !== 0) resolve();
                 else exImg.onload = resolve;
             }),
-            new Promise(resolve => setTimeout(resolve, 3000)) // 3s timeout
+            new Promise(resolve => setTimeout(resolve, 2000)) // Reduced timeout to 2s
         ]);
 
         console.log("SaveImage: Starting html2canvas capture...");
         const canvas = await html2canvas(exportCard, {
-            scale: 1.2, // Baseline scale for stability
+            scale: 2, // Retain quality
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#09090b',
-            logging: true,
-            width: 1080,
-            height: 1920,
+            logging: false, // Turn off logging to reduce overhead
+            windowWidth: 1080, // Force dimensions
+            windowHeight: 1920,
             onclone: (clonedDoc) => {
-                console.log("SaveImage: Document cloned for capture");
+                const clonedCard = clonedDoc.getElementById('export-card');
+                if (clonedCard) {
+                    clonedCard.style.visibility = 'visible';
+                    clonedCard.style.opacity = '1';
+                }
             }
         });
         console.log("SaveImage: Capture complete. Generating data URL...");
@@ -1557,8 +1566,8 @@ window.renderAllTypes = function () {
                         <img src="${merged.image}" class="w-full h-full object-cover" onerror="this.src='assets/icon_main.webp'">
                     </div>
                     <div>
-                        <h3 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">${key}</h3>
-                        <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px] opacity-80 group-hover:opacity-100 transition-opacity">${merged.genre}</p>
+                        <h3 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">${merged.genre}</h3>
+                        <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px] opacity-80 group-hover:opacity-100 transition-opacity">${key}</p>
                     </div>
                 </div>
             </div>
