@@ -1420,8 +1420,7 @@ window.shareResult = async function () {
 }
 
 
-    }
-}
+
 
 // 5. View All Types Logic
 window.renderAllTypes = function () {
