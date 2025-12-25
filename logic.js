@@ -1063,19 +1063,27 @@ window.saveImage = async function () {
     exGenre.innerText = finalResult.genre;
     exMbti.innerText = finalResult.mbti;
     exSong.innerText = finalResult.bestSong;
-    exMatch.innerText = RESULTS_DATA[finalResult.match.best].genre;
 
-    // Enhanced Styling
+    // Fix: Use localized genre for match
+    const bestMatchKey = finalResult.match ? finalResult.match.best : null;
+    if (bestMatchKey && RESULTS_DATA[bestMatchKey]) {
+        const localMatch = (TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[bestMatchKey]) ? TRANSLATIONS[currentLang].results[bestMatchKey] : {};
+        exMatch.innerText = localMatch.genre || RESULTS_DATA[bestMatchKey].genre;
+    } else {
+        exMatch.innerText = "Unknown";
+    }
+
+    // Enhanced Styling - Fixed Spacing
     if (finalResult.color) {
-        exBg.className = `absolute inset - 0 z - 0 bg - gradient - to - br ${finalResult.color} `;
-        exGlow.className = `absolute inset - [-40px] rounded - full blur - [80px] opacity - 60 bg - gradient - to - br ${finalResult.color} `;
+        exBg.className = `absolute inset-0 z-0 bg-gradient-to-br ${finalResult.color}`;
+        exGlow.className = `absolute inset-[-40px] rounded-full blur-[80px] opacity-60 bg-gradient-to-br ${finalResult.color}`;
         exOverlay.style.background = finalResult.coverPattern || '';
     }
 
     // Dynamic Tags (Select 3 pros as tags)
     exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
-    < span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90" > #${pro.split(' ').pop()}</span >
-        `).join('');
+        <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
+    `).join('');
 
     // 2. Capture (Hidden but visible to html2canvas)
     exportCard.classList.remove('hidden');
