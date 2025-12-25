@@ -1409,14 +1409,23 @@ window.renderAllTypes = function () {
         const merged = { ...base, ...local };
 
         gridHtml += `
-    <div onclick="selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="cursor-pointer p-4 rounded-[1.5rem] border border-white/10 hover:border-white/40 bg-gradient-to-br ${merged.color} flex flex-col items-center text-center gap-3 group relative overflow-hidden shadow-lg transition-transform active:scale-95">
-                <div class="absolute inset-0 bg-black/20 z-0"></div> <!--light overlay-->
-                <div class="relative z-10 w-16 h-16 rounded-full overflow-hidden shadow-lg border-2 border-white/20 group-hover:border-white/50 transition-colors">
-                    <img src="${merged.image}" class="w-full h-full object-cover" onerror="this.src='assets/icon_main.webp'">
-                </div>
-                <div class="relative z-10">
-                    <h3 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">${key}</h3>
-                    <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px]">${merged.genre}</p>
+    <div onclick="selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="cursor-pointer relative overflow-hidden rounded-[2rem] p-5 border border-white/10 bg-black/20 backdrop-blur-xl group transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:border-white/30 active:scale-95">
+                
+                <!-- Gradient Background (Subtle Tint) -->
+                <div class="absolute inset-0 bg-gradient-to-br ${merged.color} opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+                
+                <!-- Shine Effect -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                <!-- Content -->
+                <div class="relative z-10 flex flex-col items-center text-center gap-3">
+                    <div class="relative w-16 h-16 rounded-full overflow-hidden shadow-lg border-2 border-white/20 group-hover:border-white/50 transition-colors">
+                        <img src="${merged.image}" class="w-full h-full object-cover" onerror="this.src='assets/icon_main.webp'">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">${key}</h3>
+                        <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px] opacity-80 group-hover:opacity-100 transition-opacity">${merged.genre}</p>
+                    </div>
                 </div>
             </div>
     `;
