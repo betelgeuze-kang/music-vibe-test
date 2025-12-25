@@ -189,9 +189,9 @@ function renderIntro() {
     const T = TRANSLATIONS[currentLang].ui;
 
     appContainer.innerHTML = `
-        <div class="flex flex-col items-center justify-start min-h-full px-6 text-center relative bg-[#09090b] pb-20">
+        <div class="flex flex-col items-center justify-start min-h-full px-6 text-center relative bg-transparent pb-10">
             <!-- K/DA Style Background: Deep Violet + Gold/Neon Accents -->
-            <div id="dynamic-bg-overlay" class="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,_rgba(76,29,149,0.4)_0%,_rgba(0,0,0,1)_70%)] transition-all duration-1000 ease-in-out"></div>
+            <div id="dynamic-bg-overlay" class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(76,29,149,0.5)_0%,_transparent_120%)] transition-all duration-1000 ease-in-out"></div>
             
             <!-- Neon Orbs -->
             <div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_rgba(139,92,246,0.3)_0%,_transparent_70%)] blur-[80px] animate-float"></div>
@@ -204,7 +204,7 @@ function renderIntro() {
             </div>
 
             <!-- Content Container -->
-            <div class="relative z-10 flex flex-col items-center w-full max-w-md animate-fade-in-up">
+            <div class="relative z-10 flex flex-col items-center w-full max-w-md pt-32 pb-10 animate-fade-in-up">
                 
                 <!-- HUD Badge -->
                 <div class="relative group mb-10">
@@ -241,19 +241,28 @@ function renderIntro() {
                 </button>
                 
                 <!-- All Types Button -->
-                 <button onclick="renderScreen('allTypes')" class="group w-full h-14 bg-white/5 hover:bg-white/10 rounded-xl transition-all duration-300 border border-white/10 hover:border-white/30 flex items-center justify-center gap-2 backdrop-blur-md mb-6">
-                    <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors"></i>
-                    <span class="text-gray-400 text-xs font-bold tracking-widest group-hover:text-white transition-colors uppercase">${T.btn_all_types}</span>
+                <!-- All Types Button (Premium Design) -->
+                <!-- All Types Button (Premium Design) -->
+                 <button onclick="renderAllTypes()" class="group w-full h-16 relative overflow-hidden rounded-xl transition-all duration-300 active:scale-95 mb-4 shadow-lg">
+                    <div class="absolute inset-0 bg-white/5 opacity-80 border border-white/10 rounded-xl group-hover:bg-white/10 transition-colors"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    
+                    <div class="relative flex items-center justify-center gap-3 h-full">
+                        <div class="p-1.5 rounded-full bg-white/10 border border-white/10 group-hover:bg-white/20 transition-colors">
+                             <i data-lucide="layout-grid" class="w-4 h-4 text-gray-300 group-hover:text-white transition-colors"></i>
+                        </div>
+                        <span class="text-gray-300 text-xs font-bold tracking-[0.2em] group-hover:text-white transition-colors uppercase bg-transparent shadow-none">${T.btn_all_types}</span>
+                    </div>
                 </button>
 
-                <!-- About Collapsible (Adsense SEO) -->
-                <div class="w-full border-t border-white/5 pt-6 mt-2">
-                    <button onclick="toggleAbout()" class="flex items-center justify-between w-full text-gray-500 hover:text-white transition-colors group">
+                <!-- About Collapsible (Transparent) -->
+                <div class="w-full bg-transparent overflow-hidden transition-all duration-300 mt-0">
+                    <button onclick="toggleAbout()" class="flex items-center justify-between w-full px-6 py-4 text-gray-400 hover:text-white hover:bg-white/5 transition-all group bg-transparent">
                         <span class="text-[10px] font-bold tracking-widest uppercase">${T.about_title}</span>
-                        <i id="about-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300"></i>
+                        <i id="about-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300 opacity-70 group-hover:opacity-100"></i>
                     </button>
                     <div id="about-content-area" class="overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
-                        <div class="py-4">
+                        <div class="px-6 py-4 text-left border-t border-white/5">
                             ${T.about_content}
                         </div>
                     </div>
@@ -376,7 +385,7 @@ function handleAnswer(type, score) {
             calculateResult();
         }
         isTransitioning = false;
-    }, 300);
+    }, 150);
 }
 
 // [Loading] 화면 및 결과 계산
@@ -522,17 +531,16 @@ function renderResult() {
  
             <div class="px-6 py-8 flex flex-col items-center text-center animate-slide-up pb-20 relative z-10">
                 
-                <!-- [Viral] Friend Match Card (If invited) -->
-                ${friendRef ? renderFriendMatchCard(T) : ''}
+                <!-- Friend Match Card Removed -->
 
                 <!-- Main Result Card: Glassmorphism Update -->
                 <div id="result-card" class="w-full max-w-sm bg-black/30 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden mb-6 group select-none transition-all">
                     <div id="card-bg" class="absolute inset-0 bg-gradient-to-br ${finalResult.color} opacity-20 transition-opacity duration-1000"></div>
                     
                     <div class="flex justify-between items-center text-gray-400 text-[10px] font-mono mb-6 opacity-70 relative z-10">
-                        <span>VIBE: ${finalResult.genre}</span>
+                        <span>${T.label_vibe || 'VIBE'}: ${finalResult.genre}</span>
                         <div class="flex gap-1 items-center">
-                            <span>VIBE MATCH</span>
+                            <span>${T.label_vibe_match || 'VIBE MATCH'}</span>
                             <div id="rec-dot" class="w-2 h-2 rounded-full bg-red-500"></div>
                         </div>
                     </div>
@@ -560,7 +568,7 @@ function renderResult() {
 
                             <!-- Album Art Label (Center) -->
                             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[55%] h-[55%] rounded-full z-20 overflow-hidden border-4 border-[#121212] shadow-2xl">
-                                <img src="${finalResult.image}" alt="${finalResult.genre}" class="w-full h-full object-cover opacity-90">
+                                <img src="${finalResult.image}" alt="${finalResult.genre}" class="w-full h-full object-cover opacity-90" onerror="this.src='assets/icon_main.webp'">
                                 
                                 <!-- Vintage Overlay on Label -->
                                 <div class="absolute inset-0 bg-yellow-500/10 mix-blend-overlay"></div>
@@ -570,16 +578,11 @@ function renderResult() {
                             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#09090b] rounded-full z-30 shadow-inner border border-gray-700"></div>
                         </div>
 
-                        <!-- Equalizer Visualizer (Decorative, Static for now but adds vibe) -->
-                        <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-1 opacity-50">
-                            <div class="w-1 h-3 bg-white/20 rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                            <div class="w-1 h-5 bg-white/20 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-1 h-2 bg-white/20 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                        </div>
+
                     </div>
                     <div class="relative z-10 text-left px-2">
                         <div class="inline-block px-3 py-1 bg-white/5 rounded-full mb-3 border border-white/10 backdrop-blur-md">
-                            <span class="text-[11px] font-bold text-gray-300 tracking-widest drop-shadow-sm">${T.result_title}</span>
+                            <span class="text-[11px] font-bold text-gray-300 tracking-widest drop-shadow-sm">${T.result_title} <span class="text-amber-300 ml-2 font-black text-sm drop-shadow-md">(${finalResult.mbti})</span></span>
                         </div>
                         
                         <!-- Rarity Badge (Viral) -->
@@ -636,8 +639,8 @@ function renderResult() {
     ).join('')}
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4">
                             <!-- Strengths: Adaptive Color (Matches Result) -->
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-white/30 transition-colors">
                                 <div class="absolute inset-0 bg-gradient-to-br ${finalResult.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                                 <h4 class="flex items-center gap-2 text-md font-bold mb-4 relative z-10">
                                     <i data-lucide="zap" class="w-5 h-5 text-transparent bg-clip-text bg-gradient-to-br ${finalResult.color}"></i> 
@@ -653,42 +656,42 @@ function renderResult() {
                                 </ul>
                             </div>
 
-                            <!--Weaknesses: Consistent Rose / Red-- >
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-red-500/30 transition-colors">
-            <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <h4 class="flex items-center gap-2 text-md font-bold text-rose-300 mb-4 relative z-10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
-                <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 fill-rose-400/20"></i> ${T.result_con}
-            </h4>
-            <ul class="space-y-3 list-none p-0 relative z-10">
-                ${finalResult.cons.map(c => `
+                            <!-- Weaknesses: Consistent Rose / Red -->
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-red-500/30 transition-colors">
+                                <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <h4 class="flex items-center gap-2 text-md font-bold text-rose-300 mb-4 relative z-10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 fill-rose-400/20"></i> ${T.result_con}
+                                </h4>
+                                <ul class="space-y-3 list-none p-0 relative z-10">
+                                    ${finalResult.cons.map(c => `
                                         <li class="flex items-start gap-3">
                                             <div class="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shadow-[0_0_8px_rgba(251,113,133,0.8)] shrink-0"></div>
                                             <span class="text-gray-300 text-[13px] leading-relaxed break-keep font-medium opacity-90">${c}</span>
                                         </li>
                                     `).join('')}
-            </ul>
-        </div>
-                        </div >
+                                </ul>
+                            </div>
+                        </div>
                         
-                        < !--Match & Mismatch(Viral)-- >
+                        <!--Match & Mismatch(Viral)-->
         ${bestType && worstType ? `
                         <!-- Match & Mismatch (Mini LP Ver.) -->
-                        <div class="grid grid-cols-2 gap-4 mt-8 mb-2 w-full">
+                        <div class="grid grid-cols-2 gap-4 mt-8 mb-2 w-full relative z-20">
                             <!-- Best Match (or Friend Match) -->
                             <div onclick="openMatchModal('${finalResult.mbti}', '${bestType}', true, ${isFriendMatch})" class="group cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center transition-all hover:bg-white/10 hover:border-pink-400/50 active:scale-95 relative overflow-hidden">
                                 <div class="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div class="text-[11px] font-black text-pink-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${labelBest}</div>
                                 
-                                <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear">
+                                <div class="w-20 h-20 flex items-center justify-center mb-3 relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear">
                                     <div class="absolute inset-0 rounded-full border-[3px] border-white/10"></div>
-                                    <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative">
-                                        <img src="${bestData ? bestData.image : ''}" class="w-full h-full object-cover opacity-80">
+                                    <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative shadow-xl">
+                                        <img src="${bestData ? bestData.image : ''}" class="w-full h-full object-cover opacity-90" onerror="this.src='assets/icon_main.webp'">
                                         <div class="absolute inset-0 bg-yellow-500/10 mix-blend-overlay"></div>
                                     </div>
                                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rounded-full border border-gray-700"></div>
                                 </div>
                                 
-                                <div class="text-sm font-black text-white relative z-10">${bestData ? bestData.genre : ''}</div>
+                                <div class="text-sm font-black text-white relative z-10">${(TRANSLATIONS[currentLang].results[bestType] && TRANSLATIONS[currentLang].results[bestType].genre) || (bestData && bestData.genre) || "Unknown Vibe"}</div>
                                 <div class="text-[0.6rem] text-pink-200/60 mt-1 relative z-10">${T.match_click}</div>
                             </div>
 
@@ -697,109 +700,107 @@ function renderResult() {
                                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div class="text-[11px] font-black text-blue-400 mb-3 uppercase tracking-widest relative z-10 drop-shadow-sm">${T.match_label_worst}</div>
                                 
-                                <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-3 shadow-xl relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear overflow-hidden">
+                                <div class="w-20 h-20 flex items-center justify-center mb-3 relative z-10 group-hover:rotate-[360deg] transition-transform duration-[3s] ease-linear overflow-hidden">
                                     <div class="absolute inset-0 rounded-full border-[3px] border-white/10"></div>
-                                    <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative">
-                                        <img src="${worstData ? worstData.image : ''}" class="w-full h-full object-cover opacity-80 backdrop-grayscale">
+                                    <div class="w-[90%] h-[90%] rounded-full overflow-hidden relative shadow-xl">
+                                        <img src="${worstData ? worstData.image : ''}" class="w-full h-full object-cover opacity-90 grayscale" onerror="this.src='assets/icon_main.webp'">
                                     </div>
                                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rounded-full border border-gray-700"></div>
                                 </div>
                                 
-                                <div class="text-sm font-black text-gray-400 group-hover:text-white transition-colors relative z-10">${worstData ? worstData.genre : ''}</div>
+                                <div class="text-sm font-black text-gray-400 group-hover:text-white transition-colors relative z-10">${(TRANSLATIONS[currentLang].results[worstType] && TRANSLATIONS[currentLang].results[worstType].genre) || (worstData && worstData.genre) || "Unknown Vibe"}</div>
                                 <div class="text-[0.6rem] text-blue-200/60 mt-1 relative z-10">${T.match_click}</div>
                             </div>
                         </div>
                         ` : ''
         }
 
-                    </div>
-                </div>
+                    </div >
+                </div >
 
-        <div class="flex flex-col gap-3 w-full max-w-sm">
-            <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
-                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
+    <div class="flex flex-col gap-3 w-full max-w-sm mx-auto">
+        <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
+        </button>
+
+        <div class="flex gap-2">
+            <button onclick="location.reload()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+                ${T.btn_retry}
             </button>
-
-            <div class="flex gap-2">
-                <button onclick="location.reload()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
-                    ${T.btn_retry}
-                </button>
-                <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
-                    ${T.btn_share}
-                </button>
-            </div>
-
-            <!-- [Feature] See Other Types Button -->
-            <button onclick="renderAllTypes()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2">
-                <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
-                ${T.btn_all_types || "All Vibe Types"}
+            <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+                ${T.btn_share}
             </button>
-
-            <button onclick="renderIntro()" class="w-full text-gray-500 text-[10px] uppercase font-bold tracking-widest hover:text-white mt-2 transition-colors">
-                ${T.btn_main}
-            </button>
-            <p class="text-[10px] text-gray-600 text-center px-4 leading-tight mt-4 opacity-50">
-                ${T.disclaimer}
-            </p>
         </div>
-            </div>
+
+        <!-- [Feature] See Other Types Button -->
+        <button onclick="renderAllTypes()" class="w-full py-3 bg-transparent border border-white/30 rounded-xl text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2">
+            <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
+            ${T.btn_all_types || "All Vibe Types"}
+        </button>
+
+        <button onclick="renderIntro()" class="w-full text-gray-500 text-[10px] uppercase font-bold tracking-widest hover:text-white mt-2 transition-colors">
+            ${T.btn_main}
+        </button>
+            <p class="text-[10px] text-white font-bold opacity-90 leading-relaxed max-w-[280px] mx-auto break-keep">
+                ${T.disclaimer_text || "본 테스트는 오락 목적으로 제작되었으며, 공식 MBTI® 검사와는 무관합니다."}
+            </p></div>
             
             <!--Match Detail Modal-->
-        <div id="match-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeMatchModal()"></div>
-            <div class="relative bg-[#1a1a1c] border border-white/10 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl animate-slide-up overflow-hidden">
-                <!-- Background Glow -->
-                <div id="modal-glow" class="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-purple-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+    <div id="match-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeMatchModal()"></div>
+        <div class="relative bg-[#1a1a1c] border border-white/10 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl animate-slide-up overflow-hidden">
+            <!-- Background Glow -->
+            <div id="modal-glow" class="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-purple-500/20 rounded-full blur-[60px] pointer-events-none"></div>
 
-                <!-- Close Button -->
-                <button onclick="closeMatchModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-2 z-20">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
+            <!-- Close Button -->
+            <button onclick="closeMatchModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-2 z-20">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
 
-                <!-- Content -->
-                <div class="flex flex-col items-center text-center relative z-10 mt-2">
-                    <div id="modal-header" class="mb-6">
-                        <!-- Dynamic Header -->
-                    </div>
-
-                    <div class="flex items-center justify-center gap-4 mb-6 w-full">
-                        <!-- My LP -->
-                        <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
-                            <img src="${finalResult.image}" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/20"></div>
-                        </div>
-
-                        <!-- Connection Icon -->
-                        <div id="modal-conn-icon" class="text-2xl animate-pulse">
-                            💖
-                        </div>
-
-                        <!-- Match LP -->
-                        <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
-                            <img id="modal-match-img" src="" class="w-full h-full object-cover">
-                        </div>
-                    </div>
-
-                    <h3 id="modal-match-title" class="text-xl font-black text-white mb-4 tracking-tight">
-                        <!-- Dynamic Genre Name -->
-                    </h3>
-
-                    <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
-
-                    <div class="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        <p id="modal-desc" class="text-gray-300 text-[0.95rem] leading-7 break-keep font-light text-left">
-                            <!-- Detailed Description -->
-                        </p>
-                    </div>
-
-                    <button onclick="closeMatchModal()" class="mt-6 w-full py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all">
-                        ${T.match_close}
-                    </button>
+            <!-- Content -->
+            <div class="flex flex-col items-center text-center relative z-10 mt-2">
+                <div id="modal-header" class="mb-6">
+                    <!-- Dynamic Header -->
                 </div>
+
+                <div class="flex items-center justify-center gap-4 mb-6 w-full">
+                    <!-- My LP -->
+                    <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
+                        <img src="${finalResult.image}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                    </div>
+
+                    <!-- Connection Icon -->
+                    <div id="modal-conn-icon" class="text-2xl animate-pulse">
+                        💖
+                    </div>
+
+                    <!-- Match LP -->
+                    <div class="w-16 h-16 rounded-full bg-black border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-lg relative">
+                        <img id="modal-match-img" src="" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <h3 id="modal-match-title" class="text-xl font-black text-white mb-4 tracking-tight">
+                    <!-- Dynamic Genre Name -->
+                </h3>
+
+                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
+
+                <div class="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    <p id="modal-desc" class="text-gray-200 text-[1.05rem] leading-8 break-keep font-medium text-left">
+                        <!-- Detailed Description -->
+                    </p>
+                </div>
+
+                <button onclick="closeMatchModal()" class="mt-6 w-full py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all">
+                    ${T.match_close}
+                </button>
             </div>
         </div>
-    `;
+    </div>
+`;
     // Safe Lucide Init
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
         lucide.createIcons();
@@ -922,12 +923,12 @@ function renderAllTypes() {
         const finalData = { ...data, ...localData };
 
         return `
-        <div onclick="selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="group relative flex flex-col items-center text-center p-4 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-black/40 hover:-translate-y-1.5 shadow-lg hover:shadow-2xl overflow-hidden">
+    < div onclick = "selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="group relative flex flex-col items-center text-center p-4 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-black/40 hover:-translate-y-1.5 shadow-lg hover:shadow-2xl overflow-hidden" >
             
-            <!--Adaptive Glow-->
+            < !--Adaptive Glow-- >
             <div class="absolute inset-0 bg-gradient-to-br ${finalData.color} opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
             
-            <!--Mini LP Design-->
+            <!--Mini LP Design-- >
             <div class="relative w-24 h-24 mb-4 rounded-full shadow-xl group-hover:scale-105 transition-transform duration-500 ease-out shrink-0">
                  <!-- Vinyl Ring (Adaptive Color) -->
                  <div class="absolute -inset-1 rounded-full bg-gradient-to-br ${finalData.color} opacity-40 blur-md group-hover:opacity-70 transition-opacity"></div>
@@ -942,27 +943,27 @@ function renderAllTypes() {
                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#1a1a1a] rounded-full z-20 border border-white/10 shadow-inner"></div>
             </div>
 
-            <!--Text Content-->
+            <!--Text Content-- >
             <div class="relative z-10 w-full">
                 <span class="inline-block px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase bg-black/50 border border-white/10 text-gray-400 mb-2 group-hover:text-white transition-colors shadow-sm">${key}</span>
                 <h3 class="text-sm font-bold text-gray-100 mb-1 leading-tight group-hover:text-amber-400 transition-all truncate px-1">${finalData.genre}</h3>
                 <p class="text-[10px] text-gray-500 line-clamp-1 group-hover:text-gray-300 transition-colors">${finalData.subTitle}</p>
             </div>
             
-            <!--Play Icon Overlay-->
-            <div class="absolute top-4 right-4 text-white/0 group-hover:text-white/40 transition-all duration-300">
-                <i data-lucide="play-circle" class="w-4 h-4"></i>
-            </div>
-        </div>
-        `}).join('');
+            <!--Play Icon Overlay-- >
+    <div class="absolute top-4 right-4 text-white/0 group-hover:text-white/40 transition-all duration-300">
+        <i data-lucide="play-circle" class="w-4 h-4"></i>
+    </div>
+        </div >
+    `}).join('');
 
     const modal = document.createElement('div');
     modal.id = 'all-types-modal';
     modal.className = 'fixed inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar';
     modal.innerHTML = `
-        <div class="max-w-4xl mx-auto min-h-full flex flex-col">
+    < div class="max-w-4xl mx-auto min-h-full flex flex-col" >
              
-             <!--Glass Header-->
+             < !--Glass Header-- >
              <div class="sticky top-0 z-30 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between shadow-lg -mx-6 -mt-6 rounded-b-2xl mb-8">
                 <div class="flex items-center gap-3">
                     <button onclick="document.getElementById('all-types-modal').remove()" class="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
@@ -976,12 +977,12 @@ function renderAllTypes() {
                 </div>
              </div>
  
-             <!--Grid Layout-->
-             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-24 animate-slide-up">
-                ${typesHTML}
-             </div>
-        </div>
-        `;
+             <!--Grid Layout-- >
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-24 animate-slide-up">
+        ${typesHTML}
+    </div>
+        </div >
+    `;
     document.body.appendChild(modal);
     if (window.lucide) lucide.createIcons();
 }
@@ -998,8 +999,8 @@ function shareResult() {
     }
 
     const shareData = {
-        title: 'MY MUSIC VIBE TEST',
-        text: `Based on my personality, my music vibe is: ${finalResult.genre} (${finalResult.subTitle}) \nCheck out your music persona!`, // Localize this later?
+        title: T.share_title_template || 'MY MUSIC VIBE TEST',
+        text: `${T.share_api_text || "Check out my music persona!"} ${finalResult.genre} (${finalResult.subTitle})`,
         url: window.location.href
     };
 
@@ -1057,8 +1058,8 @@ window.saveImage = async function () {
 
     // Dynamic Tags (Select 3 pros as tags)
     exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
-        < span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90" > #${pro.split(' ').pop()}</span >
-            `).join('');
+    < span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90" > #${pro.split(' ').pop()}</span >
+        `).join('');
 
     // 2. Capture (Hidden but visible to html2canvas)
     exportCard.classList.remove('hidden');
@@ -1101,22 +1102,22 @@ function showPreviewModal(dataUrl) {
     modal.id = 'preview-modal';
     modal.className = 'fixed inset-0 z-[300] flex items-center justify-center p-6 animate-fade-in';
     modal.innerHTML = `
-            < div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick = "closePreview()" ></div >
-                <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
-                    <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
+        < div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick = "closePreview()" ></div >
+            <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
+                <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
 
-                    <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
-                        <img src="${dataUrl}" class="w-full h-full object-contain">
-                    </div>
-
-                    <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
-                        ${T.preview_btn}
-                    </button>
-                    <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
-                        ${T.match_close}
-                    </button>
+                <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
+                    <img src="${dataUrl}" class="w-full h-full object-contain">
                 </div>
-    `;
+
+                <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
+                    ${T.preview_btn}
+                </button>
+                <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
+                    ${T.match_close}
+                </button>
+            </div>
+`;
     document.body.appendChild(modal);
 }
 
@@ -1169,25 +1170,33 @@ window.openMatchModal = function (myTypeKey, targetType, isBest, isFriendOverrid
 
     // UI Reset/Set
     matchImg.src = targetData.image;
-    title.innerHTML = targetData.genre;
+    title.innerHTML = targetData.genre || "Unknown Vibe";
+
+    // Format Description Helper
+    const formatDesc = (text) => {
+        if (!text) return "";
+        // Replace periods/questions/exclamations followed by space using regex, but avoid breaking numbers or Initials if simple
+        // Simple approach: Split by ". " -> ".<br><br>"
+        return text.replace(/([.?!])\s+/g, '$1<br><br>');
+    };
 
     if (isFriendOverride) {
         // [Viral] Friend Match Modal
         const fTitle = T.match_modal_friend || "Friend Compatibility";
-        header.innerHTML = `< span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1" > FRIEND CHECK</span > <span class="text-2xl font-black text-white">${fTitle}</span>`;
+        header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">PERFECT MATCH</span> <span class="text-2xl font-black text-white">${fTitle}</span>`;
         connIcon.textContent = "💌";
         // Show the Friend's Persona Description
-        desc.innerHTML = targetData.desc;
+        desc.innerHTML = formatDesc(targetData.desc);
         glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-purple-500/20 animate-pulse";
     } else if (isBest) {
-        header.innerHTML = `< span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1" > ${T.match_header_sub_best}</span > <span class="text-2xl font-black text-white">${T.match_modal_best}</span>`;
+        header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">${T.match_header_sub_best}</span> <span class="text-2xl font-black text-white">${T.match_modal_best}</span>`;
         connIcon.textContent = "💖";
-        desc.innerHTML = myData.match.bestDesc || "데이터 준비 중입니다...";
+        desc.innerHTML = formatDesc(myData.match.bestDesc || "데이터 준비 중입니다...");
         glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-pink-500/20 animate-pulse";
     } else {
-        header.innerHTML = `< span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1" > ${T.match_header_sub_worst}</span > <span class="text-2xl font-black text-gray-300">${T.match_modal_worst}</span>`;
+        header.innerHTML = `<span class="text-[10px] text-gray-400 font-bold tracking-widest block mb-1">${T.match_header_sub_worst}</span> <span class="text-2xl font-black text-gray-300">${T.match_modal_worst}</span>`;
         connIcon.textContent = "💔";
-        desc.innerHTML = myData.match.worstDesc || "데이터 준비 중입니다...";
+        desc.innerHTML = formatDesc(myData.match.worstDesc || "데이터 준비 중입니다...");
         glow.className = "absolute top-[-20%] right-[-20%] w-[150px] h-[150px] rounded-full blur-[60px] pointer-events-none bg-blue-500/20 animate-pulse";
     }
 
@@ -1251,60 +1260,17 @@ window.confirmSound = function () {
     }, 300);
 }
 
-// 2. Visualizer Logic
+// 2. Visualizer Logic (Disabled per user request)
 window.initVisualizer = function () {
-    const container = document.getElementById('global-visualizer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    // Create 12 bars (mobile friendly)
-    for (let i = 0; i < 12; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'w-2 md:w-3 bg-gradient-to-t from-purple-500/80 to-amber-400/80 rounded-t-full transition-all duration-150 ease-out shadow-[0_0_10px_rgba(168,85,247,0.3)] origin-bottom';
-        bar.style.height = '10px';
-        container.appendChild(bar);
-    }
+    // Disabled
 }
 
 window.toggleVisualizer = function (active) {
-    const container = document.getElementById('global-visualizer');
-    if (!container) return;
-
-    if (active) {
-        container.classList.remove('opacity-0');
-        if (!vizInterval) loopVisualizer();
-    } else {
-        container.classList.add('opacity-0');
-        setTimeout(() => {
-            if (!isPlaying && container) {
-                // reset bars
-                Array.from(container.children).forEach(b => b.style.height = '10px');
-            }
-        }, 500);
-    }
+    // Disabled
 }
 
 window.loopVisualizer = function () {
-    if (!isPlaying) {
-        vizInterval = null;
-        return;
-    }
-
-    const container = document.getElementById('global-visualizer');
-    if (container) {
-        Array.from(container.children).forEach((bar, i) => {
-            // Pseudo-random beat simulation
-            const random = Math.random();
-            const height = 10 + (random * 30); // 10% to 40% height relative to container
-
-            // React to bass (simulated) - center bars higher
-            const centerMultiplier = 1 + (1 - Math.abs(i - 6) / 6);
-
-            bar.style.height = `${(height * centerMultiplier)}% `;
-        });
-    }
-
-    vizInterval = setTimeout(loopVisualizer, 100); // 100ms beat
+    // Disabled
 }
 
 // 3. Friend Rendering
@@ -1330,57 +1296,57 @@ window.renderFriendMatchCard = function (T) {
         color = "text-blue-400";
     } else if (myMbti === friendRef) {
         score = 95;
-        label = "Soulmate?";
+        label = T.match_result_labels.soulmate;
         color = "text-purple-400";
     } else {
         // Fallback calculation
         const diff = [...myMbti].filter((c, i) => c !== friendRef[i]).length;
-        if (diff === 1) { score = 85; label = "Good Vibe"; color = "text-green-400"; }
-        else if (diff === 2) { score = 60; label = "Not Bad"; color = "text-yellow-400"; }
-        else { score = 30; label = "Chaos"; color = "text-red-400"; }
+        if (diff === 1) { score = 85; label = T.match_result_labels.good; color = "text-green-400"; }
+        else if (diff === 2) { score = 60; label = T.match_result_labels.soso; color = "text-yellow-400"; }
+        else { score = 30; label = T.match_result_labels.bad; color = "text-red-400"; }
     }
 
     return `
-        < div class="w-full max-w-sm mb-6 animate-fade-in-down" >
-            <div class="glass-panel p-4 rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/40 to-black/40 relative overflow-hidden">
-                <div class="absolute inset-0 bg-white/5 animate-pulse-slow"></div>
+    < div class="w-full max-w-sm mb-6 animate-fade-in-down" >
+        <div class="glass-panel p-4 rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/40 to-black/40 relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/5 animate-pulse-slow"></div>
 
-                <div class="relative z-10 flex justify-between items-center mb-4">
-                    <span class="text-xs font-bold text-gray-300 uppercase tracking-widest">${T.friend_match_title || "Friend Match"}</span>
+            <div class="relative z-10 flex justify-between items-center mb-4">
+                <span class="text-xs font-bold text-gray-300 uppercase tracking-widest">${T.match_modal_friend || "Friend Match"}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+                <!-- Me -->
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-purple-500 overflow-hidden shadow-lg">
+                        <img src="${finalResult.image}" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-400">${T.label_you || 'YOU'}</span>
                 </div>
 
-                <div class="flex items-center justify-between gap-4">
-                    <!-- Me -->
-                    <div class="flex flex-col items-center gap-2">
-                        <div class="w-14 h-14 rounded-full border-2 border-purple-500 overflow-hidden shadow-lg">
-                            <img src="${finalResult.image}" class="w-full h-full object-cover">
-                        </div>
-                        <span class="text-[10px] font-bold text-gray-400">YOU</span>
-                    </div>
-
-                    <!-- Score -->
-                    <div class="flex flex-col items-center">
-                        <span class="text-2xl font-black ${color} drop-shadow-glow">${score}%</span>
-                        <span class="text-[10px] uppercase font-bold text-white/50">${label}</span>
-                    </div>
-
-                    <!-- Friend -->
-                    <div class="flex flex-col items-center gap-2">
-                        <div class="w-14 h-14 rounded-full border-2 border-gray-500 overflow-hidden shadow-lg grayscale opacity-80">
-                            <img src="${friendData.image}" class="w-full h-full object-cover">
-                        </div>
-                        <span class="text-[10px] font-bold text-gray-400">FRIEND</span>
-                    </div>
+                <!-- Score -->
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl font-black ${color} drop-shadow-glow">${score}%</span>
+                    <span class="text-[10px] uppercase font-bold text-white/50">${label}</span>
                 </div>
 
-                <div class="mt-4 pt-4 border-t border-white/10 text-center">
-                    <p class="text-xs text-gray-400 leading-tight">
-                        ${T.friend_match_desc || "Compatibility with:"} <span class="font-bold text-white">${friendData.genre}</span>
-                    </p>
+                <!-- Friend -->
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-gray-500 overflow-hidden shadow-lg grayscale opacity-80">
+                        <img src="${friendData.image}" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-400">${T.label_friend || 'FRIEND'}</span>
                 </div>
             </div>
-    </div >
-        `;
+
+            <div class="mt-4 pt-4 border-t border-white/10 text-center">
+                <p class="text-xs text-gray-400 leading-tight">
+                    ${T.friend_compatibility_label || "Compatibility with:"} <span class="font-bold text-white">${friendData.genre}</span>
+                </p>
+            </div>
+        </div>
+        </div >
+    `;
 }
 
 // 4. Update Share URL
@@ -1426,12 +1392,11 @@ window.shareResult = async function () {
 window.renderAllTypes = function () {
     triggerHaptic();
     const T = TRANSLATIONS[currentLang].ui;
-    const container = document.getElementById('screen-result');
 
-    // Create Modal Overlay
+    // Create Modal Overlay - Append to app-wrapper for containment
     const modal = document.createElement('div');
     modal.id = 'all-types-modal';
-    modal.className = 'fixed inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar';
+    modal.className = 'absolute inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar'; // absolute instead of fixed for container relative
 
     // Grid Content
     const types = Object.keys(RESULTS_DATA);
@@ -1444,33 +1409,40 @@ window.renderAllTypes = function () {
         const merged = { ...base, ...local };
 
         gridHtml += `
-        < div onclick = "window.location.href='?ref=${key}'" class="cursor-pointer glass-panel p-4 rounded-2xl border border-white/10 hover:border-white/40 hover:bg-white/5 transition-all active:scale-95 flex flex-col items-center text-center gap-3" >
-                <div class="w-16 h-16 rounded-full overflow-hidden shadow-lg border border-white/10">
-                    <img src="${merged.image}" class="w-full h-full object-cover">
+    <div onclick="selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="cursor-pointer p-4 rounded-[1.5rem] border border-white/10 hover:border-white/40 bg-gradient-to-br ${merged.color} flex flex-col items-center text-center gap-3 group relative overflow-hidden shadow-lg transition-transform active:scale-95">
+                <div class="absolute inset-0 bg-black/20 z-0"></div> <!--light overlay-->
+                <div class="relative z-10 w-16 h-16 rounded-full overflow-hidden shadow-lg border-2 border-white/20 group-hover:border-white/50 transition-colors">
+                    <img src="${merged.image}" class="w-full h-full object-cover" onerror="this.src='assets/icon_main.webp'">
                 </div>
-                <div>
-                    <h3 class="font-bold text-white text-sm">${key}</h3>
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest truncate max-w-[120px]">${merged.genre}</p>
+                <div class="relative z-10">
+                    <h3 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">${key}</h3>
+                    <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px]">${merged.genre}</p>
                 </div>
-            </div >
-        `;
+            </div>
+    `;
     });
 
     modal.innerHTML = `
-        < div class="max-w-4xl mx-auto" >
-            <div class="flex justify-between items-center mb-6 sticky top-0 bg-black/90 z-10 py-4 border-b border-white/10">
-                <h2 class="text-2xl font-black text-white italic tracking-tighter">${T.vibe_collection || "Vibe Collection"}</h2>
-                <button onclick="document.getElementById('all-types-modal').remove()" class="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6 relative z-10 py-4 border-b border-white/5">
+                <div class="relative">
+                     <h2 class="text-2xl font-black text-white italic tracking-tighter relative z-10">${T.vibe_collection || "Vibe Collection"}</h2>
+                     <div class="absolute -bottom-1 left-0 w-full h-3 bg-cyan-500/20 blur-lg -z-0"></div>
+                </div>
+
+                <button onclick="document.getElementById('all-types-modal').remove()" class="p-2 rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-10 animate-slide-up">
+            <div class="grid grid-cols-2 gap-4 pb-10 animate-slide-up">
                 ${gridHtml}
             </div>
-        </div >
-        `;
+        </div>
+    `;
 
-    document.body.appendChild(modal);
+    // Append to wrapper if exists, else body
+    const wrapper = document.getElementById('app-wrapper') || document.body;
+    wrapper.appendChild(modal);
 }
 
 
@@ -1514,14 +1486,14 @@ function showCookieBanner() {
 
     const T = TRANSLATIONS[currentLang].ui;
     banner.innerHTML = `
-        < div class="flex items-center gap-3 text-white/90 text-sm" >
+    <div class="flex items-center gap-3 text-white/90 text-sm">
             <span class="p-2 bg-amber-500/20 rounded-lg"><i data-lucide="cookie" class="w-5 h-5 text-amber-400"></i></span>
             <p>${T.cookie_text}</p>
-        </div >
-        <button onclick="acceptCookies()" class="px-6 py-2 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap">
-            ${T.cookie_btn}
-        </button>
-    `;
+        </div>
+    <button onclick="acceptCookies()" class="px-6 py-2 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap">
+        ${T.cookie_btn}
+    </button>
+`;
 
     document.body.appendChild(banner);
     if (window.lucide) lucide.createIcons();
@@ -1563,22 +1535,22 @@ function showPreviewModal(dataUrl) {
     modal.id = 'preview-modal';
     modal.className = 'fixed inset-0 z-[300] flex items-center justify-center p-6 animate-fade-in';
     modal.innerHTML = `
-        < div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick = "closePreview()" ></div >
-            <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
-                <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
+    <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closePreview()"></div>
+        <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
+            <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
 
-                <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
-                    <img src="${dataUrl}" class="w-full h-full object-contain">
-                </div>
-
-                <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
-                    ${T.preview_btn}
-                </button>
-                <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
-                    ${T.match_close}
-                </button>
+            <div class="w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/5 mb-6 bg-black">
+                <img src="${dataUrl}" class="w-full h-full object-contain">
             </div>
-    `;
+
+            <button onclick="downloadCapturedImage('${dataUrl}')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mb-3">
+                ${T.preview_btn}
+            </button>
+            <button onclick="closePreview()" class="text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
+                ${T.match_close}
+            </button>
+        </div>
+`;
     document.body.appendChild(modal);
 }
 
