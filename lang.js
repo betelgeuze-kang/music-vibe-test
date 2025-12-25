@@ -765,7 +765,23 @@ const TRANSLATIONS = {
                 bad: "不協和音 (Dissonance) 🌪️"
             },
             share_title_template: "魂の周波数診断",
-            share_api_text: "私の魂の周波数はこれでした。🎧"
+            share_api_text: "私の魂の周波数はこれでした。🎧",
+            legal_privacy_content: `
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>「Music Vibe Test」は、ユーザーのプライバシーを尊重し、関連法規を遵守します。</p>
+                        <p><strong>1. データの収集:</strong> 本テストは、ユーザー名を除き、個人を特定できる情報をサーバーに保存しません。結果はブラウザ内でのみ処理されます。</p>
+                        <p><strong>2. クッキーの使用:</strong> サービスの向上および分析（Google Analytics）のためにクッキーを使用することがあります。</p>
+                        <p><strong>3. 広告について:</strong> 本サイトはGoogle AdSenseを使用して広告を掲載しています。Googleは、ユーザーの訪問記録に基づきパーソナライズされた広告を提供するためにクッキーを使用します。</p>
+                    </div>
+                `,
+            legal_terms_content: `
+                    <h3 class='text-xl font-bold mb-4'>利用規約</h3>
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>1. 本サービスは娯楽目的で提供されており、結果に関する法的責任は負いません。</p>
+                        <p>2. ユーザーは、本サービスが提供する結果カードを自由に共有することができます。</p>
+                        <p>3. 無断転載および商業目的の利用は禁止されています。</p>
+                    </div>
+                `
         },
         questions: [
             "新しい出会いは、常に私を刺激する舞台のようです。 🙋‍♀️",
@@ -1055,6 +1071,22 @@ const TRANSLATIONS = {
             },
             share_title_template: "Music Vibe Test",
             share_api_text: "¡Checa mi music vibe! 🎧",
+            legal_privacy_content: `
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>En 'Music Vibe Test', valoramos tu privacidad y cumplimos con las normativas vigentes.</p>
+                        <p><strong>1. Datos:</strong> No almacenamos información de identificación personal en nuestros servidores, a excepción de tu nombre. Los resultados se procesan localmente en tu navegador.</p>
+                        <p><strong>2. Cookies:</strong> Se utilizan para mejorar la experiencia y realizar análisis (Google Analytics).</p>
+                        <p><strong>3. Publicidad:</strong> Este sitio utiliza Google AdSense. Google utiliza cookies para mostrar anuncios personalizados basados en tus visitas anteriores.</p>
+                    </div>
+                `,
+            legal_terms_content: `
+                    <h3 class='text-xl font-bold mb-4'>Términos de Servicio</h3>
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>1. Este servicio se proporciona únicamente con fines de entretenimiento y no asume responsabilidad legal por los resultados.</p>
+                        <p>2. Los usuarios son libres de compartir las tarjetas de resultados generadas por este servicio.</p>
+                        <p>3. Queda prohibida la reproducción no autorizada y el uso comercial del contenido.</p>
+                    </div>
+                `
         },
         questions: [
             "Conocer gente nueva siempre es una etapa emocionante para mí. 🙋‍♀️",
@@ -1337,7 +1369,23 @@ const TRANSLATIONS = {
                 ok_vibe: "Dá pro Gasto 👌",
                 bad_vibe: "Caos 🌪️",
                 disaster: "Corre 💀"
-            }
+            },
+            legal_privacy_content: `
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>No 'Music Vibe Test', valorizamos a sua privacidade e respeitamos as leis de proteção de dados.</p>
+                        <p><strong>1. Dados:</strong> Não armazenamos informações de identificação pessoal em nossos servidores, exceto o seu nome. Os resultados são processados apenas no seu navegador.</p>
+                        <p><strong>2. Cookies:</strong> Utilizados para melhoria do serviço e análise (Google Analytics).</p>
+                        <p><strong>3. Publicidade:</strong> Este site exibe anúncios do Google AdSense. O Google utiliza cookies para veicular anúncios personalizados com base nas suas visitas.</p>
+                    </div>
+                `,
+            legal_terms_content: `
+                    <h3 class='text-xl font-bold mb-4'>Termos de Serviço</h3>
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>1. Este serviço é fornecido apenas para fins de entretenimento e não assume responsabilidade legal pelos resultados.</p>
+                        <p>2. Os usuários podem compartilhar livremente os cartões de resultados fornecidos por este serviço.</p>
+                        <p>3. É proibida a reprodução não autorizada e o uso comercial deste serviço.</p>
+                    </div>
+                `
         },
         questions: [
             "Conhecer novas pessoas é sempre uma etapa emocionante para mim. 🙋‍♀️",
@@ -1620,7 +1668,23 @@ const TRANSLATIONS = {
                 ok_vibe: "Bolen lah 👌",
                 bad_vibe: "Rusuh 🌪️",
                 disaster: "Kabur Wir 💀"
-            }
+            },
+            legal_privacy_content: `
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>Di 'Music Vibe Test', kami menghargai privasi Anda dan mematuhi peraturan yang berlaku.</p>
+                        <p><strong>1. Data:</strong> Kami tidak menyimpan informasi identitas pribadi di server kami, kecuali nama Anda. Hasil tes diproses hanya di dalam browser Anda.</p>
+                        <p><strong>2. Cookie:</strong> Digunakan untuk peningkatan layanan dan analisis (Google Analytics).</p>
+                        <p><strong>3. Iklan:</strong> Situs ini menggunakan Google AdSense. Google menggunakan cookie untuk menayangkan iklan yang dipersonalisasi berdasarkan kunjungan Anda.</p>
+                    </div>
+                `,
+            legal_terms_content: `
+                    <h3 class='text-xl font-bold mb-4'>Ketentuan Layanan</h3>
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>1. Layanan ini disediakan hanya untuk hiburan dan tidak bertanggung jawab secara hukum atas hasil yang diberikan.</p>
+                        <p>2. Pengguna bebas membagikan kartu hasil yang disediakan oleh layanan ini.</p>
+                        <p>3. Reproduksi tanpa izin dan penggunaan komersial dilarang keras.</p>
+                    </div>
+                `
         },
         questions: [
             "Bertemu orang baru selalu menjadi tahap yang mendebarkan bagi saya. 🙋‍♀️",
@@ -1903,7 +1967,23 @@ const TRANSLATIONS = {
                 ok_vibe: "Tạm Ổn 👌",
                 bad_vibe: "Xu Cà Na 🌪️",
                 disaster: "Chạy Ngay Đi 💀"
-            }
+            },
+            legal_privacy_content: `
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>Tại 'Music Vibe Test', chúng tôi tôn trọng quyền riêng tư của bạn và tuân thủ các quy định hiện hành.</p>
+                        <p><strong>1. Dữ liệu:</strong> Chúng tôi không lưu trữ thông tin nhận dạng cá nhân trên máy chủ, ngoại trừ tên của bạn. Kết quả được xử lý trực tiếp trên trình duyệt.</p>
+                        <p><strong>2. Cookies:</strong> Được sử dụng để cải thiện dịch vụ và phân tích (Google Analytics).</p>
+                        <p><strong>3. Quảng cáo:</strong> Trang web này sử dụng Google AdSense. Google sử dụng cookie để hiển thị quảng cáo được cá nhân hóa dựa trên lịch sử truy cập của bạn.</p>
+                    </div>
+                `,
+            legal_terms_content: `
+                    <h3 class='text-xl font-bold mb-4'>Điều Khoản Dịch Vụ</h3>
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>1. Dịch vụ này được cung cấp chỉ với mục đích giải trí và không chịu trách nhiệm pháp lý về kết quả.</p>
+                        <p>2. Người dùng được tự do chia sẻ thẻ kết quả do dịch vụ này cung cấp.</p>
+                        <p>3. Nghiêm cấm sao chép trái phép và sử dụng cho mục đích thương mại.</p>
+                    </div>
+                `
         },
         questions: [
             "Tui thích gặp gỡ người mới và cầm trịch các cuộc vui.",
@@ -2186,7 +2266,23 @@ const TRANSLATIONS = {
                 ok_vibe: "還可以 👌",
                 bad_vibe: "有點母湯 🌪️",
                 disaster: "塊陶阿 💀"
-            }
+            },
+            legal_privacy_content: `
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>在「Music Vibe Test」，我們重視您的隱私並遵守相關法規。</p>
+                        <p><strong>1. 數據採集：</strong> 本測試不會在伺服器上存儲除您的姓名以外的任何個人身份資訊。結果僅在瀏覽器中處理。</p>
+                        <p><strong>2. Cookie 使用：</strong> 用於改善服務和分析（Google Analytics）。</p>
+                        <p><strong>3. 廣告相關：</strong> 本網站使用 Google AdSense。Google 使用 Cookie 根據您的訪問記錄提供個人化廣告。</p>
+                    </div>
+                `,
+            legal_terms_content: `
+                    <h3 class='text-xl font-bold mb-4'>服務條款</h3>
+                    <div class='text-left space-y-4 text-sm text-gray-400'>
+                        <p>1. 本服務僅供娛樂用途，不承擔結果的相關法律責任。</p>
+                        <p>2. 用戶可以自由分享本服務提供的結果卡片。</p>
+                        <p>3. 禁止未經授權的複製及商業用途。</p>
+                    </div>
+                `
         },
         questions: [
             "結識新朋友對我而言始終是個令人興奮的階段。 🙋‍♀️",
