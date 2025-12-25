@@ -66,6 +66,7 @@ const TRANSLATIONS = {
             },
             share_title_template: "뮤직 바이브 테스트",
             share_api_text: "내 성격으로 분석한 음악적 페르소나는? 🎧 확인해보세요!",
+            kakao_share_btn: "카카오톡 공유",
 
             about_title: "테스트 소개 (About)",
             about_content: `

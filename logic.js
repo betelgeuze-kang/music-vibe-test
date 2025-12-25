@@ -731,6 +731,9 @@ function renderResult() {
             <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
                 ${T.btn_share}
             </button>
+            <button onclick="shareKakao()" class="flex-1 bg-[#FAE100] border border-[#FAE100] text-[#371D1E] text-xs font-bold py-3 rounded-xl hover:bg-[#FFEB3B] active:scale-95 transition-all flex items-center justify-center gap-1">
+                 <i data-lucide="message-circle" class="w-4 h-4 text-[#371D1E]"></i> ${T.kakao_share_btn || "Kakao"}
+            </button>
         </div>
 
         <!-- [Feature] See Other Types Button -->
@@ -1579,11 +1582,56 @@ window.downloadCapturedImage = function (dataUrl) {
     link.click();
 };
 
+// [Viral] Kakao Share Logic
+window.initKakao = function () {
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+        try {
+            window.Kakao.init('e861d8f8a85f6c8d67c54f5d22384956'); // Placeholder Key
+            console.log('Kakao SDK Initialized');
+        } catch (e) {
+            console.warn('Kakao Init Failed', e);
+        }
+    }
+};
+
+window.shareKakao = function () {
+    if (!window.Kakao || !window.Kakao.isInitialized()) {
+        alert("카카오톡 공유 기능이 활성화되지 않았습니다.");
+        return;
+    }
+
+    if (!finalResult) return;
+
+    window.Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+            title: '나의 음악 주파수(Vibe)는? 🎧',
+            description: `내 결과: ${finalResult.genre} (#${finalResult.mbti})\n당신의 소울 바이브도 찾아보세요!`,
+            imageUrl: finalResult.image,
+            link: {
+                mobileWebUrl: 'https://my-music-vibe.com',
+                webUrl: 'https://my-music-vibe.com',
+            },
+        },
+        buttons: [
+            {
+                title: '결과 확인하기',
+                link: {
+                    mobileWebUrl: 'https://my-music-vibe.com',
+                    webUrl: 'https://my-music-vibe.com',
+                },
+            },
+        ],
+    });
+};
+
 // Initialize App
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         init();
+        setTimeout(initKakao, 1000);
     });
 } else {
     init();
+    setTimeout(initKakao, 1000);
 }
