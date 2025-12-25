@@ -337,7 +337,7 @@ function renderTest() {
                     `).join('')}
                 </div>
             </div>
-        </div >
+        </div>
     `;
 
     appContainer.innerHTML = contentHTML;
@@ -392,7 +392,7 @@ function handleAnswer(type, score) {
 function renderLoading() {
     const T = TRANSLATIONS[currentLang].ui;
     appContainer.innerHTML = `
-    < div class="flex flex-col items-center justify-center h-full text-center px-6" >
+    <div class="flex flex-col items-center justify-center h-full text-center px-6">
             <div class="flex items-end gap-1 mb-8 h-16">
                 <div class="w-3 bg-gradient-to-t from-purple-600 to-amber-400 rounded-full animate-music-bar shadow-[0_0_10px_rgba(168,85,247,0.5)]" style="animation-delay: 0s;"></div>
                 <div class="w-3 bg-gradient-to-t from-purple-600 to-amber-400 rounded-full animate-music-bar shadow-[0_0_10px_rgba(168,85,247,0.5)]" style="animation-delay: 0.1s;"></div>
@@ -403,7 +403,7 @@ function renderLoading() {
             <div id="loading-pulse" class="absolute inset-0 bg-white/5 opacity-0 pointer-events-none rounded-full blur-3xl animate-ping-slow"></div>
             <h3 class="text-2xl font-bold text-white mb-2">${T.loading_text}</h3>
             <p class="text-gray-400">${T.loading_sub}</p>
-        </div >
+        </div>
     `;
 }
 
@@ -500,8 +500,8 @@ function renderResult() {
     const T = TRANSLATIONS[currentLang].ui; // Used for titles if needed
 
     // 장단점 리스트 HTML 생성
-    const prosList = finalResult.pros.map(p => `< li class="flex items-start gap-2" ><i data-lucide="check-circle" class="w-4 h-4 text-green-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${p}</span></li > `).join('');
-    const consList = finalResult.cons.map(c => `< li class="flex items-start gap-2" ><i data-lucide="x-octagon" class="w-4 h-4 text-red-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${c}</span></li > `).join('');
+    const prosList = finalResult.pros.map(p => `<li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-green-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${p}</span></li>`).join('');
+    const consList = finalResult.cons.map(c => `<li class="flex items-start gap-2"><i data-lucide="x-octagon" class="w-4 h-4 text-red-400 mt-0.5 shrink-0"></i><span class="text-gray-300 text-sm">${c}</span></li>`).join('');
 
     // Match Data Lookup (For Viral Feature)
     // [Viral Update] Friend Match Override Logic
@@ -715,39 +715,39 @@ function renderResult() {
                         ` : ''
         }
 
-                    </div >
-                </div >
+                    </div>
+                </div>
 
-    <div class="flex flex-col gap-3 w-full max-w-sm mx-auto">
-        <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
-            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
-        </button>
+                <div class="flex flex-col gap-3 w-full max-w-sm mx-auto mb-10">
+                    <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
+                    </button>
 
-        <div class="flex gap-2">
-            <button onclick="location.reload()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
-                ${T.btn_retry}
-            </button>
-            <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
-                ${T.btn_share}
-            </button>
-        </div>
+                    <div class="flex gap-2">
+                        <button onclick="location.reload()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+                            ${T.btn_retry}
+                        </button>
+                        <button onclick="shareResult()" class="flex-1 bg-white/5 border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+                            ${T.btn_share}
+                        </button>
+                    </div>
 
-        </div>
-        </div>
+                    <!-- [Feature] See Other Types Button (Moved inside scrollable container) -->
+                    <button onclick="renderAllTypes()" class="w-full py-3 bg-transparent border border-white/30 rounded-xl text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 mt-2">
+                        <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
+                        ${T.btn_all_types || "All Vibe Types"}
+                    </button>
 
-        <!-- [Feature] See Other Types Button -->
-        <button onclick="renderAllTypes()" class="w-full py-3 bg-transparent border border-white/30 rounded-xl text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2">
-            <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
-            ${T.btn_all_types || "All Vibe Types"}
-        </button>
-
-        <button onclick="renderIntro()" class="w-full text-gray-500 text-[10px] uppercase font-bold tracking-widest hover:text-white mt-2 transition-colors">
-            ${T.btn_main}
-        </button>
-            <p class="text-[10px] text-white font-bold opacity-90 leading-relaxed max-w-[280px] mx-auto break-keep">
-                ${T.disclaimer_text || "본 테스트는 오락 목적으로 제작되었으며, 공식 MBTI® 검사와는 무관합니다."}
-            </p></div>
+                    <button onclick="renderIntro()" class="w-full text-gray-500 text-[10px] uppercase font-bold tracking-widest hover:text-white mt-4 transition-colors">
+                        ${T.btn_main}
+                    </button>
+                    
+                    <p class="text-[10px] text-white font-bold opacity-90 leading-relaxed max-w-[280px] mx-auto mt-2 break-keep text-center">
+                        ${T.disclaimer_text || "본 테스트는 오락 목적으로 제작되었으며, 공식 MBTI® 검사와는 무관합니다."}
+                    </p>
+                </div>
+            </div>
             
             <!--Match Detail Modal-->
     <div id="match-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
@@ -926,7 +926,7 @@ function renderAllTypes() {
         const finalData = { ...data, ...localData };
 
         return `
-    < div onclick = "selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="group relative flex flex-col items-center text-center p-4 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-black/40 hover:-translate-y-1.5 shadow-lg hover:shadow-2xl overflow-hidden" >
+    <div onclick = "selectTypeAndShowResult('${key}'); document.getElementById('all-types-modal').remove();" class="group relative flex flex-col items-center text-center p-4 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-black/40 hover:-translate-y-1.5 shadow-lg hover:shadow-2xl overflow-hidden" >
             
             < !--Adaptive Glow-- >
             <div class="absolute inset-0 bg-gradient-to-br ${finalData.color} opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
@@ -957,14 +957,14 @@ function renderAllTypes() {
     <div class="absolute top-4 right-4 text-white/0 group-hover:text-white/40 transition-all duration-300">
         <i data-lucide="play-circle" class="w-4 h-4"></i>
     </div>
-        </div >
+        </div>
     `}).join('');
 
     const modal = document.createElement('div');
     modal.id = 'all-types-modal';
     modal.className = 'fixed inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar';
     modal.innerHTML = `
-    < div class="max-w-4xl mx-auto min-h-full flex flex-col" >
+    <div class="max-w-4xl mx-auto min-h-full flex flex-col" >
              
              < !--Glass Header-- >
              <div class="sticky top-0 z-30 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between shadow-lg -mx-6 -mt-6 rounded-b-2xl mb-8">
@@ -984,7 +984,7 @@ function renderAllTypes() {
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-24 animate-slide-up">
         ${typesHTML}
     </div>
-        </div >
+        </div>
     `;
     document.body.appendChild(modal);
     if (window.lucide) lucide.createIcons();
@@ -1091,20 +1091,54 @@ window.saveImage = async function () {
     // 1. Prepare Export Logic
     const exportCard = document.getElementById('export-card');
     const exImg = document.getElementById('export-img');
-    const exGenre = document.getElementById('export-genre');
+    const exGenreEn = document.getElementById('export-genre-en');
+    const exGenreKr = document.getElementById('export-genre-kr');
     const exMbti = document.getElementById('export-mbti');
+    const exMbtiIcon = document.getElementById('export-mbti-icon');
     const exSong = document.getElementById('export-song');
     const exMatch = document.getElementById('export-match-type');
     const exTags = document.getElementById('export-tags');
-    const exGlow = document.getElementById('export-avatar-glow');
     const exBg = document.getElementById('export-bg-gradient');
     const exOverlay = document.getElementById('export-bg-overlay');
+    const exRarity = document.getElementById('export-rarity-badge');
+    const exEnergyVal = document.getElementById('export-energy-value');
+    const exEnergyBar = document.getElementById('export-energy-bar');
+    const exResultId = document.getElementById('export-result-id');
+
+    console.log("SaveImage: Syncing data...", { mbti: finalResult.mbti });
 
     // Sync Data
     exImg.src = finalResult.image;
-    exGenre.innerText = finalResult.genre;
+
+    // Genre Handling (Asymmetric Typography)
+    const genreText = finalResult.genre;
+    if (genreText.includes('&')) {
+        const parts = genreText.split('&');
+        exGenreEn.innerHTML = `${parts[0].trim()}<br>& ${parts[1].trim()}`;
+    } else {
+        exGenreEn.innerText = genreText;
+    }
+
+    // Get Korean Genre if available
+    const localResult = (TRANSLATIONS['ko'].results && TRANSLATIONS['ko'].results[finalResult.id]) ? TRANSLATIONS['ko'].results[finalResult.id] : {};
+    exGenreKr.innerText = localResult.genre || "";
+
     exMbti.innerText = finalResult.mbti;
+    if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti.substring(0, 2);
     exSong.innerText = finalResult.bestSong;
+
+    // Dynamic ID & Stats
+    if (exResultId) exResultId.innerText = `#MV-2025-${Math.floor(Math.random() * 9000) + 1000}`;
+
+    // Rarity Calculation (Simulated but believable based on MBTI)
+    const rarityMap = { 'INFJ': 1.5, 'ENTP': 3.2, 'INTJ': 2.1, 'ENFJ': 2.5, 'INFP': 4.4, 'ENFP': 8.1, 'ISFP': 8.8, 'INTP': 3.3, 'ESFP': 8.5, 'ESTP': 4.3, 'ISFJ': 13.8, 'ESFJ': 12.3, 'ISTJ': 11.6, 'ESTJ': 8.7, 'ISTP': 5.4, 'ENTJ': 1.8 };
+    const rarity = rarityMap[finalResult.mbti] || 5.0;
+    if (exRarity) exRarity.innerText = `TOP ${rarity}%`;
+
+    // Energy Calculation
+    const energy = Math.floor(80 + Math.random() * 19);
+    if (exEnergyVal) exEnergyVal.innerText = `${energy}%`;
+    if (exEnergyBar) exEnergyBar.style.width = `${energy}%`;
 
     // Fix: Use localized genre for match
     const bestMatchKey = finalResult.match ? finalResult.match.best : null;
@@ -1115,11 +1149,25 @@ window.saveImage = async function () {
         exMatch.innerText = "Unknown";
     }
 
-    // Enhanced Styling - Fixed Spacing
+    // Enhanced Styling - Sophisticated Gradients
     if (finalResult.color) {
-        exBg.className = `absolute inset-0 z-0 bg-gradient-to-br ${finalResult.color}`;
-        exGlow.className = `absolute inset-[-40px] rounded-full blur-[80px] opacity-60 bg-gradient-to-br ${finalResult.color}`;
-        exOverlay.style.background = finalResult.coverPattern || '';
+        // Map simple tailwind colors to complex poster-style gradients
+        const colorMap = {
+            'from-purple-600': 'from-[#4c1d95] via-[#1e1b4b] to-black',
+            'from-pink-600': 'from-[#831843] via-[#1a1a1c] to-black',
+            'from-blue-600': 'from-[#0e7490] via-[#082f49] to-black',
+            'from-amber-600': 'from-[#92400e] via-[#09090b] to-black',
+            'from-emerald-600': 'from-[#065f46] via-[#022c22] to-black'
+        };
+        const baseGradient = finalResult.color.split(' ')[0];
+        const richGradient = colorMap[baseGradient] || `bg-gradient-to-br ${finalResult.color}`;
+
+        if (exBg) {
+            exBg.className = `absolute inset-0 z-0 bg-gradient-to-br ${richGradient}`;
+        }
+        if (exOverlay) {
+            exOverlay.style.background = finalResult.coverPattern || 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 0%, transparent 50%)';
+        }
     }
 
     // Dynamic Tags (Select 3 pros as tags)
@@ -1127,29 +1175,44 @@ window.saveImage = async function () {
         <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
     `).join('');
 
-    // 2. Capture (Using safer visibility/opacity for html2canvas)
+    console.log("SaveImage: Preparing capture...", { mbti: finalResult.mbti, img: finalResult.image });
+
+    // 2. Capture (Using safer positioning for html2canvas)
+    // Instead of left-[-9999px], we move it within a visible-ish space but absolute positioned/clipped
+    exportCard.style.left = '0';
+    exportCard.style.top = '0';
+    exportCard.style.transform = 'none';
     exportCard.style.opacity = '1';
     exportCard.style.visibility = 'visible';
     exportCard.style.zIndex = '9999';
 
     try {
-        // Wait for image load
-        await new Promise(resolve => {
-            if (exImg.complete) resolve();
-            else exImg.onload = resolve;
-        });
+        // Wait for image load with timeout
+        await Promise.race([
+            new Promise(resolve => {
+                if (exImg.complete) resolve();
+                else exImg.onload = resolve;
+            }),
+            new Promise(resolve => setTimeout(resolve, 3000)) // 3s timeout
+        ]);
 
+        console.log("SaveImage: Starting html2canvas capture...");
         const canvas = await html2canvas(exportCard, {
-            scale: 2,
+            scale: 1.2, // Baseline scale for stability
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#09090b',
-            logging: false,
+            logging: true,
             width: 1080,
-            height: 1920
+            height: 1920,
+            onclone: (clonedDoc) => {
+                console.log("SaveImage: Document cloned for capture");
+            }
         });
+        console.log("SaveImage: Capture complete. Generating data URL...");
 
         const dataUrl = canvas.toDataURL('image/png');
+        console.log("SaveImage: Data URL generated (" + Math.round(dataUrl.length / 1024) + "KB). Showing preview modal...");
 
         // 3. Show Preview Modal
         showPreviewModal(dataUrl);
@@ -1158,6 +1221,7 @@ window.saveImage = async function () {
         console.error("Capture failed:", err);
         alert(T.share_error);
     } finally {
+        exportCard.style.transform = 'translateY(200%)';
         exportCard.style.opacity = '0';
         exportCard.style.visibility = 'hidden';
         exportCard.style.zIndex = '-1';
@@ -1172,7 +1236,7 @@ function showPreviewModal(dataUrl) {
     modal.id = 'preview-modal';
     modal.className = 'fixed inset-0 z-[300] flex items-center justify-center p-6 animate-fade-in';
     modal.innerHTML = `
-        < div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick = "closePreview()" ></div >
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closePreview()"></div>
             <div class="relative w-full max-w-sm bg-[#1a1a1c] border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center animate-slide-up">
                 <h3 class="text-white font-black tracking-widest uppercase text-sm mb-4">${T.preview_title}</h3>
 
@@ -1377,7 +1441,7 @@ window.renderFriendMatchCard = function (T) {
     }
 
     return `
-    < div class="w-full max-w-sm mb-6 animate-fade-in-down" >
+    <div class="w-full max-w-sm mb-6 animate-fade-in-down">
         <div class="glass-panel p-4 rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/40 to-black/40 relative overflow-hidden">
             <div class="absolute inset-0 bg-white/5 animate-pulse-slow"></div>
 
@@ -1415,7 +1479,7 @@ window.renderFriendMatchCard = function (T) {
                 </p>
             </div>
         </div>
-        </div >
+        </div>
     `;
 }
 
