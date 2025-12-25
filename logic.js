@@ -449,19 +449,33 @@ function calculateResult() {
 function updateMetaTags(result) {
     if (!result) return;
 
-    const title = `🎵 Result: ${result.genre} | Music Vibe Test`;
+    const T = TRANSLATIONS[currentLang].ui;
+    const titleTemplate = T.title_main || "Music Vibe Test";
+
+    // Aesthetic & Viral Meta Titles
+    const title = `${result.genre} | ${titleTemplate}`;
     const desc = `${result.subTitle}. See my soul music vibe! 🎧`;
+
+    // Direct link to the result image for social cards
     const image = window.location.origin + window.location.pathname.replace('index.html', '') + result.image;
+    const url = getShareUrl();
+
+    // Canonical & Basic
+    document.title = title;
 
     // OG Tags
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:image"]')?.setAttribute('content', image);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', url);
 
     // Twitter Card
     document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
     document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
     document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', image);
+
+    // Inject JSON-LD
+    if (typeof injectJsonLd === 'function') injectJsonLd(result);
 }
 
 // 특정 MBTI를 선택하여 결과 화면을 보여주는 함수
@@ -585,11 +599,10 @@ function renderResult() {
                             <span class="text-[11px] font-bold text-gray-300 tracking-widest drop-shadow-sm">${T.result_title} <span class="text-amber-300 ml-2 font-black text-sm drop-shadow-md">(${finalResult.mbti})</span></span>
                         </div>
                         
-                        <!-- Rarity Badge (Viral) -->
-                        <div class="inline-block px-3 py-1 bg-gradient-to-r from-amber-200/20 to-yellow-400/20 rounded-full mb-3 border border-amber-300/30 backdrop-blur-md ml-2">
-                             <span class="text-[11px] font-bold text-amber-300 tracking-widest drop-shadow-sm">
-                                ${T.rarity_label} ${finalResult.rarity || 'Unknown'}
-                             </span>
+                        <!-- [Gamification] Dynamic Rarity Badge -->
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-3 animate-bounce-subtle">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span class="text-[10px] font-black text-amber-300 tracking-tighter uppercase whitespace-nowrap">TOP ${(Math.random() * 5.2 + 0.8).toFixed(1)}% VIBE</span>
                         </div>
 
                         <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400 mb-2 leading-none tracking-tighter shadow-xl">
@@ -1788,29 +1801,34 @@ window.initKakao = function () {
 
 window.shareKakao = function () {
     if (!window.Kakao || !window.Kakao.isInitialized()) {
-        alert("카카오톡 공유 기능이 활성화되지 않았습니다.");
+        const msg = currentLang === 'kr' ? "카카오톡 공유 기능이 활성화되지 않았습니다." : "KakaoTalk sharing is not available.";
+        alert(msg);
         return;
     }
 
     if (!finalResult) return;
 
+    // Use current location for sharing but remove ref to avoid recursion if needed
+    const url = getShareUrl();
+    const T = TRANSLATIONS[currentLang].ui;
+
     window.Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-            title: '나의 음악 주파수(Vibe)는? 🎧',
-            description: `내 결과: ${finalResult.genre} (#${finalResult.mbti})\n당신의 소울 바이브도 찾아보세요!`,
-            imageUrl: window.location.origin + '/' + finalResult.image,
+            title: T.share_title_template || '나의 음악 주파수(Vibe)는? 🎧',
+            description: `${finalResult.subTitle}\nResult: ${finalResult.genre} (#${finalResult.mbti})`,
+            imageUrl: window.location.origin + window.location.pathname + finalResult.image,
             link: {
-                mobileWebUrl: 'https://my-music-vibe.com',
-                webUrl: 'https://my-music-vibe.com',
+                mobileWebUrl: url,
+                webUrl: url,
             },
         },
         buttons: [
             {
-                title: '결과 확인하기',
+                title: T.btn_retry || 'Check Result',
                 link: {
-                    mobileWebUrl: 'https://my-music-vibe.com',
-                    webUrl: 'https://my-music-vibe.com',
+                    mobileWebUrl: url,
+                    webUrl: url,
                 },
             },
         ],
@@ -1914,6 +1932,29 @@ window.shareInstagram = async function () {
     alert("이미지가 저장되었습니다! 📸\n인스타그램 스토리/피드에 직접 업로드해주세요.");
 };
 
+
+// [SEO] JSON-LD Structured Data
+window.injectJsonLd = function (result) {
+    const existingScript = document.getElementById('json-ld');
+    if (existingScript) existingScript.remove();
+
+    const script = document.createElement('script');
+    script.id = 'json-ld';
+    script.type = 'application/ld+json';
+    const data = {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": `Music Vibe: ${result.genre}`,
+        "description": result.desc,
+        "genre": result.genre,
+        "author": {
+            "@type": "Organization",
+            "name": "Music Vibe Test"
+        }
+    };
+    script.text = JSON.stringify(data);
+    document.head.appendChild(script);
+};
 
 // Initialize App
 if (document.readyState === 'loading') {
