@@ -733,19 +733,6 @@ function renderResult() {
             </button>
         </div>
 
-        <!-- Social Share Row -->
-        <div class="flex gap-2">
-            <button onclick="shareKakao()" class="flex-1 bg-[#FAE100] border border-[#FAE100] text-[#371D1E] text-xs font-bold py-3 rounded-xl hover:bg-[#FFEB3B] active:scale-95 transition-all flex items-center justify-center gap-1">
-                 <i data-lucide="message-circle" class="w-4 h-4 text-[#371D1E]"></i> ${T.kakao_share_btn || "Kakao"}
-            </button>
-            
-            <button onclick="shareTwitter()" class="flex-1 bg-black border border-white/10 text-white text-xs font-bold py-3 rounded-xl hover:bg-gray-900 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-lg">
-                 <i data-lucide="twitter" class="w-4 h-4 text-white"></i> X (트위터)
-            </button>
-            
-            <button onclick="shareInstagram()" class="flex-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white text-xs font-bold py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-lg">
-                 <i data-lucide="instagram" class="w-4 h-4 text-white"></i> Insta
-            </button>
         </div>
         </div>
 
@@ -1004,16 +991,75 @@ function renderAllTypes() {
 }
 
 // 결과 공유하기
+// 결과 공유하기 (모달 버전)
 function shareResult() {
-    // calculateMBTI() function is missing in the original logic.js I viewed, but I see it commonly in such apps. 
-    // However, finalResult.mbti is already set in calculateResult().
-    // So I will use finalResult directly.
-
+    triggerHaptic();
     if (!finalResult) {
         console.error("No result to share");
         return;
     }
 
+    const T = TRANSLATIONS[currentLang].ui;
+
+    // 모달 생성
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    modal.innerHTML = `
+        <div class="w-full max-w-sm bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">${T.btn_share}</h3>
+                <button onclick="this.closest('.fixed').remove()" class="p-2 text-gray-400 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-3">
+                <!-- 카카오톡 -->
+                <button onclick="shareKakao(); this.closest('.fixed').remove()" class="flex items-center gap-4 w-full p-4 bg-[#FAE100] hover:bg-[#FFEB3B] text-[#371D1E] rounded-2xl font-bold transition-all active:scale-95">
+                    <div class="w-10 h-10 bg-[#371D1E] rounded-full flex items-center justify-center">
+                        <i data-lucide="message-circle" class="w-5 h-5 text-[#FAE100]"></i>
+                    </div>
+                    <span>카카오톡으로 공유</span>
+                </button>
+                
+                <!-- 트위터 -->
+                <button onclick="shareTwitter(); this.closest('.fixed').remove()" class="flex items-center gap-4 w-full p-4 bg-black border border-white/10 hover:bg-gray-800 text-white rounded-2xl font-bold transition-all active:scale-95">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                        <i data-lucide="twitter" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span>X (트위터)에 공유</span>
+                </button>
+                
+                <!-- 인스타그램 -->
+                <button onclick="shareInstagram(); this.closest('.fixed').remove()" class="flex items-center gap-4 w-full p-4 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white rounded-2xl font-bold transition-all active:scale-95">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <i data-lucide="instagram" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span>인스타그램 스토리</span>
+                </button>
+
+                <div class="my-2 h-px bg-white/5"></div>
+
+                <!-- 시스템 공유 / 링크 복사 -->
+                <button onclick="handleSystemShare(); this.closest('.fixed').remove()" class="flex items-center gap-4 w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-2xl font-bold transition-all active:scale-95">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                        <i data-lucide="share-2" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span>${T.copy_link || "기타 방법으로 공유"}</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    if (window.lucide) lucide.createIcons();
+}
+
+// 기존 시스템 공유 로직 분리
+function handleSystemShare() {
+    const T = TRANSLATIONS[currentLang].ui;
     const shareData = {
         title: T.share_title_template || 'MY MUSIC VIBE TEST',
         text: `${T.share_api_text || "Check out my music persona!"} ${finalResult.genre} (${finalResult.subTitle})`,
@@ -1021,15 +1067,11 @@ function shareResult() {
     };
 
     if (navigator.share) {
-        navigator.share(shareData)
-            .then(() => console.log('Shared successfully'))
-            .catch((error) => console.log('Error sharing', error));
+        navigator.share(shareData).catch(err => console.log('Error sharing', err));
     } else {
-        const textToCopy = `${shareData.title} \n${shareData.text} \nTest here: ${shareData.url} `;
+        const textToCopy = `${shareData.title}\n${shareData.text}\nTest here: ${shareData.url}`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             alert(TRANSLATIONS[currentLang].ui.copy_success);
-        }).catch(err => {
-            alert('Sharing not supported on this browser.');
         });
     }
 }
@@ -1043,7 +1085,7 @@ window.saveImage = async function () {
     const T = TRANSLATIONS[currentLang].ui;
 
     // Set Loading State
-    btn.innerHTML = `< svg class="w-5 h-5 animate-spin" xmlns = "http://www.w3.org/2000/svg" width = "24" height = "24" viewBox = "0 0 24 24" fill = "none" stroke = "currentColor" stroke - width="2" stroke - linecap="round" stroke - linejoin="round" > <path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg > ${T.saving_img} `;
+    btn.innerHTML = `<svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> ${T.saving_img}`;
     btn.disabled = true;
 
     // 1. Prepare Export Logic
@@ -1085,8 +1127,9 @@ window.saveImage = async function () {
         <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
     `).join('');
 
-    // 2. Capture (Hidden but visible to html2canvas)
-    exportCard.classList.remove('hidden');
+    // 2. Capture (Always rendered at left-[-9999px], just ensuring opacity/z-index for capture)
+    exportCard.style.opacity = '1';
+    exportCard.style.zIndex = '9999';
 
     try {
         // Wait for image load
@@ -1114,7 +1157,8 @@ window.saveImage = async function () {
         console.error("Capture failed:", err);
         alert(T.share_error);
     } finally {
-        exportCard.classList.add('hidden');
+        exportCard.style.opacity = '0';
+        exportCard.style.zIndex = '-1';
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
