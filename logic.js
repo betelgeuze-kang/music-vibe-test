@@ -719,7 +719,7 @@ function renderResult() {
                 </div>
 
                 <div class="flex flex-col gap-3 w-full max-w-sm mx-auto mb-10">
-                    <button onclick="saveImage()" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
+                    <button id="save-image-btn" class="group w-full py-4 bg-gradient-to-r ${finalResult.color} rounded-xl text-white font-bold hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         <i data-lucide="download" class="w-4 h-4 relative z-10"></i> <span class="relative z-10">${T.btn_save_img}</span>
                     </button>
@@ -1077,18 +1077,23 @@ function handleSystemShare() {
 }
 
 
+// Global Event Delegation for Dynamic Elements
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#save-image-btn');
+    if (btn) {
+        e.preventDefault();
+        window.saveImage();
+    }
+});
+
 // 6. Updated Save Image Logic (With Preview Modal)
 window.saveImage = async function () {
-    triggerHaptic();
-    const btn = document.querySelector('button[onclick="saveImage()"]');
+    // 1. Prepare for Capture
+    const btn = document.getElementById('save-image-btn');
     const originalText = btn.innerHTML;
     const T = TRANSLATIONS[currentLang].ui;
 
-    // Set Loading State (Clean SVG to avoid code exposure)
-    btn.innerHTML = `<svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> ${T.saving_img}`;
-    btn.disabled = true;
-
-    // 1. Prepare Export Logic
+    // Get Export Elements
     const exportCard = document.getElementById('export-card');
     const exImg = document.getElementById('export-img');
     const exGenreEn = document.getElementById('export-genre-en');
@@ -1096,7 +1101,7 @@ window.saveImage = async function () {
     const exMbti = document.getElementById('export-mbti');
     const exMbtiIcon = document.getElementById('export-mbti-icon');
     const exSong = document.getElementById('export-song');
-    const exMatch = document.getElementById('export-match-type');
+    const exMatch = document.getElementById('export-match-type'); // Corrected ID
     const exTags = document.getElementById('export-tags');
     const exBg = document.getElementById('export-bg-gradient');
     const exOverlay = document.getElementById('export-bg-overlay');
@@ -1105,119 +1110,157 @@ window.saveImage = async function () {
     const exEnergyBar = document.getElementById('export-energy-bar');
     const exResultId = document.getElementById('export-result-id');
 
-    console.log("SaveImage: Syncing data...", { mbti: finalResult.mbti });
-
-    // Sync Data
-    exImg.src = finalResult.image;
-
-    // Genre Handling (Asymmetric Typography)
-    const genreText = finalResult.genre;
-    if (genreText.includes('&')) {
-        const parts = genreText.split('&');
-        exGenreEn.innerHTML = `${parts[0].trim()}<br>& ${parts[1].trim()}`;
-    } else {
-        exGenreEn.innerText = genreText;
-    }
-
-    // Get Korean Genre if available
-    const localResult = (TRANSLATIONS['ko'].results && TRANSLATIONS['ko'].results[finalResult.id]) ? TRANSLATIONS['ko'].results[finalResult.id] : {};
-    exGenreKr.innerText = localResult.genre || "";
-
-    exMbti.innerText = finalResult.mbti;
-    if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti.substring(0, 2);
-    exSong.innerText = finalResult.bestSong;
-
-    // Dynamic ID & Stats
-    if (exResultId) exResultId.innerText = `#MV-2025-${Math.floor(Math.random() * 9000) + 1000}`;
-
-    // Rarity Calculation (Simulated but believable based on MBTI)
-    const rarityMap = { 'INFJ': 1.5, 'ENTP': 3.2, 'INTJ': 2.1, 'ENFJ': 2.5, 'INFP': 4.4, 'ENFP': 8.1, 'ISFP': 8.8, 'INTP': 3.3, 'ESFP': 8.5, 'ESTP': 4.3, 'ISFJ': 13.8, 'ESFJ': 12.3, 'ISTJ': 11.6, 'ESTJ': 8.7, 'ISTP': 5.4, 'ENTJ': 1.8 };
-    const rarity = rarityMap[finalResult.mbti] || 5.0;
-    if (exRarity) exRarity.innerText = `TOP ${rarity}%`;
-
-    // Energy Calculation
-    const energy = Math.floor(80 + Math.random() * 19);
-    if (exEnergyVal) exEnergyVal.innerText = `${energy}%`;
-    if (exEnergyBar) exEnergyBar.style.width = `${energy}%`;
-
-    // Fix: Use localized genre for match
-    const bestMatchKey = finalResult.match ? finalResult.match.best : null;
-    if (bestMatchKey && RESULTS_DATA[bestMatchKey]) {
-        const localMatch = (TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[bestMatchKey]) ? TRANSLATIONS[currentLang].results[bestMatchKey] : {};
-        exMatch.innerText = localMatch.genre || RESULTS_DATA[bestMatchKey].genre;
-    } else {
-        exMatch.innerText = "Unknown";
-    }
-
-    // Enhanced Styling - Sophisticated Gradients
-    if (finalResult.color) {
-        // Map simple tailwind colors to complex poster-style gradients
-        const colorMap = {
-            'from-purple-600': 'from-[#4c1d95] via-[#1e1b4b] to-black',
-            'from-pink-600': 'from-[#831843] via-[#1a1a1c] to-black',
-            'from-blue-600': 'from-[#0e7490] via-[#082f49] to-black',
-            'from-amber-600': 'from-[#92400e] via-[#09090b] to-black',
-            'from-emerald-600': 'from-[#065f46] via-[#022c22] to-black'
-        };
-        const baseGradient = finalResult.color.split(' ')[0];
-        const richGradient = colorMap[baseGradient] || `bg-gradient-to-br ${finalResult.color}`;
-
-        if (exBg) {
-            exBg.className = `absolute inset-0 z-0 bg-gradient-to-br ${richGradient}`;
-        }
-        if (exOverlay) {
-            exOverlay.style.background = finalResult.coverPattern || 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 0%, transparent 50%)';
-        }
-    }
-
-    // Dynamic Tags (Select 3 pros as tags)
-    exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
-        <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
-    `).join('');
-
-    console.log("SaveImage: Preparing capture...", { mbti: finalResult.mbti, img: finalResult.image });
-
-    // 2. Capture (Using safer positioning for html2canvas)
-    // Instead of left-[-9999px], we move it within a visible-ish space but absolute positioned/clipped
-    // 2. Capture (Fixed for hanging issues)
-    exportCard.style.position = 'fixed';
-    exportCard.style.left = '0';
-    exportCard.style.top = '0';
-    exportCard.style.transform = 'none';
-    exportCard.style.opacity = '1';
-    exportCard.style.visibility = 'visible';
-    exportCard.style.zIndex = '9999';
-
-    // Force a reflow/repaint before generic capture
-    await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
-
+    // Use a try-finally block for the ENTIRE operation to ensure button reset
     try {
-        // Wait for image load with timeout
-        await Promise.race([
-            new Promise(resolve => {
-                if (exImg.complete && exImg.naturalHeight !== 0) resolve();
-                else exImg.onload = resolve;
-            }),
-            new Promise(resolve => setTimeout(resolve, 2000)) // Reduced timeout to 2s
-        ]);
+        // Loading State
+        btn.innerHTML = `<span class="animate-pulse">⏳ ${T.loading || "Saving"}...</span>`;
+        btn.disabled = true;
 
-        console.log("SaveImage: Starting html2canvas capture...");
-        const canvas = await html2canvas(exportCard, {
-            scale: 2, // Retain quality
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#09090b',
-            logging: false, // Turn off logging to reduce overhead
-            windowWidth: 1080, // Force dimensions
-            windowHeight: 1920,
-            onclone: (clonedDoc) => {
-                const clonedCard = clonedDoc.getElementById('export-card');
-                if (clonedCard) {
-                    clonedCard.style.visibility = 'visible';
-                    clonedCard.style.opacity = '1';
-                }
+        console.log("SaveImage: Syncing data...", { mbti: finalResult.mbti });
+
+        // Sync Data
+        if (exImg) {
+            exImg.crossOrigin = "anonymous";
+            exImg.src = finalResult.image;
+        }
+
+        // Genre Handling (Asymmetric Typography)
+        const genreText = finalResult.genre;
+        if (genreText && genreText.includes('&')) {
+            const parts = genreText.split('&');
+            if (exGenreEn) exGenreEn.innerHTML = `${parts[0].trim()}<br>& ${parts[1].trim()}`;
+        } else {
+            if (exGenreEn) exGenreEn.innerText = genreText || "";
+        }
+
+        // Get Korean Genre if available
+        const localResult = (TRANSLATIONS['kr'].results && TRANSLATIONS['kr'].results[finalResult.id]) ? TRANSLATIONS['kr'].results[finalResult.id] : {};
+        if (exGenreKr) exGenreKr.innerText = localResult.genre || "";
+
+        if (exMbti) exMbti.innerText = finalResult.mbti;
+        if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti ? finalResult.mbti.substring(0, 2) : "";
+        if (exSong) exSong.innerText = finalResult.bestSong || "";
+
+        // Dynamic ID & Stats
+        if (exResultId) exResultId.innerText = `#MV-2025-${Math.floor(Math.random() * 9000) + 1000}`;
+
+        // Rarity Calculation
+        const rarityMap = { 'INFJ': 1.5, 'ENTP': 3.2, 'INTJ': 2.1, 'ENFJ': 2.5, 'INFP': 4.4, 'ENFP': 8.1, 'ISFP': 8.8, 'INTP': 3.3, 'ESFP': 8.5, 'ESTP': 4.3, 'ISFJ': 13.8, 'ESFJ': 12.3, 'ISTJ': 11.6, 'ESTJ': 8.7, 'ISTP': 5.4, 'ENTJ': 1.8 };
+        const rarity = rarityMap[finalResult.mbti] || 5.0;
+        if (exRarity) exRarity.innerText = `TOP ${rarity}%`;
+
+        // Energy Calculation
+        const energy = Math.floor(80 + Math.random() * 19);
+        if (exEnergyVal) exEnergyVal.innerText = `${energy}%`;
+        if (exEnergyBar) exEnergyBar.style.width = `${energy}%`;
+
+        // Fix: Use localized genre for match
+        const bestMatchKey = finalResult.match ? finalResult.match.best : null;
+        if (bestMatchKey && RESULTS_DATA[bestMatchKey]) {
+            const localMatch = (TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[bestMatchKey]) ? TRANSLATIONS[currentLang].results[bestMatchKey] : {};
+            if (exMatch) exMatch.innerText = localMatch.genre || RESULTS_DATA[bestMatchKey].genre;
+        } else {
+            if (exMatch) exMatch.innerText = "Unknown";
+        }
+
+        // Enhanced Styling - Sophisticated Gradients
+        if (finalResult.color) {
+            // Map simple tailwind colors to complex poster-style gradients (Using RAW CSS strings for html2canvas compatibility)
+            const colorMap = {
+                'from-purple-600': 'linear-gradient(135deg, #4c1d95, #1e1b4b, #000000)',
+                'from-pink-600': 'linear-gradient(135deg, #831843, #1a1a1c, #000000)',
+                'from-blue-600': 'linear-gradient(135deg, #0e7490, #082f49, #000000)',
+                'from-amber-600': 'linear-gradient(135deg, #92400e, #09090b, #000000)',
+                'from-emerald-600': 'linear-gradient(135deg, #065f46, #022c22, #000000)'
+            };
+            const baseGradient = finalResult.color.split(' ')[0];
+            const richGradient = colorMap[baseGradient] || `linear-gradient(135deg, #4c1d95, #000000)`; // Default fallback
+
+            if (exBg) {
+                exBg.className = 'absolute inset-0 z-0'; // Remove tailwind gradient classes
+                exBg.style.background = richGradient;
+                exBg.style.width = '100%';
+                exBg.style.height = '100%';
             }
+            if (exOverlay) {
+                // Use simple linear gradient for compatibility
+                exOverlay.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%)';
+                exOverlay.style.width = '100%';
+                exOverlay.style.height = '100%';
+            }
+        }
+
+        // Dynamic Tags (Select 3 pros as tags)
+        if (exTags && finalResult.pros) {
+            exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
+                <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
+            `).join('');
+        }
+
+        console.log("SaveImage: Preparing capture...", { mbti: finalResult.mbti, img: finalResult.image });
+
+        // --- MANUAL CLONE STRATEGY ---
+        // 1. Clone the element
+        const clone = exportCard.cloneNode(true);
+        clone.id = 'export-card-clone'; // Avoid ID conflict
+
+        // 2. Enforce Clone Styles (Visible, Correct Size)
+        clone.style.display = 'flex';
+        clone.style.width = '1080px';
+        clone.style.height = '1920px';
+        clone.style.position = 'fixed';
+        clone.style.top = '0';
+        clone.style.left = '0'; // Visible viewport area
+        clone.style.zIndex = '-9999'; // Behind everything
+        clone.style.opacity = '1';
+        clone.style.transform = 'none';
+        clone.style.visibility = 'visible';
+
+        // 3. Append to body
+        document.body.appendChild(clone);
+
+        console.log("SaveImage: Clone created and appended.");
+
+        // Force reflow
+        window.scrollTo(0, 0);
+        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 500)));
+
+
+        if (typeof html2canvas === 'undefined') {
+            document.body.removeChild(clone);
+            throw new Error("html2canvas libraries not loaded");
+        }
+
+        // Wait for images in clone to load
+        const cloneImg = clone.querySelector('#export-img');
+        if (cloneImg && !cloneImg.complete) {
+            await new Promise((resolve) => {
+                cloneImg.onload = resolve;
+                cloneImg.onerror = resolve;
+                setTimeout(resolve, 1500);
+            });
+        }
+
+        // 4. Capture Clone
+        const canvas = await html2canvas(clone, {
+            scale: 1, // Reset scale to 1 for 1080x1920 native size
+            useCORS: true,
+            backgroundColor: '#09090b',
+            logging: false, // Disable logging for speed
+            width: 1080,
+            height: 1920,
+            windowWidth: 1080, // CRITICAL FIX: Simulate full 1080p width
+            windowHeight: 1920, // CRITICAL FIX: Simulate full 1920p height
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0,
+            ignoreElements: (element) => element.classList.contains('exclude-export')
         });
+
+        // 5. Cleanup Clone
+        document.body.removeChild(clone);
+
         console.log("SaveImage: Capture complete. Generating data URL...");
 
         const dataUrl = canvas.toDataURL('image/png');
@@ -1228,14 +1271,23 @@ window.saveImage = async function () {
 
     } catch (err) {
         console.error("Capture failed:", err);
-        alert(T.share_error);
+        // Clean up clone if it exists and wasn't removed
+        const existingClone = document.getElementById('export-card-clone');
+        if (existingClone) document.body.removeChild(existingClone);
+
+        alert((T.share_error || "Image save failed.") + "\n(Error: " + (err.message || "Unknown") + ")");
     } finally {
-        exportCard.style.transform = 'translateY(200%)';
-        exportCard.style.opacity = '0';
-        exportCard.style.visibility = 'hidden';
-        exportCard.style.zIndex = '-1';
+        // Reset Original Header Button
         btn.innerHTML = originalText;
         btn.disabled = false;
+
+        // Reset Original Card (just in case)
+        if (exportCard) {
+            exportCard.style.transform = 'translateY(200%)';
+            exportCard.style.opacity = '0';
+            exportCard.style.visibility = 'hidden';
+            exportCard.style.zIndex = '-1';
+        }
     }
 };
 
@@ -1873,3 +1925,416 @@ if (document.readyState === 'loading') {
     init();
     setTimeout(initKakao, 1000);
 }
+
+// OVERRIDE: Corrected saveImage function with Container Strategy (Fixes Viewport Clipping & Gradient Errors)
+window.saveImage = async function () {
+    // 1. Prepare for Capture
+    const btn = document.getElementById('save-image-btn');
+    const originalText = btn.innerHTML;
+    const T = TRANSLATIONS[currentLang].ui;
+
+    // Get Export Elements
+    const exportCard = document.getElementById('export-card');
+    const exImg = document.getElementById('export-img');
+    const exGenreEn = document.getElementById('export-genre-en');
+    const exGenreKr = document.getElementById('export-genre-kr');
+    const exMbti = document.getElementById('export-mbti');
+    const exMbtiIcon = document.getElementById('export-mbti-icon');
+    const exSong = document.getElementById('export-song');
+    const exMatch = document.getElementById('export-match-type');
+    const exTags = document.getElementById('export-tags');
+    const exBg = document.getElementById('export-bg-gradient');
+    const exOverlay = document.getElementById('export-bg-overlay');
+    const exRarity = document.getElementById('export-rarity-badge');
+    const exEnergyVal = document.getElementById('export-energy-value');
+    const exEnergyBar = document.getElementById('export-energy-bar');
+    const exResultId = document.getElementById('export-result-id');
+
+    // Container for Capture
+    let captureContainer = null;
+
+    try {
+        // Loading State
+        btn.innerHTML = `<span class="animate-pulse">⏳ ${T.loading || "Saving"}...</span>`;
+        btn.disabled = true;
+
+        console.log("SaveImage (Override): Syncing data...", { mbti: finalResult.mbti });
+
+        // --- DATA SYNC ---
+        if (exImg) {
+            exImg.crossOrigin = "anonymous";
+            exImg.src = finalResult.image;
+        }
+
+        const genreText = finalResult.genre;
+        if (genreText && genreText.includes('&')) {
+            const parts = genreText.split('&');
+            if (exGenreEn) exGenreEn.innerHTML = `${parts[0].trim()}<br>& ${parts[1].trim()}`;
+        } else {
+            if (exGenreEn) exGenreEn.innerText = genreText || "";
+        }
+
+        const localResult = (TRANSLATIONS['kr'].results && TRANSLATIONS['kr'].results[finalResult.id]) ? TRANSLATIONS['kr'].results[finalResult.id] : {};
+        if (exGenreKr) exGenreKr.innerText = localResult.genre || "";
+
+        if (exMbti) exMbti.innerText = finalResult.mbti;
+        if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti ? finalResult.mbti.substring(0, 2) : "";
+        if (exSong) exSong.innerText = finalResult.bestSong || "";
+        if (exResultId) exResultId.innerText = `#MV-2025-${Math.floor(Math.random() * 9000) + 1000}`;
+
+        const rarityMap = { 'INFJ': 1.5, 'ENTP': 3.2, 'INTJ': 2.1, 'ENFJ': 2.5, 'INFP': 4.4, 'ENFP': 8.1, 'ISFP': 8.8, 'INTP': 3.3, 'ESFP': 8.5, 'ESTP': 4.3, 'ISFJ': 13.8, 'ESFJ': 12.3, 'ISTJ': 11.6, 'ESTJ': 8.7, 'ISTP': 5.4, 'ENTJ': 1.8 };
+        const rarity = rarityMap[finalResult.mbti] || 5.0;
+        if (exRarity) exRarity.innerText = `TOP ${rarity}%`;
+
+        const energy = Math.floor(80 + Math.random() * 19);
+        if (exEnergyVal) exEnergyVal.innerText = `${energy}%`;
+        if (exEnergyBar) exEnergyBar.style.width = `${energy}%`;
+
+        const bestMatchKey = finalResult.match ? finalResult.match.best : null;
+        if (bestMatchKey && RESULTS_DATA[bestMatchKey]) {
+            const localMatch = (TRANSLATIONS[currentLang].results && TRANSLATIONS[currentLang].results[bestMatchKey]) ? TRANSLATIONS[currentLang].results[bestMatchKey] : {};
+            if (exMatch) exMatch.innerText = localMatch.genre || RESULTS_DATA[bestMatchKey].genre;
+        } else {
+            if (exMatch) exMatch.innerText = "Unknown";
+        }
+
+        // Enhanced Styling
+        if (finalResult.color) {
+            const colorMap = {
+                'from-purple-600': 'linear-gradient(135deg, #4c1d95, #1e1b4b, #000000)',
+                'from-pink-600': 'linear-gradient(135deg, #831843, #1a1a1c, #000000)',
+                'from-blue-600': 'linear-gradient(135deg, #0e7490, #082f49, #000000)',
+                'from-amber-600': 'linear-gradient(135deg, #92400e, #09090b, #000000)',
+                'from-emerald-600': 'linear-gradient(135deg, #065f46, #022c22, #000000)'
+            };
+            const baseGradient = finalResult.color.split(' ')[0];
+            const richGradient = colorMap[baseGradient] || `linear-gradient(135deg, #4c1d95, #000000)`;
+
+            if (exBg) {
+                exBg.className = 'absolute inset-0 z-0';
+                exBg.style.background = richGradient;
+                exBg.style.width = '100%';
+                exBg.style.height = '100%';
+            }
+            if (exOverlay) {
+                exOverlay.className = 'absolute inset-0 z-0 opacity-40 mix-blend-screen';
+                exOverlay.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%)';
+                exOverlay.style.width = '100%';
+                exOverlay.style.height = '100%';
+            }
+        }
+
+        if (exTags && finalResult.pros) {
+            exTags.innerHTML = finalResult.pros.slice(0, 3).map(pro => `
+                <span class="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-2xl font-bold text-white/90">#${pro.split(' ').pop()}</span>
+            `).join('');
+        }
+
+        console.log("SaveImage (Container): Preparing capture...");
+
+        // --- CONTAINER STRATEGY ---
+        captureContainer = document.createElement('div');
+        captureContainer.id = 'capture-container';
+        captureContainer.style.position = 'absolute';
+        captureContainer.style.top = '0';
+        captureContainer.style.left = '0';
+        captureContainer.style.width = '1080px';
+        captureContainer.style.height = '1920px';
+        captureContainer.style.overflow = 'hidden';
+        captureContainer.style.zIndex = '-9999';
+        captureContainer.style.visibility = 'visible';
+        document.body.appendChild(captureContainer);
+
+        const clone = exportCard.cloneNode(true);
+        clone.id = 'export-card-clone';
+
+        clone.style.display = 'flex';
+        clone.style.position = 'absolute';
+        clone.style.top = '0';
+        clone.style.left = '0';
+        clone.style.width = '100%';
+        clone.style.height = '100%';
+        clone.style.transform = 'none';
+        clone.style.opacity = '1';
+        clone.style.visibility = 'visible';
+        clone.style.zIndex = 'auto';
+
+        const cloneBg = clone.querySelector('#export-bg-gradient');
+        const cloneOverlay = clone.querySelector('#export-bg-overlay');
+
+        if (cloneBg) {
+            cloneBg.style.width = '1080px';
+            cloneBg.style.height = '1920px';
+        }
+        if (cloneOverlay) {
+            cloneOverlay.style.width = '1080px';
+            cloneOverlay.style.height = '1920px';
+        }
+
+        captureContainer.appendChild(clone);
+        console.log("SaveImage: Container ready.");
+
+        window.scrollTo(0, 0);
+        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 500)));
+
+        if (typeof html2canvas === 'undefined') throw new Error("html2canvas not loaded");
+
+        const cloneImg = clone.querySelector('#export-img');
+        if (cloneImg && !cloneImg.complete) {
+            await new Promise((resolve) => {
+                cloneImg.onload = resolve;
+                cloneImg.onerror = resolve;
+                setTimeout(resolve, 1500);
+            });
+        }
+
+        const canvas = await html2canvas(captureContainer, {
+            scale: 1,
+            useCORS: true,
+            backgroundColor: '#09090b',
+            logging: false,
+            width: 1080,
+            height: 1920,
+            windowWidth: 1080,
+            windowHeight: 1920,
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0,
+            ignoreElements: (element) => element.classList.contains('exclude-export')
+        });
+
+        console.log("SaveImage: Capture complete.");
+        const dataUrl = canvas.toDataURL('image/png');
+        showPreviewModal(dataUrl);
+
+    } catch (err) {
+        console.error("Capture failed:", err);
+        alert((T.share_error || "Image save failed.") + "\n(" + (err.message || "Unknown") + ")");
+    } finally {
+        if (captureContainer && captureContainer.parentNode) {
+            captureContainer.parentNode.removeChild(captureContainer);
+        }
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+
+        if (exportCard) {
+            exportCard.style.transform = 'translateY(200%)';
+            exportCard.style.opacity = '0';
+            exportCard.style.visibility = 'hidden';
+            exportCard.style.zIndex = '-1';
+        }
+    }
+};
+
+// ============================================================
+// FINAL FIX: Native Canvas Drawing Strategy
+// ============================================================
+// This implementation abandons html2canvas entirely to avoid
+// browser-specific rendering bugs (non-finite gradients, clipping).
+// instead, we manually draw the result card to a 1080x1920 canvas.
+// ============================================================
+
+// --- Helper: Load Image for Canvas ---
+function loadCanvasImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+        img.src = src;
+    });
+}
+
+// --- CORE: Native Canvas Drawing (Bypasses html2canvas) ---
+async function drawResultToCanvas(result) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1920;
+    const ctx = canvas.getContext('2d');
+
+    // 1. Background Gradient
+    // Map tailwind classes to Canvas Gradients
+    let gradient = ctx.createLinearGradient(0, 0, 1080, 1920);
+    const colorCode = result.color ? result.color.split(' ')[0] : 'from-purple-600';
+
+    const gradientStops = {
+        'from-purple-600': ['#4c1d95', '#1e1b4b', '#000000'],
+        'from-pink-600': ['#831843', '#1a1a1c', '#000000'],
+        'from-blue-600': ['#0e7490', '#082f49', '#000000'],
+        'from-amber-600': ['#92400e', '#09090b', '#000000'],
+        'from-emerald-600': ['#065f46', '#022c22', '#000000']
+    };
+
+    const stops = gradientStops[colorCode] || gradientStops['from-purple-600'];
+    gradient.addColorStop(0, stops[0]);
+    gradient.addColorStop(0.5, stops[1]);
+    gradient.addColorStop(1, stops[2]);
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1080, 1920);
+
+    // 2. Grain/Noise Overlay (Simulated)
+    let overlayGrad = ctx.createLinearGradient(0, 0, 0, 1920);
+    overlayGrad.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+    overlayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = overlayGrad;
+    ctx.fillRect(0, 0, 1080, 1920);
+
+
+    // 3. Main Image (Circle Record Style)
+    try {
+        if (result.image) {
+            const mainImg = await loadCanvasImage(result.image);
+
+            const imgW = 750;
+            const imgH = 750;
+            const imgX = (1080 - imgW) / 2;
+            const imgY = 280;
+
+            // Shadow
+            ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 20;
+
+            // Clip to Circle
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(1080 / 2, imgY + imgH / 2, imgW / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            ctx.drawImage(mainImg, imgX, imgY, imgW, imgH);
+            ctx.restore(); // Restore clip and shadow
+
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+        }
+    } catch (e) {
+        console.warn("Canvas Image Load Failed", e);
+    }
+
+    // 4. Typography & Text setup
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff';
+
+    // A. Genre (Top Title)
+    let genreText = result.genre || "Unknown Vibe";
+
+    if (genreText.includes('&')) {
+        const parts = genreText.split('&');
+        ctx.font = 'bold 100px "Pretendard", sans-serif';
+        ctx.fillText(parts[0].trim(), 1080 / 2, 1150);
+
+        ctx.font = '300 60px "Pretendard", sans-serif';
+        ctx.fillText('&', 1080 / 2, 1230);
+
+        ctx.font = 'bold 100px "Pretendard", sans-serif';
+        ctx.fillText(parts[1].trim(), 1080 / 2, 1310);
+    } else {
+        ctx.font = 'bold 110px "Pretendard", sans-serif';
+        ctx.fillText(genreText, 1080 / 2, 1200);
+    }
+
+    // B. Korean Genre (Subtitle) / MBTI
+    const subtitle = (TRANSLATIONS['kr'] && TRANSLATIONS['kr'].results[result.id])
+        ? TRANSLATIONS['kr'].results[result.id].genre
+        : (result.mbti || "");
+
+    ctx.font = '300 40px "Pretendard", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.fillText(subtitle, 1080 / 2, 1420);
+
+
+    // C. Best Song (Bottom)
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 50px "Pretendard", sans-serif';
+    ctx.fillText("🎧 " + (result.bestSong || ""), 1080 / 2, 1550);
+
+
+    // D. Tags (Pills)
+    if (result.pros && result.pros.length > 0) {
+        const tags = result.pros.slice(0, 3).map(p => "#" + p.split(' ').pop());
+
+        const startY = 1700;
+        const gap = 30;
+        ctx.font = 'bold 32px "Pretendard", sans-serif';
+
+        // Measure total width
+        let totalW = 0;
+        const tagMetrics = tags.map(tag => {
+            const m = ctx.measureText(tag);
+            const w = m.width + 60; // Padding
+            totalW += w;
+            return { text: tag, w: w };
+        });
+        totalW += (tags.length - 1) * gap;
+
+        let curX = (1080 - totalW) / 2;
+
+        tagMetrics.forEach(tag => {
+            // Draw Pill
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            const r = 30;
+            const x = curX;
+            const y = startY;
+            const w = tag.w;
+            const h = 60;
+
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, r);
+            ctx.fill();
+
+            // Border
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Text
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(tag.text, x + w / 2, y + h / 2 + 2);
+
+            curX += w + gap;
+        });
+    }
+
+    // E. Branding
+    ctx.font = '300 24px "Pretendard", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText("Music Vibe Test 2025", 1080 / 2, 1850);
+
+    return canvas;
+}
+
+// OVERRIDE: Update saveImage to use drawResultToCanvas
+window.saveImage = async function () {
+    const btn = document.getElementById('save-image-btn');
+    const originalText = btn.innerHTML;
+    const T = TRANSLATIONS[currentLang].ui;
+
+    try {
+        // Loading State
+        btn.innerHTML = `<span class="animate-pulse">⏳ ${T.loading || "Rendering"}...</span>`;
+        btn.disabled = true;
+
+        console.log("saveImage: Starting Native Canvas Drawing...");
+
+        // DRAW
+        const canvas = await drawResultToCanvas(finalResult);
+
+        // EXPORT
+        const dataUrl = canvas.toDataURL('image/png');
+        console.log("saveImage: Canvas rendered. Opening preview.");
+
+        showPreviewModal(dataUrl);
+
+    } catch (err) {
+        console.error("Native Canvas generation failed:", err);
+        alert((T.share_error || "Image save failed.") + "\nUse screenshot instead.\n(" + err.message + ")");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
