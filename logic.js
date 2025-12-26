@@ -599,10 +599,11 @@ function renderResult() {
                             <span class="text-[11px] font-bold text-gray-300 tracking-widest drop-shadow-sm">${T.result_title}</span>
                         </div>
                         
+
                         <!-- [Gamification] Dynamic Rarity Badge -->
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-3 animate-bounce-subtle">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                            <span class="text-[10px] font-black text-amber-300 tracking-tighter uppercase whitespace-nowrap">TOP ${(Math.random() * 5.2 + 0.8).toFixed(1)}% VIBE</span>
+                            <span class="text-[10px] font-black text-amber-300 tracking-tighter uppercase whitespace-nowrap">TOP ${({ 'INFJ': 1.5, 'ENTP': 3.2, 'INTJ': 2.1, 'ENFJ': 2.5, 'INFP': 4.4, 'ENFP': 8.1, 'ISFP': 8.8, 'INTP': 3.3, 'ESFP': 8.5, 'ESTP': 4.3, 'ISFJ': 13.8, 'ESFJ': 12.3, 'ISTJ': 11.6, 'ESTJ': 8.7, 'ISTP': 5.4, 'ENTJ': 1.8 }[finalResult.mbti] || 5.0)}% VIBE</span>
                         </div>
 
                         <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400 mb-2 leading-none tracking-tighter shadow-xl">
