@@ -1119,7 +1119,7 @@ window.saveImage = async function () {
     const exGenreKr = document.getElementById('export-genre-kr');
     // const exMbti = document.getElementById('export-mbti');
     // const exMbtiIcon = document.getElementById('export-mbti-icon');
-    const exSong = document.getElementById('export-song');
+    // const exSong = document.getElementById('export-song');
     const exMatch = document.getElementById('export-match-type'); // Corrected ID
     const exTags = document.getElementById('export-tags');
     const exBg = document.getElementById('export-bg-gradient');
@@ -1158,7 +1158,7 @@ window.saveImage = async function () {
 
         // if (exMbti) exMbti.innerText = finalResult.mbti;
         // if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti ? finalResult.mbti.substring(0, 2) : "";
-        if (exSong) exSong.innerText = finalResult.bestSong || "";
+        // if (exSong) exSong.innerText = finalResult.bestSong || "";
 
         // Dynamic ID & Stats
         if (exResultId) exResultId.innerText = `#MV-2025-${Math.floor(Math.random() * 9000) + 1000}`;
