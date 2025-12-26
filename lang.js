@@ -2,7 +2,7 @@ const TRANSLATIONS = {
     // 1. 한국어 (Original MZ)
     kr: {
         ui: {
-            title_main: "<span class='text-white'>내 안의</span><br><span class='text-white'>영혼의</span><br><span class='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-amber-300'>주파수 찾기 🎧</span>",
+            title_main: "<span class='text-white block mb-2'>내 안의</span><span class='text-white'>영혼</span> <span class='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-amber-300'>주파수</span><span class='text-white block mt-2'>찾기 🎧</span>",
             title_sub: "",
             desc_html: "내가 주인공인 영화가 있다면,<br><span class='text-amber-300 font-bold drop-shadow-glow'>이 노래가 OST일 확률 1000%</span> 🎬✨<br><span class='text-xs opacity-70 mt-2 block font-mono'>#도파민충전 #성격테스트 #바이브분석</span>",
             btn_start: "내 주파수 확인하러 가기 🔥",
@@ -21,7 +21,7 @@ const TRANSLATIONS = {
             result_analysis: "심층 분석 리포트",
             btn_save_img: "이미지 저장하기",
             btn_main: "메인으로",
-            disclaimer: "본 테스트는 오락 목적으로 제작되었으며, 공식 MBTI® 검사와는 무관합니다.",
+            disclaimer: "",
             vibe_collection: "모든 바이브 보기",
             share_error: "이미지 저장에 실패했습니다.",
             match_label_best: "💖 Perfect",
@@ -76,7 +76,7 @@ const TRANSLATIONS = {
                         <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
                             <i data-lucide='microscope' class='w-4 h-4'></i> 1. 음악 성향 테스트의 과학적 배경
                         </h4>
-                        <p>음악적 선호도는 단순한 유행이 아니라 개인의 심리적 기제와 밀접하게 연결되어 있습니다. 본 테스트는 케임브리지 대학의 데이비드 그린버그(David Greenberg) 박사 등이 연구한 <strong>'음악적 성격 이론'</strong>을 기반으로 설계되었습니다. 공감 능력이 뛰어난 '공감주의자(Empathizers)'는 부드럽고 감성적인 음악을, 시스템의 규칙을 중시하는 '체계주의자(Systemizers)'는 구조적으로 복잡한 재즈나 클래식을 선호한다는 이론적 가설을 MBTI 16가지 성격 유형과 매칭하였습니다.</p>
+                        <p>음악적 선호도는 단순한 유행이 아니라 개인의 심리적 기제와 밀접하게 연결되어 있습니다. 본 테스트는 케임브리지 대학의 데이비드 그린버그(David Greenberg) 박사 등이 연구한 <strong>'음악적 성격 이론'</strong>을 기반으로 설계되었습니다. 공감 능력이 뛰어난 '공감주의자(Empathizers)'는 부드럽고 감성적인 음악을, 시스템의 규칙을 중시하는 '체계주의자(Systemizers)'는 구조적으로 복잡한 재즈나 클래식을 선호한다는 이론적 가설을 기반으로 16가지 성격 유형과 매칭하였습니다.</p>
                     </section>
 
                     <section>
@@ -99,7 +99,7 @@ const TRANSLATIONS = {
                     </section>
 
                     <section class='pt-4 border-t border-white/5'>
-                        <p class='text-gray-500 italic text-[11px]'>※ 본 서비스는 MBTI®의 공식 검사를 대체할 수 없으며, 심리학적 데이터를 현대적인 음악 알고리즘으로 재해석한 창작물임을 밝힙니다.</p>
+                        <p class='text-gray-500 italic text-[11px]'>※ 본 서비스는 심리학적 데이터를 현대적인 음악 알고리즘으로 재해석한 창작물임을 밝힙니다.</p>
                     </section>
                 </div>
             `,
@@ -372,32 +372,30 @@ const TRANSLATIONS = {
             result_analysis: "Deep Dive Report",
             btn_save_img: "Export Profile Card",
             btn_main: "Home",
-            disclaimer: "For entertainment purposes. Not affiliated with MBTI® assessment.",
-            vibe_collection: "Explore All Vibes",
-            share_error: "Export failed.",
-            match_label_best: "Perfect Harmony",
-            match_label_worst: "Discordant",
-            match_click: "View Compatibility Details",
-            match_modal_best: "Infinite Synergy",
-            match_modal_worst: "Clashing Frequencies",
+            disclaimer: "",
+            vibe_collection: "View All Vibes",
+            share_error: "Failed to save image.",
+            match_label_best: "💖 Perfect",
+            match_label_worst: "💔 Worst",
+            match_click: "Click to See Chemistry",
+            match_modal_best: "Perfect Chemistry",
+            match_modal_worst: "Dissonant Chemistry",
             match_header_sub_best: "PERFECT MATCH",
             match_header_sub_worst: "WORST MATCH",
             match_close: "Close",
-            sound_modal_title: "Sound Immersion Checklist 🎧",
-            sound_modal_desc: "For the most accurate experience, please ensure your volume is active and earphones are connected. 🔊",
-            sound_modal_btn: "Proceed",
-            preview_title: "Profile Card Preview",
-            preview_btn: "Save to Device",
-            friend_match_title: "Vibe Compatibility",
+            sound_modal_title: "Sound Check 🎧",
+            sound_modal_desc: "Please check your volume for full immersion. 🔊",
+            sound_modal_btn: "Ready",
+            friend_match_title: "Chemistry Score",
             friend_match_desc: "Invited by:",
-            friend_match_score: "Synergy Score:",
-            friend_match_btn_invite: "Compare with Friends",
+            friend_match_score: "Score:",
+            friend_match_btn_invite: "Invite Friend & Check Score",
             match_label_friend: "💌 Best",
-            match_modal_friend: "Friend Compatibility",
+            match_modal_friend: "Friend Chemistry",
             rarity_label: "✨ Vibe Rarity: Top",
             footer_copy: "© 2025 Music Vibe Test. All rights reserved.",
-            btn_share_friend: "Find My Vibe Twin (Share)",
-            saving_img: "Developing Soul Card... 📸",
+            btn_share_friend: "Find My Music Soulmate (Share)",
+            saving_img: "Saving Card... 📸",
             footer_privacy: "Privacy Policy",
             footer_terms: "Terms of Service",
             footer_contact: "Contact",
@@ -411,57 +409,39 @@ const TRANSLATIONS = {
             badge_title: "MUSIC VIBE TEST",
             label_you: "YOU",
             label_friend: "FRIEND",
-            friend_compatibility_label: "Compatibility:",
+            friend_compatibility_label: "Friend Compatibility:",
             match_result_labels: {
-                soulmate: "Soulmates 💖",
-                good: "Good Vibe ✨",
+                soulmate: "Soulmate 💖",
+                good: "Good Vibes 👍",
                 soso: "Not Bad 🤔",
-                bad: "Glitch Mode 🌪️"
+                bad: "Dissonance 🌪️"
             },
             share_title_template: "Music Vibe Test",
-            share_api_text: "Discover your soul frequency and music persona! 🎧",
-
-            about_title: "About the Test",
+            share_api_text: "Check out my Music Personality! 🎧",
+            kakao_share_btn: "Share on KakaoTalk",
+            about_title: "About",
             about_content: `
                 <div class='text-left space-y-6 text-gray-300 text-[13px] leading-relaxed break-keep'>
                     <section>
-                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
-                            <i data-lucide='microscope' class='w-4 h-4'></i> 1. The Science of Sound
+                         <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='microscope' class='w-4 h-4'></i> 1. The Science of Music Vibe
                         </h4>
-                        <p>Musical taste is a window into the soul. Inspired by the <strong>'Musical Persona Theory'</strong> and research by Dr. David Greenberg, this test maps your psychological traits to sonic textures. 'Empathizers' resonate with mellow, emotional depth, while 'Systemizers' find beauty in complex, structural harmonies.</p>
+                        <p>Music preference is deeply linked to psychological mechanisms. This test is based on the 'Musical Personality Theory' studied by Dr. David Greenberg of Cambridge University. It correlates the hypothesis that 'Empathizers' prefer mellow music, while 'Systemizers' prefer structurally complex music, with 16 personality types.</p>
                     </section>
-
-                    <section>
+                     <section>
                         <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
-                            <i data-lucide='audio-lines' class='w-4 h-4'></i> 2. Analyzing Your Frequency
+                            <i data-lucide='audio-lines' class='w-4 h-4'></i> 2. Vibe Analysis
                         </h4>
-                        <p>We decode your vibe through three core wavelengths:</p>
-                        <ul class='list-disc ml-5 space-y-2 mt-2 opacity-80'>
-                            <li><strong>Energy Index (BPM)</strong>: From the high-voltage pulse of Extroversion to the calm lo-fi waves of Introversion.</li>
-                            <li><strong>Texture (Timbre)</strong>: Intuitives drift toward abstract, dreamlike synths, while Sensors ground themselves in the raw, authentic sounds of acoustic instruments.</li>
-                            <li><strong>Harmony (Tone)</strong>: Feelers resonate with the emotional pull of melody, while Thinkers admire the architectural perfection of composition.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
-                            <i data-lucide='shield-check' class='w-4 h-4'></i> 3. Beyond Entertainment
-                        </h4>
-                        <p>The <strong>Music Vibe Test</strong> is a journey of self-discovery. Each of the 16 'Vibe Cards' is a sonic mirror reflecting your inner philosophy. We hope this frequency connects you deeper with yourself and the world around you.</p>
-                    </section>
-
-                    <section class='pt-4 border-t border-white/5'>
-                        <p class='text-gray-500 italic text-[11px]'>* This experience is a creative reinterpretation of psychological theories through the lens of modern music.</p>
+                        <p>We extract 3 core elements: Energy Index, Texture Index, and Emotional Resonance.</p>
                     </section>
                 </div>
             `,
             legal_privacy_content: `
                 <h3 class='text-xl font-bold mb-4'>Privacy Policy</h3>
                 <div class='text-left space-y-4 text-sm text-gray-400'>
-                    <p>At 'Music Vibe Test', we value your digital footprint.</p>
-                    <p><strong>1. Data:</strong> We do not store personal data. Your results exist only in this moment, on your device.</p>
-                    <p><strong>2. Cookies:</strong> Used minimally for analytics to improve the experience.</p>
-                    <p><strong>3. Ads:</strong> Google AdSense is used to support this service.</p>
+                    <p>This site ('Music Vibe Test') values your privacy.</p>
+                    <p><strong>1. Data Collection:</strong> We do not store personally identifiable information. Results are processed locally.</p>
+                    <p><strong>2. Cookies:</strong> Used for analytics.</p>
                 </div>
             `,
             legal_terms_content: `
@@ -527,7 +507,7 @@ const TRANSLATIONS = {
             "ISTJ": {
                 genre: "CLASSIC & OST",
                 subTitle: "The Principled Maestro",
-                desc: `You act as a noble guardian of principles, building walls of order in a chaotic world. You find peace in proven facts and traditions rather than unpredictable emotions. While others may see you as reserved, you carry a profound sense of responsibility and honor. For you, music is a holy ritual that purifies your weary reason; the perfect structure of classical music resonates with your soul's desire for stability and perfection.`,
+                desc: `You act as a noble guardian of principles, building walls of order in a chaotic world.You find peace in proven facts and traditions rather than unpredictable emotions.While others may see you as reserved, you carry a profound sense of responsibility and honor.For you, music is a holy ritual that purifies your weary reason; the perfect structure of classical music resonates with your soul's desire for stability and perfection.`,
                 pros: ["Unwavering sense of responsibility", "Cold, objective judgment", "Excellent organizational skills", "Steadfast beliefs", "Calm under pressure"],
                 cons: ["Stressed by sudden changes", "Difficulty with emotional empathy", "Seen as inflexible", "Self-imposed pressure", "Slow to accept new ideas"],
                 match: {
@@ -724,7 +704,7 @@ const TRANSLATIONS = {
             result_analysis: "深層分析レポート",
             btn_save_img: "プロフィールカードを保存",
             btn_main: "ホームに戻る",
-            disclaimer: "この診断はエンターテインメント目的であり、公式のMBTI®診断とは関係ありません。",
+            disclaimer: "",
             vibe_collection: "すべてのバイブを探索",
             share_error: "保存に失敗しました。",
             match_label_best: "最高の共鳴",
@@ -1029,7 +1009,7 @@ const TRANSLATIONS = {
             result_analysis: "Informe Detallado",
             btn_save_img: "Exportar Tarjeta de Perfil",
             btn_main: "Inicio",
-            disclaimer: "Esta prueba tiene fines de entretenimiento y no está afiliada con la evaluación oficial MBTI®.",
+            disclaimer: "",
             vibe_collection: "Colección de Vibes",
             share_error: "Error al exportar.",
             match_label_best: "Armonía Perfecta",
@@ -1334,7 +1314,7 @@ const TRANSLATIONS = {
             result_analysis: "Relatório Detalhado",
             btn_save_img: "Exportar Cartão de Perfil",
             btn_main: "Início",
-            disclaimer: "Este teste tem fins de entretenimento e não é afiliado à avaliação oficial MBTI®.",
+            disclaimer: "",
             vibe_collection: "Coleção de Vibes",
             share_error: "Falha ao exportar.",
             match_label_best: "Harmonia Perfeita",
@@ -1633,7 +1613,7 @@ const TRANSLATIONS = {
             result_analysis: "Laporan Analisis Mendalam",
             btn_save_img: "Ekspor Kartu Profil",
             btn_main: "Beranda",
-            disclaimer: "Tes ini bertujuan untuk hiburan dan tidak berafiliasi dengan penilaian MBTI® resmi.",
+            disclaimer: "",
             vibe_collection: "Koleksi Vibe",
             share_error: "Gagal mengekspor gambar.",
             match_label_best: "Harmoni Sempurna",
@@ -1932,7 +1912,7 @@ const TRANSLATIONS = {
             result_analysis: "Báo Cáo Chi Tiết",
             btn_save_img: "Lưu Ảnh",
             btn_main: "Về Trang Chủ",
-            disclaimer: "Bài test này chỉ để giải trí, không liên quan đến trắc nghiệm MBTI® chính thức.",
+            disclaimer: "",
             vibe_collection: "Bộ Sưu Tập Vibe",
             share_error: "Lưu ảnh thất bại.",
             match_label_best: "💖 Cạ Cứng",
@@ -2231,7 +2211,7 @@ const TRANSLATIONS = {
             result_analysis: "深度分析報告",
             btn_save_img: "匯出個人形象卡",
             btn_main: "回首頁",
-            disclaimer: "本測驗僅供娛樂，與官方 MBTI® 測驗無關。",
+            disclaimer: "",
             vibe_collection: "探索所有氣質",
             share_error: "匯出失敗。",
             match_label_best: "完美共鳴",

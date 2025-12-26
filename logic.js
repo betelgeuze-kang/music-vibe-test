@@ -596,7 +596,7 @@ function renderResult() {
                     </div>
                     <div class="relative z-10 text-left px-2">
                         <div class="inline-block px-3 py-1 bg-white/5 rounded-full mb-3 border border-white/10 backdrop-blur-md">
-                            <span class="text-[11px] font-bold text-gray-300 tracking-widest drop-shadow-sm">${T.result_title} <span class="text-amber-300 ml-2 font-black text-sm drop-shadow-md">(${finalResult.mbti})</span></span>
+                            <span class="text-[11px] font-bold text-gray-300 tracking-widest drop-shadow-sm">${T.result_title}</span>
                         </div>
                         
                         <!-- [Gamification] Dynamic Rarity Badge -->
@@ -653,17 +653,17 @@ function renderResult() {
                         </div>
 
                             <!-- Strengths: Adaptive Color (Matches Result) -->
-                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-white/30 transition-colors">
-                                <div class="absolute inset-0 bg-gradient-to-br ${finalResult.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                                <h4 class="flex items-center gap-2 text-md font-bold mb-4 relative z-10">
-                                    <i data-lucide="zap" class="w-5 h-5 text-transparent bg-clip-text bg-gradient-to-br ${finalResult.color}"></i> 
-                                    <span class="text-white brightness-150 drop-shadow-md">${T.result_pro}</span>
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md relative overflow-hidden group hover:border-blue-500/30 transition-colors mb-6">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <h4 class="flex items-center gap-2 text-md font-bold text-blue-300 mb-4 relative z-10 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
+                                    <i data-lucide="zap" class="w-5 h-5 text-blue-400 fill-blue-400/20"></i> 
+                                    <span class="text-blue-300">${T.result_pro}</span>
                                 </h4>
                                 <ul class="space-y-3 list-none p-0 relative z-10">
                                     ${finalResult.pros.map(p => `
-                                        <li class="flex items-start gap-3">
-                                            <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r ${finalResult.color} mt-1.5 shadow-[0_0_8px_rgba(255,255,255,0.3)] shrink-0"></div>
-                                            <span class="text-gray-300 text-[13px] leading-relaxed break-keep font-medium opacity-90">${p}</span>
+                                        <li class="flex items-start gap-3 relative z-20 pl-1">
+                                            <div class="min-w-[0.5rem] w-2 h-2 rounded-full bg-blue-400 mt-2 shadow-[0_0_8px_rgba(96,165,250,1)] shrink-0"></div>
+                                            <span class="text-blue-100 text-[13px] leading-relaxed break-keep font-medium opacity-90">${p}</span>
                                         </li>
                                     `).join('')}
                                 </ul>
@@ -757,7 +757,7 @@ function renderResult() {
                     </button>
                     
                     <p class="text-[10px] text-white font-bold opacity-90 leading-relaxed max-w-[280px] mx-auto mt-2 break-keep text-center">
-                        ${T.disclaimer_text || "본 테스트는 오락 목적으로 제작되었으며, 공식 MBTI® 검사와는 무관합니다."}
+                        ${T.disclaimer_text || ""}
                     </p>
                 </div>
             </div>
@@ -976,13 +976,18 @@ function renderAllTypes() {
     const modal = document.createElement('div');
     modal.id = 'all-types-modal';
     modal.className = 'fixed inset-0 z-[250] bg-black/90 backdrop-blur-xl p-6 overflow-y-auto animate-fade-in custom-scrollbar';
+
+    // [History API] Push state when opening modal
+    history.pushState({ modal: 'allTypes' }, null, '#all-types');
+
     modal.innerHTML = `
     <div class="max-w-4xl mx-auto min-h-full flex flex-col" >
              
-             < !--Glass Header-- >
+             <!--Glass Header-->
              <div class="sticky top-0 z-30 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between shadow-lg -mx-6 -mt-6 rounded-b-2xl mb-8">
                 <div class="flex items-center gap-3">
-                    <button onclick="document.getElementById('all-types-modal').remove()" class="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+                    <!-- [History API] Back button triggers history.back() -->
+                    <button onclick="history.back()" class="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     </button>
                     <span class="text-lg font-black italic text-white tracking-tighter">${T.vibe_collection || "Vibe Collection"}</span>
@@ -1111,8 +1116,8 @@ window.saveImage = async function () {
     const exImg = document.getElementById('export-img');
     const exGenreEn = document.getElementById('export-genre-en');
     const exGenreKr = document.getElementById('export-genre-kr');
-    const exMbti = document.getElementById('export-mbti');
-    const exMbtiIcon = document.getElementById('export-mbti-icon');
+    // const exMbti = document.getElementById('export-mbti');
+    // const exMbtiIcon = document.getElementById('export-mbti-icon');
     const exSong = document.getElementById('export-song');
     const exMatch = document.getElementById('export-match-type'); // Corrected ID
     const exTags = document.getElementById('export-tags');
@@ -1150,8 +1155,8 @@ window.saveImage = async function () {
         const localResult = (TRANSLATIONS['kr'].results && TRANSLATIONS['kr'].results[finalResult.id]) ? TRANSLATIONS['kr'].results[finalResult.id] : {};
         if (exGenreKr) exGenreKr.innerText = localResult.genre || "";
 
-        if (exMbti) exMbti.innerText = finalResult.mbti;
-        if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti ? finalResult.mbti.substring(0, 2) : "";
+        // if (exMbti) exMbti.innerText = finalResult.mbti;
+        // if (exMbtiIcon) exMbtiIcon.innerText = finalResult.mbti ? finalResult.mbti.substring(0, 2) : "";
         if (exSong) exSong.innerText = finalResult.bestSong || "";
 
         // Dynamic ID & Stats
@@ -1632,7 +1637,7 @@ window.renderAllTypes = function () {
                     </div>
                     <div>
                         <h3 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">${merged.genre}</h3>
-                        <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px] opacity-80 group-hover:opacity-100 transition-opacity">${key}</p>
+                        <!-- <p class="text-[10px] text-gray-300 uppercase tracking-widest truncate max-w-[120px] opacity-80 group-hover:opacity-100 transition-opacity">${key}</p> -->
                     </div>
                 </div>
             </div>
@@ -1816,7 +1821,7 @@ window.shareKakao = function () {
         objectType: 'feed',
         content: {
             title: T.share_title_template || '나의 음악 주파수(Vibe)는? 🎧',
-            description: `${finalResult.subTitle}\nResult: ${finalResult.genre} (#${finalResult.mbti})`,
+            description: `${finalResult.subTitle}\nResult: ${finalResult.genre}`,
             imageUrl: window.location.origin + window.location.pathname + finalResult.image,
             link: {
                 mobileWebUrl: url,
@@ -1837,9 +1842,9 @@ window.shareKakao = function () {
 
 // [Viral] Twitter Share Logic
 window.shareTwitter = function () {
-    const text = `내 음악적 성격은? 🎧\n🎵 ${finalResult.genre} (${finalResult.mbti})\n\n👉 테스트 하러가기:`;
+    const text = `내 음악적 성격은? 🎧\n🎵 ${finalResult.genre}\n\n👉 테스트 하러가기:`;
     const url = "https://my-music-vibe.com";
-    const hashtags = "MusicVibeTest,MBTI,음악성격";
+    const hashtags = "MusicVibeTest,음악성격";
 
     // Use Twitter Web Intent
     const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags)}`;
@@ -1867,7 +1872,7 @@ window.shareInstagram = async function () {
             // Sync Data (Same as saveImage)
             exImg.src = finalResult.image;
             exGenre.innerText = finalResult.genre;
-            exMbti.innerText = finalResult.mbti;
+            // exMbti.innerText = finalResult.mbti;
             exSong.innerText = finalResult.bestSong;
             exMatch.innerText = RESULTS_DATA[finalResult.match.best].genre;
 
@@ -1968,466 +1973,5 @@ if (document.readyState === 'loading') {
 }
 
 
-// ============================================================
-// PREMIUM EXPORT SYSTEM (Safe Native Canvas)
-// ============================================================
 
-/**
- * 1. Safe Image Loader with Timeout
- */
-function loadCanvasImageSafe(src, timeoutMs = 5000) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-
-        const timeoutId = setTimeout(() => {
-            console.warn("Image load timed out:", src);
-            resolve(null);
-        }, timeoutMs);
-
-        img.onload = () => {
-            clearTimeout(timeoutId);
-            resolve(img);
-        };
-
-        img.onerror = () => {
-            clearTimeout(timeoutId);
-            console.warn("Image load failed:", src);
-            resolve(null);
-        };
-
-        img.src = src;
-    });
-}
-
-/**
- * 2. Identity Profile Card Drawing Logic
- */
-async function drawEtherealVinylCanvasSafe(result) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1920;
-    const ctx = canvas.getContext('2d');
-    const centerX = 1080 / 2;
-
-    // --- 1. AURA BACKGROUND (Layered "Aura" Effect) ---
-    // Fix: Use result.mbti as the key (result.id might be undefined)
-    const mbtiKey = result.mbti || "ISTJ";
-
-    // Precise Layered Color Mapping (Synchronized with Result Screen Atmospheres)
-    const auraColors = {
-        'ISTJ': { base: '#0f172a', glow: 'rgba(51, 65, 85, 0.6)', accent: 'rgba(30, 41, 59, 0.5)' }, // Slate Deep
-        'ISFJ': { base: '#1e1b10', glow: 'rgba(180, 83, 9, 0.5)', accent: 'rgba(251, 191, 36, 0.3)' }, // Amber Warm
-        'INFJ': { base: '#1e1b4b', glow: 'rgba(79, 70, 229, 0.6)', accent: 'rgba(129, 140, 248, 0.4)' }, // Indigo Mystical
-        'INTJ': { base: '#0f172a', glow: 'rgba(30, 58, 138, 0.6)', accent: 'rgba(37, 99, 235, 0.4)' },  // Blue Deep
-        'ISTP': { base: '#18181b', glow: 'rgba(82, 82, 91, 0.5)', accent: 'rgba(39, 39, 42, 0.4)' },  // Zinc Tech
-        'ISFP': { base: '#310a1a', glow: 'rgba(225, 29, 72, 0.6)', accent: 'rgba(251, 113, 133, 0.4)' }, // Rose Artistic
-        'INFP': { base: '#064e3b', glow: 'rgba(5, 150, 105, 0.6)', accent: 'rgba(16, 185, 129, 0.4)' }, // Emerald Dreamy
-        'INTP': { base: '#2e1065', glow: 'rgba(124, 58, 237, 0.6)', accent: 'rgba(139, 92, 246, 0.4)' }, // Violet Intellectual
-        'ESTP': { base: '#450a0a', glow: 'rgba(220, 38, 38, 0.6)', accent: 'rgba(153, 27, 27, 0.5)' },  // Red Energetic
-        'ESFP': { base: '#431407', glow: 'rgba(234, 88, 12, 0.6)', accent: 'rgba(194, 65, 12, 0.4)' },  // Orange Vibrant
-        'ENFP': { base: '#430641', glow: 'rgba(217, 70, 239, 0.6)', accent: 'rgba(162, 28, 175, 0.4)' },  // Fuchsia Social
-        'ENTP': { base: '#1a2e05', glow: 'rgba(101, 163, 13, 0.6)', accent: 'rgba(77, 124, 15, 0.4)' },  // Lime Curious
-        'ESTJ': { base: '#0c4a6e', glow: 'rgba(2, 132, 199, 0.6)', accent: 'rgba(3, 105, 161, 0.4)' },  // Cyan Efficient
-        'ESFJ': { base: '#2d0a31', glow: 'rgba(147, 51, 234, 0.7)', accent: 'rgba(192, 38, 211, 0.5)' },  // Purple-Pink K-Pop
-        'ENFJ': { base: '#451a03', glow: 'rgba(245, 158, 11, 0.6)', accent: 'rgba(217, 119, 6, 0.5)' },  // Amber Charismatic
-        'ENTJ': { base: '#450a0a', glow: 'rgba(185, 28, 28, 0.7)', accent: 'rgba(153, 27, 27, 0.5)' }   // Crimson Strategic (Deep Red Sync)
-    };
-
-    const colors = auraColors[mbtiKey] || auraColors['ISTJ'];
-
-    // Multi-layer Gradient for Richer Aura
-    ctx.fillStyle = colors.base;
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // 1. Back Glow (Deeper, broader)
-    const backGlow = ctx.createRadialGradient(centerX, 400, 0, centerX, 400, 1400);
-    backGlow.addColorStop(0, colors.glow);
-    backGlow.addColorStop(0.6, colors.glow.replace('0.4', '0.05').replace('0.5', '0.05').replace('0.6', '0.05').replace('0.7', '0.05'));
-    backGlow.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = backGlow;
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // 2. Front Aura (Vibrant, directional)
-    const frontAura = ctx.createLinearGradient(0, -200, 1080, 1000);
-    frontAura.addColorStop(0, colors.accent);
-    frontAura.addColorStop(0.5, 'rgba(0,0,0,0)');
-    frontAura.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = frontAura;
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // 3. Bottom Shadow (Grounding)
-    const bottomShadow = ctx.createLinearGradient(0, 1500, 0, 1920);
-    bottomShadow.addColorStop(0, 'rgba(0,0,0,0)');
-    bottomShadow.addColorStop(1, 'rgba(0,0,0,0.6)');
-    ctx.fillStyle = bottomShadow;
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // --- 2. MINI LP RECORD (Centerpiece) ---
-    const iconY = 320;
-    const lpRadius = 240;
-    const labelRadius = 90;
-
-    if (result.image) {
-        const lpImg = await loadCanvasImageSafe(result.image);
-        if (lpImg) {
-            // Draw Vinyl Base
-            ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 40;
-
-            ctx.beginPath();
-            ctx.arc(centerX, iconY, lpRadius, 0, Math.PI * 2);
-            ctx.fillStyle = '#111111';
-            ctx.fill();
-
-            // Draw Grooves
-            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-            ctx.lineWidth = 1;
-            for (let r = 110; r < lpRadius - 5; r += 6) {
-                ctx.beginPath();
-                ctx.arc(centerX, iconY, r, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-
-            // Draw Label (Image)
-            ctx.beginPath();
-            ctx.arc(centerX, iconY, labelRadius, 0, Math.PI * 2);
-            ctx.clip();
-            ctx.drawImage(lpImg, centerX - labelRadius, iconY - labelRadius, labelRadius * 2, labelRadius * 2);
-            ctx.restore();
-
-            // Label Border & Hole
-            ctx.beginPath();
-            ctx.arc(centerX, iconY, labelRadius, 0, Math.PI * 2);
-            ctx.strokeStyle = "rgba(255,255,255,0.2)";
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(centerX, iconY, 8, 0, Math.PI * 2);
-            ctx.fillStyle = colors.base;
-            ctx.fill();
-
-            // Shine Reflect
-            const shine = ctx.createLinearGradient(centerX - lpRadius, iconY - lpRadius, centerX + lpRadius, iconY + lpRadius);
-            shine.addColorStop(0, 'rgba(255,255,255,0)');
-            shine.addColorStop(0.48, 'rgba(255,255,255,0.05)');
-            shine.addColorStop(0.5, 'rgba(255,255,255,0.15)');
-            shine.addColorStop(0.52, 'rgba(255,255,255,0.05)');
-            shine.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = shine;
-            ctx.beginPath();
-            ctx.arc(centerX, iconY, lpRadius, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    // --- 3. VIBE TITLE (Aesthetic Artist Header) ---
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 72px "Pretendard", sans-serif'; // Kept 900 as per original, instruction was ambiguous
-    ctx.shadowColor = 'rgba(0,0,0,0.3)';
-    ctx.shadowBlur = 15;
-    ctx.fillText(result.genre.toUpperCase(), centerX, 640);
-    ctx.shadowBlur = 0;
-
-    // Small decorative line
-    ctx.beginPath();
-    ctx.moveTo(centerX - 40, 680);
-    ctx.lineTo(centerX + 40, 680);
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // --- 4. CHARACTER ANALYSIS (Lyrics Panel) ---
-    const analysisY = 780;
-    const padding = 120;
-    const maxWidth = 1080 - (padding * 2);
-
-    // Glass Panel for Text
-    drawGlassPanel(ctx, padding / 2, analysisY - 80, 1080 - padding, 820, 60);
-
-    // Detailed Text Wrapping
-    const kData = (TRANSLATIONS['kr'] && TRANSLATIONS['kr'].results[result.id]) || {};
-    const fullDesc = kData.desc || result.desc || "";
-
-    ctx.font = '700 48px "Pretendard", sans-serif'; // Bolder font weight
-    ctx.fillStyle = 'rgba(255,255,255,1)';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-
-    // Smart Text Wrapping (Conclusion on complete sentence)
-    wrapTextBySentence(ctx, fullDesc, padding + 40, analysisY, maxWidth - 80, 66, 11);
-
-    // --- 5. IDENTITY HASHTAGS ---
-    const hashtagY = 1660;
-    ctx.textAlign = 'center';
-    ctx.font = '700 52px "Pretendard", sans-serif';
-    ctx.fillStyle = '#fbbf24'; // amber-400
-
-    // Fix: Improved Hashtag Extraction (Ensure complete phrases/keywords)
-    const traits = kData.pros || result.pros || ["심층분석", "유니크바이브"];
-    // Extract keywords (usually the last or longest word in a trait phrase works best for KR)
-    const hashtags = traits.slice(0, 3).map(t => {
-        const parts = t.replace(/[.,]/g, '').split(/\s+/);
-        return "#" + (parts.length > 1 ? parts[parts.length - 1] : parts[0]);
-    });
-
-    const hashtagStr = hashtags.join('     ');
-    ctx.fillText(hashtagStr, centerX, hashtagY);
-
-    // --- 6. MINI RESULT PLAYER FOOTER (Refinement) ---
-    const footerY = 1730; // Slightly higher
-    const footerW = 880;  // Slightly wider for better balance
-    const footerH = 130;
-    const footerX = centerX - (footerW / 2);
-
-    // 1. Player Glass Panel
-    drawGlassPanel(ctx, footerX, footerY, footerW, footerH, 30);
-
-    // 2. Playback Icon (Mini clone)
-    const iconSize = 90; // Slightly larger for better icon visibility
-    const iconMargin = 20;
-    const iconX = footerX + iconMargin;
-    const footerIconY = footerY + (footerH - iconSize) / 2;
-
-    // Draw Gradient Icon Base
-    ctx.save();
-    const iconGrad = ctx.createLinearGradient(iconX, footerIconY, iconX + iconSize, footerIconY + iconSize);
-    iconGrad.addColorStop(0, colors.glow.replace('0.6', '1').replace('0.7', '1'));
-    iconGrad.addColorStop(1, colors.accent.replace('0.4', '1').replace('0.5', '1'));
-
-    ctx.beginPath();
-    roundRect(ctx, iconX, footerIconY, iconSize, iconSize, 20);
-    ctx.fillStyle = iconGrad;
-    ctx.fill();
-
-    // Draw Small Play Triangle on Icon
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    const triSize = 28;
-    const triX = iconX + iconSize / 2 - 5;
-    const triY = footerIconY + iconSize / 2;
-    ctx.moveTo(triX, triY - triSize / 2);
-    ctx.lineTo(triX + triSize, triY);
-    ctx.lineTo(triX, triY + triSize / 2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    // 3. Playback Text (Song Info)
-    const textX = iconX + iconSize + 35;
-    const statusT = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].ui.audio_preview) || "NOW PLAYING";
-
-    // Status Text
-    ctx.textAlign = 'left';
-    ctx.font = '700 24px "Pretendard", sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(statusT.toUpperCase(), textX, footerY + 45);
-
-    // Song Title (Truncate if too long)
-    const maxSongW = footerX + footerW - textX - 100;
-    let songTitle = result.bestSong || "Vibe Masterpiece";
-    ctx.font = '800 38px "Pretendard", sans-serif';
-    ctx.fillStyle = '#ffffff';
-
-    if (ctx.measureText(songTitle).width > maxSongW) {
-        while (ctx.measureText(songTitle + "...").width > maxSongW && songTitle.length > 0) {
-            songTitle = songTitle.slice(0, -1);
-        }
-        songTitle += "...";
-    }
-    ctx.fillText(songTitle, textX, footerY + 90);
-
-    // 4. Mini Control Circle (Right side)
-    const controlRadius = 28;
-    const controlX = footerX + footerW - 65;
-    const controlY = footerY + footerH / 2;
-
-    ctx.beginPath();
-    ctx.arc(controlX, controlY, controlRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // Small play icon in circle
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.beginPath();
-    const sTriSize = 14;
-    ctx.moveTo(controlX - 4, controlY - sTriSize / 2);
-    ctx.lineTo(controlX + 10, controlY);
-    ctx.lineTo(controlX - 4, controlY + sTriSize / 2);
-    ctx.fill();
-
-    return canvas;
-}
-
-/**
- * Helper: RoundRect
- */
-function roundRect(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-}
-
-/**
- * 3. Helper Functions
- */
-function wrapTextBySentence(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    let currentY = y;
-    let lineCount = 0;
-    const paragraphGap = 20; // Extra gap between sentences (paragraphs)
-
-    for (let i = 0; i < sentences.length; i++) {
-        const sentence = sentences[i].trim() + " ";
-        const words = sentence.split(/\s+/);
-        let tempLineCount = 0;
-        let line = "";
-
-        // Trial wrap to see if sentence fits
-        for (let word of words) {
-            let testLine = line + word + " ";
-            if (ctx.measureText(testLine).width > maxWidth) {
-                tempLineCount++;
-                line = word + " ";
-            } else {
-                line = testLine;
-            }
-        }
-        if (line) tempLineCount++;
-
-        // If adding this sentence exceeds maxLines, we stop here
-        if (lineCount + tempLineCount > maxLines) break;
-
-        // Actually draw the sentence
-        line = "";
-        for (let word of words) {
-            let testLine = line + word + " ";
-            if (ctx.measureText(testLine).width > maxWidth) {
-                ctx.fillText(line, x, currentY);
-                line = word + " ";
-                currentY += lineHeight;
-                lineCount++;
-            } else {
-                line = testLine;
-            }
-        }
-        if (line) {
-            ctx.fillText(line, x, currentY);
-            currentY += lineHeight + paragraphGap; // Add paragraph gap after each sentence
-            lineCount++;
-        }
-    }
-}
-
-function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-    const words = text.split(/\s+/);
-    let line = '';
-    let lineCount = 0;
-
-    for (let n = 0; n < words.length; n++) {
-        let testLine = line + words[n] + ' ';
-        let metrics = ctx.measureText(testLine);
-        let testWidth = metrics.width;
-
-        if (testWidth > maxWidth && n > 0) {
-            ctx.fillText(line, x, y);
-            line = words[n] + ' ';
-            y += lineHeight;
-            lineCount++;
-            if (lineCount >= maxLines) return;
-        } else {
-            line = testLine;
-        }
-    }
-    if (lineCount < maxLines) {
-        ctx.fillText(line, x, y);
-    }
-}
-
-function drawGlassPanel(ctx, x, y, width, height, radius) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-    ctx.shadowColor = "rgba(0,0,0,0.2)";
-    ctx.shadowBlur = 40;
-    ctx.fill();
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    const shine = ctx.createLinearGradient(x, y, x + width, y + height);
-    shine.addColorStop(0, "rgba(255,255,255,0.05)");
-    shine.addColorStop(0.5, "rgba(255,255,255,0)");
-    shine.addColorStop(1, "rgba(255,255,255,0.02)");
-    ctx.fillStyle = shine;
-    ctx.fill();
-
-    ctx.restore();
-}
-
-/**
- * 4. Override: Main saveImage Function
- */
-window.saveImage = async function () {
-    const btn = document.getElementById('save-image-btn');
-    const originalText = btn.innerHTML;
-    const T = TRANSLATIONS[currentLang].ui;
-
-    try {
-        btn.innerHTML = `<span class="animate-pulse">✨ ${T.loading || "Designing"}...</span>`;
-        btn.disabled = true;
-
-        if (!finalResult) throw new Error("Result data missing");
-
-        await new Promise(r => setTimeout(r, 50));
-
-        const canvas = await Promise.race([
-            drawEtherealVinylCanvasSafe(finalResult),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Generation Timeout (15s)")), 15000))
-        ]);
-
-        const dataUrl = canvas.toDataURL('image/png');
-
-        if (typeof showPreviewModal === 'function') {
-            showPreviewModal(dataUrl);
-        } else {
-            const link = document.createElement('a');
-            link.download = `music_vibe_${finalResult.id}.png`;
-            link.href = dataUrl;
-            link.click();
-        }
-
-    } catch (err) {
-        console.error("Design generation failed:", err);
-        alert((T.share_error || "Image save failed.") + "\n[Debug: " + (err.message || "Unknown Error") + "]");
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-};
 
