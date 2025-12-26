@@ -64,6 +64,14 @@ function startTest() {
 }
 
 function detectLanguage() {
+    // [SEO] 1. Check URL Parameter primarily
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && ['kr', 'en', 'jp', 'es', 'pt', 'id', 'vi', 'tw'].includes(urlLang)) {
+        return urlLang;
+    }
+
+    // 2. Fallback to Browser Language
     let navLang = 'en';
     if (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) {
         navLang = navigator.language || navigator.userLanguage;
