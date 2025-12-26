@@ -123,8 +123,39 @@ const TRANSLATIONS = {
             cookie_text: "우리는 서비스 개선을 위해 쿠키를 사용합니다. 🍪",
             cookie_btn: "확인",
             pwa_install: "앱으로 설치하기",
-            preview_title: "이미지 미리보기",
-            preview_btn: "갤러리에 저장",
+            preview_title: "Image Preview",
+            preview_btn: "Save to Gallery",
+
+            about_title: "About the Test",
+            about_content: `
+                <div class='text-left space-y-6 text-gray-300 text-[13px] leading-relaxed break-keep'>
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='microscope' class='w-4 h-4'></i> 1. The Science of Musical Personality
+                        </h4>
+                        <p>Musical taste is not just a trend but deeply connected to your psychological mechanisms. This test is designed based on the <strong>'Musical Personality Theory'</strong> researched by Dr. David Greenberg of Cambridge University. It matches 16 personality types based on the hypothesis that 'Empathizers' prefer mellow, emotional music, while 'Systemizers' prefer structurally complex jazz or classical music.</p>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='audio-lines' class='w-4 h-4'></i> 2. Vibe Analysis (Frequency)
+                        </h4>
+                        <p>We don't just ask for your favorite genre. We extract 3 core elements from your answers:</p>
+                        <ul class='list-disc ml-5 space-y-2 mt-2 opacity-80'>
+                            <li><strong>Energy Index (BPM & Dynamics)</strong>: Extroverted energy (E) aligns with high-energy dance or hip-hop, while Introverted energy (I) resonates with calm ambient or lo-fi waves.</li>
+                            <li><strong>Abstraction Index (Texture & Lyrics)</strong>: Intuitives (N) are drawn to metaphorical lyrics and dreamy synth sounds, while Sensors (S) prefer literal lyrics and clear instrumentation.</li>
+                            <li><strong>Emotional Resonance (Harmony & Tone)</strong>: Feelers (F) focus on harmonic appeal, while Thinkers (T) focus on composition and technical perfection.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex flex items-center gap-1'>
+                            <i data-lucide='shield-check' class='w-4 h-4'></i> 3. Professionalism & Usage
+                        </h4>
+                        <p>The results of the <strong>Music Vibe Test</strong> go beyond simple entertainment; they serve as a tool to understand your inner world visually and auditorily. The 16 unique 'Vibe Cards' encapsulate the aesthetics and philosophy of each type, offering new channels for inspiration and empathy.</p>
+                    </section>
+                </div>
+            `,
         },
         questions: [
             "새로운 만남은 언제나 나를 설레게 하는 무대입니다. 🙋‍♀️",
@@ -761,7 +792,37 @@ const TRANSLATIONS = {
                         <p>2. ユーザーは、本サービスが提供する結果カードを自由に共有することができます。</p>
                         <p>3. 無断転載および商業目的の利用は禁止されています。</p>
                     </div>
-                `
+                `,
+            about_title: "テストについて (About)",
+            about_content: `
+                <div class='text-left space-y-6 text-gray-300 text-[13px] leading-relaxed break-keep'>
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='microscope' class='w-4 h-4'></i> 1. 音楽的性格の科学的背景
+                        </h4>
+                        <p>音楽の好みは単なる流行ではなく、個人の心理的メカニズムと深く結びついています。本テストは、ケンブリッジ大学のデビッド・グリーンバーグ（David Greenberg）博士らが研究した<strong>「音楽的性格理論」</strong>に基づいて設計されました。共感能力が高い「エンパサイザー（Empathizers）」は柔らかく感情的な音楽を、システムの規則を重視する「システマイザー（Systemizers）」は構造的に複雑なジャズやクラシックを好むという仮説に基づき、16の性格タイプとマッチングさせました。</p>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex items-center gap-1'>
+                            <i data-lucide='audio-lines' class='w-4 h-4'></i> 2. 性格タイプ別周波数分析 (Vibe Analysis)
+                        </h4>
+                        <p>私たちは単に好きなジャンルを尋ねるだけではありません。回答から以下の3つの核心要素を抽出します：</p>
+                        <ul class='list-disc ml-5 space-y-2 mt-2 opacity-80'>
+                            <li><strong>エネルギー指数 (BPM & Dynamics)</strong>: 外向的エネルギー(E)は高いエネルギーを持つダンスやヒップホップの波動と一致し、内向的エネルギー(I)は静かなアンビエントやローファイ(Lo-fi)の波動に共鳴します。</li>
+                            <li><strong>抽象性指数 (Texture & Lyrics)</strong>: 直感型(N)は比喩的な歌詞や幻想的なシンセサイザーの音色に、感覚型(S)は直感的な歌詞や鮮明な楽器構成に大きな魅力を感じます。</li>
+                            <li><strong>情緒的共鳴 (Harmony & Tone)</strong>: 感情型(F)はメロディの和声と訴求力に、思考型(T)は曲の構成と技術的な完成度に集中する傾向を反映します。</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4 class='text-amber-400 font-bold mb-2 flex flex items-center gap-1'>
+                            <i data-lucide='shield-check' class='w-4 h-4'></i> 3. 検査結果の専門性と活用
+                        </h4>
+                        <p><strong>Music Vibe Test</strong>の結果は単なる娯楽を超え、自身の内面世界を視覚的・聴覚的に理解するツールとして活用できます。16種類の独創的な「Vibe Card」は、各性格タイプが持つ固有の美学と哲学を含んでおり、日常でインスピレーションを得たり、他者と深く共感するための新しい通路となるでしょう。</p>
+                    </section>
+                </div>
+            `,
         },
         questions: [
             "新しい出会いは、常に私を刺激する舞台のようです。 🙋‍♀️",
