@@ -210,14 +210,14 @@
         <!-- 2. Top Navigation Style Header -->
         <div class="relative z-10 w-full px-16 pt-24 flex justify-between items-end">
             <div class="flex flex-col items-start translate-x-2">
-                <span class="text-3xl font-black italic tracking-[0.4em] text-white/40 uppercase mb-2">My Vibe ID</span>
-                <span id="export-result-id" class="text-2xl font-mono text-white/20">#MV-2025-001</span>
+                <span class="text-4xl font-black italic tracking-[0.4em] text-white/40 uppercase mb-2">My Vibe ID</span>
+                <span id="export-result-id" class="text-3xl font-mono text-white/20">#MV-2025-001</span>
             </div>
             <div class="flex flex-col items-end">
                 <span id="export-rarity-label"
-                    class="text-xs font-black uppercase tracking-[0.5em] text-amber-500 mb-2">Rarity Status</span>
+                    class="text-lg font-black uppercase tracking-[0.5em] text-amber-500 mb-2">Rarity Status</span>
                 <div id="export-rarity-badge"
-                    class="px-8 py-3 bg-amber-500 text-black font-black text-3xl rounded-full shadow-[0_0_40px_rgba(245,158,11,0.3)]">
+                    class="px-10 py-4 bg-amber-500 text-black font-black text-5xl rounded-full shadow-[0_0_40px_rgba(245,158,11,0.3)]">
                     TOP 3.2%
                 </div>
             </div>
@@ -233,16 +233,16 @@
             </div>
 
             <!-- Main Content Grid -->
-            <div class="relative w-full aspect-[4/5] flex flex-col justify-end">
+            <div class="relative w-full aspect-[4/5] flex flex-col justify-start">
 
                 <!-- Large Genre Title (Magazine Style) -->
-                <div class="absolute top-0 left-0 z-30 flex flex-col items-start">
+                <div class="relative z-30 flex flex-col items-start pt-10">
                     <h2 id="export-genre-en"
                         class="text-[120px] font-black leading-[0.85] text-white tracking-tighter uppercase text-left drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                         Alternative<br>Indie
                     </h2>
-                    <div class="w-24 h-4 bg-white mt-8 mb-4"></div>
-                    <p id="export-genre-kr" class="text-5xl font-bold text-white/60 tracking-widest text-left">얼터너티브 인디
+                    <!-- Separator Removed -->
+                    <p id="export-genre-kr" class="text-6xl font-bold text-white/60 tracking-widest text-left">얼터너티브 인디
                     </p>
                 </div>
 
@@ -281,9 +281,9 @@
                     </div>
                 </div>
 
-                <!-- Detail Panel (Optimized for Export) -->
+                <!-- Detail Panel (Optimized for Export) - Moved under title -->
                 <div
-                    class="relative z-30 w-[600px] bg-[#121214]/90 border border-white/10 rounded-[4rem] p-12 flex flex-col items-start shadow-2xl mr-auto mb-20">
+                    class="relative z-30 w-[600px] bg-[#121214]/90 border border-white/10 rounded-[4rem] p-12 flex flex-col items-start shadow-2xl mr-auto mt-32">
                     <div class="flex items-center gap-4 mb-8">
                         <!-- MBTI Removed -->
                     </div>
@@ -296,8 +296,8 @@
                     <!-- Energy Meter -->
                     <div class="w-full mb-4">
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-xl font-black uppercase tracking-widest text-white/40">Vibe Energy</span>
-                            <span id="export-energy-value" class="text-xl font-mono text-white/80">88%</span>
+                            <span class="text-2xl font-black uppercase tracking-widest text-white/40">Vibe Energy</span>
+                            <span id="export-energy-value" class="text-3xl font-mono text-white/80">88%</span>
                         </div>
                         <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
                             <div id="export-energy-bar" class="h-full bg-white rounded-full transition-all"
@@ -309,15 +309,15 @@
         </div>
 
         <!-- 4. Footer & Branding -->
-        <div class="relative z-10 w-full px-16 pb-32 flex justify-between items-center mt-auto">
+        <div class="relative z-10 w-full px-16 pb-48 flex justify-between items-center mt-auto">
             <div class="flex flex-col items-start gap-4">
                 <div class="flex flex-col">
-                    <span class="text-xl font-black uppercase tracking-[0.3em] text-white/30 mb-2">Best Match</span>
-                    <span id="export-match-type" class="text-3xl font-black italic text-white">TECHNO & GARAGE</span>
+                    <span class="text-2xl font-black uppercase tracking-[0.3em] text-white/30 mb-2">Best Match</span>
+                    <span id="export-match-type" class="text-5xl font-black italic text-white">TECHNO & GARAGE</span>
                 </div>
-                <div class="flex flex-col mt-4">
-                    <span class="text-xl font-black uppercase tracking-[0.3em] text-white/30 mb-2">Soul Song</span>
-                    <span id="export-song" class="text-2xl font-bold text-white max-w-[500px] truncate">Hype Boy -
+                <div class="flex flex-col mt-6">
+                    <span class="text-2xl font-black uppercase tracking-[0.3em] text-white/30 mb-2">Soul Song</span>
+                    <span id="export-song" class="text-4xl font-bold text-white max-w-[600px] truncate">Hype Boy -
                         NewJeans</span>
                 </div>
             </div>
@@ -325,7 +325,7 @@
             <div class="flex flex-col items-end gap-6">
                 <!-- URL Branding -->
                 <div class="flex flex-col items-end">
-                    <span class="text-5xl font-black italic tracking-tighter text-white tracking-[-0.05em]">MY MUSIC
+                    <span class="text-6xl font-black italic tracking-tighter text-white tracking-[-0.05em]">MY MUSIC
                         VIBE</span>
                     <span
                         class="text-2xl font-mono text-white/40 tracking-widest mt-2 uppercase">my-music-vibe.com</span>

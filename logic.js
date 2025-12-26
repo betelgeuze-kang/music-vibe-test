@@ -1184,12 +1184,24 @@ window.saveImage = async function () {
         // Enhanced Styling - Sophisticated Gradients
         if (finalResult.color) {
             // Map simple tailwind colors to complex poster-style gradients (Using RAW CSS strings for html2canvas compatibility)
+            // Based on results.js 'color' property (first class)
             const colorMap = {
-                'from-purple-600': 'linear-gradient(135deg, #4c1d95, #1e1b4b, #000000)',
-                'from-pink-600': 'linear-gradient(135deg, #831843, #1a1a1c, #000000)',
-                'from-blue-600': 'linear-gradient(135deg, #0e7490, #082f49, #000000)',
-                'from-amber-600': 'linear-gradient(135deg, #92400e, #09090b, #000000)',
-                'from-emerald-600': 'linear-gradient(135deg, #065f46, #022c22, #000000)'
+                'from-slate-900': 'linear-gradient(135deg, #0f172a, #1f2937, #000000)', // ISTJ
+                'from-amber-200': 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)', // ISFJ (Amber/Orange)
+                'from-indigo-400': 'linear-gradient(135deg, #818cf8, #60a5fa, #3730a3)', // INFJ (Indigo/Purple)
+                'from-blue-600': 'linear-gradient(135deg, #2563eb, #1e40af, #0f172a)', // INTJ (Blue/Slate)
+                'from-zinc-500': 'linear-gradient(135deg, #71717a, #334155, #000000)', // ISTP (Zinc/Slate)
+                'from-rose-300': 'linear-gradient(135deg, #fda4af, #f472b6, #e11d48)', // ISFP (Rose/Pink)
+                'from-teal-200': 'linear-gradient(135deg, #99f6e4, #34d399, #059669)', // INFP (Teal/Emerald)
+                'from-violet-500': 'linear-gradient(135deg, #8b5cf6, #c026d3, #4c1d95)', // INTP (Violet/Fuchsia)
+                'from-red-500': 'linear-gradient(135deg, #ef4444, #b91c1c, #000000)', // ESTP (Red/Black)
+                'from-yellow-300': 'linear-gradient(135deg, #fcd34d, #fb923c, #ef4444)', // ESFP (Yellow/Red)
+                'from-pink-400': 'linear-gradient(135deg, #f472b6, #a855f7, #4f46e5)', // ENFP (Pink/Indigo)
+                'from-lime-300': 'linear-gradient(135deg, #bef264, #4ade80, #65a30d)', // ENTP (Lime/Green)
+                'from-blue-500': 'linear-gradient(135deg, #3b82f6, #0891b2, #1e3a8a)', // ESTJ (Blue/Cyan)
+                'from-pink-200': 'linear-gradient(135deg, #fbcfe8, #f472b6, #e11d48)', // ESFJ (Pink/Rose)
+                'from-amber-300': 'linear-gradient(135deg, #fcd34d, #facc15, #f97316)', // ENFJ (Amber/Orange)
+                'from-red-700': 'linear-gradient(135deg, #b91c1c, #7f1d1d, #000000)', // ENTJ (Dark Red)
             };
             const baseGradient = finalResult.color.split(' ')[0];
             const richGradient = colorMap[baseGradient] || `linear-gradient(135deg, #4c1d95, #000000)`; // Default fallback
