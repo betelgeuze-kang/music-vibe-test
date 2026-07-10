@@ -94,11 +94,11 @@
     @media(max-width:700px){.shell{width:min(100% - 20px,880px);padding-top:14px}.hero{grid-template-columns:1fr;padding:28px 22px;border-radius:24px}.art{order:-1}.art img{width:210px}.playlist{padding:22px 14px}.track-open{display:none}.nav-links a:first-child{display:none}}
   </style>
 </head>
-<body>
+<body data-page-type="static_result" data-result-type="{{ page.type }}" data-language="{{ html_lang }}" data-analytics-consent-ui="standalone">
   <main class="shell">
     <nav class="nav" aria-label="Primary"><a class="brand" href="/">MY MUSIC VIBE</a><div class="nav-links"><a href="/">{{ home_label }}</a><a href="/{{ alternate_lang }}/results/{{ slug }}/">{{ language_name }}</a></div></nav>
     <article class="hero">
-      <div class="copy"><span class="eyebrow">12-CHOICE RESULT · {{ page.type }}</span><h1>{{ page.type }}</h1><div class="genre">{{ result.genre }}</div><p class="subtitle">{{ copy.subtitle }}</p><p class="desc">{{ copy.description }}</p><div class="actions"><a class="primary" href="/?lang={{ lang_param }}&amp;ref={{ page.type }}">{{ cta_label }}</a><button class="secondary" type="button" id="share-result">{{ share_label }}</button></div></div>
+      <div class="copy"><span class="eyebrow">12-CHOICE RESULT · {{ page.type }}</span><h1>{{ page.type }}</h1><div class="genre">{{ result.genre }}</div><p class="subtitle">{{ copy.subtitle }}</p><p class="desc">{{ copy.description }}</p><div class="actions"><a class="primary" href="/?lang={{ lang_param }}&amp;ref={{ page.type }}&amp;src=static_result">{{ cta_label }}</a><button class="secondary" type="button" id="share-result">{{ share_label }}</button></div></div>
       <div class="art"><img src="{{ result.image }}" alt="{{ page.type }} {{ result.genre | escape }}" width="340" height="340"></div>
     </article>
     <section class="playlist" aria-labelledby="playlist-title"><div class="playlist-head"><div><h2 id="playlist-title">{{ playlist_title }}</h2><p>Music Vibe mini playlist · 4 tracks</p></div></div>
@@ -107,5 +107,7 @@
     <p class="note">{{ result_note }}</p>
   </main>
   <script>(()=>{const button=document.getElementById('share-result');const url={{ canonical | jsonify }};button.addEventListener('click',async()=>{const payload={title:document.title,text:{{ copy.subtitle | jsonify }},url};try{if(navigator.share){await navigator.share(payload)}else{await navigator.clipboard.writeText(url);alert({{ copy_success | jsonify }})}}catch(error){if(error&&error.name!=='AbortError')prompt('Copy this link:',url)}})})();</script>
+  <script src="/p2-analytics.js"></script>
+  <script src="/p2-static.js"></script>
 </body>
 </html>
