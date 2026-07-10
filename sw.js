@@ -1,30 +1,26 @@
-const CACHE_NAME = 'music-vibe-v1';
-const ASSETS = [
-    './',
-    './index.html',
-    './styles.css',
-    './lang.js',
-    './questions.js',
-    './results.js',
-    './logic.js',
-    './manifest.json',
-    'https://cdn.tailwindcss.com',
-    'https://unpkg.com/lucide@latest',
-    'https://html2canvas.hertzen.com/dist/html2canvas.min.js'
-];
+// Cleanup-only service worker for removing the legacy cache-first PWA worker.
+const LEGACY_CACHE_PREFIX = 'music-vibe-';
 
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS);
-        })
-    );
+self.addEventListener('install', () => {
+    self.skipWaiting();
 });
 
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
-    );
+self.addEventListener('activate', (event) => {
+    event.waitUntil((async () => {
+        const cacheKeys = await caches.keys();
+        await Promise.all(
+            cacheKeys
+                .filter((key) => key.startsWith(LEGACY_CACHE_PREFIX))
+                .map((key) => caches.delete(key))
+        );
+
+        await self.clients.claim();
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        await self.registration.unregister();
+
+        // Reload controlled pages once so they receive the network version after cache removal.
+        await Promise.all(clients.map((client) => client.navigate(client.url)));
+    })());
 });
+
+// Intentionally no fetch handler: all requests use the normal network/cache stack.
