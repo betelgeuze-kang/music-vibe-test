@@ -1,0 +1,9 @@
+title: Music Vibe Test
+url: https://my-music-vibe.com
+baseurl: ""
+markdown: kramdown
+exclude:
+  - node_modules
+  - tests
+  - scripts
+  - package-lock.json
