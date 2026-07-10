@@ -1,0 +1,111 @@
+---
+---
+{% assign result = site.data.results[page.type] %}
+{% assign copy = result[page.lang] %}
+{% assign slug = page.type | downcase %}
+{% assign canonical = site.url | append: page.url %}
+{% assign og_url = site.url | append: result.og_image %}
+{% if page.lang == 'ko' %}
+  {% assign html_lang = 'ko' %}
+  {% assign lang_param = 'kr' %}
+  {% assign language_name = 'English' %}
+  {% assign alternate_lang = 'en' %}
+  {% assign home_label = '전체 테스트' %}
+  {% assign playlist_title = '이 바이브를 위한 4곡' %}
+  {% assign cta_label = '나도 60초 테스트하고 친구와 비교하기' %}
+  {% assign share_label = '이 결과 공유하기' %}
+  {% assign copy_success = '결과 링크가 복사되었습니다.' %}
+  {% assign result_note = '이 결과 페이지는 검색과 공유를 위한 정적 페이지입니다. 테스트 결과는 엔터테인먼트 목적으로 제공됩니다.' %}
+  {% capture page_title %}{{ result.genre }} ({{ page.type }}) | 나의 음악 바이브 결과{% endcapture %}
+{% else %}
+  {% assign html_lang = 'en' %}
+  {% assign lang_param = 'en' %}
+  {% assign language_name = '한국어' %}
+  {% assign alternate_lang = 'ko' %}
+  {% assign home_label = 'Full test' %}
+  {% assign playlist_title = 'Four tracks for this vibe' %}
+  {% assign cta_label = 'Take the 60-second test and compare' %}
+  {% assign share_label = 'Share this result' %}
+  {% assign copy_success = 'Result link copied.' %}
+  {% assign result_note = 'This crawlable result page is built for search and sharing. The test is entertainment content, not a professional diagnosis.' %}
+  {% capture page_title %}{{ result.genre }} ({{ page.type }}) | My Music Vibe Result{% endcapture %}
+{% endif %}
+<!doctype html>
+<html lang="{{ html_lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ page_title | strip | escape }}</title>
+  <meta name="description" content="{{ copy.description | escape }}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="{{ canonical }}">
+  <link rel="alternate" hreflang="ko" href="{{ site.url }}/ko/results/{{ slug }}/">
+  <link rel="alternate" hreflang="en" href="{{ site.url }}/en/results/{{ slug }}/">
+  <link rel="alternate" hreflang="x-default" href="{{ site.url }}/en/results/{{ slug }}/">
+  <link rel="icon" type="image/webp" href="{{ result.image }}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Music Vibe Test">
+  <meta property="og:title" content="🎵 {{ result.genre | escape }} · {{ page.type }} | Music Vibe Test">
+  <meta property="og:description" content="{{ copy.description | escape }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta property="og:image" content="{{ og_url }}">
+  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ page.type }} {{ result.genre | escape }} Music Vibe result card">
+  <meta property="og:image" content="{{ site.url }}{{ result.image }}">
+  <meta property="og:image:type" content="image/webp">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="🎵 {{ result.genre | escape }} · {{ page.type }} | Music Vibe Test">
+  <meta name="twitter:description" content="{{ copy.description | escape }}">
+  <meta name="twitter:image" content="{{ og_url }}">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": {{ page_title | strip | jsonify }},
+    "description": {{ copy.description | jsonify }},
+    "url": {{ canonical | jsonify }},
+    "inLanguage": {{ html_lang | jsonify }},
+    "primaryImageOfPage": {
+      "@type": "ImageObject",
+      "url": {{ og_url | jsonify }},
+      "width": 1200,
+      "height": 630
+    },
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Music Vibe Test",
+      "url": {{ site.url | jsonify }}
+    }
+  }
+  </script>
+  <style>
+    :root{--accent-a:{{ result.color_a }};--accent-b:{{ result.color_b }};color-scheme:dark}
+    *{box-sizing:border-box}
+    html{background:#08080b}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:radial-gradient(circle at 12% 5%,color-mix(in srgb,var(--accent-b) 38%,transparent),transparent 34rem),radial-gradient(circle at 92% 36%,color-mix(in srgb,var(--accent-a) 55%,transparent),transparent 34rem),#08080b}
+    a{color:inherit;text-decoration:none}.shell{width:min(100% - 32px,880px);margin:0 auto;padding:28px 0 64px}.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}.brand{font-size:12px;font-weight:900;letter-spacing:.22em;color:#fde68a}.nav-links{display:flex;gap:10px;font-size:12px;color:#a1a1aa}.nav-links a{padding:9px 12px;border:1px solid #ffffff14;border-radius:999px;background:#ffffff08}
+    .hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.15fr .85fr;gap:34px;padding:42px;border:1px solid #ffffff1a;border-radius:32px;background:linear-gradient(145deg,#101014e8,#09090ce8);box-shadow:0 34px 90px #0008}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-a),var(--accent-b));opacity:.19;pointer-events:none}.copy,.art{position:relative;z-index:1}.eyebrow{display:inline-flex;padding:7px 11px;border:1px solid #ffffff1a;border-radius:999px;background:#ffffff0d;font-size:11px;font-weight:800;letter-spacing:.17em;color:#d4d4d8}h1{margin:20px 0 8px;font-size:clamp(52px,9vw,94px);line-height:.9;letter-spacing:-.06em}.genre{font-size:clamp(24px,4vw,40px);font-weight:900;letter-spacing:-.03em}.subtitle{margin:13px 0 0;font-size:18px;font-weight:700;color:#d4d4d8}.desc{margin:24px 0 0;max-width:58ch;font-size:15px;line-height:1.82;color:#a1a1aa}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:14px;font-size:13px;font-weight:900}.primary{background:#fff;color:#09090b}.secondary{border:1px solid #ffffff24;background:#ffffff0a;color:#fff;cursor:pointer}.art{display:flex;align-items:center;justify-content:center}.art img{width:min(100%,340px);aspect-ratio:1;border-radius:50%;object-fit:cover;border:10px solid #111116;box-shadow:0 28px 60px #000a,0 0 70px color-mix(in srgb,var(--accent-b) 42%,transparent)}
+    .playlist{margin-top:26px;padding:28px;border:1px solid #ffffff17;border-radius:26px;background:#0d0d11d9}.playlist-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:16px}.playlist h2{margin:0;font-size:22px}.playlist p{margin:5px 0 0;color:#71717a;font-size:12px}.track{display:flex;align-items:center;gap:14px;padding:14px;border-top:1px solid #ffffff0d;transition:.2s}.track:hover{background:#ffffff08;border-radius:14px}.track-no{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#ffffff0a;color:#71717a;font-size:11px;font-weight:900}.track-copy{min-width:0;flex:1}.track-copy strong,.track-copy small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.track-copy strong{font-size:13px}.track-copy small{margin-top:4px;color:#71717a;font-size:11px}.track-open{font-size:9px;font-weight:900;letter-spacing:.08em;color:#86efac}.note{margin:24px 2px 0;color:#52525b;font-size:11px;line-height:1.7}
+    @media(max-width:700px){.shell{width:min(100% - 20px,880px);padding-top:14px}.hero{grid-template-columns:1fr;padding:28px 22px;border-radius:24px}.art{order:-1}.art img{width:210px}.playlist{padding:22px 14px}.track-open{display:none}.nav-links a:first-child{display:none}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="nav" aria-label="Primary"><a class="brand" href="/">MY MUSIC VIBE</a><div class="nav-links"><a href="/">{{ home_label }}</a><a href="/{{ alternate_lang }}/results/{{ slug }}/">{{ language_name }}</a></div></nav>
+    <article class="hero">
+      <div class="copy"><span class="eyebrow">12-CHOICE RESULT · {{ page.type }}</span><h1>{{ page.type }}</h1><div class="genre">{{ result.genre }}</div><p class="subtitle">{{ copy.subtitle }}</p><p class="desc">{{ copy.description }}</p><div class="actions"><a class="primary" href="/?lang={{ lang_param }}&amp;ref={{ page.type }}">{{ cta_label }}</a><button class="secondary" type="button" id="share-result">{{ share_label }}</button></div></div>
+      <div class="art"><img src="{{ result.image }}" alt="{{ page.type }} {{ result.genre | escape }}" width="340" height="340"></div>
+    </article>
+    <section class="playlist" aria-labelledby="playlist-title"><div class="playlist-head"><div><h2 id="playlist-title">{{ playlist_title }}</h2><p>Music Vibe mini playlist · 4 tracks</p></div></div>
+      {% for track in copy.tracks %}{% capture spotify_query %}{{ track.title }} {{ track.artist }}{% endcapture %}<a class="track" href="https://open.spotify.com/search/{{ spotify_query | strip | url_encode }}" target="_blank" rel="noopener noreferrer"><span class="track-no">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span><span class="track-copy"><strong>{{ track.title }}</strong><small>{{ track.artist }} · {{ track.moment }}</small></span><span class="track-open">SPOTIFY ↗</span></a>{% endfor %}
+    </section>
+    <p class="note">{{ result_note }}</p>
+  </main>
+  <script>(()=>{const button=document.getElementById('share-result');const url={{ canonical | jsonify }};button.addEventListener('click',async()=>{const payload={title:document.title,text:{{ copy.subtitle | jsonify }},url};try{if(navigator.share){await navigator.share(payload)}else{await navigator.clipboard.writeText(url);alert({{ copy_success | jsonify }})}}catch(error){if(error&&error.name!=='AbortError')prompt('Copy this link:',url)}})})();</script>
+</body>
+</html>
