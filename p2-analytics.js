@@ -1,11 +1,12 @@
-// P2 consent-aware analytics, attribution and legacy-flow bootstrap.
+// P2 consent-aware analytics, attribution, quality monitoring and legacy-flow bootstrap.
 (() => {
     'use strict';
 
     const CONSENT_KEY = 'music-vibe-consent-v2';
     const GA_MEASUREMENT_ID = 'G-XJ8Z43C6LQ';
+    const VISITOR_KEY = 'music-vibe-visitor-v1';
     const SESSION_KEY = 'music-vibe-session-v1';
-    const ATTRIBUTION_KEY = 'music-vibe-attribution-v1';
+    const ATTRIBUTION_KEY = 'music-vibe-attribution-v2';
     const MAX_PENDING_EVENTS = 120;
     const MAX_DEBUG_EVENTS = 80;
     const DEDUPE_WINDOW_MS = 800;
@@ -17,8 +18,17 @@
     let gaLoadPromise = null;
     let gaConfigured = false;
     let consentState = safeLocalGet(CONSENT_KEY) || 'unknown';
+    let performanceSent = false;
 
-    // P1 can replace these globals later; keep the original 40-question flow for experiments.
+    const performanceState = {
+        fcpMs: 0,
+        lcpMs: 0,
+        cls: 0,
+        fidMs: 0,
+        inpMs: 0
+    };
+
+    // P1 replaces these globals later. Preserve the original 40-question flow for a controlled experiment.
     window.__musicVibeLegacyFlow = Object.freeze({
         startTest: window.startTest,
         renderTest: window.renderTest,
@@ -82,14 +92,27 @@
         return `${prefix}_${random.slice(0, 16)}`;
     }
 
-    function getSessionId() {
-        let value = safeSessionGet(SESSION_KEY);
+    function getPersistentId(storage, key, prefix) {
+        let value = storage.get(key);
         if (!value) {
-            value = randomId('mvs');
-            safeSessionSet(SESSION_KEY, value);
+            value = randomId(prefix);
+            storage.set(key, value);
         }
         return value;
     }
+
+    const localStore = {
+        get: safeLocalGet,
+        set: safeLocalSet
+    };
+    const sessionStore = {
+        get: safeSessionGet,
+        set: safeSessionSet
+    };
+
+    const visitorId = getPersistentId(localStore, VISITOR_KEY, 'mvu');
+    const sessionId = getPersistentId(sessionStore, SESSION_KEY, 'mvs');
+    const visitId = randomId('mvv');
 
     function currentLanguage() {
         const bodyLanguage = document.body?.dataset?.language;
@@ -122,10 +145,18 @@
         return 'app';
     }
 
+    function normalizeTestMode(value) {
+        const normalized = String(value || '').replaceAll('-', '_');
+        if (normalized === 'quick_12' || normalized === 'deep_40') return normalized;
+        return normalized.slice(0, 30);
+    }
+
     function sanitizeValue(value) {
         if (value === undefined || value === null || value === '') return undefined;
         if (typeof value === 'boolean' || typeof value === 'number') return value;
-        if (Array.isArray(value)) return value.slice(0, 10).map(sanitizeValue).filter((item) => item !== undefined);
+        if (Array.isArray(value)) {
+            return value.slice(0, 10).map(sanitizeValue).filter((item) => item !== undefined);
+        }
         return String(value).replace(/\s+/g, ' ').trim().slice(0, 100);
     }
 
@@ -139,9 +170,25 @@
         return output;
     }
 
+    function isSharedEntry(params, source, medium, explicitRef) {
+        const normalizedSource = String(source || '').toLowerCase();
+        const normalizedMedium = String(medium || '').toLowerCase();
+        return Boolean(
+            explicitRef
+            || ['share', 'shared_result', 'static_result', 'social'].includes(normalizedSource)
+            || ['share', 'social', 'referral'].includes(normalizedMedium)
+            || params.get('shared') === '1'
+        );
+    }
+
     function readAttribution() {
         const params = new URLSearchParams(window.location.search);
         const existing = parseJson(safeSessionGet(ATTRIBUTION_KEY), {});
+        const explicitRef = (params.get('ref') || '').toUpperCase();
+        const source = params.get('src') || params.get('source') || existing.source || '';
+        const utmMedium = params.get('utm_medium') || existing.utm_medium || '';
+        const pathResult = window.location.pathname.match(/\/results\/([a-z]{4})\/?$/i)?.[1]?.toUpperCase() || '';
+        const sharedEntry = isSharedEntry(params, source, utmMedium, explicitRef);
         let referrerHost = existing.referrer_host || '';
 
         if (document.referrer) {
@@ -152,14 +199,15 @@
             }
         }
 
-        const resultFromPath = window.location.pathname.match(/\/results\/([a-z]{4})\/?$/i)?.[1]?.toUpperCase() || '';
         const incoming = {
-            ref_type: (params.get('ref') || resultFromPath || existing.ref_type || '').toUpperCase(),
-            source: params.get('src') || existing.source || '',
+            ref_type: explicitRef || (sharedEntry ? pathResult : '') || existing.ref_type || '',
+            source,
+            shared_entry: sharedEntry || Boolean(existing.shared_entry),
             utm_source: params.get('utm_source') || existing.utm_source || '',
-            utm_medium: params.get('utm_medium') || existing.utm_medium || '',
+            utm_medium: utmMedium,
             utm_campaign: params.get('utm_campaign') || existing.utm_campaign || '',
             utm_content: params.get('utm_content') || existing.utm_content || '',
+            utm_term: params.get('utm_term') || existing.utm_term || '',
             referrer_host: referrerHost
         };
 
@@ -167,25 +215,27 @@
         return incoming;
     }
 
-    const sessionId = getSessionId();
-    const visitId = randomId('mvv');
     const attribution = readAttribution();
 
     function commonParams() {
         const experiment = window.__musicVibeExperimentContext || {};
         return sanitizeParams({
+            visitor_id: visitorId,
             session_id: sessionId,
             visit_id: visitId,
             page_type: pageType(),
             page_path: window.location.pathname,
             language: currentLanguage(),
             result_type: currentResultType(),
-            test_mode: document.documentElement.dataset.testMode || '',
+            test_mode: normalizeTestMode(document.documentElement.dataset.testMode || ''),
             ref_type: attribution.ref_type,
             traffic_source: attribution.source,
+            shared_entry: Boolean(attribution.shared_entry),
             utm_source: attribution.utm_source,
             utm_medium: attribution.utm_medium,
             utm_campaign: attribution.utm_campaign,
+            utm_content: attribution.utm_content,
+            utm_term: attribution.utm_term,
             referrer_host: attribution.referrer_host,
             experiment_id: experiment.id || '',
             experiment_variant: experiment.variant || ''
@@ -199,8 +249,9 @@
 
     function eventFingerprint(name, params) {
         const keys = [
-            'question_id', 'question_number', 'result_type', 'placement',
-            'share_method', 'track_title', 'experiment_id', 'experiment_variant'
+            'question_id', 'question_number', 'result_type', 'result_origin',
+            'placement', 'share_method', 'track_title', 'referral_stage',
+            'error_type', 'experiment_id', 'experiment_variant'
         ];
         const signature = keys.map((key) => params[key] ?? '').join('|');
         return `${name}|${signature}`;
@@ -228,32 +279,25 @@
             detail: record
         }));
 
-        if (window.__musicVibeRefreshDebugPanel) {
-            window.__musicVibeRefreshDebugPanel();
-        }
+        window.__musicVibeRefreshDebugPanel?.();
     }
 
     function pushEventToGa(record) {
         rawGtag('event', record.name, {
             ...record.params,
             event_time_ms: record.timestamp,
-            engagement_time_msec: Math.max(1, Date.now() - startedAt)
+            engagement_time_msec: Math.max(1, Date.now() - startedAt),
+            transport_type: record.transportType || 'beacon'
         });
     }
 
     function flushPending() {
         if (consentState !== 'accepted' || !gaConfigured) return;
-        while (pendingEvents.length) {
-            pushEventToGa(pendingEvents.shift());
-        }
+        while (pendingEvents.length) pushEventToGa(pendingEvents.shift());
     }
 
     function ensureGa() {
         if (consentState !== 'accepted') return Promise.resolve(false);
-        if (gaLoadPromise) {
-            flushPending();
-            return gaLoadPromise;
-        }
 
         if (!gaConfigured) {
             rawGtag('consent', 'default', {
@@ -272,7 +316,12 @@
 
         const existing = document.getElementById('music-vibe-ga4');
         if (existing) {
-            gaLoadPromise = Promise.resolve(true);
+            gaLoadPromise = gaLoadPromise || Promise.resolve(true);
+            flushPending();
+            return gaLoadPromise;
+        }
+
+        if (gaLoadPromise) {
             flushPending();
             return gaLoadPromise;
         }
@@ -288,7 +337,7 @@
                 resolve(true);
             }, { once: true });
             script.addEventListener('error', () => {
-                console.warn('GA4 failed to load; events remain queued for this page.');
+                console.warn('GA4 failed to load; analytics remain queued for this page.');
                 resolve(false);
             }, { once: true });
             document.head.appendChild(script);
@@ -322,24 +371,21 @@
             name: normalizedName,
             params: mergedParams,
             timestamp: Date.now(),
-            consent: consentState
+            consent: consentState,
+            transportType: options.transportType || 'beacon'
         };
         appendDebugEvent(record);
 
-        if (consentState === 'declined') {
-            return { status: 'discarded', record };
-        }
+        if (consentState === 'declined') return { status: 'discarded', record };
 
         if (consentState === 'accepted') {
             ensureGa();
             if (gaConfigured) pushEventToGa(record);
-            else pendingEvents.push(record);
+            else if (pendingEvents.length < MAX_PENDING_EVENTS) pendingEvents.push(record);
             return { status: 'sent', record };
         }
 
-        if (pendingEvents.length < MAX_PENDING_EVENTS) {
-            pendingEvents.push(record);
-        }
+        if (pendingEvents.length < MAX_PENDING_EVENTS) pendingEvents.push(record);
         return { status: 'queued', record };
     }
 
@@ -363,20 +409,13 @@
             }
         }
 
-        if (window.__musicVibeRefreshDebugPanel) {
-            window.__musicVibeRefreshDebugPanel();
-        }
+        window.__musicVibeRefreshDebugPanel?.();
     }
 
     // Preserve the public gtag contract while withholding event transmission before consent.
     window.gtag = function gtag(command, ...args) {
-        if (command === 'event') {
-            return trackEvent(args[0], args[1] || {});
-        }
-
-        if (command === 'config' && args[0] === GA_MEASUREMENT_ID) {
-            gaConfigured = true;
-        }
+        if (command === 'event') return trackEvent(args[0], args[1] || {});
+        if (command === 'config' && args[0] === GA_MEASUREMENT_ID) gaConfigured = true;
         rawGtag(command, ...args);
         return undefined;
     };
@@ -389,6 +428,7 @@
         getSnapshot() {
             return {
                 consent: consentState,
+                visitorId,
                 sessionId,
                 visitId,
                 attribution: { ...attribution },
@@ -435,20 +475,11 @@
         banner.setAttribute('role', 'dialog');
         banner.setAttribute('aria-label', isKorean ? '선택적 분석 쿠키 설정' : 'Optional analytics cookies');
         Object.assign(banner.style, {
-            position: 'fixed',
-            left: '16px',
-            right: '16px',
-            bottom: '16px',
-            zIndex: '9999',
-            maxWidth: '620px',
-            margin: '0 auto',
-            padding: '18px',
-            border: '1px solid rgba(255,255,255,.14)',
-            borderRadius: '18px',
-            background: 'rgba(9,9,12,.94)',
-            backdropFilter: 'blur(18px)',
-            boxShadow: '0 18px 70px rgba(0,0,0,.55)',
-            color: '#fff',
+            position: 'fixed', left: '16px', right: '16px', bottom: '16px', zIndex: '9999',
+            maxWidth: '620px', margin: '0 auto', padding: '18px',
+            border: '1px solid rgba(255,255,255,.14)', borderRadius: '18px',
+            background: 'rgba(9,9,12,.94)', backdropFilter: 'blur(18px)',
+            boxShadow: '0 18px 70px rgba(0,0,0,.55)', color: '#fff',
             transition: 'opacity .22s ease'
         });
         banner.innerHTML = `
@@ -487,36 +518,28 @@
         const panel = document.createElement('aside');
         panel.id = 'analytics-debug-panel';
         Object.assign(panel.style, {
-            position: 'fixed',
-            top: '12px',
-            right: '12px',
-            zIndex: '10000',
-            width: 'min(360px, calc(100vw - 24px))',
-            maxHeight: '55vh',
-            overflow: 'auto',
-            padding: '14px',
-            border: '1px solid rgba(255,255,255,.18)',
-            borderRadius: '14px',
-            background: 'rgba(0,0,0,.9)',
-            color: '#e4e4e7',
+            position: 'fixed', top: '12px', right: '12px', zIndex: '10000',
+            width: 'min(380px, calc(100vw - 24px))', maxHeight: '58vh', overflow: 'auto',
+            padding: '14px', border: '1px solid rgba(255,255,255,.18)', borderRadius: '14px',
+            background: 'rgba(0,0,0,.9)', color: '#e4e4e7',
             font: '11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace',
-            boxShadow: '0 18px 60px rgba(0,0,0,.6)'
+            boxShadow: '0 18px 60px rgba(0,0,0,.6)', whiteSpace: 'pre-wrap'
         });
 
         const refresh = () => {
             const snapshot = window.MusicVibeAnalytics.getSnapshot();
-            const latest = snapshot.events.slice(-8).map((event) => ({
-                name: event.name,
-                status: event.consent,
-                params: event.params
-            }));
             panel.textContent = JSON.stringify({
                 consent: snapshot.consent,
+                visitor: snapshot.visitorId,
                 session: snapshot.sessionId,
                 attribution: snapshot.attribution,
                 experiment: snapshot.experiment,
                 queued: snapshot.pendingCount,
-                latest
+                latest: snapshot.events.slice(-8).map((event) => ({
+                    name: event.name,
+                    consent: event.consent,
+                    params: event.params
+                }))
             }, null, 2);
         };
 
@@ -525,6 +548,88 @@
         refresh();
     }
 
+    function observePerformance() {
+        if (typeof PerformanceObserver !== 'function') return;
+
+        const observe = (type, callback) => {
+            try {
+                const observer = new PerformanceObserver((list) => callback(list.getEntries()));
+                observer.observe({ type, buffered: true });
+            } catch (_) {
+                // Browser does not support this entry type.
+            }
+        };
+
+        observe('paint', (entries) => {
+            const fcp = entries.find((entry) => entry.name === 'first-contentful-paint');
+            if (fcp) performanceState.fcpMs = Math.round(fcp.startTime);
+        });
+        observe('largest-contentful-paint', (entries) => {
+            const latest = entries.at(-1);
+            if (latest) performanceState.lcpMs = Math.round(latest.startTime);
+        });
+        observe('layout-shift', (entries) => {
+            entries.forEach((entry) => {
+                if (!entry.hadRecentInput) performanceState.cls += Number(entry.value || 0);
+            });
+        });
+        observe('first-input', (entries) => {
+            const first = entries[0];
+            if (first) performanceState.fidMs = Math.round(first.processingStart - first.startTime);
+        });
+        observe('event', (entries) => {
+            entries.forEach((entry) => {
+                performanceState.inpMs = Math.max(performanceState.inpMs, Math.round(entry.duration || 0));
+            });
+        });
+    }
+
+    function emitPerformance(reason) {
+        if (performanceSent) return;
+        performanceSent = true;
+        const navigation = performance.getEntriesByType?.('navigation')?.[0];
+        trackEvent('performance_summary', {
+            performance_reason: reason,
+            dom_content_loaded_ms: Math.round(navigation?.domContentLoadedEventEnd || 0),
+            load_complete_ms: Math.round(navigation?.loadEventEnd || 0),
+            transfer_size_kb: Math.round((navigation?.transferSize || 0) / 1024),
+            fcp_ms: performanceState.fcpMs,
+            lcp_ms: performanceState.lcpMs,
+            cls_milli: Math.round(performanceState.cls * 1000),
+            fid_ms: performanceState.fidMs,
+            inp_ms: performanceState.inpMs
+        }, { allowDuplicate: true, transportType: 'beacon' });
+    }
+
+    function installQualityMonitoring() {
+        observePerformance();
+
+        window.addEventListener('error', (event) => {
+            const resourceTarget = event.target && event.target !== window ? event.target : null;
+            trackEvent('test_error', {
+                error_type: resourceTarget ? 'resource_error' : 'window_error',
+                error_message: resourceTarget
+                    ? `Failed to load ${resourceTarget.tagName || 'resource'}`
+                    : String(event.message || 'Unknown error').slice(0, 100),
+                source_file: resourceTarget
+                    ? String(resourceTarget.src || resourceTarget.href || '').split('/').pop()
+                    : String(event.filename || '').split('/').pop(),
+                line_number: event.lineno || 0
+            }, { allowDuplicate: true, transportType: 'beacon' });
+        }, true);
+
+        window.addEventListener('unhandledrejection', (event) => {
+            trackEvent('test_error', {
+                error_type: 'unhandled_rejection',
+                error_message: String(event.reason?.message || event.reason || 'Unknown rejection').slice(0, 100)
+            }, { allowDuplicate: true, transportType: 'beacon' });
+        });
+
+        window.addEventListener('load', () => window.setTimeout(() => emitPerformance('load'), 0));
+        window.addEventListener('pagehide', () => emitPerformance('pagehide'));
+    }
+
+    installQualityMonitoring();
     if (consentState === 'accepted') ensureGa();
 
     document.addEventListener('DOMContentLoaded', () => {
