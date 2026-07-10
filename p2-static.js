@@ -6,12 +6,30 @@
         return window.trackEvent?.(name, params, options);
     }
 
+    function analyticsSnapshot() {
+        return window.MusicVibeAnalytics?.getSnapshot?.() || { attribution: {} };
+    }
+
     function resultType() {
         return String(document.body?.dataset?.resultType || '').toUpperCase();
     }
 
     function language() {
         return document.body?.dataset?.language || document.documentElement.lang || 'en';
+    }
+
+    function attributedShareUrl() {
+        const url = new URL(window.location.href);
+        const type = resultType();
+        url.searchParams.set('src', 'share');
+        url.searchParams.set('utm_source', 'music_vibe');
+        url.searchParams.set('utm_medium', 'share');
+        url.searchParams.set('utm_campaign', 'result_share');
+        if (type) url.searchParams.set('utm_content', type.toLowerCase());
+        url.searchParams.delete('debug');
+        url.searchParams.delete('exp');
+        url.searchParams.delete('variant');
+        return url.toString();
     }
 
     async function copyText(value) {
@@ -36,19 +54,20 @@
         const original = document.getElementById('share-result');
         if (!original) return;
 
-        // Removes the legacy anonymous inline listener from the generated layout.
+        // Cloning removes the anonymous listener emitted by the static layout.
         const button = original.cloneNode(true);
         original.replaceWith(button);
 
         button.addEventListener('click', async () => {
+            const method = navigator.share ? 'native' : 'copy';
             const payload = {
                 title: document.title,
                 text: document.querySelector('.subtitle')?.textContent?.trim() || '',
-                url: window.location.href
+                url: attributedShareUrl()
             };
 
             track('share_click', {
-                share_method: navigator.share ? 'native' : 'copy',
+                share_method: method,
                 placement: 'static_result',
                 result_type: resultType()
             });
@@ -98,17 +117,31 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const type = resultType();
-        track('ref_visit', {
-            ref_type: type,
-            referral_stage: 'static_result',
-            traffic_source: 'shared_result'
+        const attribution = analyticsSnapshot().attribution || {};
+        const sharedEntry = Boolean(attribution.shared_entry);
+
+        track('static_result_view', {
+            result_type: type,
+            shared_entry: sharedEntry,
+            traffic_source: attribution.source || (sharedEntry ? 'shared_result' : 'organic_or_direct')
         });
+
+        // Organic search visits remain content views. Referral attribution starts only
+        // when the URL or session contains an explicit sharing signal.
+        if (sharedEntry) {
+            track('ref_visit', {
+                ref_type: attribution.ref_type || type,
+                referral_stage: 'static_result',
+                traffic_source: attribution.source || 'shared_result'
+            });
+        }
 
         const cta = document.querySelector('.primary');
         cta?.addEventListener('click', () => {
             track('ref_cta_click', {
                 ref_type: type,
-                referral_stage: 'static_to_app'
+                referral_stage: 'static_to_app',
+                shared_entry: sharedEntry
             });
         });
 
