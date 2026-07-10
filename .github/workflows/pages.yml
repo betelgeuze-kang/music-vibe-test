@@ -20,6 +20,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: pages
@@ -62,8 +63,96 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the public custom domain
+        id: verify
+        if: steps.deployment.outcome == 'success'
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            home="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/?deployment=${DEPLOY_SHA}" || true)"
+            result="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/ko/results/enfp/?deployment=${DEPLOY_SHA}" || true)"
+            analytics="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/p2-analytics.js?deployment=${DEPLOY_SHA}" || true)"
+
+            if grep -q 'p2-analytics.js' <<<"$home" \
+              && grep -q 'data-page-type="static_result"' <<<"$result" \
+              && grep -q "music-vibe-visitor-v1" <<<"$analytics"; then
+              echo "verified=true" >> "$GITHUB_OUTPUT"
+              echo "Public domain serves commit ${DEPLOY_SHA}."
+              exit 0
+            fi
+
+            echo "Deployment not visible yet (attempt ${attempt}/18)."
+            sleep 10
+          done
+
+          echo "verified=false" >> "$GITHUB_OUTPUT"
+          echo "The custom domain did not serve the expected P2 assets." >&2
+          exit 1
+
+      - name: Report deployment status to P2 issue
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          COMMIT_SHA: ${{ github.sha }}
+        with:
+          script: |
+            const issueNumber = 3;
+            const marker = '<!-- pages-deploy-report -->';
+            const success = process.env.DEPLOY_OUTCOME === 'success' && process.env.VERIFY_OUTCOME === 'success';
+            const status = success ? '✅ 성공' : '❌ 실패';
+            const body = `${marker}\n## GitHub Pages 배포 검증\n\n- 상태: **${status}**\n- 커밋: \`${process.env.COMMIT_SHA}\`\n- Pages URL: ${process.env.PAGE_URL || '(없음)'}\n- Deploy 단계: \`${process.env.DEPLOY_OUTCOME}\`\n- 공개 도메인 검증: \`${process.env.VERIFY_OUTCOME}\`\n\n${success ? '`my-music-vibe.com`에서 P2 홈, 정적 ENFP 결과 페이지, 분석 스크립트를 모두 확인했습니다.' : '배포 또는 공개 도메인 검증이 실패했으므로 이슈를 열어 둡니다.'}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              per_page: 100
+            });
+            const previous = comments.find((comment) => comment.body?.includes(marker));
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body
+              });
+            }
+
+            if (success) {
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              const completedBody = issue.body.replace(
+                '- [ ] PR 병합 및 공개 도메인 배포 확인',
+                '- [x] PR 병합 및 공개 도메인 배포 확인'
+              );
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: completedBody,
+                state: 'closed',
+                state_reason: 'completed'
+              });
+            }
