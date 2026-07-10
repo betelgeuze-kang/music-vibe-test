@@ -26,6 +26,10 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  PUBLIC_ORIGIN: https://my-music-vibe.com
+  P2_ISSUE_NUMBER: '3'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -45,11 +49,15 @@ jobs:
 
       - name: Verify generated site
         run: |
+          set -euo pipefail
           test -f _site/index.html
           test -f _site/p2-analytics.js
+          test -f _site/p2-static.js
           test -f _site/ko/results/enfp/index.html
+          grep -q 'Version Check: P2 Growth Analytics & Experiments' _site/index.html
           grep -q 'p2-analytics.js' _site/index.html
-          grep -q 'static_result_view' _site/p2-static.js
+          grep -q 'data-page-type="static_result"' _site/ko/results/enfp/index.html
+          grep -q 'music-vibe-visitor-v1' _site/p2-analytics.js
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -57,61 +65,487 @@ jobs:
           path: ./_site
 
   deploy:
-    if: github.event_name == 'push'
+    if: ${{ always() && github.event_name == 'push' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
+      - name: Query Pages API and prefer workflow publishing
+        id: pages_api
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RESULT: ${{ needs.build.result }}
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          api() {
+            gh api \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "$@"
+          }
+
+          summarize() {
+            jq -c '{
+              status: (.status // null),
+              build_type: (.build_type // null),
+              source_branch: (.source.branch // null),
+              source_path: (.source.path // null),
+              cname: (.cname // null),
+              https_enforced: (.https_enforced // null),
+              html_url: (.html_url // null),
+              protected_domain_state: (.protected_domain_state // null),
+              pending_domain_unverified_at: (.pending_domain_unverified_at // null)
+            }' 2>/dev/null || cat
+          }
+
+          before_raw="$(api "repos/${GITHUB_REPOSITORY}/pages" 2>&1)"
+          before_code=$?
+          before_summary="$(printf '%s' "$before_raw" | summarize)"
+          build_type="$(jq -r '.build_type // "unknown"' <<<"$before_raw" 2>/dev/null || echo unknown)"
+          source_branch="$(jq -r '.source.branch // ""' <<<"$before_raw" 2>/dev/null || true)"
+          switch_status='not_needed'
+          switch_http_code=''
+          switch_output=''
+
+          if [ "$before_code" -ne 0 ]; then
+            switch_status="pages_query_failed_${before_code}"
+          elif [ "$build_type" = 'legacy' ] && [ "$BUILD_RESULT" = 'success' ]; then
+            set +e
+            switch_response="$(api --method PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow --include 2>&1)"
+            switch_code=$?
+            set -e
+            switch_http_code="$(grep -m1 -E '^HTTP/' <<<"$switch_response" | awk '{print $2}' || true)"
+            switch_output="$(printf '%s' "$switch_response" | tail -c 4000)"
+            if [ "$switch_code" -eq 0 ]; then
+              switch_status='success'
+            else
+              switch_status="failed_${switch_code}"
+            fi
+          elif [ "$build_type" = 'legacy' ]; then
+            switch_status="skipped_build_${BUILD_RESULT}"
+          elif [ "$build_type" = 'workflow' ]; then
+            switch_status='already_workflow'
+          else
+            switch_status="unrecognized_${build_type}"
+          fi
+
+          after_raw="$(api "repos/${GITHUB_REPOSITORY}/pages" 2>&1)"
+          after_code=$?
+          after_summary="$(printf '%s' "$after_raw" | summarize)"
+
+          {
+            echo "query_before_code=$before_code"
+            echo "query_after_code=$after_code"
+            echo "build_type_before=$build_type"
+            echo "source_branch_before=$source_branch"
+            echo "switch_status=$switch_status"
+            echo "switch_http_code=$switch_http_code"
+            echo 'before_summary<<EOF'
+            echo "$before_summary"
+            echo 'EOF'
+            echo 'after_summary<<EOF'
+            echo "$after_summary"
+            echo 'EOF'
+            echo 'switch_output<<EOF'
+            echo "$switch_output"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Deploy to GitHub Pages
         id: deployment
+        if: ${{ needs.build.result == 'success' }}
         uses: actions/deploy-pages@v4
 
-      - name: Verify the public custom domain
-        id: verify
-        if: steps.deployment.outcome == 'success'
+      - name: Verify public site after Actions deployment
+        id: verify_primary
+        if: ${{ always() && steps.deployment.outcome == 'success' }}
         env:
           DEPLOY_SHA: ${{ github.sha }}
+        shell: bash
         run: |
-          set -euo pipefail
-          for attempt in $(seq 1 18); do
-            home="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/?deployment=${DEPLOY_SHA}" || true)"
-            result="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/ko/results/enfp/?deployment=${DEPLOY_SHA}" || true)"
-            analytics="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/p2-analytics.js?deployment=${DEPLOY_SHA}" || true)"
+          set -uo pipefail
 
-            if grep -q 'p2-analytics.js' <<<"$home" \
-              && grep -q 'data-page-type="static_result"' <<<"$result" \
-              && grep -q "music-vibe-visitor-v1" <<<"$analytics"; then
-              echo "verified=true" >> "$GITHUB_OUTPUT"
-              echo "Public domain serves commit ${DEPLOY_SHA}."
-              exit 0
+          verify_once() {
+            local cache_bust home result analytics
+            cache_bust="deployment=${DEPLOY_SHA}-$(date +%s)"
+            home="$(curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+              "${PUBLIC_ORIGIN}/?${cache_bust}" 2>/dev/null || true)"
+            result="$(curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+              "${PUBLIC_ORIGIN}/ko/results/enfp/?${cache_bust}" 2>/dev/null || true)"
+            analytics="$(curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+              "${PUBLIC_ORIGIN}/p2-analytics.js?${cache_bust}" 2>/dev/null || true)"
+
+            HOME_OK=false
+            RESULT_OK=false
+            ANALYTICS_OK=false
+            grep -q 'Version Check: P2 Growth Analytics & Experiments' <<<"$home" \
+              && grep -q 'p2-analytics.js' <<<"$home" \
+              && HOME_OK=true
+            grep -q 'data-page-type="static_result"' <<<"$result" \
+              && grep -q '12-CHOICE RESULT · ENFP' <<<"$result" \
+              && RESULT_OK=true
+            grep -q 'P2 consent-aware analytics' <<<"$analytics" \
+              && grep -q 'music-vibe-visitor-v1' <<<"$analytics" \
+              && ANALYTICS_OK=true
+
+            [ "$HOME_OK" = true ] && [ "$RESULT_OK" = true ] && [ "$ANALYTICS_OK" = true ]
+          }
+
+          verified=false
+          attempts=0
+          HOME_OK=false
+          RESULT_OK=false
+          ANALYTICS_OK=false
+          for attempt in $(seq 1 12); do
+            attempts=$attempt
+            if verify_once; then
+              verified=true
+              break
             fi
-
-            echo "Deployment not visible yet (attempt ${attempt}/18)."
+            echo "Actions deployment is not fully visible yet (${attempt}/12): home=${HOME_OK}, result=${RESULT_OK}, analytics=${ANALYTICS_OK}"
             sleep 10
           done
 
-          echo "verified=false" >> "$GITHUB_OUTPUT"
-          echo "The custom domain did not serve the expected P2 assets." >&2
-          exit 1
+          {
+            echo "verified=$verified"
+            echo "home_ok=$HOME_OK"
+            echo "result_ok=$RESULT_OK"
+            echo "analytics_ok=$ANALYTICS_OK"
+            echo "attempts=$attempts"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Report deployment status to P2 issue
-        if: always()
+      - name: Request one legacy Pages build after failed verification
+        id: legacy_build
+        if: ${{ always() && needs.build.result == 'success' && steps.verify_primary.outputs.verified != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          response="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" \
+            --include 2>&1)"
+          exit_code=$?
+          set -e
+
+          http_code="$(grep -m1 -E '^HTTP/' <<<"$response" | awk '{print $2}' || true)"
+          response_tail="$(printf '%s' "$response" | tail -c 4000)"
+          status='failed'
+          [ "$exit_code" -eq 0 ] && status='requested'
+
+          {
+            echo "status=$status"
+            echo "exit_code=$exit_code"
+            echo "http_code=$http_code"
+            echo 'response<<EOF'
+            echo "$response_tail"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify public site after legacy-build fallback
+        id: verify_fallback
+        if: ${{ always() && needs.build.result == 'success' && steps.verify_primary.outputs.verified != 'true' }}
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          verify_once() {
+            local cache_bust home result analytics
+            cache_bust="fallback=${DEPLOY_SHA}-$(date +%s)"
+            home="$(curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+              "${PUBLIC_ORIGIN}/?${cache_bust}" 2>/dev/null || true)"
+            result="$(curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+              "${PUBLIC_ORIGIN}/ko/results/enfp/?${cache_bust}" 2>/dev/null || true)"
+            analytics="$(curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+              "${PUBLIC_ORIGIN}/p2-analytics.js?${cache_bust}" 2>/dev/null || true)"
+
+            HOME_OK=false
+            RESULT_OK=false
+            ANALYTICS_OK=false
+            grep -q 'Version Check: P2 Growth Analytics & Experiments' <<<"$home" \
+              && grep -q 'p2-analytics.js' <<<"$home" \
+              && HOME_OK=true
+            grep -q 'data-page-type="static_result"' <<<"$result" \
+              && grep -q '12-CHOICE RESULT · ENFP' <<<"$result" \
+              && RESULT_OK=true
+            grep -q 'P2 consent-aware analytics' <<<"$analytics" \
+              && grep -q 'music-vibe-visitor-v1' <<<"$analytics" \
+              && ANALYTICS_OK=true
+
+            [ "$HOME_OK" = true ] && [ "$RESULT_OK" = true ] && [ "$ANALYTICS_OK" = true ]
+          }
+
+          verified=false
+          attempts=0
+          HOME_OK=false
+          RESULT_OK=false
+          ANALYTICS_OK=false
+          for attempt in $(seq 1 18); do
+            attempts=$attempt
+            if verify_once; then
+              verified=true
+              break
+            fi
+            echo "Fallback build is not fully visible yet (${attempt}/18): home=${HOME_OK}, result=${RESULT_OK}, analytics=${ANALYTICS_OK}"
+            sleep 10
+          done
+
+          {
+            echo "verified=$verified"
+            echo "home_ok=$HOME_OK"
+            echo "result_ok=$RESULT_OK"
+            echo "analytics_ok=$ANALYTICS_OK"
+            echo "attempts=$attempts"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Collect Pages, DNS, and public-response diagnostics
+        id: diagnostics
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          if ! command -v dig >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq dnsutils
+          fi
+
+          pages_raw="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "repos/${GITHUB_REPOSITORY}/pages" 2>&1 || true)"
+          pages_summary="$(jq -c '{
+            status: (.status // null),
+            build_type: (.build_type // null),
+            source_branch: (.source.branch // null),
+            source_path: (.source.path // null),
+            cname: (.cname // null),
+            https_enforced: (.https_enforced // null),
+            html_url: (.html_url // null),
+            protected_domain_state: (.protected_domain_state // null),
+            pending_domain_unverified_at: (.pending_domain_unverified_at // null)
+          }' <<<"$pages_raw" 2>/dev/null || printf '%s' "$pages_raw")"
+
+          dns_a="$(dig +short A my-music-vibe.com | sort -u | paste -sd ',' -)"
+          dns_aaaa="$(dig +short AAAA my-music-vibe.com | sort -u | paste -sd ',' -)"
+          dns_cname="$(dig +short CNAME my-music-vibe.com | sort -u | paste -sd ',' -)"
+          dns_ns="$(dig +short NS my-music-vibe.com | sort -u | paste -sd ',' -)"
+
+          collect_headers() {
+            local url="$1"
+            curl -sSIL --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$url" 2>&1 \
+              | tr -d '\r' \
+              | grep -Ei '^(HTTP/|server:|location:|cache-control:|age:|etag:|last-modified:|content-type:|via:|x-github-request-id:|x-served-by:|x-cache:|x-cache-hits:)' \
+              | tail -30 || true
+          }
+
+          home_headers="$(collect_headers "${PUBLIC_ORIGIN}/?diagnostics=${GITHUB_SHA}")"
+          result_headers="$(collect_headers "${PUBLIC_ORIGIN}/ko/results/enfp/?diagnostics=${GITHUB_SHA}")"
+          analytics_headers="$(collect_headers "${PUBLIC_ORIGIN}/p2-analytics.js?diagnostics=${GITHUB_SHA}")"
+
+          home_marker="$(curl -fsSL --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache' \
+            "${PUBLIC_ORIGIN}/?diagnostics=${GITHUB_SHA}" 2>/dev/null \
+            | grep -Eo 'Version Check: [^<]+' | head -1 || true)"
+          result_marker="$(curl -fsSL --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache' \
+            "${PUBLIC_ORIGIN}/ko/results/enfp/?diagnostics=${GITHUB_SHA}" 2>/dev/null \
+            | grep -Eo 'data-page-type="static_result"|12-CHOICE RESULT · ENFP' \
+            | paste -sd ',' - || true)"
+          analytics_marker="$(curl -fsSL --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache' \
+            "${PUBLIC_ORIGIN}/p2-analytics.js?diagnostics=${GITHUB_SHA}" 2>/dev/null \
+            | grep -Eo 'P2 consent-aware analytics|music-vibe-visitor-v1' \
+            | sort -u | paste -sd ',' - || true)"
+
+          {
+            echo 'pages_summary<<EOF'
+            echo "$pages_summary"
+            echo 'EOF'
+            echo "dns_a=$dns_a"
+            echo "dns_aaaa=$dns_aaaa"
+            echo "dns_cname=$dns_cname"
+            echo "dns_ns=$dns_ns"
+            echo 'home_headers<<EOF'
+            echo "$home_headers"
+            echo 'EOF'
+            echo 'result_headers<<EOF'
+            echo "$result_headers"
+            echo 'EOF'
+            echo 'analytics_headers<<EOF'
+            echo "$analytics_headers"
+            echo 'EOF'
+            echo "home_marker=$home_marker"
+            echo "result_marker=$result_marker"
+            echo "analytics_marker=$analytics_marker"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Report diagnostics to P2 issue and close only on full verification
+        id: report
+        if: ${{ always() }}
         uses: actions/github-script@v7
         env:
+          BUILD_RESULT: ${{ needs.build.result }}
           DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
-          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
           COMMIT_SHA: ${{ github.sha }}
+          PAGES_BEFORE: ${{ steps.pages_api.outputs.before_summary }}
+          PAGES_AFTER: ${{ steps.pages_api.outputs.after_summary }}
+          PAGES_FINAL: ${{ steps.diagnostics.outputs.pages_summary }}
+          SOURCE_SWITCH_STATUS: ${{ steps.pages_api.outputs.switch_status }}
+          SOURCE_SWITCH_HTTP: ${{ steps.pages_api.outputs.switch_http_code }}
+          SOURCE_SWITCH_OUTPUT: ${{ steps.pages_api.outputs.switch_output }}
+          PRIMARY_VERIFIED: ${{ steps.verify_primary.outputs.verified }}
+          PRIMARY_HOME_OK: ${{ steps.verify_primary.outputs.home_ok }}
+          PRIMARY_RESULT_OK: ${{ steps.verify_primary.outputs.result_ok }}
+          PRIMARY_ANALYTICS_OK: ${{ steps.verify_primary.outputs.analytics_ok }}
+          FALLBACK_STATUS: ${{ steps.legacy_build.outputs.status }}
+          FALLBACK_HTTP: ${{ steps.legacy_build.outputs.http_code }}
+          FALLBACK_OUTPUT: ${{ steps.legacy_build.outputs.response }}
+          FALLBACK_VERIFIED: ${{ steps.verify_fallback.outputs.verified }}
+          FALLBACK_HOME_OK: ${{ steps.verify_fallback.outputs.home_ok }}
+          FALLBACK_RESULT_OK: ${{ steps.verify_fallback.outputs.result_ok }}
+          FALLBACK_ANALYTICS_OK: ${{ steps.verify_fallback.outputs.analytics_ok }}
+          DNS_A: ${{ steps.diagnostics.outputs.dns_a }}
+          DNS_AAAA: ${{ steps.diagnostics.outputs.dns_aaaa }}
+          DNS_CNAME: ${{ steps.diagnostics.outputs.dns_cname }}
+          DNS_NS: ${{ steps.diagnostics.outputs.dns_ns }}
+          HOME_HEADERS: ${{ steps.diagnostics.outputs.home_headers }}
+          RESULT_HEADERS: ${{ steps.diagnostics.outputs.result_headers }}
+          ANALYTICS_HEADERS: ${{ steps.diagnostics.outputs.analytics_headers }}
+          HOME_MARKER: ${{ steps.diagnostics.outputs.home_marker }}
+          RESULT_MARKER: ${{ steps.diagnostics.outputs.result_marker }}
+          ANALYTICS_MARKER: ${{ steps.diagnostics.outputs.analytics_marker }}
         with:
           script: |
-            const issueNumber = 3;
-            const marker = '<!-- pages-deploy-report -->';
-            const success = process.env.DEPLOY_OUTCOME === 'success' && process.env.VERIFY_OUTCOME === 'success';
-            const status = success ? '✅ 성공' : '❌ 실패';
-            const body = `${marker}\n## GitHub Pages 배포 검증\n\n- 상태: **${status}**\n- 커밋: \`${process.env.COMMIT_SHA}\`\n- Pages URL: ${process.env.PAGE_URL || '(없음)'}\n- Deploy 단계: \`${process.env.DEPLOY_OUTCOME}\`\n- 공개 도메인 검증: \`${process.env.VERIFY_OUTCOME}\`\n\n${success ? '`my-music-vibe.com`에서 P2 홈, 정적 ENFP 결과 페이지, 분석 스크립트를 모두 확인했습니다.' : '배포 또는 공개 도메인 검증이 실패했으므로 이슈를 열어 둡니다.'}`;
+            const issueNumber = Number(process.env.P2_ISSUE_NUMBER || '3');
+            const marker = '<!-- pages-api-diagnostics-report -->';
+            const value = (name, fallback = '(없음)') => {
+              const raw = process.env[name];
+              return raw && raw.trim() ? raw.trim() : fallback;
+            };
+            const isTrue = (name) => value(name, 'false') === 'true';
+
+            const primaryVerified = isTrue('PRIMARY_VERIFIED');
+            const fallbackVerified = isTrue('FALLBACK_VERIFIED');
+            const homeOk = isTrue('PRIMARY_HOME_OK') || isTrue('FALLBACK_HOME_OK');
+            const resultOk = isTrue('PRIMARY_RESULT_OK') || isTrue('FALLBACK_RESULT_OK');
+            const analyticsOk = isTrue('PRIMARY_ANALYTICS_OK') || isTrue('FALLBACK_ANALYTICS_OK');
+            const fullyVerified = value('BUILD_RESULT') === 'success'
+              && value('DEPLOY_OUTCOME') === 'success'
+              && (primaryVerified || fallbackVerified)
+              && homeOk
+              && resultOk
+              && analyticsOk;
+
+            core.setOutput('fully_verified', String(fullyVerified));
+            const status = fullyVerified ? '✅ 공개 배포 확인 완료' : '❌ 공개 배포 미확인';
+            const verificationPath = primaryVerified
+              ? 'Actions 배포 직접 확인'
+              : fallbackVerified
+                ? '레거시 Pages 빌드 요청 후 확인'
+                : '확인 실패';
+
+            const body = `${marker}
+            ## Pages API·DNS·공개 배포 자동 진단
+
+            - 상태: **${status}**
+            - 커밋: \`${value('COMMIT_SHA')}\`
+            - 빌드: \`${value('BUILD_RESULT')}\`
+            - Actions 배포: \`${value('DEPLOY_OUTCOME')}\`
+            - Pages URL: ${value('PAGE_URL')}
+            - 확인 경로: **${verificationPath}**
+            - 홈페이지: \`${homeOk}\`
+            - 한국어 ENFP 정적 결과: \`${resultOk}\`
+            - P2 분석 파일: \`${analyticsOk}\`
+
+            ### Pages API
+
+            - workflow 전환: \`${value('SOURCE_SWITCH_STATUS')}\` (HTTP \`${value('SOURCE_SWITCH_HTTP')}\`)
+
+            **전환 전**
+            \`\`\`json
+            ${value('PAGES_BEFORE')}
+            \`\`\`
+
+            **전환 직후**
+            \`\`\`json
+            ${value('PAGES_AFTER')}
+            \`\`\`
+
+            **최종 조회**
+            \`\`\`json
+            ${value('PAGES_FINAL')}
+            \`\`\`
+
+            ### 레거시 Pages 빌드 재요청
+
+            - 상태: \`${value('FALLBACK_STATUS')}\`
+            - HTTP: \`${value('FALLBACK_HTTP')}\`
+
+            ### DNS
+
+            - A: \`${value('DNS_A')}\`
+            - AAAA: \`${value('DNS_AAAA')}\`
+            - CNAME: \`${value('DNS_CNAME')}\`
+            - NS: \`${value('DNS_NS')}\`
+
+            ### 공개 콘텐츠 마커
+
+            - 홈: \`${value('HOME_MARKER')}\`
+            - ENFP 결과: \`${value('RESULT_MARKER')}\`
+            - 분석 파일: \`${value('ANALYTICS_MARKER')}\`
+
+            <details><summary>공개 응답 헤더</summary>
+
+            **홈페이지**
+            \`\`\`
+            ${value('HOME_HEADERS')}
+            \`\`\`
+
+            **ENFP 결과**
+            \`\`\`
+            ${value('RESULT_HEADERS')}
+            \`\`\`
+
+            **P2 분석 파일**
+            \`\`\`
+            ${value('ANALYTICS_HEADERS')}
+            \`\`\`
+            </details>
+
+            <details><summary>API 응답 상세</summary>
+
+            **workflow 전환 응답**
+            \`\`\`
+            ${value('SOURCE_SWITCH_OUTPUT')}
+            \`\`\`
+
+            **레거시 빌드 응답**
+            \`\`\`
+            ${value('FALLBACK_OUTPUT')}
+            \`\`\`
+            </details>
+
+            ${fullyVerified
+              ? '새 홈페이지, 한국어 ENFP 정적 결과, P2 분석 파일이 모두 공개 도메인에서 확인되어 이슈를 종료합니다.'
+              : '세 공개 자산 중 하나라도 확인되지 않아 이슈를 열린 상태로 유지합니다.'}`.replace(/^ {12}/gm, '');
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -137,13 +571,14 @@ jobs:
               });
             }
 
-            if (success) {
-              const { data: issue } = await github.rest.issues.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber
-              });
-              const completedBody = issue.body.replace(
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            if (fullyVerified) {
+              const checkedBody = (issue.body || '').replace(
                 '- [ ] PR 병합 및 공개 도메인 배포 확인',
                 '- [x] PR 병합 및 공개 도메인 배포 확인'
               );
@@ -151,8 +586,21 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issueNumber,
-                body: completedBody,
+                body: checkedBody,
                 state: 'closed',
                 state_reason: 'completed'
               });
+            } else if (issue.state === 'closed') {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                state: 'open'
+              });
             }
+
+      - name: Enforce successful public deployment
+        if: ${{ always() && steps.report.outputs.fully_verified != 'true' }}
+        run: |
+          echo 'Public deployment verification failed; issue #3 contains the diagnostics.' >&2
+          exit 1
