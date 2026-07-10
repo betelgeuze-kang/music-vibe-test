@@ -4,7 +4,9 @@
   "description": "Browser-based music persona test deployed at my-music-vibe.com",
   "main": "build_codepen.js",
   "scripts": {
-    "test": "node tests/p0-smoke.test.cjs && node tests/p1-smoke.test.cjs",
+    "test": "node tests/p0-smoke.test.cjs && node tests/p1-smoke.test.cjs && node tests/p2-smoke.test.cjs",
+    "test:syntax": "node --check p0-fixes.js && node --check p1-experience.js && node --check p2-analytics.js && node --check p2-operations.js && node --check p2-static.js",
+    "ci": "npm run test:syntax && npm test",
     "build": "tailwindcss -i ./input.css -o ./styles.css --minify"
   },
   "repository": {
