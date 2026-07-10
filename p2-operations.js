@@ -1,4 +1,4 @@
-// P2 funnel measurement, experiments and growth-loop instrumentation.
+// P2 funnel measurement, referral-loop instrumentation and controlled experiments.
 (() => {
     'use strict';
 
@@ -52,16 +52,22 @@
     const funnel = {
         started: false,
         completed: false,
+        completeEventSeen: false,
         resultViewed: false,
         abandoned: false,
+        resultAbandoned: false,
+        referralCompleted: false,
         startedAt: 0,
+        completedAt: 0,
         lastQuestion: 0,
-        questionCount: 0,
-        testMode: 'quick_12'
+        questionCount: 12,
+        testMode: 'quick_12',
+        resultOrigin: 'unknown'
     };
 
     let resultDelayConsumed = false;
     let hiddenTimer = null;
+    let refVisitTracked = false;
     const exposedPlacements = new Set();
 
     function safeLocalGet(key) {
@@ -92,6 +98,7 @@
 
     function analyticsSnapshot() {
         return window.MusicVibeAnalytics?.getSnapshot?.() || {
+            visitorId: 'anonymous',
             sessionId: 'anonymous',
             attribution: {}
         };
@@ -108,16 +115,14 @@
             && requestedVariant
             && EXPERIMENTS[requestedId].variants.includes(requestedVariant)
         ) {
-            return {
-                id: requestedId,
-                variant: requestedVariant,
-                source: 'preview'
-            };
+            return { id: requestedId, variant: requestedVariant, source: 'preview' };
+        }
+
+        if (activeExperimentIds.length !== 1) {
+            return { id: '', variant: '', source: 'disabled_invalid_config' };
         }
 
         const id = activeExperimentIds[0];
-        if (!id) return { id: '', variant: '', source: 'disabled' };
-
         const experiment = EXPERIMENTS[id];
         const storageKey = `music-vibe-experiment-${id}`;
         const storedVariant = safeLocalGet(storageKey);
@@ -125,13 +130,13 @@
             return { id, variant: storedVariant, source: 'stored' };
         }
 
-        const seed = `${analyticsSnapshot().sessionId}|${id}`;
+        const seed = `${analyticsSnapshot().visitorId}|${id}`;
         const bucket = hashString(seed) % 100;
         let boundary = 0;
         let selected = experiment.variants[0];
 
         experiment.variants.some((variant, index) => {
-            boundary += experiment.weights[index];
+            boundary += Number(experiment.weights[index] || 0);
             if (bucket < boundary) {
                 selected = variant;
                 return true;
@@ -149,6 +154,7 @@
         definitions: EXPERIMENTS,
         assignment,
         previewUrl(experimentId, variant) {
+            if (!EXPERIMENTS[experimentId]?.variants.includes(variant)) return '';
             const url = new URL(window.location.href);
             url.searchParams.set('exp', experimentId);
             url.searchParams.set('variant', variant);
@@ -195,6 +201,47 @@
         return (template.content.textContent || '').replace(/\s+/g, ' ').trim();
     }
 
+    function resetFunnel(origin = 'unknown') {
+        funnel.started = false;
+        funnel.completed = false;
+        funnel.completeEventSeen = false;
+        funnel.resultViewed = false;
+        funnel.abandoned = false;
+        funnel.resultAbandoned = false;
+        funnel.referralCompleted = false;
+        funnel.startedAt = 0;
+        funnel.completedAt = 0;
+        funnel.lastQuestion = 0;
+        funnel.questionCount = funnel.testMode === 'deep_40' ? 40 : 12;
+        funnel.resultOrigin = origin;
+        resultDelayConsumed = false;
+    }
+
+    function predictLegacyResultType() {
+        try {
+            const eType = scores.E >= scores.I ? 'E' : 'I';
+            const sType = scores.S >= scores.N ? 'S' : 'N';
+            const fType = scores.F >= scores.T ? 'F' : 'T';
+            const jType = scores.J >= scores.P ? 'J' : 'P';
+            return `${eType}${sType}${fType}${jType}`;
+        } catch (_) {
+            return '';
+        }
+    }
+
+    function markTestComplete(resultType = '') {
+        if (!funnel.started || funnel.completeEventSeen) return;
+        funnel.completed = true;
+        funnel.completeEventSeen = true;
+        funnel.completedAt = Date.now();
+        track('test_complete', {
+            test_mode: funnel.testMode,
+            result_type: resultType,
+            question_count: funnel.questionCount,
+            elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
+        });
+    }
+
     function applyFlowVariant() {
         if (assignment.id !== 'test_length_v1' || assignment.variant !== 'deep_40') {
             funnel.testMode = 'quick_12';
@@ -213,30 +260,140 @@
         window.handleAnswer = legacy.handleAnswer;
         window.calculateResult = legacy.calculateResult;
         funnel.testMode = 'deep_40';
-        expose('test_start');
     }
 
     applyFlowVariant();
+    resetFunnel('landing');
     document.documentElement.dataset.testMode = funnel.testMode.replace('_', '-');
+
+    function appendShareAttribution(rawUrl) {
+        const url = new URL(rawUrl || window.location.href, window.location.origin);
+        const type = currentResultType();
+        if (!type || !/\/results\/[a-z]{4}\/?$/i.test(url.pathname)) return url.toString();
+        url.searchParams.set('src', 'share');
+        url.searchParams.set('utm_source', 'music_vibe');
+        url.searchParams.set('utm_medium', 'share');
+        url.searchParams.set('utm_campaign', 'result_share');
+        url.searchParams.set('utm_content', type.toLowerCase());
+        return url.toString();
+    }
+
+    const selectedGetShareUrl = window.getShareUrl;
+    if (typeof selectedGetShareUrl === 'function') {
+        window.getShareUrl = function attributedShareUrl() {
+            return appendShareAttribution(selectedGetShareUrl.apply(this, arguments));
+        };
+    }
+
+    function emitReferralVisit() {
+        const attribution = analyticsSnapshot().attribution || {};
+        if (refVisitTracked || !attribution.ref_type) return;
+        refVisitTracked = true;
+        track('ref_visit', {
+            ref_type: attribution.ref_type,
+            referral_stage: 'app_landing',
+            traffic_source: attribution.source || 'shared_link'
+        });
+    }
+
+    function applyLandingExperiment() {
+        if (assignment.id !== 'landing_copy_v1') return;
+        expose('landing');
+        if (assignment.variant === 'concrete') return;
+
+        const title = document.querySelector('#app-container h1');
+        const description = title?.nextElementSibling;
+        const isKorean = currentLanguage() === 'kr';
+        if (title) {
+            title.textContent = isKorean
+                ? '당신의 영혼은\n어떤 음악으로 울리나요?'
+                : 'What music makes\nyour soul resonate?';
+        }
+        if (description) {
+            description.textContent = isKorean
+                ? '감각과 성향을 따라가며 지금의 나를 닮은 음악적 주파수를 발견해 보세요.'
+                : 'Follow your instincts and discover the musical frequency that feels most like you.';
+        }
+    }
+
+    function applyDeepOfferCopy() {
+        if (funnel.testMode !== 'deep_40') return;
+        expose('landing_test_mode');
+        const isKorean = currentLanguage() === 'kr';
+        const statValues = document.querySelectorAll('#app-container .grid.grid-cols-3 strong');
+        if (statValues[0]) statValues[0].textContent = isKorean ? '약 4분' : 'About 4 min';
+        if (statValues[1]) statValues[1].textContent = isKorean ? '40문항' : '40 questions';
+        if (statValues[2]) statValues[2].textContent = isKorean ? '심층 성향' : 'Deep profile';
+        const startLabel = document.querySelector('#app-container [data-start-quick] span.relative');
+        if (startLabel?.lastChild) {
+            startLabel.lastChild.textContent = isKorean ? ' 심층 테스트 시작' : ' Start the deep test';
+        }
+    }
+
+    const selectedRenderIntro = window.renderIntro;
+    if (typeof selectedRenderIntro === 'function') {
+        window.renderIntro = function measuredRenderIntro() {
+            const result = selectedRenderIntro.apply(this, arguments);
+            applyLandingExperiment();
+            applyDeepOfferCopy();
+            track('landing_view', {
+                landing_variant: assignment.id === 'landing_copy_v1' ? assignment.variant : 'default',
+                offered_test_mode: funnel.testMode,
+                referral_present: Boolean(analyticsSnapshot().attribution?.ref_type)
+            }, { allowDuplicate: true });
+            emitReferralVisit();
+            return result;
+        };
+    }
+
+    function emitAbandon(reason) {
+        if (!funnel.started || funnel.resultViewed) return;
+
+        const base = {
+            abandon_reason: reason,
+            test_mode: funnel.testMode,
+            last_question: funnel.lastQuestion,
+            question_count: funnel.questionCount,
+            progress_percent: funnel.questionCount
+                ? Math.min(100, Math.round((funnel.lastQuestion / funnel.questionCount) * 100))
+                : 0,
+            elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
+        };
+
+        if (funnel.completed) {
+            if (funnel.resultAbandoned) return;
+            funnel.resultAbandoned = true;
+            track('result_abandon', base, { transportType: 'beacon' });
+            return;
+        }
+
+        if (funnel.abandoned) return;
+        funnel.abandoned = true;
+        track('test_abandon', base, { transportType: 'beacon' });
+    }
 
     const selectedStartTest = window.startTest;
     if (typeof selectedStartTest === 'function') {
         window.startTest = function measuredStartTest() {
+            emitAbandon('restart_test');
+            resetFunnel('test');
             funnel.started = true;
-            funnel.completed = false;
-            funnel.resultViewed = false;
-            funnel.abandoned = false;
             funnel.startedAt = Date.now();
-            funnel.lastQuestion = 0;
-            funnel.questionCount = funnel.testMode === 'deep_40'
-                ? (Array.isArray(window.QUESTIONS) ? window.QUESTIONS.length : 40)
-                : (Array.isArray(window.QUICK_QUESTIONS) ? window.QUICK_QUESTIONS.length : 12);
-
+            funnel.questionCount = funnel.testMode === 'deep_40' ? 40 : 12;
             track('start_test', {
                 test_mode: funnel.testMode,
                 question_count: funnel.questionCount
             });
             return selectedStartTest.apply(this, arguments);
+        };
+    }
+
+    const selectedResetTest = window.resetTest;
+    if (typeof selectedResetTest === 'function') {
+        window.resetTest = function measuredResetTest() {
+            emitAbandon('home_reset');
+            resetFunnel('landing');
+            return selectedResetTest.apply(this, arguments);
         };
     }
 
@@ -249,7 +406,7 @@
                 questionNumber = Number(currentQIndex) + 1;
                 axis = QUESTIONS?.[currentQIndex]?.axis || '';
             } catch (_) {
-                // The legacy globals are unavailable only outside the app shell.
+                // Legacy globals are only unavailable outside the app shell.
             }
 
             funnel.lastQuestion = questionNumber;
@@ -266,47 +423,12 @@
         };
     }
 
-    const selectedRenderIntro = window.renderIntro;
-    if (typeof selectedRenderIntro === 'function') {
-        window.renderIntro = function measuredRenderIntro() {
-            const result = selectedRenderIntro.apply(this, arguments);
-            applyLandingExperiment();
-            track('landing_view', {
-                landing_variant: assignment.id === 'landing_copy_v1' ? assignment.variant : 'default',
-                referral_present: Boolean(analyticsSnapshot().attribution?.ref_type)
-            }, { allowDuplicate: true });
-
-            const refType = analyticsSnapshot().attribution?.ref_type;
-            if (refType) {
-                track('ref_visit', {
-                    ref_type: refType,
-                    referral_stage: 'app_landing',
-                    traffic_source: analyticsSnapshot().attribution?.source || 'shared_link'
-                });
-            }
-            return result;
+    const selectedCalculateResult = window.calculateResult;
+    if (funnel.testMode === 'deep_40' && typeof selectedCalculateResult === 'function') {
+        window.calculateResult = function measuredDeepCalculateResult() {
+            markTestComplete(predictLegacyResultType());
+            return selectedCalculateResult.apply(this, arguments);
         };
-    }
-
-    function applyLandingExperiment() {
-        if (assignment.id !== 'landing_copy_v1') return;
-        expose('landing');
-
-        if (assignment.variant === 'concrete') return;
-        const title = document.querySelector('#app-container h1');
-        const description = title?.nextElementSibling;
-        const isKorean = currentLanguage() === 'kr';
-
-        if (title) {
-            title.textContent = isKorean
-                ? '당신의 영혼은\n어떤 음악으로 울리나요?'
-                : 'What music makes\nyour soul resonate?';
-        }
-        if (description) {
-            description.textContent = isKorean
-                ? '감각과 성향을 따라가며 지금의 나를 닮은 음악적 주파수를 발견해 보세요.'
-                : 'Follow your instincts and discover the musical frequency that feels most like you.';
-        }
     }
 
     function renderDelayScreen() {
@@ -326,41 +448,17 @@
         `;
     }
 
-    function applyResultExperiments() {
-        if (assignment.id === 'share_placement_v1') {
-            expose('result_share');
-            const panel = document.getElementById('result-share-panel');
-            if (panel && assignment.variant === 'bottom') {
-                panel.parentElement?.appendChild(panel);
-                panel.dataset.experimentPlacement = 'bottom';
-            }
-        }
-
-        if (assignment.id === 'playlist_visibility_v1') {
-            expose('result_playlist');
-            if (assignment.variant === 'hidden') {
-                document.getElementById('result-playlist')?.remove();
-            }
-        }
-
-        if (assignment.id === 'export_card_v1') {
-            expose('result_export');
-            applyExportCardVariant();
-        }
-    }
-
     function applyExportCardVariant() {
         const card = document.getElementById('export-card');
         if (!card) return;
         card.dataset.exportVariant = assignment.id === 'export_card_v1'
             ? assignment.variant
             : 'classic_a';
-
         if (card.dataset.exportVariant !== 'poster_b') return;
+
         const background = document.getElementById('export-bg-gradient');
         const genre = document.getElementById('export-genre-en');
         const match = document.getElementById('export-match-type');
-
         if (background) {
             background.className = 'absolute inset-0 z-0 bg-[radial-gradient(circle_at_75%_20%,#7c3aed_0%,transparent_38%),radial-gradient(circle_at_20%_75%,#d97706_0%,transparent_42%),linear-gradient(145deg,#09090b,#18181b)]';
         }
@@ -371,19 +469,67 @@
         if (match) match.style.textTransform = 'uppercase';
     }
 
+    function applyResultExperiments() {
+        if (assignment.id === 'share_placement_v1') {
+            expose('result_share');
+            const panel = document.getElementById('result-share-panel');
+            if (panel && assignment.variant === 'bottom') {
+                panel.parentElement?.appendChild(panel);
+                panel.dataset.experimentPlacement = 'bottom';
+            }
+        }
+        if (assignment.id === 'playlist_visibility_v1') {
+            expose('result_playlist');
+            if (assignment.variant === 'hidden') document.getElementById('result-playlist')?.remove();
+        }
+        if (assignment.id === 'export_card_v1') {
+            expose('result_export');
+            applyExportCardVariant();
+        }
+    }
+
+    function finalizeResultView() {
+        if (funnel.resultViewed) return;
+        const resultType = currentResultType();
+
+        if (funnel.started && !funnel.completeEventSeen) markTestComplete(resultType);
+        funnel.resultViewed = true;
+        applyResultExperiments();
+
+        track('result_view', {
+            result_type: resultType,
+            result_origin: funnel.resultOrigin,
+            test_mode: funnel.started ? funnel.testMode : '',
+            elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
+        });
+
+        const refType = analyticsSnapshot().attribution?.ref_type;
+        if (funnel.started && funnel.completed && refType && !funnel.referralCompleted) {
+            funnel.referralCompleted = true;
+            track('ref_complete', {
+                ref_type: refType,
+                result_type: resultType,
+                referral_match: refType === resultType,
+                elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
+            });
+        }
+    }
+
     const selectedRenderResult = window.renderResult;
     if (typeof selectedRenderResult === 'function') {
         window.renderResult = function measuredRenderResult() {
             if (
-                assignment.id === 'result_delay_v1'
+                funnel.started
+                && assignment.id === 'result_delay_v1'
                 && assignment.variant === 'legacy_2500'
                 && !resultDelayConsumed
             ) {
                 resultDelayConsumed = true;
                 expose('result_transition');
                 renderDelayScreen();
+                const args = arguments;
                 window.setTimeout(() => {
-                    selectedRenderResult.apply(this, arguments);
+                    selectedRenderResult.apply(this, args);
                     finalizeResultView();
                 }, 2500);
                 return undefined;
@@ -395,32 +541,29 @@
         };
     }
 
-    function finalizeResultView() {
-        funnel.completed = true;
-        funnel.resultViewed = true;
-        const resultType = currentResultType();
-
-        applyResultExperiments();
-        track('test_complete', {
-            test_mode: funnel.testMode,
-            result_type: resultType,
-            question_count: funnel.questionCount,
-            elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
-        });
-        track('result_view', {
-            result_type: resultType,
-            test_mode: funnel.testMode
-        });
-
-        const refType = analyticsSnapshot().attribution?.ref_type;
-        if (refType) {
-            track('ref_complete', {
-                ref_type: refType,
-                result_type: resultType,
-                referral_match: refType === resultType,
-                elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
+    // Landing sample cards call a captured function, so use capture-phase delegation.
+    document.addEventListener('click', (event) => {
+        const sample = event.target?.closest?.('[data-sample-type]');
+        if (sample) {
+            resetFunnel('sample_preview');
+            const type = String(sample.dataset.sampleType || '').toUpperCase();
+            track('sample_result_click', {
+                result_type: type,
+                placement: 'landing_samples'
             });
         }
+    }, true);
+
+    const selectedTypeBrowser = window.selectTypeAndShowResult;
+    if (typeof selectedTypeBrowser === 'function') {
+        window.selectTypeAndShowResult = function measuredTypeBrowser(type) {
+            resetFunnel('type_browser');
+            track('sample_result_click', {
+                result_type: String(type || '').toUpperCase(),
+                placement: 'all_types'
+            });
+            return selectedTypeBrowser.apply(this, arguments);
+        };
     }
 
     document.addEventListener('musicvibe:analytics', (event) => {
@@ -436,29 +579,18 @@
                 funnel.testMode === 'deep_40' ? 40 : 12
             );
         }
-        if (record.name === 'test_complete') funnel.completed = true;
+        if (record.name === 'test_complete') {
+            funnel.completed = true;
+            funnel.completeEventSeen = true;
+            funnel.completedAt = funnel.completedAt || Date.now();
+        }
         if (record.name === 'result_view') funnel.resultViewed = true;
     });
-
-    function emitAbandon(reason) {
-        if (!funnel.started || funnel.completed || funnel.abandoned) return;
-        funnel.abandoned = true;
-        track('test_abandon', {
-            abandon_reason: reason,
-            test_mode: funnel.testMode,
-            last_question: funnel.lastQuestion,
-            question_count: funnel.questionCount,
-            progress_percent: funnel.questionCount
-                ? Math.round((funnel.lastQuestion / funnel.questionCount) * 100)
-                : 0,
-            elapsed_ms: funnel.startedAt ? Date.now() - funnel.startedAt : 0
-        });
-    }
 
     window.addEventListener('pagehide', () => emitAbandon('pagehide'));
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
-            hiddenTimer = window.setTimeout(() => emitAbandon('visibility_hidden'), 1500);
+            hiddenTimer = window.setTimeout(() => emitAbandon('visibility_hidden_30s'), 30000);
         } else if (hiddenTimer) {
             window.clearTimeout(hiddenTimer);
             hiddenTimer = null;
@@ -494,7 +626,9 @@
         const active = document.activeElement;
         if (active?.closest?.('#result-share-panel')) return 'result_top';
         if (active?.closest?.('#share-modal')) return 'share_modal';
-        return 'unknown';
+        return document.getElementById('result-share-panel')?.dataset?.experimentPlacement === 'bottom'
+            ? 'result_bottom'
+            : 'unknown';
     }
 
     async function copyText(value) {
@@ -502,7 +636,6 @@
             await navigator.clipboard.writeText(value);
             return;
         }
-
         const textarea = document.createElement('textarea');
         textarea.value = value;
         textarea.setAttribute('readonly', '');
@@ -524,39 +657,28 @@
         } catch (_) {
             // Generic share payload is valid before a result exists.
         }
-
         return {
             title: `🎵 ${genre} | Music Vibe Test`,
             text,
-            url: typeof window.getShareUrl === 'function'
-                ? window.getShareUrl()
-                : window.location.href
+            url: typeof window.getShareUrl === 'function' ? window.getShareUrl() : window.location.href
         };
     }
 
     window.shareResult = async function measuredShareResult() {
         const payload = sharePayload();
         const placement = inferSharePlacement();
-        track('share_click', {
-            placement,
-            result_type: currentResultType()
-        });
+        track('share_click', { placement, result_type: currentResultType() });
 
         if (navigator.share) {
             try {
                 await navigator.share(payload);
                 track('share_success', {
-                    share_method: 'native',
-                    placement,
-                    result_type: currentResultType()
+                    share_method: 'native', placement, result_type: currentResultType()
                 });
                 return { status: 'shared', method: 'native' };
             } catch (error) {
                 if (error?.name === 'AbortError') {
-                    track('share_cancel', {
-                        share_method: 'native',
-                        placement
-                    });
+                    track('share_cancel', { share_method: 'native', placement });
                     return { status: 'cancelled', method: 'native' };
                 }
             }
@@ -565,47 +687,34 @@
         try {
             await copyText(payload.url);
             track('share_success', {
-                share_method: 'copy',
-                placement,
-                result_type: currentResultType()
+                share_method: 'copy', placement, result_type: currentResultType()
             });
-            window.alert(currentLanguage() === 'kr'
-                ? '결과 링크가 복사되었습니다.'
-                : 'Result link copied.');
+            window.alert(currentLanguage() === 'kr' ? '결과 링크가 복사되었습니다.' : 'Result link copied.');
             return { status: 'shared', method: 'copy' };
         } catch (error) {
             track('share_error', {
-                share_method: 'copy',
-                placement,
-                error_name: error?.name || 'Error'
+                share_method: 'copy', placement, error_name: error?.name || 'Error'
             });
             window.prompt('Copy this link:', payload.url);
             return { status: 'error', method: 'copy' };
         }
     };
-
     window.handleSystemShare = window.shareResult;
 
     const selectedKakaoShare = window.shareKakao;
     if (typeof selectedKakaoShare === 'function') {
         window.shareKakao = async function measuredKakaoShare() {
             track('share_click', {
-                share_method: 'kakao',
-                placement: 'share_modal',
-                result_type: currentResultType()
+                share_method: 'kakao', placement: 'share_modal', result_type: currentResultType()
+            });
+            track('share_intent_open', {
+                share_method: 'kakao', placement: 'share_modal', result_type: currentResultType()
             });
             try {
-                const result = await selectedKakaoShare.apply(this, arguments);
-                track('share_success', {
-                    share_method: 'kakao',
-                    placement: 'share_modal',
-                    result_type: currentResultType()
-                });
-                return result;
+                return await selectedKakaoShare.apply(this, arguments);
             } catch (error) {
                 track('share_error', {
-                    share_method: 'kakao',
-                    error_name: error?.name || 'Error'
+                    share_method: 'kakao', error_name: error?.name || 'Error'
                 });
                 throw error;
             }
@@ -616,17 +725,12 @@
     if (typeof selectedTwitterShare === 'function') {
         window.shareTwitter = function measuredTwitterShare() {
             track('share_click', {
-                share_method: 'x_intent',
-                placement: 'share_modal',
-                result_type: currentResultType()
+                share_method: 'x_intent', placement: 'share_modal', result_type: currentResultType()
             });
-            const result = selectedTwitterShare.apply(this, arguments);
-            track('share_success', {
-                share_method: 'x_intent',
-                placement: 'share_modal',
-                result_type: currentResultType()
+            track('share_intent_open', {
+                share_method: 'x_intent', placement: 'share_modal', result_type: currentResultType()
             });
-            return result;
+            return selectedTwitterShare.apply(this, arguments);
         };
     }
 
@@ -654,34 +758,6 @@
             return result;
         };
     }
-
-    window.addEventListener('error', (event) => {
-        track('test_error', {
-            error_type: 'window_error',
-            error_message: String(event.message || 'Unknown error').slice(0, 100),
-            source_file: String(event.filename || '').split('/').pop(),
-            line_number: event.lineno || 0
-        }, { allowDuplicate: true });
-    });
-
-    window.addEventListener('unhandledrejection', (event) => {
-        track('test_error', {
-            error_type: 'unhandled_rejection',
-            error_message: String(event.reason?.message || event.reason || 'Unknown rejection').slice(0, 100)
-        }, { allowDuplicate: true });
-    });
-
-    window.addEventListener('load', () => {
-        window.setTimeout(() => {
-            const navigation = performance.getEntriesByType?.('navigation')?.[0];
-            if (!navigation) return;
-            track('performance_summary', {
-                dom_content_loaded_ms: Math.round(navigation.domContentLoadedEventEnd),
-                load_complete_ms: Math.round(navigation.loadEventEnd),
-                transfer_size_kb: Math.round((navigation.transferSize || 0) / 1024)
-            });
-        }, 0);
-    });
 
     document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.dataset.testMode = funnel.testMode.replace('_', '-');
