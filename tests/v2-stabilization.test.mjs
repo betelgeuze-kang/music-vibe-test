@@ -41,14 +41,16 @@ assert(!css.includes('SUIT'), 'stability layer must not name unloaded fonts');
 assert(a11yCss.includes('.editorial-button--ink'));
 assert(a11yCss.includes('color: var(--ink) !important'));
 assert(a11yCss.includes('.editorial-section--together'));
+assert(a11yCss.includes('body[data-route="profile"] .editorial-nav.site-nav'));
 
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"), 'color contrast must be part of axe');
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
   assert(qualitySpec.includes(`'${route}'`), `accessibility gate is missing ${route}`);
 }
-assert(qualitySpec.includes('mobile navigation is hidden during discovery'));
+assert(qualitySpec.includes('mobile navigation changes mode by route'));
 assert(qualitySpec.includes('expectAboveFixedNavigation'));
 assert(qualitySpec.includes("expect(contract.overflowWrap).toBe('normal')"));
+assert(qualitySpec.includes("getComputedStyle(node).position)).not.toBe('fixed')"));
 
 for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'match.png']) {
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
