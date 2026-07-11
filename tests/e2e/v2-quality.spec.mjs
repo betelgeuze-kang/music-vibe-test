@@ -9,17 +9,17 @@ async function expectAccessible(page, label) {
   expect(seriousViolations(results), `${label} has serious accessibility violations`).toEqual([]);
 }
 
-async function expectAboveFixedNavigation(page, selector) {
-  const element = page.locator(selector).last();
-  await element.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
-  await page.waitForTimeout(80);
+async function expectStaticNavigationBefore(page, selector) {
   const nav = page.locator('.site-nav');
+  const content = page.locator(selector).first();
   await expect(nav).toBeVisible();
-  const elementBox = await element.boundingBox();
+  await expect(nav).toHaveCSS('position', 'static');
+  await expect(content).toBeVisible();
   const navBox = await nav.boundingBox();
-  expect(elementBox, `${selector} must have a layout box`).not.toBeNull();
-  expect(navBox, 'bottom navigation must have a layout box').not.toBeNull();
-  expect(elementBox.y + elementBox.height, `${selector} is covered by bottom navigation`).toBeLessThanOrEqual(navBox.y - 4);
+  const contentBox = await content.boundingBox();
+  expect(navBox, 'mobile product navigation must have a layout box').not.toBeNull();
+  expect(contentBox, `${selector} must have a layout box`).not.toBeNull();
+  expect(navBox.y + navBox.height, `navigation must appear before ${selector}`).toBeLessThanOrEqual(contentBox.y);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -149,7 +149,7 @@ test('all five editorial routes pass axe including color contrast', async ({ pag
   await expectAccessible(page, 'listen together');
 });
 
-test('mobile navigation changes mode by route and never covers product content', async ({ page }, testInfo) => {
+test('mobile navigation is hidden during discovery and stays above all product content', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only layout contract');
 
   await page.goto('/?lang=kr#/home');
@@ -160,27 +160,18 @@ test('mobile navigation changes mode by route and never covers product content',
   await expect(page.locator('.site-nav')).toBeHidden();
   await completeProfile(page, 'a', { start: false });
 
-  const profileNav = page.locator('.site-nav');
   await expect(page.locator('body')).toHaveAttribute('data-route', 'profile');
-  await expect(profileNav).toBeVisible();
-  await expect(profileNav).toHaveCSS('position', 'static');
-  const profileNavBox = await profileNav.boundingBox();
-  const profileHeroBox = await page.locator('.profile-hero').boundingBox();
-  expect(profileNavBox).not.toBeNull();
-  expect(profileHeroBox).not.toBeNull();
-  expect(profileNavBox.y + profileNavBox.height).toBeLessThanOrEqual(profileHeroBox.y);
+  await expectStaticNavigationBefore(page, '.profile-hero');
 
   await page.locator('[data-route="now"]').first().click();
   await expect(page.locator('body')).toHaveAttribute('data-route', 'now');
-  await expect(page.locator('.site-nav')).toHaveCSS('position', 'fixed');
-  await expectAboveFixedNavigation(page, '.context-card');
+  await expectStaticNavigationBefore(page, '.section-heading');
   await page.locator('[data-context-id="night"]').click();
-  await expectAboveFixedNavigation(page, '.track-card__actions a');
+  await expectStaticNavigationBefore(page, '.now-hero');
 
   await page.locator('[data-route="match"]').first().click();
   await expect(page.locator('body')).toHaveAttribute('data-route', 'match');
-  await expect(page.locator('.site-nav')).toHaveCSS('position', 'fixed');
-  await expectAboveFixedNavigation(page, '[data-action="copy-invite"]');
+  await expectStaticNavigationBefore(page, '.section-heading');
 });
 
 test('mobile Korean headings use keep-all typography without forced desktop breaks', async ({ page }, testInfo) => {
