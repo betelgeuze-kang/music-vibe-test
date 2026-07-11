@@ -11,17 +11,21 @@ test.beforeEach(async ({ page }) => {
 test('keyboard onboarding creates, edits, and restores a profile', async ({ page }) => {
   await page.goto('/?lang=kr#/home');
   await page.locator('[data-route="discover"]').first().click();
+
   await page.keyboard.press('b');
-  await page.waitForTimeout(270);
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.quiz-topline')).toContainText('1 / 10');
   await page.keyboard.press('a');
-  await page.waitForTimeout(270);
-  for (let index = 1; index < 10; index += 1) {
-    await page.keyboard.press(index % 2 ? 'b' : 'a');
-    await page.waitForTimeout(270);
+  await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
+
+  for (let questionNumber = 2; questionNumber <= 10; questionNumber += 1) {
+    await page.keyboard.press(questionNumber % 2 ? 'a' : 'b');
+    if (questionNumber < 10) {
+      await expect(page.locator('.quiz-topline')).toContainText(`${questionNumber + 1} / 10`);
+    }
   }
+
   await expect(page.locator('.profile-hero')).toBeVisible();
   await expect(page.locator('.vibe-glyph')).toBeVisible();
   await expect(page.locator('.bipolar-axis')).toHaveCount(6);
@@ -43,7 +47,9 @@ test('Vibe Now returns five diverse strategy slots', async ({ page }) => {
   await expect(page.locator('.track-card[data-strategy="explore"]')).toHaveCount(1);
 });
 
-test('fragment invite completes a friend match without exposing the token in the query', async ({ browser }) => {
+test('fragment invite completes a friend match without exposing the token in the query', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'cross-context referral contract is viewport-independent');
+
   const sender = await browser.newContext();
   const senderPage = await sender.newPage();
   await declineAnalytics(senderPage);
@@ -57,14 +63,10 @@ test('fragment invite completes a friend match without exposing the token in the
   const friendPage = await friend.newPage();
   await declineAnalytics(friendPage);
   await friendPage.goto(invite);
-  await friendPage.locator('[data-route="discover"]').first().click();
-  for (let index = 0; index < 10; index += 1) {
-    await friendPage.keyboard.press('b');
-    await friendPage.waitForTimeout(270);
-  }
-  await expect(friendPage.locator('.quality-match-score')).toBeVisible();
+  await completeProfile(friendPage, 'b', { finalSelector: '.quality-match-score' });
   await expect(friendPage.locator('.quality-match-score')).toContainText('Resonance');
   await expect(friendPage.locator('.recommendation-list--bridge .track-card')).toHaveCount(5);
+
   await sender.close();
   await friend.close();
 });
@@ -86,19 +88,26 @@ test('audio failure is recoverable and text choice still works', async ({ page }
   await page.goto('/?lang=en#/home');
   await page.locator('[data-route="discover"]').first().click();
   await page.keyboard.press('1');
-  await expect(page.locator('.audio-preview-state')).toContainText('Preview unavailable');
-  await page.keyboard.press('a');
-  await page.waitForTimeout(270);
+  await expect(page.locator('.audio-preview-state.has-error')).toContainText('Preview unavailable');
+  await page.locator('[data-action="choose-option"]').first().click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
 });
 
-test('localStorage failure does not block the core session', async ({ page }) => {
+test('localStorage failure does not block the core session', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'storage resilience is viewport-independent');
+
   await page.addInitScript(() => {
     Storage.prototype.getItem = () => { throw new Error('blocked'); };
     Storage.prototype.setItem = () => { throw new Error('blocked'); };
     Storage.prototype.removeItem = () => { throw new Error('blocked'); };
   });
   await page.goto('/?lang=en#/home');
+
+  const essentialOnly = page.getByRole('button', { name: 'Essential only' });
+  if (await essentialOnly.isVisible().catch(() => false)) {
+    await essentialOnly.click();
+  }
+
   await completeProfile(page, 'a');
   await expect(page.locator('.profile-hero')).toBeVisible();
 });
