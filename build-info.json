@@ -8,5 +8,6 @@
   "builtAt": "2026-07-11T00:00:00Z",
   "entry": "/src/v2/main.mjs?v=qg1",
   "brandEntry": "/src/v2/brand/install.mjs?brand=bd1",
+  "brandInteraction": "/src/v2/brand/interaction.mjs?brand=bd1",
   "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand"]
 }
