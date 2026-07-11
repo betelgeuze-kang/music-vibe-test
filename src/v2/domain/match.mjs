@@ -2,6 +2,7 @@ import { AXES } from '../data/axes.mjs';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs';
 import { getProfileArchetype, localize, similarityScore, clamp } from './profile.mjs';
 import { matchBand } from './presentation.mjs';
+import { feedbackAdjustment, feedbackDirection } from './feedback.mjs';
 import { averageProfiles, EDITORIAL_CATALOG, platformUrl, selectDiverseCandidates } from './recommendation.mjs';
 
 function axisGap(left, right, axisId) {
@@ -43,32 +44,39 @@ function axisSentence(axis, leftScore, rightScore, language, common) {
   return `On ${label.toLowerCase()}, you lean ${leftDirection.toLowerCase()} while your friend leans ${rightDirection.toLowerCase()}, expanding the shared range.`;
 }
 
-function bridgeTrackScore(track, leftProfile, rightProfile, midpoint) {
+function bridgeTrackScore(track, leftProfile, rightProfile, midpoint, feedback = []) {
   const leftFit = similarityScore(leftProfile.scores, track.profile);
   const rightFit = similarityScore(rightProfile.scores, track.profile);
   const midpointFit = similarityScore(midpoint, track.profile);
   const togetherFit = similarityScore(CONTEXT_BY_ID.together.target, track.profile);
   const fairness = 100 - Math.abs(leftFit - rightFit);
   const editorialBonus = track.editorial ? 4 : 0;
-  const total = Math.round(clamp(midpointFit * 0.36 + fairness * 0.27 + togetherFit * 0.2 + Math.min(leftFit, rightFit) * 0.13 + editorialBonus));
-  return { score: total, total, leftFit, rightFit, midpointFit, togetherFit, fairness };
+  const learnedAdjustment = feedbackAdjustment(track, feedback, 'together');
+  const total = Math.round(clamp(midpointFit * 0.36 + fairness * 0.27 + togetherFit * 0.2 + Math.min(leftFit, rightFit) * 0.13 + editorialBonus + learnedAdjustment));
+  return { score: total, total, leftFit, rightFit, midpointFit, togetherFit, fairness, feedbackAdjustment: learnedAdjustment };
 }
 
 function bridgeReason(candidate, language) {
   const editorial = localize(candidate.track.editorialNote, language);
   const sharedBand = matchBand(Math.min(candidate.leftFit, candidate.rightFit), language);
-  if (editorial) {
-    return language === 'kr'
+  const learned = candidate.feedbackAdjustment
+    ? language === 'kr'
+      ? `이전 반응은 최대한 작게 반영했어요.`
+      : `Earlier feedback is reflected only lightly.`
+    : '';
+  const base = editorial
+    ? language === 'kr'
       ? `${editorial} 두 사람 모두에게 ${sharedBand}으로 맞는 중간 지점이에요.`
-      : `${editorial} It is ${sharedBand.toLowerCase()} for both listeners, making it a useful middle ground.`;
-  }
-  return language === 'kr'
-    ? `두 사람의 중간 취향과 함께 듣는 상황을 모두 고려했어요. 양쪽 모두에게 ${sharedBand}으로 맞습니다.`
-    : `This balances the midpoint with a shared-listening context and is ${sharedBand.toLowerCase()} for both listeners.`;
+      : `${editorial} It is ${sharedBand.toLowerCase()} for both listeners, making it a useful middle ground.`
+    : language === 'kr'
+      ? `두 사람의 중간 취향과 함께 듣는 상황을 모두 고려했어요. 양쪽 모두에게 ${sharedBand}으로 맞습니다.`
+      : `This balances the midpoint with a shared-listening context and is ${sharedBand.toLowerCase()} for both listeners.`;
+  return learned ? `${base} ${learned}` : base;
 }
 
-export function compareProfiles(leftProfile, rightProfile, language = 'kr') {
+export function compareProfiles(leftProfile, rightProfile, language = 'kr', options = {}) {
   if (!leftProfile?.scores || !rightProfile?.scores) return null;
+  const feedback = Array.isArray(options.feedback) ? options.feedback : [];
   const gaps = AXES.map((axis) => ({ axis, gap: axisGap(leftProfile, rightProfile, axis.id), leftScore: leftProfile.scores[axis.id], rightScore: rightProfile.scores[axis.id] }));
   const averageGap = gaps.reduce((sum, item) => sum + item.gap, 0) / gaps.length;
   const moderateContrast = gaps.filter((item) => item.gap >= 18 && item.gap <= 42).length;
@@ -90,13 +98,16 @@ export function compareProfiles(leftProfile, rightProfile, language = 'kr') {
   }));
 
   const midpoint = averageProfiles(leftProfile.scores, rightProfile.scores);
-  const ranked = EDITORIAL_CATALOG.map((track) => ({ track, ...bridgeTrackScore(track, leftProfile, rightProfile, midpoint), strategy: 'bridge' })).sort((a, b) => b.score - a.score);
+  const ranked = EDITORIAL_CATALOG
+    .map((track) => ({ track, ...bridgeTrackScore(track, leftProfile, rightProfile, midpoint, feedback), strategy: 'bridge' }))
+    .sort((a, b) => b.score - a.score);
   const bridgeTracks = selectDiverseCandidates(ranked, 5, { lambda: 0.7 }).map((candidate) => Object.freeze({
     ...candidate,
     sharedFit: Math.round((candidate.leftFit + candidate.rightFit) / 2),
     reason: bridgeReason(candidate, language),
     urls: Object.freeze({ spotify: platformUrl(candidate.track, 'spotify'), youtube: platformUrl(candidate.track, 'youtube'), apple: platformUrl(candidate.track, 'apple') }),
-    editorial: Boolean(candidate.track.editorial)
+    editorial: Boolean(candidate.track.editorial),
+    feedbackDirection: feedbackDirection(candidate.track.id, feedback, 'together', 'bridge_playlist')
   }));
 
   return Object.freeze({
