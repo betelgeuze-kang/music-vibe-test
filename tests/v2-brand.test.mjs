@@ -45,6 +45,9 @@ assert(installer.includes('app.answers = [{ questionId: question.id, optionId: o
 assert(interaction.includes("'choose-option'"), 'interaction bridge must route quiz choices directly');
 assert(interaction.includes("'select-context'"), 'interaction bridge must route moment selection directly');
 assert(interaction.includes("'copy-invite'"), 'interaction bridge must route invite copying directly');
+assert(interaction.includes("action?.startsWith('brand-')"), 'brand-only actions must remain available to the editorial installer');
+assert(interaction.includes("closest?.('button[data-route], a[data-route]')"), 'route matching must be limited to interactive route controls');
+assert(!interaction.includes("closest?.('[data-route]')"), 'the body data-route state must never be mistaken for a navigation control');
 assert(interaction.includes("route === 'discover'"), 'interaction bridge must route navigation without delegated-action ambiguity');
 assert(interaction.includes('event.stopImmediatePropagation()'), 'interaction bridge must prevent duplicate delegated actions');
 assert(interaction.includes('app.chooseOption(target.dataset.optionId)'), 'interaction bridge must call the tested quality action');
