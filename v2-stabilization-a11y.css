@@ -36,6 +36,33 @@
   background: rgba(4, 4, 8, .34);
 }
 
+/* The profile is a reading surface, so its mobile navigation lives in the header
+   rather than floating over the first Vibe Glyph. Now and Match keep the bottom bar. */
+@media (max-width: 940px) {
+  body[data-route="profile"] .editorial-header {
+    grid-template-columns: 1fr auto;
+    padding: 10px 0 12px;
+  }
+
+  body[data-route="profile"] .editorial-nav.site-nav {
+    position: static;
+    grid-column: 1 / -1;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 7px;
+    transform: none;
+    box-shadow: none;
+  }
+
+  body[data-route="profile"] #app,
+  body[data-route="profile"] .editorial-footer {
+    padding-bottom: max(54px, env(safe-area-inset-bottom));
+  }
+}
+
 /* Keep disabled controls visibly distinct without dropping below readable contrast. */
 button:disabled,
 .button:disabled {
