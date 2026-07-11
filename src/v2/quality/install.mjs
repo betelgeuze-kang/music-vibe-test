@@ -6,6 +6,7 @@ import { escapeHtml, track, trackCard } from '../ui/helpers.mjs?v=qg1';
 import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from './visuals.mjs?v=qg1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 20;
+const AUDIO_ERROR_WATCHDOG_MS = 2500;
 const HEARD_SECONDS = 3;
 
 function questionKey(question, option) {
@@ -52,7 +53,7 @@ function renderQualityDiscover(app) {
         </div>
         <span>${app.quizIndex + 1} / ${PROFILE_QUESTIONS.length}</span>
       </div>
-      <div class="progress" role="progressbar" aria-valuemin="1" aria-valuemax="${PROFILE_QUESTIONS.length}" aria-valuenow="${app.quizIndex + 1}"><i style="width:${progress}%"></i></div>
+      <div class="progress" role="progressbar" aria-label="${app.language === 'kr' ? '프로필 진행률' : 'Profile progress'}" aria-valuemin="1" aria-valuemax="${PROFILE_QUESTIONS.length}" aria-valuenow="${app.quizIndex + 1}"><i style="width:${progress}%"></i></div>
       <div class="quiz-copy">
         <span class="eyebrow">${escapeHtml(copy.quizEyebrow)}</span>
         <div class="quiz-kind"><span>${isAudio ? '♫' : '◇'}</span>${escapeHtml(isAudio ? copy.quizAudio : copy.quizChoice)}</div>
@@ -148,6 +149,7 @@ export function installQualityGates(app) {
   app.audioErrorIds = new Set();
   app.selectionLocked = false;
   app.selectionTimer = null;
+  app.audioErrorTimer = null;
   app.boundQualityKeydown = (event) => app.handleQualityKeydown(event);
 
   const originalStart = app.start.bind(app);
@@ -220,13 +222,30 @@ export function installQualityGates(app) {
       this.renderDiscover();
       return;
     }
+
     this.stopPreview(false);
     const key = questionKey(question, option);
     const audio = new Audio(option.audioSrc);
+    let failed = false;
     this.previewAudio = audio;
     this.previewOptionId = optionId;
     audio.preload = 'metadata';
     audio.volume = 0.68;
+
+    const clearWatchdog = () => {
+      window.clearTimeout(this.audioErrorTimer);
+      this.audioErrorTimer = null;
+    };
+
+    const markAudioError = () => {
+      if (failed || this.previewAudio !== audio) return;
+      failed = true;
+      clearWatchdog();
+      this.audioErrorIds.add(key);
+      track('audio_error', { question_id: question.id, option_id: option.id, product_version: 'v2-qg1' });
+      this.stopPreview(false);
+      this.renderDiscover();
+    };
 
     const update = () => {
       const duration = Number.isFinite(audio.duration) ? Math.min(audio.duration, AUDIO_PREVIEW_LIMIT_SECONDS) : AUDIO_PREVIEW_LIMIT_SECONDS;
@@ -240,38 +259,40 @@ export function installQualityGates(app) {
         this.renderDiscover();
       }
     };
-    audio.addEventListener('loadedmetadata', update);
+
+    audio.addEventListener('loadedmetadata', () => {
+      clearWatchdog();
+      update();
+    });
+    audio.addEventListener('playing', clearWatchdog, { once: true });
     audio.addEventListener('timeupdate', update);
     audio.addEventListener('ended', () => {
+      clearWatchdog();
       this.heardOptionIds.add(key);
       this.stopPreview(false);
       this.renderDiscover();
     }, { once: true });
-    audio.addEventListener('error', () => {
-      this.audioErrorIds.add(key);
-      track('audio_error', { question_id: question.id, option_id: option.id, product_version: 'v2-qg1' });
-      this.stopPreview(false);
-      this.renderDiscover();
-    }, { once: true });
+    audio.addEventListener('error', markAudioError, { once: true });
 
+    this.audioErrorTimer = window.setTimeout(markAudioError, AUDIO_ERROR_WATCHDOG_MS);
     this.renderDiscover();
     audio.play().then(() => {
+      clearWatchdog();
       track('audio_play', { product_version: 'v2-qg1', audio_context: 'profile_question', question_id: question.id, option_id: option.id });
-    }).catch(() => {
-      this.audioErrorIds.add(key);
-      this.stopPreview(false);
-      this.renderDiscover();
-    });
+    }).catch(markAudioError);
   };
 
   app.stopPreview = function qualityStopPreview(render = false) {
-    if (this.previewAudio) {
-      this.previewAudio.pause();
-      this.previewAudio.removeAttribute('src');
-      this.previewAudio.load();
-    }
+    window.clearTimeout(this.audioErrorTimer);
+    this.audioErrorTimer = null;
+    const activeAudio = this.previewAudio;
     this.previewAudio = null;
     this.previewOptionId = '';
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.removeAttribute('src');
+      activeAudio.load();
+    }
     if (render && this.route === 'discover') this.renderDiscover();
   };
 
