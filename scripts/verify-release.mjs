@@ -97,7 +97,9 @@ if (JSON.stringify(buildInfo.editorialData) !== JSON.stringify(editorialModules.
 if (!read('v2-stabilization.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability stylesheet marker is missing');
 if (!read('v2-stabilization-a11y.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability accessibility marker is missing');
 const editorialTrackSource = read('src/v2/data/editorial-tracks.mjs');
-if ((editorialTrackSource.match(/^[-a-z0-9]+\|/gm) || []).length !== 60) throw new Error('editorial track catalog must contain exactly 60 rows');
+const editorialTable = editorialTrackSource.match(/const RAW_EDITORIAL_TRACKS = `([\s\S]*?)`;/)?.[1] || '';
+const editorialRows = editorialTable.trim().split('\n').filter(Boolean);
+if (editorialRows.length !== 60) throw new Error(`editorial track catalog must contain exactly 60 rows; found ${editorialRows.length}`);
 if (!read('src/v2/data/home-showcase.mjs').includes('HOME_SHOWCASE')) throw new Error('fixed editorial home showcase is missing');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
