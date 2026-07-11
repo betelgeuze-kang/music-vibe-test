@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const exists = (file) => fs.existsSync(path.join(root, file));
 
 const index = read('index.html');
 const css = read('v2-stabilization.css');
@@ -44,6 +45,7 @@ assert(a11yCss.includes('.editorial-button--ink'));
 assert(a11yCss.includes('color: var(--ink) !important'));
 assert(a11yCss.includes('.editorial-section--together'));
 for (const route of ['profile', 'now', 'match']) {
+  assert(a11yCss.includes(`body[data-route="${route}"] .site-header`), `mobile ${route} header must return to document flow`);
   assert(a11yCss.includes(`body[data-route="${route}"] .editorial-nav.site-nav`), `mobile ${route} navigation must be static in the header`);
 }
 assert(a11yCss.includes('.now-hero .text-button'));
@@ -62,10 +64,28 @@ assert(!qualitySpec.includes('expectAboveFixedNavigation'));
 assert(qualitySpec.includes("expect(contract.overflowWrap).toBe('normal')"));
 assert(qualitySpec.includes("await expect(nav).toHaveCSS('position', 'static')"));
 
+const snapshotNames = [
+  'chromium-home.png',
+  'chromium-discover.png',
+  'chromium-profile.png',
+  'chromium-now.png',
+  'chromium-match.png',
+  'mobile-chromium-home.png',
+  'mobile-chromium-discover.png',
+  'mobile-chromium-profile.png',
+  'mobile-chromium-now.png',
+  'mobile-chromium-match.png'
+];
 for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'match.png']) {
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
 }
 assert(visualSpec.includes('tests/e2e/snapshots/.ready'), 'visual baseline marker must remain explicit');
 assert(visualSpec.includes('window.scrollTo(0, 0)'), 'visual captures must begin at the real page top');
+assert.equal(read('tests/e2e/snapshots/.ready').trim(), 'SR1 visual baselines approved by Browser Quality');
+for (const snapshot of snapshotNames) {
+  const relative = `tests/e2e/snapshots/${snapshot}`;
+  assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);
+  assert(fs.statSync(path.join(root, relative)).size > 20_000, `visual baseline is unexpectedly small: ${snapshot}`);
+}
 
 console.log('BD1 stabilization checks passed.');
