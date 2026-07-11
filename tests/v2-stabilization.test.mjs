@@ -9,6 +9,8 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const index = read('index.html');
 const css = read('v2-stabilization.css');
 const a11yCss = read('v2-stabilization-a11y.css');
+const helpers = read('src/v2/ui/helpers.mjs');
+const screens = read('src/v2/ui/screens.mjs');
 const qualitySpec = read('tests/e2e/v2-quality.spec.mjs');
 const visualSpec = read('tests/e2e/visual.spec.mjs');
 const buildInfo = JSON.parse(read('build-info.json'));
@@ -42,6 +44,11 @@ assert(a11yCss.includes('.editorial-button--ink'));
 assert(a11yCss.includes('color: var(--ink) !important'));
 assert(a11yCss.includes('.editorial-section--together'));
 assert(a11yCss.includes('body[data-route="profile"] .editorial-nav.site-nav'));
+assert(a11yCss.includes('.now-hero .text-button'));
+assert(a11yCss.includes('.sr-only'));
+assert(helpers.includes('role="group" aria-label='), 'track service links must use a labelled group role');
+assert(!helpers.includes('track-card__score" aria-label='), 'generic score containers must not use prohibited aria-label attributes');
+assert(screens.includes('now-hero__symbol" aria-hidden="true"'), 'decorative moment symbols must be hidden from assistive technology');
 
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"), 'color contrast must be part of axe');
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
@@ -50,7 +57,7 @@ for (const route of ['home', 'discover', 'profile', 'today listen', 'listen toge
 assert(qualitySpec.includes('mobile navigation changes mode by route'));
 assert(qualitySpec.includes('expectAboveFixedNavigation'));
 assert(qualitySpec.includes("expect(contract.overflowWrap).toBe('normal')"));
-assert(qualitySpec.includes("getComputedStyle(node).position)).not.toBe('fixed')"));
+assert(qualitySpec.includes("await expect(profileNav).toHaveCSS('position', 'static')"));
 
 for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'match.png']) {
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
