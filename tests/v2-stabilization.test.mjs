@@ -79,7 +79,8 @@ const snapshotNames = [
 for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'match.png']) {
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
 }
-assert(visualSpec.includes('tests/e2e/snapshots/.ready'), 'visual baseline marker must remain explicit');
+assert(visualSpec.includes("const baselineMarker = path.join(snapshotDir, '.ready')"), 'visual baseline marker must remain explicit');
+assert(visualSpec.includes("const refreshMarker = path.join(snapshotDir, '.refresh-css-scale')"), 'CSS-scale refresh contract must remain explicit');
 assert(visualSpec.includes("scale: 'css'"), 'capture and comparison must use the same CSS-pixel scale');
 assert(visualSpec.includes('window.scrollTo(0, 0)'), 'visual captures must begin at the real page top');
 assert(!exists('tests/e2e/snapshots/.refresh-css-scale'), 'temporary visual refresh marker must be removed');
