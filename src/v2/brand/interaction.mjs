@@ -23,24 +23,29 @@ function installInteractionBridge(app) {
   app.__brandInteractionInstalled = true;
 
   document.addEventListener('click', (event) => {
-    const routeTarget = event.target?.closest?.('[data-route]');
-    if (routeTarget) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const route = routeTarget.dataset.route;
-      if (route === 'discover') app.startQuiz(false);
-      else app.navigate(route);
-      return;
-    }
-
     const actionTarget = event.target?.closest?.('[data-action]');
     const action = actionTarget?.dataset?.action;
     const handler = CORE_ACTIONS[action];
-    if (!handler) return;
+
+    if (handler) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      handler(app, actionTarget);
+      return;
+    }
+
+    // Brand-only actions are handled by install.mjs in the existing delegated
+    // listener. Do not let the body's stateful data-route attribute intercept them.
+    if (action?.startsWith('brand-')) return;
+
+    const routeTarget = event.target?.closest?.('button[data-route], a[data-route]');
+    if (!routeTarget) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
-    handler(app, actionTarget);
+    const route = routeTarget.dataset.route;
+    if (route === 'discover') app.startQuiz(false);
+    else app.navigate(route);
   }, true);
 }
 
