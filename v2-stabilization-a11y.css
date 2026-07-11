@@ -75,9 +75,16 @@
   background: rgba(4, 4, 8, .34);
 }
 
-/* Product navigation is hidden while discovering. Once a profile exists it lives
-   as a normal header row on every mobile product route, never over the content. */
+/* Product navigation is hidden while discovering. Once a profile exists the entire
+   header returns to normal document flow, so navigation can never cover content. */
 @media (max-width: 940px) {
+  body[data-route="profile"] .site-header,
+  body[data-route="now"] .site-header,
+  body[data-route="match"] .site-header {
+    position: static;
+    top: auto;
+  }
+
   body[data-route="profile"] .editorial-header,
   body[data-route="now"] .editorial-header,
   body[data-route="match"] .editorial-header {
