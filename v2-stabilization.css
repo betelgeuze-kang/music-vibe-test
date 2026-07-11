@@ -1,0 +1,296 @@
+/* BD1 Stabilization SR1
+   Mobile navigation, Korean typography, WCAG contrast, and visual-regression contract. */
+:root {
+  --muted: #b5b0a7;
+  --line: #403d37;
+  --meta: #9f9a91;
+  --meta-strong: #b0aba2;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-padding-top: 88px;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+}
+
+body {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.editorial-wordmark__issue,
+.editorial-hero__note,
+.listening-booth__header,
+.listening-choice header small,
+.listening-choice__transport time,
+.editorial-folio,
+.editorial-track__number,
+.sample-match__scores b,
+.quality-match-score strong,
+.track-card__score {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+}
+
+/* AA contrast and readable minimum sizing */
+.editorial-wordmark__issue { color: var(--meta); font-size: 10px; }
+.editorial-nav .site-nav__link { color: var(--meta); font-size: 12px; }
+.editorial-language.language-toggle { color: var(--meta-strong); font-size: 11px; }
+.editorial-footer { color: var(--meta); }
+.editorial-footer span,
+.editorial-footer p,
+.editorial-footer button { font-size: 12px; }
+.editorial-footer button { color: var(--meta-strong); }
+.eyebrow,
+.editorial-kicker { font-size: 11px; }
+.button,
+.editorial-button { font-size: 13px; }
+.text-button { color: var(--meta-strong); font-size: 12px; }
+.editorial-dek { color: var(--muted); }
+.editorial-hero__note { color: var(--meta); font-size: 11px; }
+.editorial-saved small { color: var(--meta); font-size: 11px; }
+.editorial-saved strong { font-size: 13px; }
+.listening-booth__header,
+.listening-booth__header b { font-size: 10px; }
+.listening-booth__copy p { color: #5f5a52; font-size: 13px; }
+.listening-choice header small { color: #625d55; font-size: 10px; }
+.listening-choice > p { color: #5f5a52; font-size: 13px; }
+.listening-choice__transport button { font-size: 12px; }
+.listening-choice__transport time { color: #625d55; font-size: 10px; }
+.listening-choice__choose { font-size: 12px; }
+.editorial-invite p { color: var(--muted); font-size: 14px; }
+.editorial-invite button { font-size: 12px; }
+.editorial-spread__intro > p,
+.editorial-section > header > p,
+.editorial-privacy p { color: var(--muted); font-size: 15px; }
+.editorial-folio { color: var(--meta); font-size: 10px; }
+.sample-sleeve p { color: rgba(255,255,255,.86); font-size: 12px; }
+.sample-sleeve small { font-size: 10px; }
+.editorial-scene-tabs span { color: var(--meta); font-size: 12px; }
+.editorial-track__number { color: var(--meta); font-size: 11px; }
+.editorial-track__copy strong { font-size: 15px; }
+.editorial-track__copy > span { color: var(--meta-strong); font-size: 12px; }
+.editorial-track__copy p { color: var(--meta); font-size: 12px; }
+.editorial-track__links a,
+.editorial-text-link { color: var(--meta-strong); font-size: 11px; }
+.sample-match__person small,
+.sample-match__scores span { color: var(--meta); font-size: 11px; }
+.editorial-privacy__mark { color: var(--meta-strong); font-size: 11px; }
+.editorial-privacy button { color: var(--meta-strong); font-size: 11px; }
+.quiz-topline { color: var(--meta); font-size: 11px; }
+.quiz-kind { color: var(--meta); font-size: 11px; }
+.quiz-copy p { color: var(--muted); font-size: 15px; }
+.option-card p { color: var(--meta-strong); font-size: 13px; }
+.audio-meta { color: var(--meta); font-size: 11px; }
+.profile-hero__tagline { color: rgba(255,255,255,.88); }
+.long-copy { color: var(--muted); font-size: 15px; }
+.fine-print { color: var(--meta); font-size: 12px; }
+.bipolar-axis__heading span,
+.bipolar-axis__labels { color: var(--meta-strong); font-size: 11px; }
+.track-card__score { color: var(--meta); font-size: 11px; }
+.track-card__body > span { color: var(--meta-strong); font-size: 12px; }
+.track-card__body p { color: var(--meta); font-size: 12px; }
+.track-card__kicker { color: var(--meta); font-size: 9px; }
+.track-card__actions a { color: var(--meta-strong); font-size: 10px; }
+.match-method-note { color: var(--meta); font-size: 12px; }
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #ffb7ab;
+  outline-offset: 4px;
+}
+
+/* Korean headings must break between words, not inside them. */
+.editorial-hero h1,
+.editorial-spread h2,
+.editorial-section h2,
+.quiz-copy h1,
+.profile-hero h1,
+.section-heading h1,
+.match-hero h1,
+.now-hero h1 {
+  word-break: keep-all;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+
+/* Mobile navigation: no fixed chrome while discovering; persistent only after a profile exists. */
+@media (max-width: 940px) {
+  html {
+    scroll-padding-bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  body[data-route="home"] .editorial-nav.site-nav,
+  body[data-route="discover"] .editorial-nav.site-nav {
+    display: none;
+  }
+
+  body[data-route="home"] #app,
+  body[data-route="discover"] #app {
+    padding-bottom: max(48px, env(safe-area-inset-bottom));
+  }
+
+  body[data-route="profile"] #app,
+  body[data-route="now"] #app,
+  body[data-route="match"] #app,
+  body[data-route="profile"] .editorial-footer,
+  body[data-route="now"] .editorial-footer,
+  body[data-route="match"] .editorial-footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  body[data-route="profile"] .editorial-nav.site-nav,
+  body[data-route="now"] .editorial-nav.site-nav,
+  body[data-route="match"] .editorial-nav.site-nav {
+    display: grid;
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 680px) {
+  .site-header__inner,
+  .site-footer__inner,
+  #app {
+    width: min(100% - 28px, 1240px);
+  }
+
+  .editorial-hero h1 {
+    font-size: clamp(46px, 13vw, 54px);
+    line-height: 1.02;
+    letter-spacing: -.052em;
+  }
+
+  .editorial-hero h1 br {
+    display: none;
+  }
+
+  .editorial-dek {
+    font-size: 15px;
+    line-height: 1.72;
+  }
+
+  .editorial-hero__note {
+    display: grid;
+    gap: 7px;
+  }
+
+  .listening-booth__copy h2 {
+    font-size: 25px;
+    line-height: 1.28;
+  }
+
+  .editorial-spread__intro h2,
+  .editorial-section > header h2 {
+    font-size: clamp(34px, 10vw, 42px);
+    line-height: 1.12;
+  }
+
+  .quiz-copy h1 {
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.16;
+  }
+
+  /* Split the result cover and the personal glyph into distinct mobile sections. */
+  .profile-hero {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow: visible;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none;
+  }
+
+  .profile-hero::after {
+    display: none;
+  }
+
+  .profile-hero__copy {
+    position: relative;
+    min-height: 420px;
+    overflow: hidden;
+    padding: 30px 22px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 12px;
+    background:
+      linear-gradient(180deg, rgba(5,5,8,.06), rgba(5,5,8,.58)),
+      linear-gradient(135deg, var(--profile-start), var(--profile-middle) 58%, var(--profile-end));
+    box-shadow: 8px 9px 0 #171613;
+  }
+
+  .profile-hero__copy > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .profile-hero h1 {
+    max-width: 100%;
+    font-size: clamp(40px, 11.5vw, 50px);
+    line-height: 1.02;
+    letter-spacing: -.05em;
+  }
+
+  .profile-hero__tagline {
+    max-width: 31rem;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .profile-hero__radar.quality-glyph-shell {
+    width: min(100%, 360px) !important;
+    min-height: 0;
+    align-self: center;
+    padding: 14px;
+    border: 1px solid var(--line) !important;
+    border-radius: 12px !important;
+    background: var(--surface) !important;
+  }
+
+  .profile-hero__radar .vibe-glyph {
+    display: block;
+  }
+
+  .profile-confidence {
+    font-size: 11px;
+  }
+
+  .keyword-row span {
+    font-size: 10px;
+  }
+
+  .section-heading h1,
+  .now-hero h1,
+  .match-hero > h1 {
+    font-size: clamp(36px, 10vw, 46px);
+    line-height: 1.1;
+  }
+
+  .track-card,
+  .editorial-track {
+    scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .utility-actions,
+  .action-band,
+  .load-invite,
+  .editorial-privacy {
+    scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}

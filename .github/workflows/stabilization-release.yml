@@ -1,0 +1,270 @@
+name: Stabilization Release
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'build-info.json'
+      - 'v2-*.css'
+      - 'src/v2/**'
+      - 'tests/e2e/**'
+      - 'scripts/verify-release.mjs'
+      - 'deploy-probe-sr1.txt'
+      - '.github/workflows/stabilization-release.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  issues: write
+
+concurrency:
+  group: stabilization-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PUBLIC_ORIGIN: https://my-music-vibe.com
+  STABILITY_ISSUE: '15'
+
+jobs:
+  artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Verify SR1 Jekyll artifact
+        run: |
+          set -euo pipefail
+          node scripts/verify-release.mjs --root _site
+          grep -q 'Stability SR1' _site/index.html
+          grep -q 'BD1 Stabilization SR1' _site/v2-stabilization.css
+          grep -q 'MY_MUSIC_VIBE_STABILITY_SR1' _site/deploy-probe-sr1.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stabilization-artifact-${{ github.run_id }}
+          path: |
+            _site/build-info.json
+            _site/deploy-probe-sr1.txt
+          retention-days: 14
+
+  public-verification:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: artifact
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Request the active legacy Pages build
+        id: legacy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          response="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" \
+            --include 2>&1)"
+          code=$?
+          set -e
+          http="$(grep -m1 -E '^HTTP/' <<<"$response" | awk '{print $2}' || true)"
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          echo "http_code=$http" >> "$GITHUB_OUTPUT"
+          [ "$code" -eq 0 ] || true
+
+      - name: Optionally purge Cloudflare cache
+        id: cloudflare
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_API_TOKEN:-}" ] || [ -z "${CF_ZONE_ID:-}" ]; then
+            echo "status=skipped_missing_secrets" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          response="$(curl -fsS --max-time 30 \
+            -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data '{"purge_everything":true}')"
+          if jq -e '.success == true' <<<"$response" >/dev/null; then
+            echo "status=purged" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+      - name: Verify GitHub Pages origin and Cloudflare independently
+        id: verify
+        shell: bash
+        run: |
+          set -uo pipefail
+          ips=(185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153)
+          browser_headers=(
+            -H 'Cache-Control: no-cache, no-store, must-revalidate'
+            -H 'Pragma: no-cache'
+            -H 'Accept: text/html,application/xhtml+xml,application/json,text/css,*/*;q=0.8'
+            -H 'Accept-Language: ko-KR,ko;q=0.9,en;q=0.8'
+            -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36'
+          )
+
+          fetch_origin() {
+            local path="$1" ip body
+            for ip in "${ips[@]}"; do
+              body="$(curl -fsSL --connect-timeout 8 --max-time 25 --retry 1 \
+                --resolve "my-music-vibe.com:443:${ip}" \
+                "${browser_headers[@]}" \
+                "${PUBLIC_ORIGIN}${path}" 2>/dev/null || true)"
+              if [ -n "$body" ]; then printf '%s' "$body"; return 0; fi
+            done
+            return 1
+          }
+
+          fetch_public() {
+            local path="$1"
+            curl -fsSL --connect-timeout 8 --max-time 25 --retry 1 \
+              "${browser_headers[@]}" \
+              "${PUBLIC_ORIGIN}${path}" 2>/dev/null || true
+          }
+
+          verify_payloads() {
+            local mode="$1" bust home build style probe result
+            bust="sr1=${GITHUB_SHA}-$(date +%s)"
+            if [ "$mode" = origin ]; then
+              home="$(fetch_origin "/?${bust}")"
+              build="$(fetch_origin "/build-info.json?${bust}")"
+              style="$(fetch_origin "/v2-stabilization.css?${bust}")"
+              probe="$(fetch_origin "/deploy-probe-sr1.txt?${bust}")"
+              result="$(fetch_origin "/ko/results/enfp/?${bust}")"
+            else
+              home="$(fetch_public "/?${bust}")"
+              build="$(fetch_public "/build-info.json?${bust}")"
+              style="$(fetch_public "/v2-stabilization.css?${bust}")"
+              probe="$(fetch_public "/deploy-probe-sr1.txt?${bust}")"
+              result="$(fetch_public "/ko/results/enfp/?${bust}")"
+            fi
+
+            grep -q 'Stability SR1' <<<"$home" \
+              && jq -e '.stabilityRelease == "sr1"' <<<"$build" >/dev/null 2>&1 \
+              && grep -q 'BD1 Stabilization SR1' <<<"$style" \
+              && grep -q 'MY_MUSIC_VIBE_STABILITY_SR1' <<<"$probe" \
+              && grep -q 'data-page-type="static_result"' <<<"$result"
+          }
+
+          origin_ok=false
+          public_ok=false
+          attempts=0
+          for attempt in $(seq 1 24); do
+            attempts=$attempt
+            verify_payloads origin && origin_ok=true || origin_ok=false
+            verify_payloads public && public_ok=true || public_ok=false
+            echo "Attempt ${attempt}/24: github-origin=${origin_ok}, cloudflare-public=${public_ok}"
+            if [ "$origin_ok" = true ] && [ "$public_ok" = true ]; then break; fi
+            sleep 10
+          done
+
+          origin_headers="$(curl -sSIL --max-time 20 --resolve 'my-music-vibe.com:443:185.199.108.153' "${browser_headers[@]}" "${PUBLIC_ORIGIN}/" 2>&1 | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:|cf-cache-status:|cf-ray:)' | tail -30 || true)"
+          public_headers="$(curl -sSIL --max-time 20 "${browser_headers[@]}" "${PUBLIC_ORIGIN}/" 2>&1 | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:|cf-cache-status:|cf-ray:)' | tail -30 || true)"
+
+          {
+            echo "origin_ok=$origin_ok"
+            echo "public_ok=$public_ok"
+            echo "attempts=$attempts"
+            echo 'origin_headers<<EOF'
+            echo "$origin_headers"
+            echo 'EOF'
+            echo 'public_headers<<EOF'
+            echo "$public_headers"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Report stabilization deployment
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          ORIGIN_OK: ${{ steps.verify.outputs.origin_ok }}
+          PUBLIC_OK: ${{ steps.verify.outputs.public_ok }}
+          ATTEMPTS: ${{ steps.verify.outputs.attempts }}
+          LEGACY_HTTP: ${{ steps.legacy.outputs.http_code }}
+          CF_STATUS: ${{ steps.cloudflare.outputs.status }}
+          ORIGIN_HEADERS: ${{ steps.verify.outputs.origin_headers }}
+          PUBLIC_HEADERS: ${{ steps.verify.outputs.public_headers }}
+        with:
+          script: |
+            const originOK = process.env.ORIGIN_OK === 'true';
+            const publicOK = process.env.PUBLIC_OK === 'true';
+            const body = `<!-- sr1-deployment-report -->
+            ## SR1 공개 배포 검증
+
+            - commit: \`${context.sha}\`
+            - GitHub Pages origin: **${originOK ? 'PASS' : 'FAIL'}**
+            - Cloudflare public domain: **${publicOK ? 'PASS' : 'FAIL'}**
+            - attempts: \`${process.env.ATTEMPTS || '0'}\`
+            - legacy Pages build HTTP: \`${process.env.LEGACY_HTTP || '(none)'}\`
+            - Cloudflare purge: \`${process.env.CF_STATUS || 'not-run'}\`
+
+            <details><summary>Origin headers</summary>
+
+            \`\`\`
+            ${process.env.ORIGIN_HEADERS || '(none)'}
+            \`\`\`
+            </details>
+
+            <details><summary>Public headers</summary>
+
+            \`\`\`
+            ${process.env.PUBLIC_HEADERS || '(none)'}
+            \`\`\`
+            </details>
+
+            ${originOK && !publicOK ? 'GitHub Pages origin은 최신 SR1을 제공하지만 Cloudflare 공개 응답은 이전 콘텐츠 또는 차단 응답입니다. Cloudflare에서 캐시 제거와 WAF/Bot 예외가 필요합니다.' : ''}`.replace(/^ {12}/gm, '');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 15,
+              per_page: 100
+            });
+            const previous = comments.find((comment) => comment.body?.includes('<!-- sr1-deployment-report -->'));
+            if (previous) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: 15, body });
+            }
+
+            if (originOK && publicOK) {
+              for (const issue_number of [3, 13, 15]) {
+                const { data: issue } = await github.rest.issues.get({ owner: context.repo.owner, repo: context.repo.repo, issue_number });
+                let nextBody = issue.body || '';
+                nextBody = nextBody
+                  .replace('- [ ] PR 병합 및 공개 도메인 배포 확인', '- [x] PR 병합 및 공개 도메인 배포 확인')
+                  .replace('- [ ] 공개 도메인에서 `qg1 + bd1` 홈·브랜드 모듈·CSS 확인', '- [x] 공개 도메인에서 `qg1 + bd1` 홈·브랜드 모듈·CSS 확인')
+                  .replace('- [ ] 공개 도메인에서 `qg1 + bd1 + sr1` 확인 전 이슈 유지', '- [x] 공개 도메인에서 `qg1 + bd1 + sr1` 확인');
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number,
+                  body: nextBody,
+                  state: 'closed',
+                  state_reason: 'completed'
+                });
+              }
+            }
+
+      - name: Fail when the public domain is still stale
+        if: always()
+        run: |
+          test "${{ steps.verify.outputs.origin_ok }}" = 'true'
+          test "${{ steps.verify.outputs.public_ok }}" = 'true'

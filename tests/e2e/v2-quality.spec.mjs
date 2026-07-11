@@ -4,6 +4,26 @@ import { completeProfile, declineAnalytics, profileInvite } from './helpers.mjs'
 
 const seriousViolations = (results) => results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
 
+async function expectAccessible(page, label) {
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(seriousViolations(results), `${label} has serious accessibility violations`).toEqual([]);
+}
+
+async function expectStaticNavigationBefore(page, selector) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(80);
+  const nav = page.locator('.site-nav');
+  const content = page.locator(selector).first();
+  await expect(nav).toBeVisible();
+  await expect(nav).toHaveCSS('position', 'static');
+  await expect(content).toBeVisible();
+  const navBox = await nav.boundingBox();
+  const contentBox = await content.boundingBox();
+  expect(navBox, 'mobile product navigation must have a layout box').not.toBeNull();
+  expect(contentBox, `${selector} must have a layout box`).not.toBeNull();
+  expect(navBox.y + navBox.height, `navigation must appear before ${selector}`).toBeLessThanOrEqual(contentBox.y);
+}
+
 test.beforeEach(async ({ page }) => {
   await declineAnalytics(page);
 });
@@ -110,24 +130,69 @@ test('localStorage failure does not block the core session', async ({ page }, te
   await expect(page.locator('.profile-hero')).toBeVisible();
 });
 
-test('home and profile pass automated accessibility checks', async ({ page }, testInfo) => {
+test('all five editorial routes pass axe including color contrast', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'desktop accessibility pass');
+
   await page.goto('/?lang=en#/home');
-  let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
-  expect(seriousViolations(results)).toEqual([]);
-  await completeProfile(page, 'a');
-  results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
-  expect(seriousViolations(results)).toEqual([]);
+  await expectAccessible(page, 'home');
+
+  await page.locator('[data-action="brand-choose"]').first().click();
+  await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
+  await expectAccessible(page, 'discover');
+
+  await completeProfile(page, 'a', { start: false });
+  await expectAccessible(page, 'profile');
+
+  await page.locator('[data-route="now"]').first().click();
+  await page.locator('[data-context-id="night"]').click();
+  await expectAccessible(page, 'today listen');
+
+  await page.locator('[data-route="match"]').first().click();
+  await expectAccessible(page, 'listen together');
 });
 
-test('mobile primary action is not hidden by the bottom navigation', async ({ page }, testInfo) => {
+test('mobile navigation is hidden during discovery and stays above all product content', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only layout contract');
+
   await page.goto('/?lang=kr#/home');
-  const cta = page.locator('[data-action="brand-focus-booth"]');
-  await cta.scrollIntoViewIfNeeded();
-  const ctaBox = await cta.boundingBox();
-  const navBox = await page.locator('.site-nav').boundingBox();
-  expect(ctaBox).not.toBeNull();
-  expect(navBox).not.toBeNull();
-  expect(ctaBox.y + ctaBox.height).toBeLessThanOrEqual(navBox.y - 4);
+  await expect(page.locator('.site-nav')).toBeHidden();
+  await expect(page.locator('[data-action="brand-focus-booth"]')).toBeVisible();
+
+  await page.locator('[data-action="brand-choose"]').first().click();
+  await expect(page.locator('.site-nav')).toBeHidden();
+  await completeProfile(page, 'a', { start: false });
+
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'profile');
+  await expectStaticNavigationBefore(page, '.profile-hero');
+
+  await page.locator('[data-route="now"]').first().click();
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'now');
+  await expectStaticNavigationBefore(page, '.section-heading');
+  await page.locator('[data-context-id="night"]').click();
+  await expectStaticNavigationBefore(page, '.now-hero');
+
+  await page.locator('[data-route="match"]').first().click();
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'match');
+  await expectStaticNavigationBefore(page, '.section-heading');
+});
+
+test('mobile Korean headings use keep-all typography without forced desktop breaks', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only typography contract');
+  await page.goto('/?lang=kr#/home');
+
+  const title = page.locator('.editorial-hero h1');
+  await expect(title).toBeVisible();
+  const contract = await title.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const forcedBreak = element.querySelector('br');
+    return {
+      wordBreak: style.wordBreak,
+      overflowWrap: style.overflowWrap,
+      forcedBreakDisplay: forcedBreak ? getComputedStyle(forcedBreak).display : 'none'
+    };
+  });
+
+  expect(contract.wordBreak).toBe('keep-all');
+  expect(contract.overflowWrap).toBe('normal');
+  expect(contract.forcedBreakDisplay).toBe('none');
 });

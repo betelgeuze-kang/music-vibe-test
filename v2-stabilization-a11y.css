@@ -1,0 +1,124 @@
+/* BD1 Stabilization SR1 — color-contrast and non-gradient accessibility fixes */
+
+/* Signal Red remains the visual accent, with dark ink for WCAG AA text contrast. */
+.editorial-button--ink,
+.button--primary,
+.button--option {
+  color: var(--ink) !important;
+}
+
+/* Compact helper and metadata text must remain readable against the ink background. */
+.keyboard-help,
+.profile-signature__intro,
+.list-heading > span,
+.invite-code {
+  color: var(--meta);
+  font-size: 12px;
+}
+
+.profile-hero__copy > small,
+.mini-profile small {
+  color: rgba(255, 255, 255, .84);
+  font-size: 11px;
+}
+
+.mini-profile--empty > span {
+  color: var(--meta-strong);
+}
+
+.load-invite label,
+.utility-actions button,
+.context-card p,
+.recent-session span,
+.recent-session strong {
+  font-size: 12px;
+}
+
+/* Accessible names can be added without creating visible duplicate text. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Paper surfaces require ink-based control text, not the muted dark-theme token. */
+.now-hero .text-button,
+.now-hero__symbol {
+  color: #4a463f;
+}
+
+/* Axe cannot calculate text contrast over gradients reliably. These surfaces use
+   dark solid editorial backgrounds while preserving the archetype color identity. */
+.editorial-section--together {
+  background: #0d0d0b;
+}
+
+.sample-sleeve::before {
+  background: rgba(5, 5, 8, .42);
+}
+
+.profile-hero::after {
+  background: rgba(6, 6, 7, .48);
+}
+
+.mini-profile {
+  background: var(--profile-start);
+}
+
+.mini-profile::after {
+  background: rgba(4, 4, 8, .34);
+}
+
+/* Product navigation is hidden while discovering. Once a profile exists the entire
+   header returns to normal document flow, so navigation can never cover content. */
+@media (max-width: 940px) {
+  body[data-route="profile"] .site-header,
+  body[data-route="now"] .site-header,
+  body[data-route="match"] .site-header {
+    position: static;
+    top: auto;
+  }
+
+  body[data-route="profile"] .editorial-header,
+  body[data-route="now"] .editorial-header,
+  body[data-route="match"] .editorial-header {
+    grid-template-columns: 1fr auto;
+    padding: 10px 0 12px;
+  }
+
+  body[data-route="profile"] .editorial-nav.site-nav,
+  body[data-route="now"] .editorial-nav.site-nav,
+  body[data-route="match"] .editorial-nav.site-nav {
+    position: static;
+    grid-column: 1 / -1;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 7px;
+    transform: none;
+    box-shadow: none;
+  }
+
+  body[data-route="profile"] #app,
+  body[data-route="now"] #app,
+  body[data-route="match"] #app,
+  body[data-route="profile"] .editorial-footer,
+  body[data-route="now"] .editorial-footer,
+  body[data-route="match"] .editorial-footer {
+    padding-bottom: max(54px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Keep disabled controls visibly distinct without dropping below readable contrast. */
+button:disabled,
+.button:disabled {
+  opacity: .62;
+}
