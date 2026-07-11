@@ -31,4 +31,18 @@ jobs:
         run: npm ci
 
       - name: Run syntax and regression checks
-        run: npm run ci
+        shell: bash
+        run: |
+          set +e
+          npm run ci > ci.log 2>&1
+          status=$?
+          tail -n 140 ci.log
+          exit $status
+
+      - name: Upload CI diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-diagnostics-${{ github.run_id }}
+          path: ci.log
+          retention-days: 7

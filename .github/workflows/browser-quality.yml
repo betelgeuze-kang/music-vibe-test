@@ -1,0 +1,49 @@
+name: Browser Quality
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'v2-*.css'
+      - 'src/v2/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.mjs'
+      - 'package.json'
+      - '.github/workflows/browser-quality.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install browser-test packages without changing the lockfile
+        run: npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+      - run: npx playwright install --with-deps chromium
+      - name: Run browser, accessibility, and visual gates
+        run: npx playwright test
+      - name: Upload Playwright report and visual captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-quality-${{ github.run_id }}
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 14

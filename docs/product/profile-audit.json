@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-07-11T02:45:13.172Z",
+  "combinations": 1024,
+  "questionCount": 10,
+  "archetypeCount": 8,
+  "distribution": {
+    "midnight-dreamer": 178,
+    "neon-runner": 174,
+    "warm-vinyl": 158,
+    "cosmic-architect": 80,
+    "quiet-cinematic": 160,
+    "rhythm-connector": 140,
+    "electric-explorer": 71,
+    "golden-chorus": 63
+  },
+  "shares": {
+    "midnight-dreamer": 0.1738,
+    "neon-runner": 0.1699,
+    "warm-vinyl": 0.1543,
+    "cosmic-architect": 0.0781,
+    "quiet-cinematic": 0.1563,
+    "rhythm-connector": 0.1367,
+    "electric-explorer": 0.0693,
+    "golden-chorus": 0.0615
+  },
+  "axisStats": {
+    "energy": { "min": 0, "max": 100, "span": 100, "mean": 50 },
+    "warmth": { "min": 0, "max": 100, "span": 100, "mean": 50 },
+    "novelty": { "min": 0, "max": 100, "span": 100, "mean": 50 },
+    "organic": { "min": 0, "max": 100, "span": 100, "mean": 50 },
+    "complexity": { "min": 0, "max": 100, "span": 100, "mean": 50 },
+    "sociality": { "min": 0, "max": 100, "span": 100, "mean": 50 }
+  },
+  "correlations": [
+    { "left": "energy", "right": "warmth", "coefficient": 0 },
+    { "left": "energy", "right": "novelty", "coefficient": 0 },
+    { "left": "energy", "right": "organic", "coefficient": 0 },
+    { "left": "energy", "right": "complexity", "coefficient": 0 },
+    { "left": "energy", "right": "sociality", "coefficient": 0.5443 },
+    { "left": "warmth", "right": "novelty", "coefficient": -0.3589 },
+    { "left": "warmth", "right": "organic", "coefficient": 0.504 },
+    { "left": "warmth", "right": "complexity", "coefficient": -0.4773 },
+    { "left": "warmth", "right": "sociality", "coefficient": 0 },
+    { "left": "novelty", "right": "organic", "coefficient": -0.2121 },
+    { "left": "novelty", "right": "complexity", "coefficient": 0.0997 },
+    { "left": "novelty", "right": "sociality", "coefficient": 0.1299 },
+    { "left": "organic", "right": "complexity", "coefficient": -0.2105 },
+    { "left": "organic", "right": "sociality", "coefficient": 0 },
+    { "left": "complexity", "right": "sociality", "coefficient": -0.1299 }
+  ],
+  "sensitivity": [
+    { "questionId": "pulse-response", "changeRate": 0.6602 },
+    { "questionId": "texture-instinct", "changeRate": 0.5449 },
+    { "questionId": "attention-hook", "changeRate": 0.627 },
+    { "questionId": "progression-reward", "changeRate": 0.4648 },
+    { "questionId": "ideal-night", "changeRate": 0.7188 },
+    { "questionId": "lyric-world", "changeRate": 0.4961 },
+    { "questionId": "first-listen", "changeRate": 0.3711 },
+    { "questionId": "playlist-habit", "changeRate": 0.4023 },
+    { "questionId": "recovery-sound", "changeRate": 0.4258 },
+    { "questionId": "home-scene", "changeRate": 0.7168 }
+  ],
+  "summary": {
+    "reachableArchetypes": 8,
+    "maxArchetypeShare": 0.1738,
+    "minAxisSpan": 100,
+    "maxAbsCorrelation": 0.5443,
+    "maxSensitivity": 0.7188
+  },
+  "thresholds": {
+    "allArchetypesReachable": true,
+    "maxArchetypeShare": true,
+    "minimumAxisSpan": true,
+    "maximumAbsoluteCorrelation": true,
+    "maximumSingleQuestionSensitivity": true
+  },
+  "passed": true
+}
