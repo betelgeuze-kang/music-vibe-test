@@ -1,5 +1,6 @@
 import { AXES } from '../data/axes.mjs?v=qg1';
 import { localize } from '../domain/profile.mjs?v=qg1';
+import { axisReading, pairReading, roundedScore, scoreBand } from '../domain/presentation.mjs';
 import { escapeHtml } from '../ui/helpers.mjs?v=qg1';
 
 function polarPoint(center, radius, angleDegrees) {
@@ -27,7 +28,7 @@ export function renderVibeGlyph(profile, language = 'kr', options = {}) {
   const center = size / 2;
   const maxRadius = center - 50;
   const polygon = glyphPoints(profile, size, 50).map((point) => point.map((value) => value.toFixed(1)).join(',')).join(' ');
-  const summary = AXES.map((axis) => `${localize(axis.label, language)} ${profile.scores[axis.id]}`).join(', ');
+  const summary = AXES.map((axis) => `${localize(axis.label, language)} ${scoreBand(profile.scores[axis.id], language)}`).join(', ');
   const labels = AXES.map((axis, index) => {
     const [x, y] = polarPoint(center, maxRadius + 30, index * 60);
     const anchor = x < center - 8 ? 'end' : x > center + 8 ? 'start' : 'middle';
@@ -53,32 +54,12 @@ export function renderVibeGlyph(profile, language = 'kr', options = {}) {
   `;
 }
 
-function axisInterpretation(axis, score, language) {
-  const low = localize(axis.low, language);
-  const high = localize(axis.high, language);
-  const label = localize(axis.label, language);
-  const distance = Math.abs(score - 50);
-  const strength = distance >= 34
-    ? (language === 'kr' ? '뚜렷하게' : 'clearly')
-    : distance >= 18
-      ? (language === 'kr' ? '조금 더' : 'slightly')
-      : (language === 'kr' ? '균형에 가깝고' : 'near the middle, with a small lean');
-  if (distance < 18) {
-    return language === 'kr'
-      ? `${label}은 두 방향을 상황에 따라 고르게 사용하는 편이에요.`
-      : `${label} is balanced and shifts with the listening context.`;
-  }
-  const direction = score >= 50 ? high : low;
-  return language === 'kr'
-    ? `${direction} 쪽을 ${strength} 선호해요.`
-    : `You lean ${strength} toward ${direction.toLowerCase()}.`;
-}
-
 export function renderBipolarAxes(profile, language = 'kr') {
   return `
     <div class="bipolar-axis-list" role="list" aria-label="${language === 'kr' ? '6가지 음악 취향 지표' : 'Six music taste dimensions'}">
       ${AXES.map((axis) => {
         const score = Number(profile.scores[axis.id]);
+        const rounded = roundedScore(score);
         const axisLabel = localize(axis.label, language);
         const lowLabel = localize(axis.low, language);
         const highLabel = localize(axis.high, language);
@@ -86,10 +67,10 @@ export function renderBipolarAxes(profile, language = 'kr') {
           <article class="bipolar-axis" role="listitem">
             <div class="bipolar-axis__heading">
               <strong>${escapeHtml(axisLabel)}</strong>
-              <span>${escapeHtml(axisInterpretation(axis, score, language))}</span>
+              <span>${escapeHtml(axisReading(axis, score, language))}</span>
             </div>
-            <div class="bipolar-axis__labels"><span>${escapeHtml(lowLabel)}</span><b>${100 - score} · ${score}</b><span>${escapeHtml(highLabel)}</span></div>
-            <div class="bipolar-axis__track" role="meter" aria-label="${escapeHtml(axisLabel)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}" aria-valuetext="${escapeHtml(lowLabel)} ${100 - score}, ${escapeHtml(highLabel)} ${score}">
+            <div class="bipolar-axis__labels"><span>${escapeHtml(lowLabel)}</span><b>${escapeHtml(pairReading(100 - rounded, rounded, language))}</b><span>${escapeHtml(highLabel)}</span></div>
+            <div class="bipolar-axis__track" role="meter" aria-label="${escapeHtml(axisLabel)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}" aria-valuetext="${escapeHtml(axisReading(axis, score, language))}">
               <i class="bipolar-axis__center"></i><em style="left:${score}%"></em>
             </div>
           </article>
@@ -102,11 +83,11 @@ export function renderBipolarAxes(profile, language = 'kr') {
 export function confidenceLabel(profile, language = 'kr') {
   const value = Number(profile.archetypeConfidence || 60);
   if (language === 'kr') {
-    if (value >= 78) return '아키타입 특징이 뚜렷해요';
-    if (value >= 64) return '가장 가까운 대표 Vibe예요';
-    return '두 가지 Vibe가 섞인 탐험형 프로필이에요';
+    if (value >= 78) return '이 취향의 방향이 비교적 선명해요';
+    if (value >= 64) return '현재 선택에 가장 가까운 청취 장면이에요';
+    return '서로 가까운 두 장면이 함께 보이는 취향이에요';
   }
-  if (value >= 78) return 'A clearly defined archetype';
-  if (value >= 64) return 'Your closest representative Vibe';
-  return 'An exploratory profile blending two nearby Vibes';
+  if (value >= 78) return 'This listening direction is relatively clear';
+  if (value >= 64) return 'Your closest listening scene right now';
+  return 'A taste shared by two nearby listening scenes';
 }
