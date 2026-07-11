@@ -1,15 +1,14 @@
 import { BRAND_COPY } from './copy.mjs?brand=bd1';
 import { PROFILE_QUESTIONS } from '../data/questions.mjs?v=qg1';
+import { HOME_SHOWCASE, localizedShowcaseReason } from '../data/home-showcase.mjs';
 import { profileFromArchetype, getProfileArchetype, localize } from '../domain/profile.mjs?v=qg1';
-import { recommendProfileTracks, recommendTracks } from '../domain/recommendation.mjs?v=qg1';
-import { compareProfiles } from '../domain/match.mjs?v=qg1';
 import { renderVibeGlyph } from '../quality/visuals.mjs?v=qg1';
 import { escapeHtml, track } from '../ui/helpers.mjs?v=qg1';
 
 const BRAND_RELEASE = 'bd1';
 const HOME_PREVIEW_SECONDS = 15;
-const sampleProfile = profileFromArchetype('midnight-dreamer', 'brand_sample');
-const sampleFriend = profileFromArchetype('rhythm-connector', 'brand_sample');
+const sampleProfile = profileFromArchetype(HOME_SHOWCASE.profileArchetypeId, 'brand_sample');
+const sampleFriend = profileFromArchetype(HOME_SHOWCASE.friendArchetypeId, 'brand_sample');
 
 function trackRows(candidates, language, placement, limit = candidates.length) {
   return candidates.slice(0, limit).map((candidate, index) => `
@@ -18,7 +17,7 @@ function trackRows(candidates, language, placement, limit = candidates.length) {
       <div class="editorial-track__copy">
         <strong>${escapeHtml(candidate.track.title)}</strong>
         <span>${escapeHtml(candidate.track.artist)}</span>
-        <p>${escapeHtml(candidate.reason)}</p>
+        <p>${escapeHtml(localizedShowcaseReason(candidate, language))}</p>
       </div>
       <div class="editorial-track__links">
         <a href="${escapeHtml(candidate.urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
@@ -87,10 +86,12 @@ function renderHome(app) {
   const hasProfile = Boolean(app.profile);
   const currentArchetype = hasProfile ? getProfileArchetype(app.profile) : null;
   const sampleArchetype = getProfileArchetype(sampleProfile);
-  const sampleTracks = recommendProfileTracks(sampleProfile, { language: app.language, limit: 3 });
-  const todayTracks = recommendTracks(sampleProfile, 'night', { language: app.language, limit: 3, exploration: false });
-  const sampleMatch = compareProfiles(sampleProfile, sampleFriend, app.language);
+  const sampleTracks = HOME_SHOWCASE.signature;
+  const todayTracks = HOME_SHOWCASE.night;
+  const sampleMatch = HOME_SHOWCASE.match;
   const friendArchetype = getProfileArchetype(sampleFriend);
+  const resonanceLabel = sampleMatch.resonanceLabel[app.language] || sampleMatch.resonanceLabel.en;
+  const discoveryLabel = sampleMatch.discoveryLabel[app.language] || sampleMatch.discoveryLabel.en;
 
   const invite = app.friendProfile ? `
     <section class="editorial-invite">
@@ -138,7 +139,7 @@ function renderHome(app) {
           <span class="editorial-kicker">${escapeHtml(copy.sampleEyebrow)}</span>
           <h2>${escapeHtml(copy.sampleTitle)}</h2>
           <p>${escapeHtml(copy.sampleBody)}</p>
-          <div class="editorial-folio"><span>01</span><i></i><b>PROFILE SAMPLE</b></div>
+          <div class="editorial-folio"><span>01</span><i></i><b>${app.language === 'kr' ? '취향 예시' : 'PROFILE SAMPLE'}</b></div>
         </div>
         <article class="sample-sleeve" style="--sample-start:${sampleArchetype.gradient[0]};--sample-end:${sampleArchetype.gradient[2]}">
           <div class="sample-sleeve__glyph">${renderVibeGlyph(sampleProfile, app.language, { id: 'sample-profile', size: 260 })}</div>
@@ -166,7 +167,7 @@ function renderHome(app) {
         <header><span class="editorial-kicker">${escapeHtml(copy.togetherEyebrow)}</span><h2>${escapeHtml(copy.togetherTitle)}</h2><p>${escapeHtml(copy.togetherBody)}</p></header>
         <div class="sample-match">
           <article class="sample-match__person"><span>${escapeHtml(sampleArchetype.symbol)}</span><strong>${escapeHtml(localize(sampleArchetype.name, app.language))}</strong><small>${app.language === 'kr' ? '내 취향 예시' : 'My sample taste'}</small></article>
-          <div class="sample-match__scores"><div><b>${sampleMatch.resonance}</b><span>${app.language === 'kr' ? '공명도' : 'Resonance'}</span></div><i></i><div><b>${sampleMatch.discovery}</b><span>${app.language === 'kr' ? '발견 가능성' : 'Discovery'}</span></div></div>
+          <div class="sample-match__scores"><div><b>${escapeHtml(resonanceLabel)}</b><span>${app.language === 'kr' ? `공명도 · ${sampleMatch.resonance}` : `Resonance · ${sampleMatch.resonance}`}</span></div><i></i><div><b>${escapeHtml(discoveryLabel)}</b><span>${app.language === 'kr' ? `발견 가능성 · ${sampleMatch.discovery}` : `Discovery · ${sampleMatch.discovery}`}</span></div></div>
           <article class="sample-match__person"><span>${escapeHtml(friendArchetype.symbol)}</span><strong>${escapeHtml(localize(friendArchetype.name, app.language))}</strong><small>${app.language === 'kr' ? '친구 취향 예시' : 'Friend sample taste'}</small></article>
         </div>
         <div class="editorial-tracklist editorial-tracklist--compact">${trackRows(sampleMatch.bridgeTracks, app.language, 'brand_match_sample', 3)}</div>
@@ -182,7 +183,7 @@ function renderHome(app) {
   `;
 
   app.renderNotice();
-  track('landing_view', { product_version: 'v2-bd1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), design_release: BRAND_RELEASE });
+  track('landing_view', { product_version: 'v2-bd1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), design_release: BRAND_RELEASE, showcase_version: 'e1-fixed' });
 }
 
 function updateHomeAudioDom(app, optionId, current, duration) {

@@ -5,8 +5,11 @@ import { completeProfile, declineAnalytics } from './helpers.mjs';
 
 const snapshotDir = path.resolve('tests/e2e/snapshots');
 const baselineMarker = path.join(snapshotDir, '.ready');
-const refreshMarker = path.join(snapshotDir, '.refresh-css-scale');
-const baselinesReady = fs.existsSync(baselineMarker) && !fs.existsSync(refreshMarker);
+const refreshMarkers = [
+  path.join(snapshotDir, '.refresh'),
+  path.join(snapshotDir, '.refresh-css-scale')
+];
+const baselinesReady = fs.existsSync(baselineMarker) && !refreshMarkers.some((marker) => fs.existsSync(marker));
 const screenshotOptions = Object.freeze({
   fullPage: true,
   animations: 'disabled',

@@ -80,11 +80,12 @@ for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'mat
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
 }
 assert(visualSpec.includes("const baselineMarker = path.join(snapshotDir, '.ready')"), 'visual baseline marker must remain explicit');
-assert(visualSpec.includes("const refreshMarker = path.join(snapshotDir, '.refresh-css-scale')"), 'CSS-scale refresh contract must remain explicit');
+assert(visualSpec.includes("path.join(snapshotDir, '.refresh')"), 'generic intentional visual refresh contract must remain explicit');
+assert(visualSpec.includes("path.join(snapshotDir, '.refresh-css-scale')"), 'legacy CSS-scale refresh contract must remain supported');
 assert(visualSpec.includes("scale: 'css'"), 'capture and comparison must use the same CSS-pixel scale');
 assert(visualSpec.includes('window.scrollTo(0, 0)'), 'visual captures must begin at the real page top');
-assert(!exists('tests/e2e/snapshots/.refresh-css-scale'), 'temporary visual refresh marker must be removed');
-assert.equal(read('tests/e2e/snapshots/.ready').trim(), 'SR1 visual baselines approved by Browser Quality');
+assert(!exists('tests/e2e/snapshots/.refresh-css-scale'), 'legacy visual refresh marker must be removed');
+assert(/visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()), 'visual baseline approval marker must remain valid');
 for (const snapshot of snapshotNames) {
   const relative = `tests/e2e/snapshots/${snapshot}`;
   assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);

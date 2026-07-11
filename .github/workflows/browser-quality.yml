@@ -47,8 +47,9 @@ jobs:
         run: |
           set -euo pipefail
           snapshot_dir='tests/e2e/snapshots'
-          refresh_marker="${snapshot_dir}/.refresh-css-scale"
-          if [ -f "${snapshot_dir}/.ready" ] && [ ! -f "$refresh_marker" ]; then
+          refresh_marker="${snapshot_dir}/.refresh"
+          legacy_refresh_marker="${snapshot_dir}/.refresh-css-scale"
+          if [ -f "${snapshot_dir}/.ready" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ]; then
             echo 'Visual baselines are already active; comparison mode completed.'
             exit 0
           fi
@@ -72,8 +73,8 @@ jobs:
 
           mkdir -p "$snapshot_dir"
           cp "${capture_dir}"/*.png "$snapshot_dir"/
-          printf 'SR1 visual baselines approved by Browser Quality\n' > "${snapshot_dir}/.ready"
-          rm -f "$refresh_marker"
+          printf 'E1 visual baselines approved by Browser Quality\n' > "${snapshot_dir}/.ready"
+          rm -f "$refresh_marker" "$legacy_refresh_marker"
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -82,7 +83,7 @@ jobs:
             echo 'No baseline changes to commit.'
             exit 0
           fi
-          git commit -m 'test: refresh SR1 CSS-pixel visual baselines'
+          git commit -m 'test: refresh E1 editorial visual baselines'
           git push origin "HEAD:${GITHUB_HEAD_REF}"
 
       - name: Upload Playwright report and visual captures

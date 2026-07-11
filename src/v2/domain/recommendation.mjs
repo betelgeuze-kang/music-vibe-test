@@ -1,5 +1,6 @@
 import { AXES, AXIS_IDS } from '../data/axes.mjs';
 import { TRACKS } from '../data/tracks.mjs';
+import { enrichTrack } from '../data/editorial-tracks.mjs';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs';
 import { clamp, localize, similarityScore } from './profile.mjs';
 
@@ -10,18 +11,21 @@ const AXIS_COPY = Object.freeze({
 
 const STRATEGY_COPY = Object.freeze({
   kr: {
-    safe: '핵심 취향', adjacent: '인접 취향', explore: '탐험 추천',
-    safeLead: '평소 취향과 가장 자연스럽게 맞는 곡이에요.',
-    adjacentLead: '익숙한 취향을 유지하면서 한 걸음 옆으로 넓혀주는 곡이에요.',
-    exploreLead: '일부러 새로운 방향을 섞은 탐험 슬롯이에요.'
+    safe: '핵심 취향', adjacent: '한 걸음 옆', explore: '조금 낯선 곡',
+    safeLead: '지금 취향의 중심과 자연스럽게 이어져요.',
+    adjacentLead: '익숙한 감각을 유지하면서 한 방향을 조금 넓혀줘요.',
+    exploreLead: '현재 장면에는 맞지만 일부러 낯선 방향을 섞었어요.'
   },
   en: {
-    safe: 'Core fit', adjacent: 'Adjacent taste', explore: 'Exploration',
-    safeLead: 'This is one of the most natural fits for your core taste.',
-    adjacentLead: 'It keeps a familiar anchor while expanding one step outward.',
-    exploreLead: 'This slot intentionally introduces a less familiar direction.'
+    safe: 'Core fit', adjacent: 'One step sideways', explore: 'Less familiar',
+    safeLead: 'This follows the center of your current taste naturally.',
+    adjacentLead: 'It keeps a familiar anchor while widening one direction.',
+    exploreLead: 'It fits the moment while deliberately adding a less familiar direction.'
   }
 });
+
+export const EDITORIAL_CATALOG = Object.freeze(TRACKS.map(enrichTrack));
+export const TRACK_BY_ID = Object.freeze(Object.fromEntries(EDITORIAL_CATALOG.map((track) => [track.id, track])));
 
 function axisSimilarity(left, right, axisId) {
   return 100 - Math.abs(Number(left?.[axisId] ?? 50) - Number(right?.[axisId] ?? 50));
@@ -87,38 +91,50 @@ export function selectDiverseCandidates(candidates, limit, options = {}) {
   return selected;
 }
 
+function contrastSentence(profile, candidate, language) {
+  const axes = AXIS_COPY[language] || AXIS_COPY.en;
+  const contrast = AXIS_IDS
+    .map((axisId) => ({ axisId, delta: candidate.track.profile[axisId] - profile.scores[axisId] }))
+    .sort((left, right) => Math.abs(right.delta) - Math.abs(left.delta))[0];
+  const direction = contrast.delta >= 0
+    ? (language === 'kr' ? '높은' : 'higher')
+    : (language === 'kr' ? '낮은' : 'lower');
+  if (language === 'kr') {
+    return candidate.strategy === 'adjacent'
+      ? `다른 핵심 후보보다 ${axes[contrast.axisId]}를 조금 더 ${direction} 쪽으로 넓혀줘요.`
+      : `핵심 후보보다 ${axes[contrast.axisId]}가 더 ${direction} 방향이라 새로운 감각을 만들어요.`;
+  }
+  return candidate.strategy === 'adjacent'
+    ? `Compared with the core candidates, it moves slightly ${direction} on ${axes[contrast.axisId]}.`
+    : `Compared with the core candidates, it moves further ${direction} on ${axes[contrast.axisId]} and creates a new edge.`;
+}
+
 function buildReason(profile, candidate, context, language) {
   const copy = STRATEGY_COPY[language] || STRATEGY_COPY.en;
+  const editorial = localize(candidate.track.editorialNote, language);
+  if (editorial) {
+    if (candidate.strategy === 'safe') return editorial;
+    return `${editorial} ${contrastSentence(profile, candidate, language)}`;
+  }
+
   const axes = AXIS_COPY[language] || AXIS_COPY.en;
   const aligned = AXIS_IDS
     .map((axisId) => ({ axisId, score: axisSimilarity(profile.scores, candidate.track.profile, axisId) }))
     .sort((left, right) => right.score - left.score)
     .slice(0, 2);
-  const contrast = AXIS_IDS
-    .map((axisId) => ({ axisId, delta: candidate.track.profile[axisId] - profile.scores[axisId] }))
-    .sort((left, right) => Math.abs(right.delta) - Math.abs(left.delta))[0];
 
   if (language === 'kr') {
     const base = `${copy[`${candidate.strategy}Lead`]} ${axes[aligned[0].axisId]}와 ${axes[aligned[1].axisId]}가 가깝고, ${localize(context.shortLabel, 'kr')} 흐름에 맞아요.`;
-    if (candidate.strategy === 'safe') return base;
-    const direction = contrast.delta >= 0 ? '높은' : '낮은';
-    const contrastText = candidate.strategy === 'adjacent'
-      ? `다른 핵심 후보보다 ${axes[contrast.axisId]}를 조금 더 ${direction} 쪽으로 넓혀줘요.`
-      : `핵심 후보보다 ${axes[contrast.axisId]}를 의도적으로 더 ${direction} 쪽으로 이동시킨 곡이에요.`;
-    return `${base} ${contrastText}`;
+    return candidate.strategy === 'safe' ? base : `${base} ${contrastSentence(profile, candidate, language)}`;
   }
 
   const base = `${copy[`${candidate.strategy}Lead`]} It aligns with your ${axes[aligned[0].axisId]} and ${axes[aligned[1].axisId]}, while fitting “${localize(context.shortLabel, 'en')}.”`;
-  if (candidate.strategy === 'safe') return base;
-  const direction = contrast.delta >= 0 ? 'higher' : 'lower';
-  const contrastText = candidate.strategy === 'adjacent'
-    ? `Compared with the core candidates, it moves slightly ${direction} on ${axes[contrast.axisId]}.`
-    : `Compared with the core candidates, it deliberately moves further ${direction} on ${axes[contrast.axisId]}.`;
-  return `${base} ${contrastText}`;
+  return candidate.strategy === 'safe' ? base : `${base} ${contrastSentence(profile, candidate, language)}`;
 }
 
 export function platformUrl(track, platform = 'spotify') {
   if (track.platforms?.[platform]) return track.platforms[platform];
+  if (track.listenLinks?.[platform]) return track.listenLinks[platform];
   const query = encodeURIComponent(`${track.title} ${track.artist}`);
   if (platform === 'youtube') return `https://www.youtube.com/results?search_query=${query}`;
   if (platform === 'apple') return `https://music.apple.com/us/search?term=${query}`;
@@ -133,7 +149,8 @@ function scoreTrack(profile, context, track) {
     energy: 1.2, warmth: 1, novelty: 1, organic: 0.8, complexity: 1, sociality: 1.15
   });
   const keywordFit = contextKeywordBonus(track, context);
-  const score = Math.round(profileFit * 0.58 + contextFit * 0.34 + keywordFit * 0.08);
+  const editorialBonus = track.editorial ? 4 : 0;
+  const score = Math.round(clamp(profileFit * 0.56 + contextFit * 0.32 + keywordFit * 0.08 + editorialBonus));
   const axisDistance = AXIS_IDS.reduce((sum, axisId) => sum + Math.abs(track.profile[axisId] - profile.scores[axisId]), 0) / AXIS_IDS.length;
   return { track, score, profileFit, contextFit, keywordFit, axisDistance, naturalStrategy: naturalStrategy(profile, track, profileFit) };
 }
@@ -165,7 +182,8 @@ function decorateSelected(profile, context, candidate, language, strategy) {
       youtube: platformUrl(candidate.track, 'youtube'),
       apple: platformUrl(candidate.track, 'apple')
     }),
-    exactPlatforms: Object.freeze(Object.keys(candidate.track.platforms || {}))
+    exactPlatforms: Object.freeze(Object.keys(candidate.track.platforms || {})),
+    editorial: Boolean(candidate.track.editorial)
   });
 }
 
@@ -212,7 +230,7 @@ export function recommendTracks(profile, contextId, options = {}) {
   const limit = Math.max(1, Math.min(10, Number(options.limit || 5)));
   const language = options.language === 'en' ? 'en' : 'kr';
   const plan = options.plan || strategyPlan(limit, options.exploration !== false);
-  const ranked = TRACKS.map((track) => scoreTrack(profile, context, track)).sort((left, right) => right.score - left.score);
+  const ranked = EDITORIAL_CATALOG.map((track) => scoreTrack(profile, context, track)).sort((left, right) => right.score - left.score);
   return selectStrategySlots(ranked, plan, limit)
     .map((candidate) => decorateSelected(profile, context, candidate, language, candidate.assignedStrategy));
 }
@@ -231,9 +249,9 @@ export function recommendationSummary(profile, contextId, language = 'kr') {
   const gaps = AXES.map((axis) => ({ axis, difference: Math.abs(profile.scores[axis.id] - context.target[axis.id]) }))
     .sort((left, right) => left.difference - right.difference);
   if (language === 'kr') {
-    return `${localize(context.label, 'kr')}라는 목적에 맞춰, ${localize(gaps[0].axis.label, 'kr')}와 ${localize(gaps[1].axis.label, 'kr')}는 유지하고 3개의 핵심 취향·1개의 인접 취향·1개의 탐험 추천으로 구성했어요.`;
+    return `${localize(context.label, 'kr')}에 맞춰 ${localize(gaps[0].axis.label, 'kr')}와 ${localize(gaps[1].axis.label, 'kr')}는 유지했어요. 가까운 세 곡, 한 걸음 옆의 한 곡, 조금 낯선 한 곡을 함께 골랐습니다.`;
   }
-  return `Built for “${localize(context.label, 'en')}” while preserving your ${localize(gaps[0].axis.label, 'en').toLowerCase()} and ${localize(gaps[1].axis.label, 'en').toLowerCase()}, using three core fits, one adjacent fit, and one exploration slot.`;
+  return `Built for “${localize(context.label, 'en')}” while preserving your ${localize(gaps[0].axis.label, 'en').toLowerCase()} and ${localize(gaps[1].axis.label, 'en').toLowerCase()}: three close fits, one step sideways, and one less familiar track.`;
 }
 
 export function averageProfiles(left, right) {

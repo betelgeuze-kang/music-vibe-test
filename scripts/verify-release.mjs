@@ -14,8 +14,9 @@ const buildInfo = JSON.parse(read('build-info.json'));
 const release = buildInfo.release;
 const brandRelease = buildInfo.brandRelease;
 const stabilityRelease = buildInfo.stabilityRelease;
+const contentRelease = buildInfo.contentRelease;
 
-for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease })) {
+for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease, contentRelease })) {
   if (!value || !/^[a-z0-9-]+$/i.test(value)) {
     throw new Error(`build-info.json must define a stable ${label} ID`);
   }
@@ -27,9 +28,12 @@ if (!index.includes(`content="${brandRelease}"`)) throw new Error('index brand r
 if (!index.includes(`data-brand-release="${brandRelease}"`)) throw new Error('body brand release ID does not match build-info.json');
 if (!index.includes(`content="${stabilityRelease}"`)) throw new Error('index stability release meta does not match build-info.json');
 if (!index.includes(`data-stability-release="${stabilityRelease}"`)) throw new Error('body stability release ID does not match build-info.json');
+if (!index.includes(`content="${contentRelease}"`)) throw new Error('index content release meta does not match build-info.json');
+if (!index.includes(`data-content-release="${contentRelease}"`)) throw new Error('body content release ID does not match build-info.json');
 if (!index.includes(`V2 Quality Gates ${release.toUpperCase()}`)) throw new Error('quality release marker is missing');
 if (!index.includes(`Brand Design ${brandRelease.toUpperCase()}`)) throw new Error('brand release marker is missing');
 if (!index.includes(`Stability ${stabilityRelease.toUpperCase()}`)) throw new Error('stability release marker is missing');
+if (!index.includes(`Editorial Content ${contentRelease.toUpperCase()}`)) throw new Error('editorial content release marker is missing');
 
 const expectedStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css'];
 const brandStyles = ['v2-editorial.css'];
@@ -46,13 +50,18 @@ const brandModules = [
   'src/v2/brand/copy.mjs',
   'src/v2/brand/interaction.mjs'
 ];
+const editorialModules = [
+  'src/v2/data/editorial-tracks.mjs',
+  'src/v2/data/home-showcase.mjs',
+  'src/v2/domain/presentation.mjs'
+];
 const expectedAudio = [
   'assets/audio/Funkorama.mp3', 'assets/audio/Dream_Catcher.mp3', 'assets/audio/Lobby_Time.mp3',
   'assets/audio/Cipher.mp3', 'assets/audio/Tech_Talk.mp3', 'assets/audio/Dreamy_Flashback.mp3',
   'assets/audio/Movement_Proposition.mp3', 'assets/audio/Pixel_Peeker_Polka_faster.mp3'
 ];
 
-for (const file of [...expectedStyles, ...brandStyles, ...stabilityStyles, ...expectedModules, ...brandModules, ...expectedAudio]) {
+for (const file of [...expectedStyles, ...brandStyles, ...stabilityStyles, ...expectedModules, ...brandModules, ...editorialModules, ...expectedAudio]) {
   if (!exists(file)) throw new Error(`release asset is missing: ${file}`);
 }
 for (const file of expectedStyles) {
@@ -82,8 +91,16 @@ const expectedStabilityStyles = stabilityStyles.map((file) => `/${file}?stabilit
 if (JSON.stringify(buildInfo.stabilityStyles) !== JSON.stringify(expectedStabilityStyles)) {
   throw new Error('stability stylesheet release contract is inconsistent');
 }
+if (JSON.stringify(buildInfo.editorialData) !== JSON.stringify(editorialModules.map((file) => `/${file}`))) {
+  throw new Error('editorial data release contract is inconsistent');
+}
 if (!read('v2-stabilization.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability stylesheet marker is missing');
 if (!read('v2-stabilization-a11y.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability accessibility marker is missing');
+const editorialTrackSource = read('src/v2/data/editorial-tracks.mjs');
+const editorialTable = editorialTrackSource.match(/const RAW_EDITORIAL_TRACKS = `([\s\S]*?)`;/)?.[1] || '';
+const editorialRows = editorialTable.trim().split('\n').filter(Boolean);
+if (editorialRows.length !== 60) throw new Error(`editorial track catalog must contain exactly 60 rows; found ${editorialRows.length}`);
+if (!read('src/v2/data/home-showcase.mjs').includes('HOME_SHOWCASE')) throw new Error('fixed editorial home showcase is missing');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
-console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} verified at ${root}`);
+console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} + content ${contentRelease} verified at ${root}`);
