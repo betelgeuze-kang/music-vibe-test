@@ -1,13 +1,15 @@
 {
-  "schema": 2,
+  "schema": 3,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
-  "productVersion": "v2-editorial-listening-journal",
+  "stabilityRelease": "sr1",
+  "productVersion": "v2-editorial-listening-journal-stabilized",
   "assetVersion": "qg1",
   "builtAt": "2026-07-11T00:00:00Z",
   "entry": "/src/v2/main.mjs?v=qg1",
   "brandEntry": "/src/v2/brand/install.mjs?brand=bd1",
   "brandInteraction": "/src/v2/brand/interaction.mjs?brand=bd1",
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand"]
+  "stabilityStyle": "/v2-stabilization.css?stability=sr1",
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression"]
 }
