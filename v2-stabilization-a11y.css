@@ -7,6 +7,13 @@
   color: var(--ink) !important;
 }
 
+/* Compact helper text must remain readable against the ink background. */
+.keyboard-help,
+.profile-signature__intro {
+  color: var(--meta);
+  font-size: 12px;
+}
+
 /* Axe cannot calculate text contrast over gradients reliably. These surfaces use
    dark solid editorial backgrounds while preserving the archetype color identity. */
 .editorial-section--together {
