@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "release": "qg1",
+  "releaseId": "qg1",
+  "productVersion": "v2-quality-gates",
+  "assetVersion": "qg1",
+  "builtAt": "2026-07-11T00:00:00Z",
+  "entry": "/src/v2/main.mjs?v=qg1",
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser"]
+}
