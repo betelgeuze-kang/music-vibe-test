@@ -1,10 +1,12 @@
 {
-  "schema": 1,
+  "schema": 2,
   "release": "qg1",
   "releaseId": "qg1",
-  "productVersion": "v2-quality-gates",
+  "brandRelease": "bd1",
+  "productVersion": "v2-editorial-listening-journal",
   "assetVersion": "qg1",
   "builtAt": "2026-07-11T00:00:00Z",
   "entry": "/src/v2/main.mjs?v=qg1",
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser"]
+  "brandEntry": "/src/v2/brand/install.mjs?brand=bd1",
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand"]
 }

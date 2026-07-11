@@ -8,11 +8,10 @@ test.beforeEach(async ({ page }) => {
   await declineAnalytics(page);
 });
 
-test('keyboard onboarding creates, edits, and restores a profile', async ({ page }) => {
+test('home listening booth, keyboard editing, and profile persistence work together', async ({ page }) => {
   await page.goto('/?lang=kr#/home');
-  await page.locator('[data-route="discover"]').first().click();
-
-  await page.keyboard.press('b');
+  await expect(page.locator('.listening-booth')).toBeVisible();
+  await page.locator('[data-action="brand-choose"]').nth(1).click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.quiz-topline')).toContainText('1 / 10');
@@ -74,7 +73,7 @@ test('fragment invite completes a friend match without exposing the token in the
 test('legacy referral remains compatible', async ({ page }) => {
   await page.goto('/?ref=ENFP&lang=en#/match');
   await expect(page.locator('.empty-state')).toBeVisible();
-  await expect(page.locator('body')).toContainText(/Create your music identity|friend invited/i);
+  await expect(page.locator('body')).toContainText(/Create your music identity|music you can share|friend invited/i);
 });
 
 test('analytics rejection prevents GA script loading', async ({ page }) => {
@@ -83,13 +82,12 @@ test('analytics rejection prevents GA script loading', async ({ page }) => {
   expect(await page.evaluate(() => localStorage.getItem('music-vibe-consent-v2'))).toBe('declined');
 });
 
-test('audio failure is recoverable and text choice still works', async ({ page }) => {
+test('audio failure is recoverable from the home listening booth', async ({ page }) => {
   await page.route('**/assets/audio/**', (route) => route.abort('failed'));
   await page.goto('/?lang=en#/home');
-  await page.locator('[data-route="discover"]').first().click();
-  await page.keyboard.press('1');
-  await expect(page.locator('.audio-preview-state.has-error')).toContainText('Preview unavailable');
-  await page.locator('[data-action="choose-option"]').first().click();
+  await page.locator('[data-action="brand-preview"]').first().click();
+  await expect(page.locator('.listening-choice.has-error').first()).toBeVisible();
+  await page.locator('[data-action="brand-choose"]').first().click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
 });
 
@@ -125,7 +123,7 @@ test('home and profile pass automated accessibility checks', async ({ page }, te
 test('mobile primary action is not hidden by the bottom navigation', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only layout contract');
   await page.goto('/?lang=kr#/home');
-  const cta = page.locator('[data-route="discover"]').first();
+  const cta = page.locator('[data-action="brand-focus-booth"]');
   await cta.scrollIntoViewIfNeeded();
   const ctaBox = await cta.boundingBox();
   const navBox = await page.locator('.site-nav').boundingBox();
