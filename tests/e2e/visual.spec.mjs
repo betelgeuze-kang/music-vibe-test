@@ -10,8 +10,9 @@ async function stabilize(page) {
     await document.fonts?.ready;
     document.documentElement.style.scrollBehavior = 'auto';
     document.querySelectorAll('audio').forEach((audio) => audio.pause());
+    window.scrollTo(0, 0);
   });
-  await page.waitForTimeout(120);
+  await page.waitForTimeout(150);
 }
 
 async function captureOrCompare(page, testInfo, baseName) {
