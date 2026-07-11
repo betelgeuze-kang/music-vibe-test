@@ -14,18 +14,13 @@
   <meta name="music-vibe-brand-release" content="bd1">
   <meta name="music-vibe-stability-release" content="sr1">
   <meta name="music-vibe-content-release" content="e1">
+  <meta name="music-vibe-ui-release" content="f1">
   <meta name="naver-site-verification" content="a50e004cde55bade8a66d8269ff29928ec83338f">
   <link rel="canonical" href="https://my-music-vibe.com/">
   <link rel="manifest" href="manifest.json?v=qg1">
   <link rel="icon" type="image/webp" href="assets/icon_main.webp?v=qg1">
   <link rel="apple-touch-icon" href="assets/icon_main.png?v=qg1">
-  <link rel="stylesheet" href="v2-core.css?v=qg1">
-  <link rel="stylesheet" href="v2-features.css?v=qg1">
-  <link rel="stylesheet" href="v2-responsive.css?v=qg1">
-  <link rel="stylesheet" href="v2-quality.css?v=qg1">
-  <link rel="stylesheet" href="v2-editorial.css?brand=bd1">
-  <link rel="stylesheet" href="v2-stabilization.css?stability=sr1">
-  <link rel="stylesheet" href="v2-stabilization-a11y.css?stability=sr1">
+  <link rel="stylesheet" href="v2-app.css?ui=f1">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="My Music Vibe">
@@ -38,43 +33,16 @@
   <meta name="twitter:description" content="Listen, choose, and find music for yourself and a friend.">
   <meta name="twitter:image" content="https://my-music-vibe.com/assets/icon_main.webp">
 
-  <script>console.log('Version Check: P2 Growth Analytics & Experiments | V2 Quality Gates QG1 | Brand Design BD1 | Stability SR1 | Editorial Content E1');</script>
-  <script type="importmap">
-  {
-    "imports": {
-      "/src/v2/main.mjs": "/src/v2/main.mjs?v=qg1",
-      "/src/v2/ui/app.mjs": "/src/v2/ui/app.mjs?v=qg1",
-      "/src/v2/ui/actions.mjs": "/src/v2/ui/actions.mjs?v=qg1",
-      "/src/v2/ui/screens.mjs": "/src/v2/ui/screens.mjs?v=qg1",
-      "/src/v2/ui/helpers.mjs": "/src/v2/ui/helpers.mjs?v=qg1",
-      "/src/v2/quality/install.mjs": "/src/v2/quality/install.mjs?v=qg1",
-      "/src/v2/quality/visuals.mjs": "/src/v2/quality/visuals.mjs?v=qg1",
-      "/src/v2/data/axes.mjs": "/src/v2/data/axes.mjs?v=qg1",
-      "/src/v2/data/archetypes.mjs": "/src/v2/data/archetypes.mjs?v=qg1",
-      "/src/v2/data/questions.mjs": "/src/v2/data/questions.mjs?v=qg1",
-      "/src/v2/data/contexts.mjs": "/src/v2/data/contexts.mjs?v=qg1",
-      "/src/v2/data/tracks.mjs": "/src/v2/data/tracks.mjs?v=qg1",
-      "/src/v2/data/copy.mjs": "/src/v2/data/copy.mjs?v=qg1",
-      "/src/v2/domain/profile.mjs": "/src/v2/domain/profile.mjs?v=qg1",
-      "/src/v2/domain/recommendation.mjs": "/src/v2/domain/recommendation.mjs?v=qg1",
-      "/src/v2/domain/match.mjs": "/src/v2/domain/match.mjs?v=qg1",
-      "/src/v2/infrastructure/storage.mjs": "/src/v2/infrastructure/storage.mjs?v=qg1",
-      "/src/v2/infrastructure/share.mjs": "/src/v2/infrastructure/share.mjs?v=qg1"
-    }
-  }
-  </script>
+  <script>console.log('Version Check: P2 Growth Analytics & Experiments | QG1 | BD1 | SR1 | E1 | Canonical UI F1');</script>
   <script src="p2-analytics.js?v=qg1"></script>
-  <script type="module" src="src/v2/main.mjs?v=qg1"></script>
-  <script type="module" src="src/v2/brand/install.mjs?brand=bd1"></script>
-  <script type="module" src="src/v2/brand/interaction.mjs?brand=bd1"></script>
+  <script type="module" src="src/v2/main.mjs?ui=f1"></script>
 </head>
-<body class="brand-pending" data-page-type="app" data-analytics-consent-ui="standalone" data-release-id="qg1" data-brand-release="bd1" data-stability-release="sr1" data-content-release="e1">
+<body data-page-type="app" data-analytics-consent-ui="standalone" data-release-id="qg1" data-brand-release="bd1" data-stability-release="sr1" data-content-release="e1" data-ui-release="f1">
   <header id="site-header" class="site-header"></header>
   <main id="app" tabindex="-1">
-    <div class="empty-state" aria-live="polite"><span class="empty-state__symbol">♫</span><p>Loading My Music Vibe…</p></div>
+    <div class="empty-state" aria-live="polite"><span class="empty-state__symbol" aria-hidden="true">♫</span><p>Loading My Music Vibe…</p></div>
   </main>
   <footer id="site-footer" class="site-footer"></footer>
   <noscript><div style="max-width:720px;margin:60px auto;padding:24px;color:white;font-family:system-ui">My Music Vibe requires JavaScript to play audio choices and save taste notes in your browser.</div></noscript>
-  <script>window.setTimeout(() => document.body.classList.remove('brand-pending'), 3500);</script>
 </body>
 </html>

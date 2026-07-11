@@ -1,5 +1,4 @@
-import { VibeApp } from './ui/app.mjs?v=qg1';
-import { installQualityGates } from './quality/install.mjs?v=qg1';
+import { VibeApp } from './ui/app.mjs?ui=f1';
 
 async function retireLegacyRuntime() {
   if ('serviceWorker' in navigator) {
@@ -18,13 +17,13 @@ async function retireLegacyRuntime() {
 
 async function loadBuildInfo() {
   try {
-    const response = await fetch('/build-info.json?v=qg1', { cache: 'no-store' });
+    const response = await fetch('/build-info.json?ui=f1', { cache: 'no-store' });
     if (!response.ok) return;
     const info = await response.json();
-    document.documentElement.dataset.buildId = info.releaseId || 'qg1';
+    document.documentElement.dataset.buildId = info.uiRelease || info.releaseId || 'f1';
     window.__musicVibeBuild = Object.freeze(info);
   } catch (_) {
-    document.documentElement.dataset.buildId = 'qg1';
+    document.documentElement.dataset.buildId = 'f1';
   }
 }
 
@@ -32,11 +31,10 @@ function boot() {
   const root = document.getElementById('app');
   const header = document.getElementById('site-header');
   const footer = document.getElementById('site-footer');
-  if (!root || !header || !footer) throw new Error('V2 application shell is incomplete.');
+  if (!root || !header || !footer) throw new Error('Application shell is incomplete.');
   retireLegacyRuntime();
   loadBuildInfo();
   const app = new VibeApp({ root, header, footer });
-  installQualityGates(app);
   window.__musicVibeV2 = app;
   app.start();
 }

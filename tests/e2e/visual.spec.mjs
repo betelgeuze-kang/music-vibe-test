@@ -50,7 +50,7 @@ test('home visual snapshot', async ({ page }, testInfo) => {
 
 test('discover visual snapshot', async ({ page }, testInfo) => {
   await page.goto('/?lang=ko#/home');
-  await page.locator('[data-action="brand-choose"]').first().click();
+  await page.locator('[data-action="home-choose"]').first().click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
   await captureOrCompare(page, testInfo, 'discover.png');
 });

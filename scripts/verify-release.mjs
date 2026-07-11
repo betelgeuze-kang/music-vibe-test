@@ -15,45 +15,62 @@ const release = buildInfo.release;
 const brandRelease = buildInfo.brandRelease;
 const stabilityRelease = buildInfo.stabilityRelease;
 const contentRelease = buildInfo.contentRelease;
+const uiRelease = buildInfo.uiRelease;
 
-for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease, contentRelease })) {
-  if (!value || !/^[a-z0-9-]+$/i.test(value)) {
-    throw new Error(`build-info.json must define a stable ${label} ID`);
-  }
+for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease, contentRelease, uiRelease })) {
+  if (!value || !/^[a-z0-9-]+$/i.test(value)) throw new Error(`build-info.json must define a stable ${label} ID`);
 }
 
-if (!index.includes(`content="${release}"`)) throw new Error('index core release meta does not match build-info.json');
-if (!index.includes(`data-release-id="${release}"`)) throw new Error('body core release ID does not match build-info.json');
-if (!index.includes(`content="${brandRelease}"`)) throw new Error('index brand release meta does not match build-info.json');
-if (!index.includes(`data-brand-release="${brandRelease}"`)) throw new Error('body brand release ID does not match build-info.json');
-if (!index.includes(`content="${stabilityRelease}"`)) throw new Error('index stability release meta does not match build-info.json');
-if (!index.includes(`data-stability-release="${stabilityRelease}"`)) throw new Error('body stability release ID does not match build-info.json');
-if (!index.includes(`content="${contentRelease}"`)) throw new Error('index content release meta does not match build-info.json');
-if (!index.includes(`data-content-release="${contentRelease}"`)) throw new Error('body content release ID does not match build-info.json');
-if (!index.includes(`V2 Quality Gates ${release.toUpperCase()}`)) throw new Error('quality release marker is missing');
-if (!index.includes(`Brand Design ${brandRelease.toUpperCase()}`)) throw new Error('brand release marker is missing');
-if (!index.includes(`Stability ${stabilityRelease.toUpperCase()}`)) throw new Error('stability release marker is missing');
-if (!index.includes(`Editorial Content ${contentRelease.toUpperCase()}`)) throw new Error('editorial content release marker is missing');
+for (const [attribute, value] of [
+  ['data-release-id', release],
+  ['data-brand-release', brandRelease],
+  ['data-stability-release', stabilityRelease],
+  ['data-content-release', contentRelease],
+  ['data-ui-release', uiRelease]
+]) {
+  if (!index.includes(`${attribute}="${value}"`)) throw new Error(`${attribute} does not match build-info.json`);
+}
+for (const [meta, value] of [
+  ['music-vibe-release', release],
+  ['music-vibe-brand-release', brandRelease],
+  ['music-vibe-stability-release', stabilityRelease],
+  ['music-vibe-content-release', contentRelease],
+  ['music-vibe-ui-release', uiRelease]
+]) {
+  if (!index.includes(`name="${meta}" content="${value}"`)) throw new Error(`${meta} meta does not match build-info.json`);
+}
+if (!index.includes(`Canonical UI ${uiRelease.toUpperCase()}`)) throw new Error('canonical UI release marker is missing');
+if ((index.match(/rel="stylesheet"/g) || []).length !== 1) throw new Error('HTML must load exactly one canonical stylesheet');
+if (!index.includes(`v2-app.css?ui=${uiRelease}`)) throw new Error('canonical stylesheet is not version-locked');
+if (!index.includes(`src/v2/main.mjs?ui=${uiRelease}`)) throw new Error('canonical application entry is not version-locked');
+if (index.includes('src/v2/brand/install.mjs') || index.includes('src/v2/brand/interaction.mjs')) throw new Error('runtime override modules must not load');
+if (index.includes('brand-pending')) throw new Error('canonical UI must not use a post-boot design mask');
 
-const expectedStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css'];
-const brandStyles = ['v2-editorial.css'];
-const stabilityStyles = ['v2-stabilization.css', 'v2-stabilization-a11y.css'];
-const expectedModules = [
-  'src/v2/main.mjs', 'src/v2/quality/install.mjs', 'src/v2/quality/visuals.mjs',
-  'src/v2/ui/app.mjs', 'src/v2/ui/actions.mjs', 'src/v2/ui/screens.mjs', 'src/v2/ui/helpers.mjs',
-  'src/v2/data/questions.mjs', 'src/v2/data/tracks.mjs',
-  'src/v2/domain/profile.mjs', 'src/v2/domain/recommendation.mjs', 'src/v2/domain/match.mjs',
-  'src/v2/infrastructure/share.mjs'
-];
-const brandModules = [
-  'src/v2/brand/install.mjs',
+const sourceStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css', 'v2-editorial.css', 'v2-stabilization.css', 'v2-stabilization-a11y.css'];
+const canonicalModules = [
+  'src/v2/main.mjs',
+  'src/v2/ui/app.mjs',
+  'src/v2/ui/actions.mjs',
+  'src/v2/ui/helpers.mjs',
+  'src/v2/ui/components/shell.mjs',
+  'src/v2/ui/screens/home.mjs',
+  'src/v2/ui/screens/discover.mjs',
+  'src/v2/ui/screens/empty.mjs',
+  'src/v2/ui/screens/profile.mjs',
+  'src/v2/ui/screens/now.mjs',
+  'src/v2/ui/screens/match.mjs',
+  'src/v2/quality/visuals.mjs',
   'src/v2/brand/copy.mjs',
-  'src/v2/brand/interaction.mjs'
-];
-const editorialModules = [
+  'src/v2/data/questions.mjs',
+  'src/v2/data/tracks.mjs',
   'src/v2/data/editorial-tracks.mjs',
   'src/v2/data/home-showcase.mjs',
-  'src/v2/domain/presentation.mjs'
+  'src/v2/domain/profile.mjs',
+  'src/v2/domain/presentation.mjs',
+  'src/v2/domain/recommendation.mjs',
+  'src/v2/domain/match.mjs',
+  'src/v2/infrastructure/storage.mjs',
+  'src/v2/infrastructure/share.mjs'
 ];
 const expectedAudio = [
   'assets/audio/Funkorama.mp3', 'assets/audio/Dream_Catcher.mp3', 'assets/audio/Lobby_Time.mp3',
@@ -61,41 +78,35 @@ const expectedAudio = [
   'assets/audio/Movement_Proposition.mp3', 'assets/audio/Pixel_Peeker_Polka_faster.mp3'
 ];
 
-for (const file of [...expectedStyles, ...brandStyles, ...stabilityStyles, ...expectedModules, ...brandModules, ...editorialModules, ...expectedAudio]) {
+for (const file of ['v2-app.css', ...sourceStyles, ...canonicalModules, ...expectedAudio]) {
   if (!exists(file)) throw new Error(`release asset is missing: ${file}`);
 }
-for (const file of expectedStyles) {
-  if (!index.includes(`${file}?v=${release}`)) throw new Error(`core stylesheet is not version-locked: ${file}`);
+
+const cssEntry = read('v2-app.css');
+for (const layer of ['core', 'features', 'responsive', 'quality', 'editorial', 'stability', 'accessibility']) {
+  if (!cssEntry.includes(`layer(${layer})`)) throw new Error(`canonical CSS is missing the ${layer} layer`);
 }
-for (const file of brandStyles) {
-  if (!index.includes(`${file}?brand=${brandRelease}`)) throw new Error(`brand stylesheet is not version-locked: ${file}`);
+for (const source of sourceStyles) {
+  if (!cssEntry.includes(source)) throw new Error(`canonical CSS entry does not include ${source}`);
 }
-for (const file of stabilityStyles) {
-  if (!index.includes(`${file}?stability=${stabilityRelease}`)) throw new Error(`stability stylesheet is not version-locked: ${file}`);
-}
-for (const file of expectedModules) {
-  if (!index.includes(`/${file}?v=${release}`) && file !== 'src/v2/main.mjs') {
-    throw new Error(`module is missing from the core release import map: ${file}`);
+
+const mainSource = read('src/v2/main.mjs');
+const appSource = read('src/v2/ui/app.mjs');
+const actionSource = read('src/v2/ui/actions.mjs');
+const homeSource = read('src/v2/ui/screens/home.mjs');
+if (mainSource.includes('installQualityGates') || mainSource.includes('quality/install.mjs')) throw new Error('quality runtime mutation must be removed');
+if (!appSource.includes("import('./screens/profile.mjs?ui=f1')") || !appSource.includes("import('./screens/now.mjs?ui=f1')") || !appSource.includes("import('./screens/match.mjs?ui=f1')")) throw new Error('lazy route modules are incomplete');
+for (const source of [mainSource, appSource, actionSource, homeSource]) {
+  if (/from ['"].*domain\/recommendation\.mjs/.test(source) || /from ['"].*domain\/match\.mjs/.test(source) || /from ['"].*data\/tracks\.mjs/.test(source)) {
+    throw new Error('home boot graph statically imports the full catalog');
   }
 }
-if (!index.includes(`src/v2/main.mjs?v=${release}`)) throw new Error('main module is not version-locked');
-for (const file of ['install.mjs', 'interaction.mjs']) {
-  if (!index.includes(`src/v2/brand/${file}?brand=${brandRelease}`)) {
-    throw new Error(`brand runtime module is not version-locked: ${file}`);
-  }
-}
-if (!read('src/v2/brand/install.mjs').includes(`copy.mjs?brand=${brandRelease}`)) throw new Error('brand copy module is not version-locked');
-if (!read('src/v2/main.mjs').includes(`build-info.json?v=${release}`)) throw new Error('runtime build-info fetch is not version-locked');
-if (buildInfo.brandInteraction !== `/src/v2/brand/interaction.mjs?brand=${brandRelease}`) throw new Error('brand interaction release contract is inconsistent');
-const expectedStabilityStyles = stabilityStyles.map((file) => `/${file}?stability=${stabilityRelease}`);
-if (JSON.stringify(buildInfo.stabilityStyles) !== JSON.stringify(expectedStabilityStyles)) {
-  throw new Error('stability stylesheet release contract is inconsistent');
-}
-if (JSON.stringify(buildInfo.editorialData) !== JSON.stringify(editorialModules.map((file) => `/${file}`))) {
-  throw new Error('editorial data release contract is inconsistent');
-}
-if (!read('v2-stabilization.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability stylesheet marker is missing');
-if (!read('v2-stabilization-a11y.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability accessibility marker is missing');
+if (!actionSource.includes("await import('../domain/recommendation.mjs?content=e1')")) throw new Error('context recommendations are not lazy-loaded');
+if (buildInfo.entry !== `/src/v2/main.mjs?ui=${uiRelease}`) throw new Error('canonical entry release contract is inconsistent');
+if (buildInfo.styleEntry !== `/v2-app.css?ui=${uiRelease}`) throw new Error('canonical style release contract is inconsistent');
+if (buildInfo.runtimeOverrides !== false) throw new Error('runtime override contract must be false');
+if (!Array.isArray(buildInfo.lazyRoutes) || buildInfo.lazyRoutes.length !== 3) throw new Error('lazy route contract is incomplete');
+
 const editorialTrackSource = read('src/v2/data/editorial-tracks.mjs');
 const editorialTable = editorialTrackSource.match(/const RAW_EDITORIAL_TRACKS = `([\s\S]*?)`;/)?.[1] || '';
 const editorialRows = editorialTable.trim().split('\n').filter(Boolean);
@@ -103,4 +114,4 @@ if (editorialRows.length !== 60) throw new Error(`editorial track catalog must c
 if (!read('src/v2/data/home-showcase.mjs').includes('HOME_SHOWCASE')) throw new Error('fixed editorial home showcase is missing');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
-console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} + content ${contentRelease} verified at ${root}`);
+console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} + content ${contentRelease} + UI ${uiRelease} verified at ${root}`);
