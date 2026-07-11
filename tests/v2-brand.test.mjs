@@ -9,14 +9,18 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const index = read('index.html');
 const installer = read('src/v2/brand/install.mjs');
+const interaction = read('src/v2/brand/interaction.mjs');
 const css = read('v2-editorial.css');
 const buildInfo = JSON.parse(read('build-info.json'));
 const koreanCopy = JSON.stringify(BRAND_COPY.kr);
 
 assert.equal(buildInfo.brandRelease, 'bd1', 'brand release must be explicit');
+assert.equal(buildInfo.brandInteraction, '/src/v2/brand/interaction.mjs?brand=bd1', 'interaction bridge must be part of the brand release');
 assert(index.includes('v2-editorial.css?brand=bd1'), 'editorial stylesheet must be release-locked');
 assert(index.includes('src/v2/brand/install.mjs?brand=bd1'), 'brand installer must load after the core app');
+assert(index.includes('src/v2/brand/interaction.mjs?brand=bd1'), 'brand interaction bridge must load explicitly');
 assert(index.indexOf('src/v2/main.mjs?v=qg1') < index.indexOf('src/v2/brand/install.mjs?brand=bd1'), 'brand layer must stack after the quality core');
+assert(index.indexOf('src/v2/brand/install.mjs?brand=bd1') < index.indexOf('src/v2/brand/interaction.mjs?brand=bd1'), 'interaction bridge must stack after the brand installer');
 assert(index.includes('data-brand-release="bd1"'), 'brand release must be visible in the app shell');
 assert(index.includes('class="brand-pending"'), 'initial render must avoid flashing the previous design');
 
@@ -38,6 +42,9 @@ for (const removed of ['orbit--outer', 'product-grid', 'dimension-preview__bars'
 assert(installer.includes("entry_point: 'home_listening_booth'"), 'home audio choice must seed the real onboarding funnel');
 assert(installer.includes('app.quizIndex = 1'), 'home choice must continue at the second question');
 assert(installer.includes('app.answers = [{ questionId: question.id, optionId: option.id }]'), 'home choice must become the first real answer');
+assert(interaction.includes("'choose-option'"), 'interaction bridge must route quiz choices directly');
+assert(interaction.includes('event.stopImmediatePropagation()'), 'interaction bridge must prevent duplicate delegated actions');
+assert(interaction.includes('app.chooseOption(target.dataset.optionId)'), 'interaction bridge must call the tested quality action');
 
 for (const token of ['--paper: #f1ede4', '--signal: #ff5a45', '.editorial-track', '.sample-sleeve', '.listening-booth']) {
   assert(css.includes(token), `editorial design token or component is missing: ${token}`);
