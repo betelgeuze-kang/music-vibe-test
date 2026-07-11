@@ -7,10 +7,30 @@
   color: var(--ink) !important;
 }
 
-/* Compact helper text must remain readable against the ink background. */
+/* Compact helper and metadata text must remain readable against the ink background. */
 .keyboard-help,
-.profile-signature__intro {
+.profile-signature__intro,
+.list-heading > span,
+.invite-code {
   color: var(--meta);
+  font-size: 12px;
+}
+
+.profile-hero__copy > small,
+.mini-profile small {
+  color: rgba(255, 255, 255, .84);
+  font-size: 11px;
+}
+
+.mini-profile--empty > span {
+  color: var(--meta-strong);
+}
+
+.load-invite label,
+.utility-actions button,
+.context-card p,
+.recent-session span,
+.recent-session strong {
   font-size: 12px;
 }
 
