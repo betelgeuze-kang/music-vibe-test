@@ -1,10 +1,11 @@
 {
-  "schema": 3,
+  "schema": 4,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
   "stabilityRelease": "sr1",
-  "productVersion": "v2-editorial-listening-journal-stabilized",
+  "contentRelease": "e1",
+  "productVersion": "v2-human-edited-listening-journal",
   "assetVersion": "qg1",
   "builtAt": "2026-07-11T00:00:00Z",
   "entry": "/src/v2/main.mjs?v=qg1",
@@ -14,5 +15,10 @@
     "/v2-stabilization.css?stability=sr1",
     "/v2-stabilization-a11y.css?stability=sr1"
   ],
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression"]
+  "editorialData": [
+    "/src/v2/data/editorial-tracks.mjs",
+    "/src/v2/data/home-showcase.mjs",
+    "/src/v2/domain/presentation.mjs"
+  ],
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity"]
 }
