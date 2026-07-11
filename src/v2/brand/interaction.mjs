@@ -1,34 +1,46 @@
-// Brand Design BD1 keeps quiz interactions explicit so the editorial wrapper
-// cannot interfere with the tested QG1 action layer.
-const CORE_QUIZ_ACTIONS = new Set([
-  'choose-option',
-  'preview',
-  'previous-question',
-  'quit-quiz'
-]);
+// Brand Design BD1 keeps every product action explicit so the editorial
+// wrapper cannot interfere with the tested QG1 delegated-action layer.
+const CORE_ACTIONS = Object.freeze({
+  'choose-option': (app, target) => app.chooseOption(target.dataset.optionId),
+  preview: (app, target) => app.togglePreview(target.dataset.optionId),
+  'previous-question': (app) => app.previousQuestion(),
+  'quit-quiz': (app) => app.quitQuiz(),
+  'toggle-language': (app) => app.toggleLanguage(),
+  'retake-profile': (app) => app.startQuiz(true),
+  'clear-profile': (app) => app.deleteProfile(),
+  'share-profile': (app) => app.shareProfile(),
+  'copy-invite': (app) => app.copyInvite(),
+  'download-card': (app) => app.downloadCard(),
+  'select-context': (app, target) => app.selectContext(target.dataset.contextId),
+  'restore-context': (app, target) => app.selectContext(target.dataset.contextId),
+  'change-context': (app) => app.changeContext(),
+  'clear-friend': (app) => app.clearFriend(),
+  privacy: (app) => app.showPrivacy()
+});
 
 function installInteractionBridge(app) {
   if (!app || app.__brandInteractionInstalled) return;
   app.__brandInteractionInstalled = true;
 
   document.addEventListener('click', (event) => {
-    if (app.route !== 'discover') return;
-    const target = event.target?.closest?.('[data-action]');
-    const action = target?.dataset?.action;
-    if (!CORE_QUIZ_ACTIONS.has(action)) return;
+    const routeTarget = event.target?.closest?.('[data-route]');
+    if (routeTarget) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const route = routeTarget.dataset.route;
+      if (route === 'discover') app.startQuiz(false);
+      else app.navigate(route);
+      return;
+    }
+
+    const actionTarget = event.target?.closest?.('[data-action]');
+    const action = actionTarget?.dataset?.action;
+    const handler = CORE_ACTIONS[action];
+    if (!handler) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
-
-    if (action === 'choose-option') {
-      app.chooseOption(target.dataset.optionId);
-    } else if (action === 'preview') {
-      app.togglePreview(target.dataset.optionId);
-    } else if (action === 'previous-question') {
-      app.previousQuestion();
-    } else if (action === 'quit-quiz') {
-      app.quitQuiz();
-    }
+    handler(app, actionTarget);
   }, true);
 }
 
