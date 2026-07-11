@@ -19,7 +19,7 @@ assert.equal(PROFILE_QUESTIONS.filter((question) => question.kind === 'audio').l
 assert(PROFILE_QUESTIONS.every((question) => question.options.length === 2), 'Every V2 question must be A/B');
 assert(PROFILE_QUESTIONS.every((question) => question.options.every((option) => option.vector)), 'Every option must contribute a taste vector');
 assert.equal(ARCHETYPES.length, 8, 'V2 must expose eight memorable music archetypes');
-assert(TRACKS.length >= 30, 'The API-independent track catalog must have enough variety');
+assert(TRACKS.length >= 150, 'The API-independent track catalog must have enough variety');
 
 const firstAnswers = PROFILE_QUESTIONS.map((question) => ({ questionId: question.id, optionId: question.options[0].id }));
 const secondAnswers = PROFILE_QUESTIONS.map((question) => ({ questionId: question.id, optionId: question.options[1].id }));
@@ -34,6 +34,7 @@ assert.match(firstProfile.id, /^MV2-[A-Z0-9]{7}$/);
 assert.equal(firstProfile.id, createProfileFromAnswers(PROFILE_QUESTIONS, firstAnswers, 'test').id, 'Profile ID must be deterministic for the same scores');
 assert(getProfileArchetype(firstProfile));
 assert.notDeepEqual(firstProfile.scores, secondProfile.scores, 'Opposite answers should produce a different profile shape');
+assert(firstProfile.archetypeConfidence >= 54 && firstProfile.archetypeConfidence <= 92, 'Archetype confidence must remain interpretive rather than clinical');
 
 const token = encodeProfile(firstProfile);
 const decoded = decodeProfile(token);
@@ -46,12 +47,16 @@ assert.equal(decodeProfile('x'.repeat(501)), null, 'Oversized share tokens must 
 const focusRecommendations = recommendTracks(firstProfile, 'focus', { language: 'en', limit: 5 });
 assert.equal(focusRecommendations.length, 5, 'Vibe Now must return five tracks');
 assert.equal(new Set(focusRecommendations.map((item) => item.track.artist)).size, 5, 'Vibe Now must de-duplicate artists');
+assert.deepEqual(focusRecommendations.map((item) => item.strategy), ['safe', 'safe', 'safe', 'adjacent', 'explore'], 'Vibe Now must preserve the 3/1/1 exploration budget');
 assert(focusRecommendations.every((item) => item.reason && item.urls.spotify && item.urls.youtube && item.urls.apple), 'Every recommendation must be explainable and platform-linkable');
 
 const match = compareProfiles(firstProfile, secondProfile, 'en');
-assert(match.score >= 42 && match.score <= 98, 'Compatibility score must stay in the designed range');
+assert(match.score >= 35 && match.score <= 98, 'Overall compatibility score must stay in the designed range');
+assert(match.resonance >= 35 && match.resonance <= 98, 'Resonance must stay in the designed range');
+assert(match.discovery >= 38 && match.discovery <= 97, 'Discovery must stay in the designed range');
 assert.equal(match.bridgeTracks.length, 5, 'Vibe Match must return a five-track Bridge Playlist');
-assert(match.bridgeTracks.every((item) => item.leftFit >= 0 && item.rightFit >= 0), 'Bridge tracks must include fairness inputs');
+assert.equal(new Set(match.bridgeTracks.map((item) => item.track.artist)).size, 5, 'Bridge Playlist must diversify artists');
+assert(match.bridgeTracks.every((item) => item.leftFit >= 0 && item.rightFit >= 0 && item.sharedFit >= 0), 'Bridge tracks must include fairness inputs');
 
 const legacyProfile = profileFromLegacyType('ENFP');
 assert(legacyProfile, 'Legacy referral types must migrate to a V2 profile');
