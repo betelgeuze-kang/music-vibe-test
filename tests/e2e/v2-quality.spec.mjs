@@ -161,8 +161,9 @@ test('mobile navigation changes mode by route and never covers product content',
   await completeProfile(page, 'a', { start: false });
 
   const profileNav = page.locator('.site-nav');
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'profile');
   await expect(profileNav).toBeVisible();
-  expect(await profileNav.evaluate((node) => getComputedStyle(node).position)).not.toBe('fixed');
+  await expect(profileNav).toHaveCSS('position', 'static');
   const profileNavBox = await profileNav.boundingBox();
   const profileHeroBox = await page.locator('.profile-hero').boundingBox();
   expect(profileNavBox).not.toBeNull();
@@ -170,13 +171,15 @@ test('mobile navigation changes mode by route and never covers product content',
   expect(profileNavBox.y + profileNavBox.height).toBeLessThanOrEqual(profileHeroBox.y);
 
   await page.locator('[data-route="now"]').first().click();
-  expect(await page.locator('.site-nav').evaluate((node) => getComputedStyle(node).position)).toBe('fixed');
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'now');
+  await expect(page.locator('.site-nav')).toHaveCSS('position', 'fixed');
   await expectAboveFixedNavigation(page, '.context-card');
   await page.locator('[data-context-id="night"]').click();
   await expectAboveFixedNavigation(page, '.track-card__actions a');
 
   await page.locator('[data-route="match"]').first().click();
-  expect(await page.locator('.site-nav').evaluate((node) => getComputedStyle(node).position)).toBe('fixed');
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'match');
+  await expect(page.locator('.site-nav')).toHaveCSS('position', 'fixed');
   await expectAboveFixedNavigation(page, '[data-action="copy-invite"]');
 });
 
