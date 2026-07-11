@@ -32,7 +32,11 @@ const expectedModules = [
   'src/v2/domain/profile.mjs', 'src/v2/domain/recommendation.mjs', 'src/v2/domain/match.mjs',
   'src/v2/infrastructure/share.mjs'
 ];
-const brandModules = ['src/v2/brand/install.mjs', 'src/v2/brand/copy.mjs'];
+const brandModules = [
+  'src/v2/brand/install.mjs',
+  'src/v2/brand/copy.mjs',
+  'src/v2/brand/interaction.mjs'
+];
 const expectedAudio = [
   'assets/audio/Funkorama.mp3', 'assets/audio/Dream_Catcher.mp3', 'assets/audio/Lobby_Time.mp3',
   'assets/audio/Cipher.mp3', 'assets/audio/Tech_Talk.mp3', 'assets/audio/Dreamy_Flashback.mp3',
@@ -54,9 +58,14 @@ for (const file of expectedModules) {
   }
 }
 if (!index.includes(`src/v2/main.mjs?v=${release}`)) throw new Error('main module is not version-locked');
-if (!index.includes(`src/v2/brand/install.mjs?brand=${brandRelease}`)) throw new Error('brand entry module is not version-locked');
+for (const file of ['install.mjs', 'interaction.mjs']) {
+  if (!index.includes(`src/v2/brand/${file}?brand=${brandRelease}`)) {
+    throw new Error(`brand runtime module is not version-locked: ${file}`);
+  }
+}
 if (!read('src/v2/brand/install.mjs').includes(`copy.mjs?brand=${brandRelease}`)) throw new Error('brand copy module is not version-locked');
 if (!read('src/v2/main.mjs').includes(`build-info.json?v=${release}`)) throw new Error('runtime build-info fetch is not version-locked');
+if (buildInfo.brandInteraction !== `/src/v2/brand/interaction.mjs?brand=${brandRelease}`) throw new Error('brand interaction release contract is inconsistent');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
 console.log(`Core ${release} + brand ${brandRelease} verified at ${root}`);
