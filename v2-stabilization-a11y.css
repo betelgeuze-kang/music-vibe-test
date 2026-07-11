@@ -1,0 +1,36 @@
+/* BD1 Stabilization SR1 — color-contrast and non-gradient accessibility fixes */
+
+/* Signal Red remains the visual accent, with dark ink for WCAG AA text contrast. */
+.editorial-button--ink,
+.button--primary,
+.button--option {
+  color: var(--ink) !important;
+}
+
+/* Axe cannot calculate text contrast over gradients reliably. These surfaces use
+   dark solid editorial backgrounds while preserving the archetype color identity. */
+.editorial-section--together {
+  background: #0d0d0b;
+}
+
+.sample-sleeve::before {
+  background: rgba(5, 5, 8, .42);
+}
+
+.profile-hero::after {
+  background: rgba(6, 6, 7, .48);
+}
+
+.mini-profile {
+  background: var(--profile-start);
+}
+
+.mini-profile::after {
+  background: rgba(4, 4, 8, .34);
+}
+
+/* Keep disabled controls visibly distinct without dropping below readable contrast. */
+button:disabled,
+.button:disabled {
+  opacity: .62;
+}
