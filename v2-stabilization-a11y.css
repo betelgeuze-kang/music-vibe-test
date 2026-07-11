@@ -34,6 +34,25 @@
   font-size: 12px;
 }
 
+/* Accessible names can be added without creating visible duplicate text. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Paper surfaces require ink-based control text, not the muted dark-theme token. */
+.now-hero .text-button,
+.now-hero__symbol {
+  color: #4a463f;
+}
+
 /* Axe cannot calculate text contrast over gradients reliably. These surfaces use
    dark solid editorial backgrounds while preserving the archetype color identity. */
 .editorial-section--together {
