@@ -1,0 +1,99 @@
+name: Release Quality
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'build-info.json'
+      - 'v2-*.css'
+      - 'src/v2/**'
+      - 'assets/audio/**'
+      - 'scripts/verify-release.mjs'
+      - '.github/workflows/release-quality.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Verify version-locked Pages artifact
+        run: node scripts/verify-release.mjs --root _site
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-quality-${{ github.run_id }}
+          path: _site/build-info.json
+
+  public-smoke:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: artifact
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Poll the public origin for the quality release
+        id: smoke
+        shell: bash
+        run: |
+          set -uo pipefail
+          release="$(jq -r .release build-info.json)"
+          verified=false
+          home_ok=false
+          build_ok=false
+          module_ok=false
+          audio_ok=false
+          result_ok=false
+          for attempt in $(seq 1 24); do
+            bust="qg=${GITHUB_SHA}-$(date +%s)"
+            home="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/?${bust}" 2>/dev/null || true)"
+            build="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/build-info.json?${bust}" 2>/dev/null || true)"
+            module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/quality/install.mjs?${bust}" 2>/dev/null || true)"
+            audio_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "https://my-music-vibe.com/assets/audio/Funkorama.mp3?${bust}" || true)"
+            result="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/ko/results/enfp/?${bust}" 2>/dev/null || true)"
+            home_ok=false; build_ok=false; module_ok=false; audio_ok=false; result_ok=false
+            grep -q "V2 Quality Gates ${release^^}" <<<"$home" && home_ok=true
+            jq -e --arg release "$release" '.release == $release' <<<"$build" >/dev/null 2>&1 && build_ok=true
+            grep -q 'installQualityGates' <<<"$module" && module_ok=true
+            [ "$audio_code" = '200' ] && audio_ok=true
+            grep -q 'data-page-type="static_result"' <<<"$result" && result_ok=true
+            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$module_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
+            sleep 10
+          done
+          echo "verified=$verified" >> "$GITHUB_OUTPUT"
+          echo "home_ok=$home_ok" >> "$GITHUB_OUTPUT"
+          echo "build_ok=$build_ok" >> "$GITHUB_OUTPUT"
+          echo "module_ok=$module_ok" >> "$GITHUB_OUTPUT"
+          echo "audio_ok=$audio_ok" >> "$GITHUB_OUTPUT"
+          echo "result_ok=$result_ok" >> "$GITHUB_OUTPUT"
+          [ "$verified" = true ]
+      - name: Report public deployment to issue 11
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          VERIFIED: ${{ steps.smoke.outputs.verified }}
+          HOME_OK: ${{ steps.smoke.outputs.home_ok }}
+          BUILD_OK: ${{ steps.smoke.outputs.build_ok }}
+          MODULE_OK: ${{ steps.smoke.outputs.module_ok }}
+          AUDIO_OK: ${{ steps.smoke.outputs.audio_ok }}
+          RESULT_OK: ${{ steps.smoke.outputs.result_ok }}
+        with:
+          script: |
+            const ok = process.env.VERIFIED === 'true';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 11,
+              body: `## Quality release public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- quality module: \`${process.env.MODULE_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``
+            });
