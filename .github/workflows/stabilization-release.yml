@@ -10,6 +10,7 @@ on:
       - 'tests/e2e/**'
       - 'scripts/verify-release.mjs'
       - 'deploy-probe-sr1.txt'
+      - 'docs/operations/CLOUDFLARE_RELEASE.md'
       - '.github/workflows/stabilization-release.yml'
   push:
     branches: [main]
@@ -26,6 +27,7 @@ concurrency:
 
 env:
   PUBLIC_ORIGIN: https://my-music-vibe.com
+  ORIGIN_HOST: my-music-vibe.com
   STABILITY_ISSUE: '15'
 
 jobs:
@@ -119,15 +121,35 @@ jobs:
             -H 'Accept-Language: ko-KR,ko;q=0.9,en;q=0.8'
             -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36'
           )
+          origin_transport='unavailable'
 
           fetch_origin() {
             local path="$1" ip body
             for ip in "${ips[@]}"; do
-              body="$(curl -fsSL --connect-timeout 8 --max-time 25 --retry 1 \
-                --resolve "my-music-vibe.com:443:${ip}" \
+              # GitHub Pages may not have an active custom-domain certificate while
+              # Cloudflare proxying is enabled. Keep SNI/Host routing but ignore only
+              # certificate validation for this private origin diagnostic.
+              body="$(curl --insecure --http1.1 -fsS --connect-timeout 8 --max-time 25 --retry 1 \
+                --resolve "${ORIGIN_HOST}:443:${ip}" \
                 "${browser_headers[@]}" \
-                "${PUBLIC_ORIGIN}${path}" 2>/dev/null || true)"
-              if [ -n "$body" ]; then printf '%s' "$body"; return 0; fi
+                "https://${ORIGIN_HOST}${path}" 2>/dev/null || true)"
+              if [ -n "$body" ]; then
+                origin_transport="https-resolve-insecure:${ip}"
+                printf '%s' "$body"
+                return 0
+              fi
+
+              # HTTP Host routing is the fallback when the custom-domain TLS
+              # certificate is unavailable at the GitHub Pages edge.
+              body="$(curl --http1.1 -fsS --connect-timeout 8 --max-time 25 --retry 1 \
+                --resolve "${ORIGIN_HOST}:80:${ip}" \
+                "${browser_headers[@]}" \
+                "http://${ORIGIN_HOST}${path}" 2>/dev/null || true)"
+              if [ -n "$body" ]; then
+                origin_transport="http-resolve:${ip}"
+                printf '%s' "$body"
+                return 0
+              fi
             done
             return 1
           }
@@ -170,20 +192,32 @@ jobs:
             attempts=$attempt
             verify_payloads origin && origin_ok=true || origin_ok=false
             verify_payloads public && public_ok=true || public_ok=false
-            echo "Attempt ${attempt}/24: github-origin=${origin_ok}, cloudflare-public=${public_ok}"
+            echo "Attempt ${attempt}/24: github-origin=${origin_ok} (${origin_transport}), cloudflare-public=${public_ok}"
             if [ "$origin_ok" = true ] && [ "$public_ok" = true ]; then break; fi
             sleep 10
           done
 
-          origin_headers="$(curl -sSIL --max-time 20 --resolve 'my-music-vibe.com:443:185.199.108.153' "${browser_headers[@]}" "${PUBLIC_ORIGIN}/" 2>&1 | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:|cf-cache-status:|cf-ray:)' | tail -30 || true)"
-          public_headers="$(curl -sSIL --max-time 20 "${browser_headers[@]}" "${PUBLIC_ORIGIN}/" 2>&1 | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:|cf-cache-status:|cf-ray:)' | tail -30 || true)"
+          origin_https_headers="$(curl --insecure -sSI --max-time 20 \
+            --resolve "${ORIGIN_HOST}:443:185.199.108.153" \
+            "${browser_headers[@]}" "https://${ORIGIN_HOST}/" 2>&1 \
+            | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:)' | tail -30 || true)"
+          origin_http_headers="$(curl -sSI --max-time 20 \
+            --resolve "${ORIGIN_HOST}:80:185.199.108.153" \
+            "${browser_headers[@]}" "http://${ORIGIN_HOST}/" 2>&1 \
+            | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:)' | tail -30 || true)"
+          public_headers="$(curl -sSIL --max-time 20 "${browser_headers[@]}" "${PUBLIC_ORIGIN}/" 2>&1 \
+            | grep -Ei '^(HTTP/|server:|location:|cache-control:|etag:|x-github-request:|x-served-by:|x-cache:|age:|cf-cache-status:|cf-ray:)' | tail -30 || true)"
 
           {
             echo "origin_ok=$origin_ok"
             echo "public_ok=$public_ok"
             echo "attempts=$attempts"
-            echo 'origin_headers<<EOF'
-            echo "$origin_headers"
+            echo "origin_transport=$origin_transport"
+            echo 'origin_https_headers<<EOF'
+            echo "$origin_https_headers"
+            echo 'EOF'
+            echo 'origin_http_headers<<EOF'
+            echo "$origin_http_headers"
             echo 'EOF'
             echo 'public_headers<<EOF'
             echo "$public_headers"
@@ -197,9 +231,11 @@ jobs:
           ORIGIN_OK: ${{ steps.verify.outputs.origin_ok }}
           PUBLIC_OK: ${{ steps.verify.outputs.public_ok }}
           ATTEMPTS: ${{ steps.verify.outputs.attempts }}
+          ORIGIN_TRANSPORT: ${{ steps.verify.outputs.origin_transport }}
           LEGACY_HTTP: ${{ steps.legacy.outputs.http_code }}
           CF_STATUS: ${{ steps.cloudflare.outputs.status }}
-          ORIGIN_HEADERS: ${{ steps.verify.outputs.origin_headers }}
+          ORIGIN_HTTPS_HEADERS: ${{ steps.verify.outputs.origin_https_headers }}
+          ORIGIN_HTTP_HEADERS: ${{ steps.verify.outputs.origin_http_headers }}
           PUBLIC_HEADERS: ${{ steps.verify.outputs.public_headers }}
         with:
           script: |
@@ -210,15 +246,23 @@ jobs:
 
             - commit: \`${context.sha}\`
             - GitHub Pages origin: **${originOK ? 'PASS' : 'FAIL'}**
+            - origin transport: \`${process.env.ORIGIN_TRANSPORT || 'unavailable'}\`
             - Cloudflare public domain: **${publicOK ? 'PASS' : 'FAIL'}**
             - attempts: \`${process.env.ATTEMPTS || '0'}\`
             - legacy Pages build HTTP: \`${process.env.LEGACY_HTTP || '(none)'}\`
             - Cloudflare purge: \`${process.env.CF_STATUS || 'not-run'}\`
 
-            <details><summary>Origin headers</summary>
+            <details><summary>Origin HTTPS headers</summary>
 
             \`\`\`
-            ${process.env.ORIGIN_HEADERS || '(none)'}
+            ${process.env.ORIGIN_HTTPS_HEADERS || '(none)'}
+            \`\`\`
+            </details>
+
+            <details><summary>Origin HTTP headers</summary>
+
+            \`\`\`
+            ${process.env.ORIGIN_HTTP_HEADERS || '(none)'}
             \`\`\`
             </details>
 
@@ -229,7 +273,7 @@ jobs:
             \`\`\`
             </details>
 
-            ${originOK && !publicOK ? 'GitHub Pages origin은 최신 SR1을 제공하지만 Cloudflare 공개 응답은 이전 콘텐츠 또는 차단 응답입니다. Cloudflare에서 캐시 제거와 WAF/Bot 예외가 필요합니다.' : ''}`.replace(/^ {12}/gm, '');
+            ${originOK && !publicOK ? 'GitHub Pages origin은 최신 SR1을 제공합니다. Cloudflare 공개 응답은 이전 콘텐츠 또는 차단 응답이므로 Cache Purge와 HTML Cache Bypass, WAF/Bot 예외가 필요합니다. `docs/operations/CLOUDFLARE_RELEASE.md`를 따르세요.' : ''}`.replace(/^ {12}/gm, '');
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
