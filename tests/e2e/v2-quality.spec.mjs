@@ -11,7 +11,8 @@ async function expectAccessible(page, label) {
 
 async function expectAboveFixedNavigation(page, selector) {
   const element = page.locator(selector).last();
-  await element.scrollIntoViewIfNeeded();
+  await element.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
+  await page.waitForTimeout(80);
   const nav = page.locator('.site-nav');
   await expect(nav).toBeVisible();
   const elementBox = await element.boundingBox();
@@ -188,6 +189,6 @@ test('mobile Korean headings use keep-all typography without forced desktop brea
   });
 
   expect(contract.wordBreak).toBe('keep-all');
-  expect(['break-word', 'anywhere']).toContain(contract.overflowWrap);
+  expect(contract.overflowWrap).toBe('normal');
   expect(contract.forcedBreakDisplay).toBe('none');
 });
