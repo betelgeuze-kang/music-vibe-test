@@ -79,14 +79,17 @@ export function renderBipolarAxes(profile, language = 'kr') {
     <div class="bipolar-axis-list" role="list" aria-label="${language === 'kr' ? '6가지 음악 취향 지표' : 'Six music taste dimensions'}">
       ${AXES.map((axis) => {
         const score = Number(profile.scores[axis.id]);
+        const axisLabel = localize(axis.label, language);
+        const lowLabel = localize(axis.low, language);
+        const highLabel = localize(axis.high, language);
         return `
           <article class="bipolar-axis" role="listitem">
             <div class="bipolar-axis__heading">
-              <strong>${escapeHtml(localize(axis.label, language))}</strong>
+              <strong>${escapeHtml(axisLabel)}</strong>
               <span>${escapeHtml(axisInterpretation(axis, score, language))}</span>
             </div>
-            <div class="bipolar-axis__labels"><span>${escapeHtml(localize(axis.low, language))}</span><b>${100 - score} · ${score}</b><span>${escapeHtml(localize(axis.high, language))}</span></div>
-            <div class="bipolar-axis__track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}" aria-valuetext="${escapeHtml(localize(axis.low, language))} ${100 - score}, ${escapeHtml(localize(axis.high, language))} ${score}">
+            <div class="bipolar-axis__labels"><span>${escapeHtml(lowLabel)}</span><b>${100 - score} · ${score}</b><span>${escapeHtml(highLabel)}</span></div>
+            <div class="bipolar-axis__track" role="meter" aria-label="${escapeHtml(axisLabel)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}" aria-valuetext="${escapeHtml(lowLabel)} ${100 - score}, ${escapeHtml(highLabel)} ${score}">
               <i class="bipolar-axis__center"></i><em style="left:${score}%"></em>
             </div>
           </article>
