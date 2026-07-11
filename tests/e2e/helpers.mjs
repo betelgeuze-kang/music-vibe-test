@@ -1,14 +1,35 @@
+import { expect } from '@playwright/test';
+
 export async function declineAnalytics(page) {
-  await page.addInitScript(() => localStorage.setItem('music-vibe-consent-v2', 'declined'));
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem('music-vibe-consent-v2', 'declined');
+    } catch (_) {
+      // Some resilience tests intentionally block Storage.
+    }
+  });
 }
 
-export async function completeProfile(page, option = 'a') {
-  await page.locator('[data-route="discover"]').first().click();
-  for (let index = 0; index < 10; index += 1) {
-    await page.keyboard.press(option);
-    await page.waitForTimeout(270);
+export async function completeProfile(page, option = 'a', options = {}) {
+  const {
+    start = true,
+    finalSelector = '.profile-hero'
+  } = options;
+  const choiceIndex = String(option).toLowerCase() === 'b' ? 1 : 0;
+
+  if (start) {
+    await page.locator('[data-route="discover"]').first().click();
   }
-  await page.locator('.profile-hero').waitFor();
+
+  for (let questionNumber = 1; questionNumber <= 10; questionNumber += 1) {
+    await expect(page.locator('.quiz-topline')).toContainText(`${questionNumber} / 10`);
+    await page.locator('[data-action="choose-option"]').nth(choiceIndex).click();
+    if (questionNumber < 10) {
+      await expect(page.locator('.quiz-topline')).toContainText(`${questionNumber + 1} / 10`);
+    }
+  }
+
+  await page.locator(finalSelector).waitFor({ state: 'visible' });
 }
 
 export async function profileInvite(page) {
