@@ -75,15 +75,19 @@
   background: rgba(4, 4, 8, .34);
 }
 
-/* The profile is a reading surface, so its mobile navigation lives in the header
-   rather than floating over the first Vibe Glyph. Now and Match keep the bottom bar. */
+/* Product navigation is hidden while discovering. Once a profile exists it lives
+   as a normal header row on every mobile product route, never over the content. */
 @media (max-width: 940px) {
-  body[data-route="profile"] .editorial-header {
+  body[data-route="profile"] .editorial-header,
+  body[data-route="now"] .editorial-header,
+  body[data-route="match"] .editorial-header {
     grid-template-columns: 1fr auto;
     padding: 10px 0 12px;
   }
 
-  body[data-route="profile"] .editorial-nav.site-nav {
+  body[data-route="profile"] .editorial-nav.site-nav,
+  body[data-route="now"] .editorial-nav.site-nav,
+  body[data-route="match"] .editorial-nav.site-nav {
     position: static;
     grid-column: 1 / -1;
     left: auto;
@@ -97,7 +101,11 @@
   }
 
   body[data-route="profile"] #app,
-  body[data-route="profile"] .editorial-footer {
+  body[data-route="now"] #app,
+  body[data-route="match"] #app,
+  body[data-route="profile"] .editorial-footer,
+  body[data-route="now"] .editorial-footer,
+  body[data-route="match"] .editorial-footer {
     padding-bottom: max(54px, env(safe-area-inset-bottom));
   }
 }
