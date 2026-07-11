@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: browser-quality-${{ github.ref }}
@@ -27,6 +27,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -37,6 +40,49 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Run browser, accessibility, and visual gates
         run: npx playwright test
+
+      - name: Promote the first approved visual captures to baselines
+        if: success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          snapshot_dir='tests/e2e/snapshots'
+          if [ -f "${snapshot_dir}/.ready" ]; then
+            echo 'Visual baselines are already active; comparison mode completed.'
+            exit 0
+          fi
+
+          capture_dir='test-results/visual-capture'
+          expected=(
+            chromium-home.png
+            chromium-discover.png
+            chromium-profile.png
+            chromium-now.png
+            chromium-match.png
+            mobile-chromium-home.png
+            mobile-chromium-discover.png
+            mobile-chromium-profile.png
+            mobile-chromium-now.png
+            mobile-chromium-match.png
+          )
+          for image in "${expected[@]}"; do
+            test -s "${capture_dir}/${image}"
+          done
+
+          mkdir -p "$snapshot_dir"
+          cp "${capture_dir}"/*.png "$snapshot_dir"/
+          printf 'SR1 visual baselines approved by Browser Quality\n' > "${snapshot_dir}/.ready"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$snapshot_dir"
+          if git diff --cached --quiet; then
+            echo 'No baseline changes to commit.'
+            exit 0
+          fi
+          git commit -m 'test: activate SR1 visual regression baselines'
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+
       - name: Upload Playwright report and visual captures
         if: always()
         uses: actions/upload-artifact@v4
