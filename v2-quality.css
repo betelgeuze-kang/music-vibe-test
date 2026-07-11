@@ -1,0 +1,68 @@
+/* V2 Quality Gates QG1 */
+.build-badge { margin-left: 6px; padding: 3px 6px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; color: #9f87c2; font-size: 7px; font-weight: 900; letter-spacing: .12em; }
+.quiz-topline__left { display: flex; align-items: center; gap: 14px; }
+.quiz-topline button:disabled { opacity: .32; cursor: not-allowed; }
+.keyboard-help { display: block; margin-top: 14px; color: #666671; font-size: 9px; font-weight: 800; letter-spacing: .05em; }
+.quality-option { transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.quality-option.is-selected { border-color: rgba(199,151,255,.78); background: linear-gradient(145deg, rgba(145,76,255,.14), rgba(255,255,255,.035)); transform: translateY(-2px); }
+.quality-option .button--option:disabled { opacity: .74; cursor: wait; }
+.audio-preview-state { margin-top: auto; padding-top: 20px; }
+.audio-preview-state.has-error .preview-button { border-color: rgba(255,112,142,.32); color: #ffb3c1; }
+.audio-progress { height: 5px; overflow: hidden; margin-top: 10px; border-radius: 999px; background: rgba(255,255,255,.07); }
+.audio-progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #9864ff, #e7a2ff); transition: width .12s linear; }
+.audio-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 7px; color: #70707a; font-size: 8px; }
+.audio-meta b { color: #9696a2; font-weight: 800; }
+.audio-preview-state.has-error .audio-meta b { color: #e49aa8; }
+.selection-live { min-height: 18px; margin-top: 14px; color: #9d80c4; text-align: center; font-size: 9px; }
+
+.quality-glyph-shell { width: min(100%, 380px) !important; height: auto !important; aspect-ratio: 1; border: 0 !important; border-radius: 0 !important; background: transparent !important; }
+.quality-glyph-shell::before, .quality-glyph-shell::after { display: none !important; }
+.vibe-glyph { width: 100%; height: 100%; overflow: visible; }
+.vibe-glyph__grid polygon, .vibe-glyph__grid line { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 1; }
+.vibe-glyph__shape { fill: rgba(255,255,255,.2); stroke: #fff; stroke-width: 3; stroke-linejoin: round; filter: drop-shadow(0 0 12px rgba(255,255,255,.22)); }
+.vibe-glyph__point { fill: #fff; stroke: rgba(5,5,9,.75); stroke-width: 2; }
+.vibe-glyph__core { fill: rgba(5,5,9,.75); stroke: rgba(255,255,255,.4); }
+.vibe-glyph__label { fill: rgba(255,255,255,.76); font-size: 8px; font-weight: 900; letter-spacing: .04em; }
+.profile-confidence { width: fit-content; margin: 20px 0 0; padding: 8px 11px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(0,0,0,.16); color: rgba(255,255,255,.72); font-size: 9px; font-weight: 800; }
+
+.bipolar-axis-list { display: grid; gap: 22px; margin-top: 22px; }
+.bipolar-axis { padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.bipolar-axis:last-child { border-bottom: 0; padding-bottom: 0; }
+.bipolar-axis__heading { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 12px; }
+.bipolar-axis__heading strong { font-size: 11px; }
+.bipolar-axis__heading span { color: #777783; text-align: right; font-size: 9px; line-height: 1.45; }
+.bipolar-axis__labels { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; margin-top: 12px; color: #777783; font-size: 8px; font-weight: 800; }
+.bipolar-axis__labels span:last-child { text-align: right; }
+.bipolar-axis__labels b { color: #cfcfd5; font-size: 8px; }
+.bipolar-axis__track { position: relative; height: 9px; margin-top: 8px; border-radius: 999px; background: linear-gradient(90deg, rgba(83,144,255,.45), rgba(255,255,255,.08) 50%, rgba(224,128,255,.5)); }
+.bipolar-axis__track .bipolar-axis__center { position: absolute; left: 50%; top: -3px; width: 1px; height: 15px; background: rgba(255,255,255,.36); }
+.bipolar-axis__track em { position: absolute; top: 50%; width: 17px; height: 17px; transform: translate(-50%, -50%); border: 3px solid #fff; border-radius: 50%; background: #17171d; box-shadow: 0 0 18px rgba(191,132,255,.45); }
+.profile-signature { margin-top: 18px; }
+.profile-signature__intro { margin: 0 0 12px; color: #777783; font-size: 10px; }
+
+.track-card__kicker { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 6px; color: #6f6f79; font-size: 7px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.track-card__kicker span:first-child { padding: 4px 6px; border: 1px solid rgba(189,130,255,.22); border-radius: 999px; color: #bb98e6; }
+.track-card[data-strategy="explore"] .track-card__kicker span:first-child { border-color: rgba(130,232,190,.25); color: #7fd6b3; }
+.track-card__exact { color: #8fd7b7 !important; }
+.track-card__fit { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.track-card__fit span { padding: 5px 7px; border: 1px solid rgba(255,255,255,.08); border-radius: 999px; color: #a6a6b0; font-size: 8px; font-weight: 800; }
+
+.quality-match-score { min-width: 190px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 9px; }
+.quality-match-score > div { text-align: center; }
+.quality-match-score strong { display: block; font-size: 43px; letter-spacing: -.06em; }
+.quality-match-score span { display: block; margin-top: 4px; color: #a7a7b1; font-size: 8px; font-weight: 900; text-transform: uppercase; }
+.quality-match-score i { width: 1px; height: 56px; background: rgba(255,255,255,.13); }
+.quality-match-score small { grid-column: 1 / -1; text-align: center; }
+.match-method-note { max-width: 620px; margin: 24px auto 0; color: #757580; font-size: 10px; line-height: 1.65; }
+
+@media (max-width: 680px) {
+  .quiz-topline__left { gap: 9px; }
+  .keyboard-help { display: none; }
+  .audio-meta { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .quality-glyph-shell { width: 275px !important; justify-self: center; }
+  .bipolar-axis__heading { grid-template-columns: 1fr; gap: 4px; }
+  .bipolar-axis__heading span { text-align: left; }
+  .track-card__kicker { margin-bottom: 8px; }
+  .quality-match-score { width: 100%; justify-self: stretch; }
+  .quality-match-score strong { font-size: 38px; }
+}
