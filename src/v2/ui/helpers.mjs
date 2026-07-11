@@ -63,7 +63,7 @@ export function profileMiniCard(profile, label, language) {
   return `
     <article class="mini-profile" style="--profile-start:${start};--profile-middle:${middle};--profile-end:${end}">
       <span class="mini-profile__label">${escapeHtml(label)}</span>
-      <span class="mini-profile__symbol">${escapeHtml(archetype.symbol)}</span>
+      <span class="mini-profile__symbol" aria-hidden="true">${escapeHtml(archetype.symbol)}</span>
       <strong>${escapeHtml(archetype.name?.[language] || archetype.name?.en || archetype.id)}</strong>
       <small>${escapeHtml(profile.id)}</small>
     </article>
@@ -73,6 +73,8 @@ export function profileMiniCard(profile, label, language) {
 export function trackCard(candidate, language, placement) {
   const { track: item, reason, score, urls } = candidate;
   const strategy = candidate.strategyLabel || (language === 'kr' ? '추천' : 'Recommended');
+  const scoreLabel = language === 'kr' ? '추천 적합도' : 'Match score';
+  const serviceLabel = language === 'kr' ? '음악 서비스에서 듣기' : 'Listen on a music service';
   const matchMetrics = Number.isFinite(candidate.leftFit) && Number.isFinite(candidate.rightFit)
     ? `<div class="track-card__fit"><span>${language === 'kr' ? '나' : 'You'} ${candidate.leftFit}</span><span>${language === 'kr' ? '친구' : 'Friend'} ${candidate.rightFit}</span></div>`
     : '';
@@ -81,7 +83,7 @@ export function trackCard(candidate, language, placement) {
     : '';
   return `
     <article class="track-card" data-track-id="${escapeHtml(item.id)}" data-strategy="${escapeHtml(candidate.strategy || 'recommended')}">
-      <div class="track-card__score" aria-label="match score ${score}">${score}</div>
+      <div class="track-card__score"><span class="sr-only">${escapeHtml(scoreLabel)} </span>${score}</div>
       <div class="track-card__body">
         <div class="track-card__kicker"><span>${escapeHtml(strategy)}</span><span>${escapeHtml(item.region)} · ${item.year}</span>${exact}</div>
         <strong>${escapeHtml(item.title)}</strong>
@@ -89,7 +91,7 @@ export function trackCard(candidate, language, placement) {
         <p>${escapeHtml(reason)}</p>
         ${matchMetrics}
       </div>
-      <div class="track-card__actions" aria-label="Listen on a music service">
+      <div class="track-card__actions" role="group" aria-label="${escapeHtml(serviceLabel)}">
         <a href="${escapeHtml(urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
         <a href="${escapeHtml(urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">YouTube</a>
         <a href="${escapeHtml(urls.apple)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="apple" data-placement="${placement}">Apple</a>
