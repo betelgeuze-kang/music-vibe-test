@@ -43,7 +43,9 @@ assert(!css.includes('SUIT'), 'stability layer must not name unloaded fonts');
 assert(a11yCss.includes('.editorial-button--ink'));
 assert(a11yCss.includes('color: var(--ink) !important'));
 assert(a11yCss.includes('.editorial-section--together'));
-assert(a11yCss.includes('body[data-route="profile"] .editorial-nav.site-nav'));
+for (const route of ['profile', 'now', 'match']) {
+  assert(a11yCss.includes(`body[data-route="${route}"] .editorial-nav.site-nav`), `mobile ${route} navigation must be static in the header`);
+}
 assert(a11yCss.includes('.now-hero .text-button'));
 assert(a11yCss.includes('.sr-only'));
 assert(helpers.includes('role="group" aria-label='), 'track service links must use a labelled group role');
@@ -54,14 +56,16 @@ assert(!qualitySpec.includes("disableRules(['color-contrast'])"), 'color contras
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
   assert(qualitySpec.includes(`'${route}'`), `accessibility gate is missing ${route}`);
 }
-assert(qualitySpec.includes('mobile navigation changes mode by route'));
-assert(qualitySpec.includes('expectAboveFixedNavigation'));
+assert(qualitySpec.includes('mobile navigation is hidden during discovery and stays above all product content'));
+assert(qualitySpec.includes('expectStaticNavigationBefore'));
+assert(!qualitySpec.includes('expectAboveFixedNavigation'));
 assert(qualitySpec.includes("expect(contract.overflowWrap).toBe('normal')"));
-assert(qualitySpec.includes("await expect(profileNav).toHaveCSS('position', 'static')"));
+assert(qualitySpec.includes("await expect(nav).toHaveCSS('position', 'static')"));
 
 for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'match.png']) {
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
 }
 assert(visualSpec.includes('tests/e2e/snapshots/.ready'), 'visual baseline marker must remain explicit');
+assert(visualSpec.includes('window.scrollTo(0, 0)'), 'visual captures must begin at the real page top');
 
 console.log('BD1 stabilization checks passed.');
