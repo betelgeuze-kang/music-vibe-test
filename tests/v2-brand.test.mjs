@@ -43,8 +43,13 @@ assert(installer.includes("entry_point: 'home_listening_booth'"), 'home audio ch
 assert(installer.includes('app.quizIndex = 1'), 'home choice must continue at the second question');
 assert(installer.includes('app.answers = [{ questionId: question.id, optionId: option.id }]'), 'home choice must become the first real answer');
 assert(interaction.includes("'choose-option'"), 'interaction bridge must route quiz choices directly');
+assert(interaction.includes("'select-context'"), 'interaction bridge must route moment selection directly');
+assert(interaction.includes("'copy-invite'"), 'interaction bridge must route invite copying directly');
+assert(interaction.includes("route === 'discover'"), 'interaction bridge must route navigation without delegated-action ambiguity');
 assert(interaction.includes('event.stopImmediatePropagation()'), 'interaction bridge must prevent duplicate delegated actions');
 assert(interaction.includes('app.chooseOption(target.dataset.optionId)'), 'interaction bridge must call the tested quality action');
+assert(interaction.includes('app.selectContext(target.dataset.contextId)'), 'interaction bridge must call the recommendation action');
+assert(interaction.includes('app.copyInvite()'), 'interaction bridge must call the invite action');
 
 for (const token of ['--paper: #f1ede4', '--signal: #ff5a45', '.editorial-track', '.sample-sleeve', '.listening-booth']) {
   assert(css.includes(token), `editorial design token or component is missing: ${token}`);
