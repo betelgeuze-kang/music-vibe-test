@@ -15,7 +15,7 @@ export const screenMethods = {
     const profile = this.profile ? getProfileArchetype(this.profile) : null;
     const invite = this.friendProfile ? `
       <section class="invite-banner">
-        <div class="invite-banner__symbol">${escapeHtml(getProfileArchetype(this.friendProfile).symbol)}</div>
+        <div class="invite-banner__symbol" aria-hidden="true">${escapeHtml(getProfileArchetype(this.friendProfile).symbol)}</div>
         <div>
           <span class="eyebrow">VIBE MATCH INVITE</span>
           <h2>${escapeHtml(copy.invitedTitle)}</h2>
@@ -41,7 +41,7 @@ export const screenMethods = {
           </div>
           ${hasProfile ? `
             <div class="saved-profile-chip">
-              <span>${escapeHtml(profile.symbol)}</span>
+              <span aria-hidden="true">${escapeHtml(profile.symbol)}</span>
               <div><small>${escapeHtml(copy.existingProfile)}</small><strong>${escapeHtml(localize(profile.name, this.language))}</strong></div>
             </div>
           ` : ''}
@@ -58,17 +58,17 @@ export const screenMethods = {
       ${invite}
       <section class="product-grid" aria-label="Product features">
         <article class="product-card product-card--profile">
-          <span class="product-card__number">01</span><span class="product-card__icon">◉</span>
+          <span class="product-card__number">01</span><span class="product-card__icon" aria-hidden="true">◉</span>
           <h2>${escapeHtml(copy.homeProfileTitle)}</h2><p>${escapeHtml(copy.homeProfileDesc)}</p>
           <button type="button" data-route="${hasProfile ? 'profile' : 'discover'}">${escapeHtml(hasProfile ? copy.continueProfile : copy.beginProfile)} <span>→</span></button>
         </article>
         <article class="product-card product-card--now">
-          <span class="product-card__number">02</span><span class="product-card__icon">☾</span>
+          <span class="product-card__number">02</span><span class="product-card__icon" aria-hidden="true">☾</span>
           <h2>${escapeHtml(copy.homeNowTitle)}</h2><p>${escapeHtml(copy.homeNowDesc)}</p>
           <button type="button" data-route="now">${escapeHtml(copy.openNow)} <span>→</span></button>
         </article>
         <article class="product-card product-card--match">
-          <span class="product-card__number">03</span><span class="product-card__icon">∞</span>
+          <span class="product-card__number">03</span><span class="product-card__icon" aria-hidden="true">∞</span>
           <h2>${escapeHtml(copy.homeMatchTitle)}</h2><p>${escapeHtml(copy.homeMatchDesc)}</p>
           <button type="button" data-route="match">${escapeHtml(copy.openMatch)} <span>→</span></button>
         </article>
@@ -108,7 +108,7 @@ export const screenMethods = {
         <div class="progress"><i style="width:${progress}%"></i></div>
         <div class="quiz-copy">
           <span class="eyebrow">${escapeHtml(copy.quizEyebrow)}</span>
-          <div class="quiz-kind"><span>${isAudio ? '♫' : '◇'}</span>${escapeHtml(isAudio ? copy.quizAudio : copy.quizChoice)}</div>
+          <div class="quiz-kind"><span aria-hidden="true">${isAudio ? '♫' : '◇'}</span>${escapeHtml(isAudio ? copy.quizAudio : copy.quizChoice)}</div>
           <h1>${escapeHtml(localize(question.prompt, this.language))}</h1>
           <p>${escapeHtml(localize(question.helper, this.language))}</p>
         </div>
@@ -116,8 +116,8 @@ export const screenMethods = {
           ${question.options.map((option, index) => `
             <article class="option-card">
               <div class="option-card__top"><span>${index === 0 ? 'A' : 'B'}</span><div><h2>${escapeHtml(localize(option.label, this.language))}</h2><p>${escapeHtml(localize(option.description, this.language))}</p></div></div>
-              ${isAudio ? `<button type="button" class="preview-button ${this.previewOptionId === option.id ? 'is-playing' : ''}" data-action="preview" data-option-id="${escapeHtml(option.id)}"><span>${this.previewOptionId === option.id ? 'Ⅱ' : '▶'}</span>${escapeHtml(this.previewOptionId === option.id ? copy.stop : copy.preview)}</button>` : ''}
-              <button type="button" class="button button--option" data-action="choose-option" data-option-id="${escapeHtml(option.id)}">${escapeHtml(copy.choose)} <span>→</span></button>
+              ${isAudio ? `<button type="button" class="preview-button ${this.previewOptionId === option.id ? 'is-playing' : ''}" data-action="preview" data-option-id="${escapeHtml(option.id)}"><span aria-hidden="true">${this.previewOptionId === option.id ? 'Ⅱ' : '▶'}</span>${escapeHtml(this.previewOptionId === option.id ? copy.stop : copy.preview)}</button>` : ''}
+              <button type="button" class="button button--option" data-action="choose-option" data-option-id="${escapeHtml(option.id)}">${escapeHtml(copy.choose)} <span aria-hidden="true">→</span></button>
             </article>
           `).join('')}
         </div>
@@ -143,7 +143,7 @@ export const screenMethods = {
       <section class="profile-hero" style="--profile-start:${start};--profile-middle:${middle};--profile-end:${end}">
         <div class="profile-hero__copy">
           <span class="eyebrow">${escapeHtml(copy.profileEyebrow)}</span>
-          <span class="profile-hero__symbol">${escapeHtml(archetype.symbol)}</span>
+          <span class="profile-hero__symbol" aria-hidden="true">${escapeHtml(archetype.symbol)}</span>
           <h1>${escapeHtml(localize(archetype.name, this.language))}</h1>
           <p class="profile-hero__tagline">${escapeHtml(localize(archetype.tagline, this.language))}</p>
           <div class="keyword-row">${localize(archetype.keywords, this.language).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join('')}</div>
@@ -154,7 +154,7 @@ export const screenMethods = {
             const score = this.profile.scores[axis.id];
             return `<div class="radar-spoke" style="--angle:${index * 60}deg;--score:${score}%"><i></i><span>${escapeHtml(localize(axis.label, this.language))}</span></div>`;
           }).join('')}
-          <div class="radar-core">${escapeHtml(archetype.symbol)}</div>
+          <div class="radar-core" aria-hidden="true">${escapeHtml(archetype.symbol)}</div>
         </div>
       </section>
       <section class="profile-layout">
@@ -204,7 +204,7 @@ export const screenMethods = {
     this.root.innerHTML = `
       <div id="app-notice" class="app-notice"></div>
       <section class="empty-state">
-        <span class="empty-state__symbol">♫</span>
+        <span class="empty-state__symbol" aria-hidden="true">♫</span>
         <span class="eyebrow">VIBE PROFILE REQUIRED</span>
         <h1>${this.language === 'kr' ? '먼저 나의 음악 취향을 만들어볼까요?' : 'Create your music identity first.'}</h1>
         <p>${escapeHtml(description)}</p>
@@ -229,11 +229,11 @@ export const screenMethods = {
           <h1>${escapeHtml(copy.nowTitle)}</h1>
           <p>${escapeHtml(copy.nowDescription)}</p>
         </section>
-        ${recent ? `<button class="recent-session" type="button" data-action="restore-context" data-context-id="${escapeHtml(recent.contextId)}"><span>${this.language === 'kr' ? '최근 선택' : 'Recent'}</span><strong>${escapeHtml(localize(CONTEXT_BY_ID[recent.contextId]?.label, this.language))}</strong><em>→</em></button>` : ''}
+        ${recent ? `<button class="recent-session" type="button" data-action="restore-context" data-context-id="${escapeHtml(recent.contextId)}"><span>${this.language === 'kr' ? '최근 선택' : 'Recent'}</span><strong>${escapeHtml(localize(CONTEXT_BY_ID[recent.contextId]?.label, this.language))}</strong><em aria-hidden="true">→</em></button>` : ''}
         <section class="context-grid">
           ${VIBE_CONTEXTS.map((context) => `
             <button type="button" class="context-card" data-action="select-context" data-context-id="${escapeHtml(context.id)}">
-              <span>${escapeHtml(context.icon)}</span><h2>${escapeHtml(localize(context.label, this.language))}</h2><p>${escapeHtml(localize(context.description, this.language))}</p><em>→</em>
+              <span aria-hidden="true">${escapeHtml(context.icon)}</span><h2>${escapeHtml(localize(context.label, this.language))}</h2><p>${escapeHtml(localize(context.description, this.language))}</p><em aria-hidden="true">→</em>
             </button>
           `).join('')}
         </section>
@@ -247,7 +247,7 @@ export const screenMethods = {
       <div id="app-notice" class="app-notice"></div>
       <section class="now-hero">
         <button type="button" class="text-button" data-action="change-context">← ${escapeHtml(copy.nowChange)}</button>
-        <div class="now-hero__symbol">${escapeHtml(context.icon)}</div>
+        <div class="now-hero__symbol" aria-hidden="true">${escapeHtml(context.icon)}</div>
         <span class="eyebrow">${escapeHtml(copy.nowEyebrow)} · ${escapeHtml(localize(context.shortLabel, this.language))}</span>
         <h1>${escapeHtml(localize(context.label, this.language))}</h1>
         <p>${escapeHtml(recommendationSummary(this.profile, context.id, this.language))}</p>
@@ -281,8 +281,8 @@ export const screenMethods = {
         </section>
         <section class="invite-builder">
           ${profileMiniCard(this.profile, copy.matchYou, this.language)}
-          <div class="invite-builder__plus">+</div>
-          <article class="mini-profile mini-profile--empty"><span>?</span><strong>${escapeHtml(copy.matchFriend)}</strong><small>${this.language === 'kr' ? '링크를 열고 프로필 생성' : 'Opens link and creates a profile'}</small></article>
+          <div class="invite-builder__plus" aria-hidden="true">+</div>
+          <article class="mini-profile mini-profile--empty"><span aria-hidden="true">?</span><strong>${escapeHtml(copy.matchFriend)}</strong><small>${this.language === 'kr' ? '링크를 열고 프로필 생성' : 'Opens link and creates a profile'}</small></article>
           <div class="invite-builder__actions">
             <button class="button button--primary" type="button" data-action="share-profile">${escapeHtml(copy.matchShare)}</button>
             <button class="button button--ghost" type="button" data-action="copy-invite">${escapeHtml(copy.matchCopy)}</button>
