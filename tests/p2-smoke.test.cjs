@@ -29,8 +29,10 @@ for (const file of [
   assert(fs.existsSync(path.join(root, file)), `missing P2 operating document: ${file}`);
 }
 
-assert(/<script src="p2-analytics\.js(?:\?v=[^"]+)?"><\/script>/.test(index), 'analytics runtime must load in the V2 app');
-assert(index.indexOf('p2-analytics.js') < index.indexOf('src/v2/main.mjs'), 'analytics must initialize before the V2 module');
+const analyticsScriptIndex = index.search(/<script src="p2-analytics\.js(?:\?v=[^"]+)?"><\/script>/);
+const appScriptIndex = index.search(/<script type="module" src="src\/v2\/main\.mjs(?:\?v=[^"]+)?"><\/script>/);
+assert(analyticsScriptIndex >= 0, 'analytics runtime must load in the V2 app');
+assert(appScriptIndex >= 0 && analyticsScriptIndex < appScriptIndex, 'analytics must initialize before the V2 module script');
 assert(!index.includes('<script src="p2-operations.js"></script>'), 'legacy funnel wrappers must not double-instrument V2');
 
 for (const token of [
