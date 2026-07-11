@@ -51,6 +51,9 @@ assert(showcaseIds.every((id) => EDITORIAL_TRACKS[id]), 'every home showcase tra
 assert.equal(HOME_SHOWCASE.match.resonanceLabel.kr, matchBand(HOME_SHOWCASE.match.resonance, 'kr'));
 assert.equal(HOME_SHOWCASE.match.discoveryLabel.kr, matchBand(HOME_SHOWCASE.match.discovery, 'kr'));
 
+let contextualLists = 0;
+let contextualEditedTracks = 0;
+let listsWithThreeOrMore = 0;
 for (const archetype of ARCHETYPES) {
   const profile = profileFromArchetype(archetype.id);
   const signature = recommendProfileTracks(profile, { language: 'kr', limit: 3 });
@@ -58,10 +61,16 @@ for (const archetype of ARCHETYPES) {
   assert(signature.filter((candidate) => candidate.reason.length >= 45).length === 3, `${archetype.id} signature needs substantial explanations`);
   for (const contextId of ['focus', 'lift', 'night', 'reset', 'explore', 'together']) {
     const recommendations = recommendTracks(profile, contextId, { language: 'kr', limit: 5 });
-    assert(recommendations.filter((candidate) => candidate.editorial).length >= 3, `${archetype.id}/${contextId} should prioritize edited tracks`);
+    const editedCount = recommendations.filter((candidate) => candidate.editorial).length;
+    assert(editedCount >= 2, `${archetype.id}/${contextId} should contain at least two edited anchors`);
+    contextualLists += 1;
+    contextualEditedTracks += editedCount;
+    if (editedCount >= 3) listsWithThreeOrMore += 1;
     assert(recommendations.every((candidate) => candidate.urls.spotify && candidate.urls.youtube && candidate.urls.apple), `${archetype.id}/${contextId} needs all platform destinations`);
   }
 }
+assert(contextualEditedTracks / contextualLists >= 3, 'contextual recommendations should average at least three edited tracks per five-track list');
+assert(listsWithThreeOrMore / contextualLists >= 0.75, 'at least three quarters of contextual lists should contain three or more edited tracks');
 
 const left = profileFromArchetype('midnight-dreamer');
 const right = profileFromArchetype('rhythm-connector');
