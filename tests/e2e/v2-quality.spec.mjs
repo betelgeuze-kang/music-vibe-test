@@ -149,7 +149,7 @@ test('all five editorial routes pass axe including color contrast', async ({ pag
   await expectAccessible(page, 'listen together');
 });
 
-test('mobile navigation is hidden during discovery and never covers product content', async ({ page }, testInfo) => {
+test('mobile navigation changes mode by route and never covers product content', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only layout contract');
 
   await page.goto('/?lang=kr#/home');
@@ -160,15 +160,23 @@ test('mobile navigation is hidden during discovery and never covers product cont
   await expect(page.locator('.site-nav')).toBeHidden();
   await completeProfile(page, 'a', { start: false });
 
-  await expectAboveFixedNavigation(page, '.profile-hero__radar');
-  await expectAboveFixedNavigation(page, '.utility-actions button');
+  const profileNav = page.locator('.site-nav');
+  await expect(profileNav).toBeVisible();
+  expect(await profileNav.evaluate((node) => getComputedStyle(node).position)).not.toBe('fixed');
+  const profileNavBox = await profileNav.boundingBox();
+  const profileHeroBox = await page.locator('.profile-hero').boundingBox();
+  expect(profileNavBox).not.toBeNull();
+  expect(profileHeroBox).not.toBeNull();
+  expect(profileNavBox.y + profileNavBox.height).toBeLessThanOrEqual(profileHeroBox.y);
 
   await page.locator('[data-route="now"]').first().click();
+  expect(await page.locator('.site-nav').evaluate((node) => getComputedStyle(node).position)).toBe('fixed');
   await expectAboveFixedNavigation(page, '.context-card');
   await page.locator('[data-context-id="night"]').click();
   await expectAboveFixedNavigation(page, '.track-card__actions a');
 
   await page.locator('[data-route="match"]').first().click();
+  expect(await page.locator('.site-nav').evaluate((node) => getComputedStyle(node).position)).toBe('fixed');
   await expectAboveFixedNavigation(page, '[data-action="copy-invite"]');
 });
 
