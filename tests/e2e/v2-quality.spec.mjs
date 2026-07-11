@@ -10,6 +10,8 @@ async function expectAccessible(page, label) {
 }
 
 async function expectStaticNavigationBefore(page, selector) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(80);
   const nav = page.locator('.site-nav');
   const content = page.locator(selector).first();
   await expect(nav).toBeVisible();
