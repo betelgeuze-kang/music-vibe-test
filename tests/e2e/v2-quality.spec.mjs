@@ -171,30 +171,23 @@ test('mobile navigation is hidden during discovery and never covers product cont
   await expectAboveFixedNavigation(page, '[data-action="copy-invite"]');
 });
 
-test('mobile Korean headings keep words intact', async ({ page }, testInfo) => {
+test('mobile Korean headings use keep-all typography without forced desktop breaks', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only typography contract');
   await page.goto('/?lang=kr#/home');
 
   const title = page.locator('.editorial-hero h1');
   await expect(title).toBeVisible();
-  const lines = await title.evaluate((element) => {
-    const range = document.createRange();
-    const textNode = [...element.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-    if (!textNode) return [];
-    return [...textNode.textContent.trim()].map((character, index) => {
-      range.setStart(textNode, index);
-      range.setEnd(textNode, index + 1);
-      const rect = range.getBoundingClientRect();
-      return { character, top: Math.round(rect.top) };
-    });
+  const contract = await title.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const forcedBreak = element.querySelector('br');
+    return {
+      wordBreak: style.wordBreak,
+      overflowWrap: style.overflowWrap,
+      forcedBreakDisplay: forcedBreak ? getComputedStyle(forcedBreak).display : 'none'
+    };
   });
 
-  const compact = lines.filter((item) => item.character !== ' ');
-  for (let index = 1; index < compact.length; index += 1) {
-    if (compact[index - 1].top !== compact[index].top) {
-      const previousCharacter = compact[index - 1].character;
-      const currentCharacter = compact[index].character;
-      expect(`${previousCharacter}${currentCharacter}`).not.toMatch(/[가-힣]{2}/);
-    }
-  }
+  expect(contract.wordBreak).toBe('keep-all');
+  expect(['break-word', 'anywhere']).toContain(contract.overflowWrap);
+  expect(contract.forcedBreakDisplay).toBe('none');
 });
