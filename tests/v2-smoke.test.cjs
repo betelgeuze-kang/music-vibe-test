@@ -15,6 +15,7 @@ const app = [
   read('src/v2/quality/visuals.mjs')
 ].join('\n');
 const profile = read('src/v2/domain/profile.mjs');
+const presentation = read('src/v2/domain/presentation.mjs');
 const recommendation = read('src/v2/domain/recommendation.mjs');
 const match = read('src/v2/domain/match.mjs');
 const roadmap = read('docs/product/V2_ROADMAP.md');
@@ -33,8 +34,11 @@ for (const file of [
   'src/v2/data/questions.mjs',
   'src/v2/data/contexts.mjs',
   'src/v2/data/tracks.mjs',
+  'src/v2/data/editorial-tracks.mjs',
+  'src/v2/data/home-showcase.mjs',
   'src/v2/data/copy.mjs',
   'src/v2/domain/profile.mjs',
+  'src/v2/domain/presentation.mjs',
   'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs',
   'src/v2/infrastructure/storage.mjs',
@@ -58,8 +62,11 @@ for (const stylesheet of ['v2-core.css', 'v2-features.css', 'v2-responsive.css',
 assert(index.includes('p2-analytics.js?v=qg1'), 'consent-aware analytics infrastructure must remain');
 assert(index.includes('Version Check: P2 Growth Analytics & Experiments'), 'Pages deployment compatibility marker must remain');
 assert(index.includes('V2 Quality Gates QG1'), 'quality-gate deployment marker must be explicit');
+assert(index.includes('Editorial Content E1'), 'editorial content deployment marker must be explicit');
 assert(index.includes('data-release-id="qg1"'), 'body must expose the release ID');
+assert(index.includes('data-content-release="e1"'), 'body must expose the content release ID');
 assert.equal(buildInfo.release, 'qg1', 'build contract must match the HTML release');
+assert.equal(buildInfo.contentRelease, 'e1', 'build contract must match the editorial content release');
 assert(!index.includes('logic.js'), 'legacy application runtime must not load on the V2 home');
 assert(!index.includes('p1-experience.js'), 'P1 overrides must not load on the V2 home');
 assert(!index.includes('p2-operations.js'), 'legacy funnel wrappers must not load on the V2 home');
@@ -78,10 +85,12 @@ assert(app.includes('renderVibeGlyph'), 'quality profile must expose the Vibe Gl
 assert(profile.includes('PROFILE_VERSION = 2'), 'the profile contract must remain versioned');
 assert(profile.includes('PROFILE_TOKEN_VERSION = 3'), 'share tokens must have the checksummed token version');
 assert(profile.includes('tokenChecksum'), 'share profiles must reject tampering');
-assert(recommendation.includes('profileFit * 0.58'), 'recommendation weighting must remain explicit');
+assert(recommendation.includes('editorialBonus'), 'recommendation weighting must prioritize manually edited tracks');
+assert(recommendation.includes('candidate.track.editorialNote'), 'recommendation reasons must prefer liner notes');
 assert(recommendation.includes('selectDiverseCandidates'), 'recommendations must include MMR diversity');
 assert(match.includes('bridgeTrackScore'), 'Vibe Match must have a dedicated bridge ranking model');
-assert(match.includes('resonance') && match.includes('discovery'), 'Vibe Match must separate resonance and discovery');
+assert(match.includes('resonanceLabel') && match.includes('discoveryLabel'), 'Vibe Match must expose human-readable match bands');
+assert(presentation.includes('SCORE_BANDS') && presentation.includes('MATCH_BANDS'), 'presentation must soften precise scores with bands');
 
 for (const phrase of ['My Vibe', 'Vibe Now', 'Vibe Match', 'North Star Metric', 'Milestone 4']) {
   assert(roadmap.includes(phrase), `roadmap is missing: ${phrase}`);
@@ -95,6 +104,7 @@ for (const phrase of ['Deployment reliability', 'Core UX', 'Measurement validity
 assert(packageJson.description.includes('music identity'), 'package metadata must describe the V2 product');
 assert(packageJson.scripts.test.includes('v2-domain.test.mjs'), 'V2 domain tests must run in npm test');
 assert(packageJson.scripts.test.includes('v2-quality.test.mjs'), 'V2 quality domain tests must run in npm test');
+assert(packageJson.scripts.test.includes('editorial-integrity.test.mjs'), 'editorial integrity tests must run in npm test');
 assert(packageJson.scripts.test.includes('profile-audit.test.mjs'), 'profile audit must run in npm test');
 
 console.log('V2 smoke checks passed.');
