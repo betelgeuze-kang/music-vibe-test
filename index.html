@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Music Vibe — 지금의 나를 음악으로 번역해요</title>
-  <meta name="description" content="짧은 오디오 선택으로 나의 음악 취향을 6개 양극 지표로 만들고, 지금 들을 5곡과 친구를 잇는 Bridge Playlist를 받아보세요.">
-  <meta name="theme-color" content="#07070a">
+  <title>My Music Vibe — 내가 좋아하는 소리엔 이유가 있어요</title>
+  <meta name="description" content="짧은 음악을 듣고 더 끌리는 쪽을 골라보세요. 내 취향의 여섯 방향과 오늘 들을 곡, 친구와 같이 들을 곡을 찾습니다.">
+  <meta name="theme-color" content="#0a0a09">
   <meta name="color-scheme" content="dark">
   <meta name="music-vibe-release" content="qg1">
+  <meta name="music-vibe-brand-release" content="bd1">
   <meta name="naver-site-verification" content="a50e004cde55bade8a66d8269ff29928ec83338f">
   <link rel="canonical" href="https://my-music-vibe.com/">
   <link rel="manifest" href="manifest.json?v=qg1">
@@ -17,19 +18,20 @@
   <link rel="stylesheet" href="v2-features.css?v=qg1">
   <link rel="stylesheet" href="v2-responsive.css?v=qg1">
   <link rel="stylesheet" href="v2-quality.css?v=qg1">
+  <link rel="stylesheet" href="v2-editorial.css?brand=bd1">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="My Music Vibe">
-  <meta property="og:title" content="My Music Vibe — 지금의 나를 음악으로 번역해요">
-  <meta property="og:description" content="나의 음악 정체성, 지금 필요한 5곡, 친구와 함께 듣는 Bridge Playlist.">
+  <meta property="og:title" content="내가 좋아하는 소리엔 이유가 있어요 | My Music Vibe">
+  <meta property="og:description" content="열 번의 음악 선택으로 내 취향의 모양을 찾고, 오늘과 친구 사이에 맞는 곡을 들어보세요.">
   <meta property="og:url" content="https://my-music-vibe.com/">
   <meta property="og:image" content="https://my-music-vibe.com/assets/icon_main.webp">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="My Music Vibe">
-  <meta name="twitter:description" content="Music that feels like you. Playlists that connect us.">
+  <meta name="twitter:title" content="My Music Vibe — There is a reason some sounds stay with you">
+  <meta name="twitter:description" content="Listen, choose, and find music for yourself and a friend.">
   <meta name="twitter:image" content="https://my-music-vibe.com/assets/icon_main.webp">
 
-  <script>console.log('Version Check: P2 Growth Analytics & Experiments | V2 Quality Gates QG1');</script>
+  <script>console.log('Version Check: P2 Growth Analytics & Experiments | V2 Quality Gates QG1 | Brand Design BD1');</script>
   <script type="importmap">
   {
     "imports": {
@@ -56,13 +58,16 @@
   </script>
   <script src="p2-analytics.js?v=qg1"></script>
   <script type="module" src="src/v2/main.mjs?v=qg1"></script>
+  <script type="module" src="src/v2/brand/install.mjs?brand=bd1"></script>
+  <script type="module" src="src/v2/brand/interaction.mjs?brand=bd1"></script>
 </head>
-<body data-page-type="app" data-analytics-consent-ui="standalone" data-release-id="qg1">
+<body class="brand-pending" data-page-type="app" data-analytics-consent-ui="standalone" data-release-id="qg1" data-brand-release="bd1">
   <header id="site-header" class="site-header"></header>
   <main id="app" tabindex="-1">
     <div class="empty-state" aria-live="polite"><span class="empty-state__symbol">♫</span><p>Loading My Music Vibe…</p></div>
   </main>
   <footer id="site-footer" class="site-footer"></footer>
-  <noscript><div style="max-width:720px;margin:60px auto;padding:24px;color:white;font-family:system-ui">My Music Vibe requires JavaScript to create a local music profile and recommendations.</div></noscript>
+  <noscript><div style="max-width:720px;margin:60px auto;padding:24px;color:white;font-family:system-ui">My Music Vibe requires JavaScript to play audio choices and save taste notes in your browser.</div></noscript>
+  <script>window.setTimeout(() => document.body.classList.remove('brand-pending'), 3500);</script>
 </body>
 </html>

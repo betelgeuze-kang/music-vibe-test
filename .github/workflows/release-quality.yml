@@ -43,49 +43,56 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - name: Poll the public origin for the quality release
+      - name: Poll the public origin for core and brand releases
         id: smoke
         shell: bash
         run: |
           set -uo pipefail
           release="$(jq -r .release build-info.json)"
+          brand="$(jq -r .brandRelease build-info.json)"
           verified=false
           home_ok=false
           build_ok=false
-          module_ok=false
+          quality_ok=false
+          brand_ok=false
           audio_ok=false
           result_ok=false
           for attempt in $(seq 1 24); do
-            bust="qg=${GITHUB_SHA}-$(date +%s)"
+            bust="release=${GITHUB_SHA}-$(date +%s)"
             home="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/?${bust}" 2>/dev/null || true)"
             build="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/build-info.json?${bust}" 2>/dev/null || true)"
-            module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/quality/install.mjs?${bust}" 2>/dev/null || true)"
+            quality_module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/quality/install.mjs?${bust}" 2>/dev/null || true)"
+            brand_module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/brand/install.mjs?${bust}" 2>/dev/null || true)"
+            brand_css="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/v2-editorial.css?${bust}" 2>/dev/null || true)"
             audio_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "https://my-music-vibe.com/assets/audio/Funkorama.mp3?${bust}" || true)"
             result="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/ko/results/enfp/?${bust}" 2>/dev/null || true)"
-            home_ok=false; build_ok=false; module_ok=false; audio_ok=false; result_ok=false
-            grep -q "V2 Quality Gates ${release^^}" <<<"$home" && home_ok=true
-            jq -e --arg release "$release" '.release == $release' <<<"$build" >/dev/null 2>&1 && build_ok=true
-            grep -q 'installQualityGates' <<<"$module" && module_ok=true
+            home_ok=false; build_ok=false; quality_ok=false; brand_ok=false; audio_ok=false; result_ok=false
+            grep -q "V2 Quality Gates ${release^^}" <<<"$home" && grep -q "Brand Design ${brand^^}" <<<"$home" && home_ok=true
+            jq -e --arg release "$release" --arg brand "$brand" '.release == $release and .brandRelease == $brand' <<<"$build" >/dev/null 2>&1 && build_ok=true
+            grep -q 'installQualityGates' <<<"$quality_module" && quality_ok=true
+            grep -q 'digital listening journal\|editorial listening-journal\|install(ready)' <<<"$brand_module" && grep -q 'Brand Design Pass BD1' <<<"$brand_css" && brand_ok=true
             [ "$audio_code" = '200' ] && audio_ok=true
             grep -q 'data-page-type="static_result"' <<<"$result" && result_ok=true
-            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$module_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
+            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$quality_ok" = true ] && [ "$brand_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
             sleep 10
           done
           echo "verified=$verified" >> "$GITHUB_OUTPUT"
           echo "home_ok=$home_ok" >> "$GITHUB_OUTPUT"
           echo "build_ok=$build_ok" >> "$GITHUB_OUTPUT"
-          echo "module_ok=$module_ok" >> "$GITHUB_OUTPUT"
+          echo "quality_ok=$quality_ok" >> "$GITHUB_OUTPUT"
+          echo "brand_ok=$brand_ok" >> "$GITHUB_OUTPUT"
           echo "audio_ok=$audio_ok" >> "$GITHUB_OUTPUT"
           echo "result_ok=$result_ok" >> "$GITHUB_OUTPUT"
           [ "$verified" = true ]
-      - name: Report public deployment to issue 11
+      - name: Report public brand deployment to issue 13
         if: always()
         uses: actions/github-script@v7
         env:
           VERIFIED: ${{ steps.smoke.outputs.verified }}
           HOME_OK: ${{ steps.smoke.outputs.home_ok }}
           BUILD_OK: ${{ steps.smoke.outputs.build_ok }}
-          MODULE_OK: ${{ steps.smoke.outputs.module_ok }}
+          QUALITY_OK: ${{ steps.smoke.outputs.quality_ok }}
+          BRAND_OK: ${{ steps.smoke.outputs.brand_ok }}
           AUDIO_OK: ${{ steps.smoke.outputs.audio_ok }}
           RESULT_OK: ${{ steps.smoke.outputs.result_ok }}
         with:
@@ -94,6 +101,6 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: 11,
-              body: `## Quality release public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- quality module: \`${process.env.MODULE_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``
+              issue_number: 13,
+              body: `## Editorial brand release public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home markers: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- quality module: \`${process.env.QUALITY_OK}\`\n- brand module + CSS: \`${process.env.BRAND_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``
             });

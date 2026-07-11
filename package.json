@@ -1,11 +1,11 @@
 {
   "name": "music-vibe-test",
-  "version": "1.2.0",
-  "description": "Static music identity, explainable recommendation, friend matching, and quality-audited browser experience deployed at my-music-vibe.com",
+  "version": "1.3.0",
+  "description": "Editorial music identity and listening journal with explainable recommendations, friend listening, and a quality-audited browser experience",
   "main": "build_codepen.js",
   "scripts": {
-    "test": "node tests/p0-smoke.test.cjs && node tests/p1-smoke.test.cjs && node tests/p2-smoke.test.cjs && node tests/v2-smoke.test.cjs && node tests/v2-domain.test.mjs && node tests/v2-quality.test.mjs && node tests/profile-audit.test.mjs && node scripts/verify-release.mjs",
-    "test:syntax": "node --check p0-fixes.js && node --check p1-experience.js && node --check p2-analytics.js && node --check p2-operations.js && node --check p2-static.js && node --check src/v2/main.mjs && node --check src/v2/ui/helpers.mjs && node --check src/v2/ui/app.mjs && node --check src/v2/ui/screens.mjs && node --check src/v2/ui/actions.mjs && node --check src/v2/quality/install.mjs && node --check src/v2/quality/visuals.mjs && node --check src/v2/data/axes.mjs && node --check src/v2/data/archetypes.mjs && node --check src/v2/data/questions.mjs && node --check src/v2/data/contexts.mjs && node --check src/v2/data/tracks.mjs && node --check src/v2/data/copy.mjs && node --check src/v2/domain/profile.mjs && node --check src/v2/domain/recommendation.mjs && node --check src/v2/domain/match.mjs && node --check src/v2/infrastructure/storage.mjs && node --check src/v2/infrastructure/share.mjs && node --check scripts/profile-audit.mjs && node --check scripts/verify-release.mjs && node --check playwright.config.mjs",
+    "test": "node tests/p0-smoke.test.cjs && node tests/p1-smoke.test.cjs && node tests/p2-smoke.test.cjs && node tests/v2-smoke.test.cjs && node tests/v2-domain.test.mjs && node tests/v2-quality.test.mjs && node tests/v2-brand.test.mjs && node tests/profile-audit.test.mjs && node scripts/verify-release.mjs",
+    "test:syntax": "node --check p0-fixes.js && node --check p1-experience.js && node --check p2-analytics.js && node --check p2-operations.js && node --check p2-static.js && node --check src/v2/main.mjs && node --check src/v2/ui/helpers.mjs && node --check src/v2/ui/app.mjs && node --check src/v2/ui/screens.mjs && node --check src/v2/ui/actions.mjs && node --check src/v2/quality/install.mjs && node --check src/v2/quality/visuals.mjs && node --check src/v2/brand/install.mjs && node --check src/v2/brand/interaction.mjs && node --check src/v2/brand/copy.mjs && node --check src/v2/data/axes.mjs && node --check src/v2/data/archetypes.mjs && node --check src/v2/data/questions.mjs && node --check src/v2/data/contexts.mjs && node --check src/v2/data/tracks.mjs && node --check src/v2/data/copy.mjs && node --check src/v2/domain/profile.mjs && node --check src/v2/domain/recommendation.mjs && node --check src/v2/domain/match.mjs && node --check src/v2/infrastructure/storage.mjs && node --check src/v2/infrastructure/share.mjs && node --check scripts/profile-audit.mjs && node --check scripts/verify-release.mjs && node --check playwright.config.mjs",
     "test:profile-audit": "node scripts/profile-audit.mjs && node tests/profile-audit.test.mjs",
     "test:e2e": "playwright test",
     "ci": "npm run test:syntax && npm test",
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/betelgeuze-kang/music-vibe-test.git"
   },
-  "keywords": ["music", "music-identity", "recommendation", "friend-matching", "accessibility", "github-pages"],
+  "keywords": ["music", "listening-journal", "music-identity", "recommendation", "friend-matching", "accessibility", "github-pages"],
   "author": "betelgeuze-kang",
   "license": "ISC",
   "type": "commonjs",
