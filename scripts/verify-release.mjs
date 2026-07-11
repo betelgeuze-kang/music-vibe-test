@@ -13,18 +13,27 @@ const index = read('index.html');
 const buildInfo = JSON.parse(read('build-info.json'));
 const release = buildInfo.release;
 const brandRelease = buildInfo.brandRelease;
+const stabilityRelease = buildInfo.stabilityRelease;
 
-if (!release || !/^[a-z0-9-]+$/i.test(release)) throw new Error('build-info.json must define a stable core release ID');
-if (!brandRelease || !/^[a-z0-9-]+$/i.test(brandRelease)) throw new Error('build-info.json must define a stable brand release ID');
+for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease })) {
+  if (!value || !/^[a-z0-9-]+$/i.test(value)) {
+    throw new Error(`build-info.json must define a stable ${label} ID`);
+  }
+}
+
 if (!index.includes(`content="${release}"`)) throw new Error('index core release meta does not match build-info.json');
 if (!index.includes(`data-release-id="${release}"`)) throw new Error('body core release ID does not match build-info.json');
 if (!index.includes(`content="${brandRelease}"`)) throw new Error('index brand release meta does not match build-info.json');
 if (!index.includes(`data-brand-release="${brandRelease}"`)) throw new Error('body brand release ID does not match build-info.json');
+if (!index.includes(`content="${stabilityRelease}"`)) throw new Error('index stability release meta does not match build-info.json');
+if (!index.includes(`data-stability-release="${stabilityRelease}"`)) throw new Error('body stability release ID does not match build-info.json');
 if (!index.includes(`V2 Quality Gates ${release.toUpperCase()}`)) throw new Error('quality release marker is missing');
 if (!index.includes(`Brand Design ${brandRelease.toUpperCase()}`)) throw new Error('brand release marker is missing');
+if (!index.includes(`Stability ${stabilityRelease.toUpperCase()}`)) throw new Error('stability release marker is missing');
 
 const expectedStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css'];
 const brandStyles = ['v2-editorial.css'];
+const stabilityStyles = ['v2-stabilization.css'];
 const expectedModules = [
   'src/v2/main.mjs', 'src/v2/quality/install.mjs', 'src/v2/quality/visuals.mjs',
   'src/v2/ui/app.mjs', 'src/v2/ui/actions.mjs', 'src/v2/ui/screens.mjs', 'src/v2/ui/helpers.mjs',
@@ -43,7 +52,7 @@ const expectedAudio = [
   'assets/audio/Movement_Proposition.mp3', 'assets/audio/Pixel_Peeker_Polka_faster.mp3'
 ];
 
-for (const file of [...expectedStyles, ...brandStyles, ...expectedModules, ...brandModules, ...expectedAudio]) {
+for (const file of [...expectedStyles, ...brandStyles, ...stabilityStyles, ...expectedModules, ...brandModules, ...expectedAudio]) {
   if (!exists(file)) throw new Error(`release asset is missing: ${file}`);
 }
 for (const file of expectedStyles) {
@@ -51,6 +60,9 @@ for (const file of expectedStyles) {
 }
 for (const file of brandStyles) {
   if (!index.includes(`${file}?brand=${brandRelease}`)) throw new Error(`brand stylesheet is not version-locked: ${file}`);
+}
+for (const file of stabilityStyles) {
+  if (!index.includes(`${file}?stability=${stabilityRelease}`)) throw new Error(`stability stylesheet is not version-locked: ${file}`);
 }
 for (const file of expectedModules) {
   if (!index.includes(`/${file}?v=${release}`) && file !== 'src/v2/main.mjs') {
@@ -66,6 +78,8 @@ for (const file of ['install.mjs', 'interaction.mjs']) {
 if (!read('src/v2/brand/install.mjs').includes(`copy.mjs?brand=${brandRelease}`)) throw new Error('brand copy module is not version-locked');
 if (!read('src/v2/main.mjs').includes(`build-info.json?v=${release}`)) throw new Error('runtime build-info fetch is not version-locked');
 if (buildInfo.brandInteraction !== `/src/v2/brand/interaction.mjs?brand=${brandRelease}`) throw new Error('brand interaction release contract is inconsistent');
+if (buildInfo.stabilityStyle !== `/v2-stabilization.css?stability=${stabilityRelease}`) throw new Error('stability stylesheet release contract is inconsistent');
+if (!read('v2-stabilization.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability stylesheet marker is missing');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
-console.log(`Core ${release} + brand ${brandRelease} verified at ${root}`);
+console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} verified at ${root}`);
