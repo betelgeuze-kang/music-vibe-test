@@ -5,7 +5,8 @@ import { completeProfile, declineAnalytics } from './helpers.mjs';
 
 const baselinesReady = fs.existsSync(path.resolve('tests/e2e/snapshots/.ready'));
 
-async function captureOrCompare(page, name) {
+async function captureOrCompare(page, testInfo, baseName) {
+  const name = `${testInfo.project.name}-${baseName}`;
   if (baselinesReady) {
     await expect(page).toHaveScreenshot(name, { fullPage: true });
     return;
@@ -16,17 +17,17 @@ async function captureOrCompare(page, name) {
   expect(fs.statSync(output).size).toBeGreaterThan(20_000);
 }
 
-test('home visual snapshot', async ({ page }) => {
+test('home visual snapshot', async ({ page }, testInfo) => {
   await declineAnalytics(page);
   await page.goto('/?lang=ko#/home');
   await page.evaluate(() => document.fonts?.ready);
-  await captureOrCompare(page, 'home.png');
+  await captureOrCompare(page, testInfo, 'home.png');
 });
 
-test('profile visual snapshot', async ({ page }) => {
+test('profile visual snapshot', async ({ page }, testInfo) => {
   await declineAnalytics(page);
   await page.goto('/?lang=ko#/home');
   await completeProfile(page, 'a');
   await page.evaluate(() => document.fonts?.ready);
-  await captureOrCompare(page, 'profile.png');
+  await captureOrCompare(page, testInfo, 'profile.png');
 });
