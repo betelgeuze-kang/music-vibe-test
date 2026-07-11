@@ -1,24 +1,27 @@
 {
-  "schema": 4,
+  "schema": 5,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
   "stabilityRelease": "sr1",
   "contentRelease": "e1",
-  "productVersion": "v2-human-edited-listening-journal",
-  "assetVersion": "qg1",
+  "uiRelease": "f1",
+  "productVersion": "v2-canonical-editorial-application",
+  "assetVersion": "f1",
   "builtAt": "2026-07-11T00:00:00Z",
-  "entry": "/src/v2/main.mjs?v=qg1",
-  "brandEntry": "/src/v2/brand/install.mjs?brand=bd1",
-  "brandInteraction": "/src/v2/brand/interaction.mjs?brand=bd1",
-  "stabilityStyles": [
-    "/v2-stabilization.css?stability=sr1",
-    "/v2-stabilization-a11y.css?stability=sr1"
+  "entry": "/src/v2/main.mjs?ui=f1",
+  "styleEntry": "/v2-app.css?ui=f1",
+  "canonicalCopy": "/src/v2/brand/copy.mjs?brand=bd1",
+  "lazyRoutes": [
+    "/src/v2/ui/screens/profile.mjs?ui=f1",
+    "/src/v2/ui/screens/now.mjs?ui=f1",
+    "/src/v2/ui/screens/match.mjs?ui=f1"
   ],
   "editorialData": [
     "/src/v2/data/editorial-tracks.mjs",
     "/src/v2/data/home-showcase.mjs",
     "/src/v2/domain/presentation.mjs"
   ],
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity"]
+  "runtimeOverrides": false,
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes"]
 }

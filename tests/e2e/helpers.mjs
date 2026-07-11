@@ -24,7 +24,7 @@ export async function completeProfile(page, option = 'a', options = {}) {
   const choiceIndex = String(option).toLowerCase() === 'b' ? 1 : 0;
 
   if (start) {
-    const homeChoice = page.locator('[data-action="brand-choose"]').nth(choiceIndex);
+    const homeChoice = page.locator('[data-action="home-choose"]').nth(choiceIndex);
     if (await homeChoice.isVisible().catch(() => false)) {
       await homeChoice.click();
       await expect(page.locator('.quiz-topline')).toContainText('2 / 10');

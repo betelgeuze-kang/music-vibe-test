@@ -71,9 +71,10 @@ jobs:
             test -s "${capture_dir}/${image}"
           done
 
+          release_label="$(jq -r '.uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
           cp "${capture_dir}"/*.png "$snapshot_dir"/
-          printf 'E1 visual baselines approved by Browser Quality\n' > "${snapshot_dir}/.ready"
+          printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"
           rm -f "$refresh_marker" "$legacy_refresh_marker"
 
           git config user.name 'github-actions[bot]'
@@ -83,7 +84,7 @@ jobs:
             echo 'No baseline changes to commit.'
             exit 0
           fi
-          git commit -m 'test: refresh E1 editorial visual baselines'
+          git commit -m "test: refresh ${release_label^^} visual baselines"
           git push origin "HEAD:${GITHUB_HEAD_REF}"
 
       - name: Upload Playwright report and visual captures

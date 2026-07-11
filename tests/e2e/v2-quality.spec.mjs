@@ -31,7 +31,7 @@ test.beforeEach(async ({ page }) => {
 test('home listening booth, keyboard editing, and profile persistence work together', async ({ page }) => {
   await page.goto('/?lang=kr#/home');
   await expect(page.locator('.listening-booth')).toBeVisible();
-  await page.locator('[data-action="brand-choose"]').nth(1).click();
+  await page.locator('[data-action="home-choose"]').nth(1).click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.quiz-topline')).toContainText('1 / 10');
@@ -40,9 +40,7 @@ test('home listening booth, keyboard editing, and profile persistence work toget
 
   for (let questionNumber = 2; questionNumber <= 10; questionNumber += 1) {
     await page.keyboard.press(questionNumber % 2 ? 'a' : 'b');
-    if (questionNumber < 10) {
-      await expect(page.locator('.quiz-topline')).toContainText(`${questionNumber + 1} / 10`);
-    }
+    if (questionNumber < 10) await expect(page.locator('.quiz-topline')).toContainText(`${questionNumber + 1} / 10`);
   }
 
   await expect(page.locator('.profile-hero')).toBeVisible();
@@ -93,7 +91,7 @@ test('fragment invite completes a friend match without exposing the token in the
 test('legacy referral remains compatible', async ({ page }) => {
   await page.goto('/?ref=ENFP&lang=en#/match');
   await expect(page.locator('.empty-state')).toBeVisible();
-  await expect(page.locator('body')).toContainText(/Create your music identity|music you can share|friend invited/i);
+  await expect(page.locator('body')).toContainText(/Create your music taste notes first|music you can share|friend invited/i);
 });
 
 test('analytics rejection prevents GA script loading', async ({ page }) => {
@@ -105,72 +103,57 @@ test('analytics rejection prevents GA script loading', async ({ page }) => {
 test('audio failure is recoverable from the home listening booth', async ({ page }) => {
   await page.route('**/assets/audio/**', (route) => route.abort('failed'));
   await page.goto('/?lang=en#/home');
-  await page.locator('[data-action="brand-preview"]').first().click();
+  await page.locator('[data-action="home-preview"]').first().click();
   await expect(page.locator('.listening-choice.has-error').first()).toBeVisible();
-  await page.locator('[data-action="brand-choose"]').first().click();
+  await page.locator('[data-action="home-choose"]').first().click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
 });
 
 test('localStorage failure does not block the core session', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'storage resilience is viewport-independent');
-
   await page.addInitScript(() => {
     Storage.prototype.getItem = () => { throw new Error('blocked'); };
     Storage.prototype.setItem = () => { throw new Error('blocked'); };
     Storage.prototype.removeItem = () => { throw new Error('blocked'); };
   });
   await page.goto('/?lang=en#/home');
-
   const essentialOnly = page.getByRole('button', { name: 'Essential only' });
-  if (await essentialOnly.isVisible().catch(() => false)) {
-    await essentialOnly.click();
-  }
-
+  if (await essentialOnly.isVisible().catch(() => false)) await essentialOnly.click();
   await completeProfile(page, 'a');
   await expect(page.locator('.profile-hero')).toBeVisible();
 });
 
 test('all five editorial routes pass axe including color contrast', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'desktop accessibility pass');
-
   await page.goto('/?lang=en#/home');
   await expectAccessible(page, 'home');
-
-  await page.locator('[data-action="brand-choose"]').first().click();
+  await page.locator('[data-action="home-choose"]').first().click();
   await expect(page.locator('.quiz-topline')).toContainText('2 / 10');
   await expectAccessible(page, 'discover');
-
   await completeProfile(page, 'a', { start: false });
   await expectAccessible(page, 'profile');
-
   await page.locator('[data-route="now"]').first().click();
   await page.locator('[data-context-id="night"]').click();
   await expectAccessible(page, 'today listen');
-
   await page.locator('[data-route="match"]').first().click();
   await expectAccessible(page, 'listen together');
 });
 
 test('mobile navigation is hidden during discovery and stays above all product content', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only layout contract');
-
   await page.goto('/?lang=kr#/home');
   await expect(page.locator('.site-nav')).toBeHidden();
-  await expect(page.locator('[data-action="brand-focus-booth"]')).toBeVisible();
-
-  await page.locator('[data-action="brand-choose"]').first().click();
+  await expect(page.locator('[data-action="focus-booth"]')).toBeVisible();
+  await page.locator('[data-action="home-choose"]').first().click();
   await expect(page.locator('.site-nav')).toBeHidden();
   await completeProfile(page, 'a', { start: false });
-
   await expect(page.locator('body')).toHaveAttribute('data-route', 'profile');
   await expectStaticNavigationBefore(page, '.profile-hero');
-
   await page.locator('[data-route="now"]').first().click();
   await expect(page.locator('body')).toHaveAttribute('data-route', 'now');
   await expectStaticNavigationBefore(page, '.section-heading');
   await page.locator('[data-context-id="night"]').click();
   await expectStaticNavigationBefore(page, '.now-hero');
-
   await page.locator('[data-route="match"]').first().click();
   await expect(page.locator('body')).toHaveAttribute('data-route', 'match');
   await expectStaticNavigationBefore(page, '.section-heading');
@@ -179,7 +162,6 @@ test('mobile navigation is hidden during discovery and stays above all product c
 test('mobile Korean headings use keep-all typography without forced desktop breaks', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only typography contract');
   await page.goto('/?lang=kr#/home');
-
   const title = page.locator('.editorial-hero h1');
   await expect(title).toBeVisible();
   const contract = await title.evaluate((element) => {
@@ -191,7 +173,6 @@ test('mobile Korean headings use keep-all typography without forced desktop brea
       forcedBreakDisplay: forcedBreak ? getComputedStyle(forcedBreak).display : 'none'
     };
   });
-
   expect(contract.wordBreak).toBe('keep-all');
   expect(contract.overflowWrap).toBe('normal');
   expect(contract.forcedBreakDisplay).toBe('none');

@@ -1,0 +1,149 @@
+import { PROFILE_QUESTIONS } from '../../data/questions.mjs?v=qg1';
+import { HOME_SHOWCASE, localizedShowcaseReason } from '../../data/home-showcase.mjs';
+import { profileFromArchetype, getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
+import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
+import { escapeHtml, track } from '../helpers.mjs?ui=f1';
+
+const sampleProfile = profileFromArchetype(HOME_SHOWCASE.profileArchetypeId, 'home_showcase');
+const sampleFriend = profileFromArchetype(HOME_SHOWCASE.friendArchetypeId, 'home_showcase');
+
+function trackRows(candidates, language, placement, limit = candidates.length) {
+  return candidates.slice(0, limit).map((candidate, index) => `
+    <article class="editorial-track" data-track-id="${escapeHtml(candidate.track.id)}">
+      <span class="editorial-track__number">${String(index + 1).padStart(2, '0')}</span>
+      <div class="editorial-track__copy">
+        <strong>${escapeHtml(candidate.track.title)}</strong>
+        <span>${escapeHtml(candidate.track.artist)}</span>
+        <p>${escapeHtml(localizedShowcaseReason(candidate, language))}</p>
+      </div>
+      <div class="editorial-track__links" role="group" aria-label="${language === 'kr' ? '음악 서비스에서 듣기' : 'Listen on a music service'}">
+        <a href="${escapeHtml(candidate.urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
+        <a href="${escapeHtml(candidate.urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">YouTube</a>
+      </div>
+    </article>
+  `).join('');
+}
+
+function homeOption(app, question, option, index) {
+  const copy = app.copy();
+  const isPlaying = app.homePreviewOptionId === option.id && app.homePreviewAudio && !app.homePreviewAudio.paused;
+  const heard = app.homeHeardOptionIds.has(option.id);
+  const failed = app.homeAudioErrorIds.has(option.id);
+  return `
+    <article class="listening-choice ${isPlaying ? 'is-playing' : ''} ${heard ? 'is-heard' : ''} ${failed ? 'has-error' : ''}" data-brand-option="${escapeHtml(option.id)}">
+      <header><span>${index === 0 ? 'A' : 'B'}</span><small>${heard ? `✓ ${copy.boothHeard}` : failed ? (app.language === 'kr' ? '텍스트로 선택 가능' : 'Text choice available') : '15 SEC'}</small></header>
+      <h3>${escapeHtml(localize(option.label, app.language))}</h3>
+      <p>${escapeHtml(localize(option.description, app.language))}</p>
+      <div class="listening-choice__transport">
+        <button type="button" data-action="home-preview" data-option-id="${escapeHtml(option.id)}" aria-pressed="${isPlaying}"><span aria-hidden="true">${isPlaying ? 'Ⅱ' : '▶'}</span>${escapeHtml(isPlaying ? copy.stop : copy.preview)}</button>
+        <div class="listening-choice__progress" aria-hidden="true"><i data-home-progress="${escapeHtml(option.id)}"></i></div>
+        <time data-home-time="${escapeHtml(option.id)}">0:00</time>
+      </div>
+      <button type="button" class="listening-choice__choose" data-action="home-choose" data-option-id="${escapeHtml(option.id)}">${escapeHtml(copy.boothContinue)} <span aria-hidden="true">→</span></button>
+    </article>
+  `;
+}
+
+export function renderHome(app) {
+  const copy = app.copy();
+  const question = PROFILE_QUESTIONS[0];
+  const hasProfile = Boolean(app.profile);
+  const currentArchetype = hasProfile ? getProfileArchetype(app.profile) : null;
+  const sampleArchetype = getProfileArchetype(sampleProfile);
+  const friendArchetype = getProfileArchetype(sampleFriend);
+  const sampleMatch = HOME_SHOWCASE.match;
+  const resonanceLabel = sampleMatch.resonanceLabel[app.language] || sampleMatch.resonanceLabel.en;
+  const discoveryLabel = sampleMatch.discoveryLabel[app.language] || sampleMatch.discoveryLabel.en;
+
+  const invite = app.friendProfile ? `
+    <section class="editorial-invite">
+      <span class="editorial-kicker">A FRIEND SENT A LISTENING NOTE</span>
+      <div><h2>${escapeHtml(copy.invitedTitle)}</h2><p>${escapeHtml(copy.invitedDesc)}</p></div>
+      <button type="button" data-route="${hasProfile ? 'match' : 'discover'}">${escapeHtml(hasProfile ? copy.openMatch : copy.beginProfile)} →</button>
+    </section>
+  ` : '';
+
+  app.root.innerHTML = `
+    <div id="app-notice" class="app-notice"></div>
+    <div class="editorial-home">
+      <section class="editorial-hero">
+        <div class="editorial-hero__copy">
+          <span class="editorial-kicker">${escapeHtml(copy.homeEyebrow)}</span>
+          <h1>${escapeHtml(copy.homeTitle).replaceAll('\n', '<br>')}</h1>
+          <p class="editorial-dek">${escapeHtml(copy.homeDescription)}</p>
+          <div class="editorial-hero__actions">
+            ${hasProfile
+              ? `<button class="editorial-button editorial-button--ink" type="button" data-route="profile">${escapeHtml(copy.continueProfile)} →</button><button class="editorial-button editorial-button--line" type="button" data-route="now">${escapeHtml(copy.openNow)}</button>`
+              : `<button class="editorial-button editorial-button--ink" type="button" data-action="focus-booth">${escapeHtml(copy.beginProfile)} ↓</button><button class="editorial-button editorial-button--line" type="button" data-action="scroll-sample">${escapeHtml(copy.viewSample)}</button>`
+            }
+          </div>
+          <div class="editorial-hero__note">
+            <span>${app.language === 'kr' ? '회원가입 없음' : 'No account'}</span>
+            <span>${app.language === 'kr' ? '브라우저에만 저장' : 'Saved in your browser'}</span>
+            <span>${app.language === 'kr' ? '음악 API 로그인 없음' : 'No streaming login'}</span>
+          </div>
+          ${hasProfile ? `<div class="editorial-saved"><span aria-hidden="true">${escapeHtml(currentArchetype.symbol)}</span><div><small>${escapeHtml(copy.existingProfile)}</small><strong>${escapeHtml(localize(currentArchetype.name, app.language))}</strong></div></div>` : ''}
+        </div>
+
+        <aside class="listening-booth" id="listening-booth" aria-labelledby="booth-title">
+          <header class="listening-booth__header"><span>${escapeHtml(copy.boothLabel)}</span><b>MY MUSIC VIBE</b></header>
+          <div class="listening-booth__copy"><h2 id="booth-title">${escapeHtml(copy.boothTitle)}</h2><p>${escapeHtml(copy.boothHint)}</p></div>
+          <div class="listening-booth__choices">
+            ${question.options.map((option, index) => homeOption(app, question, option, index)).join('')}
+          </div>
+        </aside>
+      </section>
+
+      ${invite}
+
+      <section class="editorial-spread" id="result-example">
+        <div class="editorial-spread__intro">
+          <span class="editorial-kicker">${escapeHtml(copy.sampleEyebrow)}</span>
+          <h2>${escapeHtml(copy.sampleTitle)}</h2>
+          <p>${escapeHtml(copy.sampleBody)}</p>
+          <div class="editorial-folio"><span>01</span><i></i><b>${app.language === 'kr' ? '취향 예시' : 'PROFILE SAMPLE'}</b></div>
+        </div>
+        <article class="sample-sleeve" style="--sample-start:${sampleArchetype.gradient[0]};--sample-end:${sampleArchetype.gradient[2]}">
+          <div class="sample-sleeve__glyph">${renderVibeGlyph(sampleProfile, app.language, { id: 'sample-profile', size: 260 })}</div>
+          <span aria-hidden="true">${escapeHtml(sampleArchetype.symbol)}</span>
+          <h3>${escapeHtml(localize(sampleArchetype.name, app.language))}</h3>
+          <p>${escapeHtml(localize(sampleArchetype.tagline, app.language))}</p>
+          <small>EXAMPLE / ${escapeHtml(sampleProfile.id)}</small>
+        </article>
+        <div class="editorial-spread__tracks">
+          <span class="editorial-kicker">${escapeHtml(copy.sampleTracks)}</span>
+          ${trackRows(HOME_SHOWCASE.signature, app.language, 'home_profile_sample')}
+        </div>
+      </section>
+
+      <section class="editorial-section editorial-section--today">
+        <header><span class="editorial-kicker">${escapeHtml(copy.todayEyebrow)}</span><h2>${escapeHtml(copy.todayTitle)}</h2><p>${escapeHtml(copy.todayBody)}</p></header>
+        <div class="editorial-scene-tabs" aria-label="${app.language === 'kr' ? '선곡 장면 예시' : 'Listening moment examples'}">
+          <span>${app.language === 'kr' ? '집중' : 'Focus'}</span><span class="is-active">${app.language === 'kr' ? '밤 산책' : 'Night walk'}</span><span>${app.language === 'kr' ? '회복' : 'Reset'}</span><span>${app.language === 'kr' ? '새로운 음악' : 'Explore'}</span>
+        </div>
+        <div class="editorial-tracklist">${trackRows(HOME_SHOWCASE.night, app.language, 'home_now_sample')}</div>
+        <button class="editorial-text-link" type="button" data-route="now">${escapeHtml(copy.openNow)} →</button>
+      </section>
+
+      <section class="editorial-section editorial-section--together">
+        <header><span class="editorial-kicker">${escapeHtml(copy.togetherEyebrow)}</span><h2>${escapeHtml(copy.togetherTitle)}</h2><p>${escapeHtml(copy.togetherBody)}</p></header>
+        <div class="sample-match">
+          <article class="sample-match__person"><span aria-hidden="true">${escapeHtml(sampleArchetype.symbol)}</span><strong>${escapeHtml(localize(sampleArchetype.name, app.language))}</strong><small>${app.language === 'kr' ? '내 취향 예시' : 'My sample taste'}</small></article>
+          <div class="sample-match__scores"><div><b>${escapeHtml(resonanceLabel)}</b><span>${app.language === 'kr' ? `공명도 · ${sampleMatch.resonance}` : `Resonance · ${sampleMatch.resonance}`}</span></div><i></i><div><b>${escapeHtml(discoveryLabel)}</b><span>${app.language === 'kr' ? `발견 가능성 · ${sampleMatch.discovery}` : `Discovery · ${sampleMatch.discovery}`}</span></div></div>
+          <article class="sample-match__person"><span aria-hidden="true">${escapeHtml(friendArchetype.symbol)}</span><strong>${escapeHtml(localize(friendArchetype.name, app.language))}</strong><small>${app.language === 'kr' ? '친구 취향 예시' : 'Friend sample taste'}</small></article>
+        </div>
+        <div class="editorial-tracklist editorial-tracklist--compact">${trackRows(HOME_SHOWCASE.match.bridgeTracks, app.language, 'home_match_sample', 3)}</div>
+        <button class="editorial-text-link" type="button" data-route="match">${escapeHtml(copy.openMatch)} →</button>
+      </section>
+
+      <section class="editorial-privacy">
+        <span class="editorial-privacy__mark" aria-hidden="true">LOCAL<br>FIRST</span>
+        <div><span class="editorial-kicker">PRIVATE BY DEFAULT</span><h2>${escapeHtml(copy.privacyTitle)}</h2><p>${escapeHtml(copy.privacyBody)}</p></div>
+        <button type="button" data-action="privacy">${escapeHtml(copy.footerPrivacy)} →</button>
+      </section>
+    </div>
+  `;
+
+  app.renderNotice();
+  track('landing_view', { product_version: 'v2-f1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', showcase_version: 'e1-fixed' });
+}
