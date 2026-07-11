@@ -8,14 +8,19 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const index = read('index.html');
 const css = read('v2-stabilization.css');
+const a11yCss = read('v2-stabilization-a11y.css');
 const qualitySpec = read('tests/e2e/v2-quality.spec.mjs');
 const visualSpec = read('tests/e2e/visual.spec.mjs');
 const buildInfo = JSON.parse(read('build-info.json'));
 
 assert.equal(buildInfo.stabilityRelease, 'sr1');
-assert.equal(buildInfo.stabilityStyle, '/v2-stabilization.css?stability=sr1');
+assert.deepEqual(buildInfo.stabilityStyles, [
+  '/v2-stabilization.css?stability=sr1',
+  '/v2-stabilization-a11y.css?stability=sr1'
+]);
 assert(index.includes('music-vibe-stability-release" content="sr1"'));
 assert(index.includes('v2-stabilization.css?stability=sr1'));
+assert(index.includes('v2-stabilization-a11y.css?stability=sr1'));
 assert(index.includes('data-stability-release="sr1"'));
 assert(index.includes('Stability SR1'));
 
@@ -33,6 +38,9 @@ for (const token of [
 }
 assert(!css.includes('Pretendard'), 'stability layer must use an intentional system-font stack');
 assert(!css.includes('SUIT'), 'stability layer must not name unloaded fonts');
+assert(a11yCss.includes('.editorial-button--ink'));
+assert(a11yCss.includes('color: var(--ink) !important'));
+assert(a11yCss.includes('.editorial-section--together'));
 
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"), 'color contrast must be part of axe');
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
@@ -40,6 +48,7 @@ for (const route of ['home', 'discover', 'profile', 'today listen', 'listen toge
 }
 assert(qualitySpec.includes('mobile navigation is hidden during discovery'));
 assert(qualitySpec.includes('expectAboveFixedNavigation'));
+assert(qualitySpec.includes("expect(contract.overflowWrap).toBe('normal')"));
 
 for (const screen of ['home.png', 'discover.png', 'profile.png', 'now.png', 'match.png']) {
   assert(visualSpec.includes(screen), `visual regression is missing ${screen}`);
