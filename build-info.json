@@ -10,6 +10,9 @@
   "entry": "/src/v2/main.mjs?v=qg1",
   "brandEntry": "/src/v2/brand/install.mjs?brand=bd1",
   "brandInteraction": "/src/v2/brand/interaction.mjs?brand=bd1",
-  "stabilityStyle": "/v2-stabilization.css?stability=sr1",
+  "stabilityStyles": [
+    "/v2-stabilization.css?stability=sr1",
+    "/v2-stabilization-a11y.css?stability=sr1"
+  ],
   "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression"]
 }
