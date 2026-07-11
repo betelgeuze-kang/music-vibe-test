@@ -1,9 +1,9 @@
-import { COPY } from '../data/copy.mjs';
-import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs';
-import { loadProfile } from '../infrastructure/storage.mjs';
-import { actionMethods } from './actions.mjs';
-import { escapeHtml, detectLanguage, parseRoute, ROUTES, track } from './helpers.mjs';
-import { screenMethods } from './screens.mjs';
+import { COPY } from '../data/copy.mjs?v=qg1';
+import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
+import { loadProfile } from '../infrastructure/storage.mjs?v=qg1';
+import { actionMethods } from './actions.mjs?v=qg1';
+import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?v=qg1';
+import { screenMethods } from './screens.mjs?v=qg1';
 
 export class VibeApp {
   constructor({ root, header, footer }) {
@@ -32,44 +32,34 @@ export class VibeApp {
 
   start() {
     document.documentElement.lang = this.language === 'kr' ? 'ko' : 'en';
-    document.documentElement.dataset.testMode = 'vibe-profile-v2';
+    document.documentElement.dataset.testMode = 'vibe-profile-v2-qg1';
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
     document.addEventListener('submit', this.boundSubmit);
-
     if (this.friendProfile) {
-      track('ref_visit', {
-        referral_stage: 'v2_landing',
-        ref_type: this.friendProfile.archetypeId,
-        referral_source: this.friendSource
-      });
+      track('ref_visit', { referral_stage: 'v2_landing', ref_type: this.friendProfile.archetypeId, referral_source: this.friendSource });
       if (this.profile && this.route === 'home') this.route = 'match';
     }
-
     this.render();
   }
 
   resolveIncomingProfile() {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('compare');
+    const token = extractToken(window.location.href);
     if (token) return decodeProfile(token);
-    const legacy = params.get('ref');
-    if (legacy) return profileFromLegacyType(legacy);
-    return null;
+    const legacy = new URLSearchParams(window.location.search).get('ref');
+    return legacy ? profileFromLegacyType(legacy) : null;
   }
 
-  copy() {
-    return COPY[this.language];
-  }
+  copy() { return COPY[this.language]; }
 
-  navigate(route) {
+  navigate(route, params = null) {
     const safeRoute = ROUTES.has(route) ? route : 'home';
-    if (parseRoute() === safeRoute) {
+    if (parseRoute() === safeRoute && !params) {
       this.route = safeRoute;
       this.render();
       return;
     }
-    window.location.hash = `/${safeRoute}`;
+    window.location.hash = routeUrl(safeRoute, params || {});
   }
 
   handleRouteChange() {
@@ -83,20 +73,13 @@ export class VibeApp {
     this.noticeTone = tone;
     this.renderNotice();
     window.clearTimeout(this.noticeTimer);
-    this.noticeTimer = window.setTimeout(() => {
-      this.notice = '';
-      this.renderNotice();
-    }, 3200);
+    this.noticeTimer = window.setTimeout(() => { this.notice = ''; this.renderNotice(); }, 3200);
   }
 
   renderNotice() {
     const host = document.getElementById('app-notice');
     if (!host) return;
-    if (!this.notice) {
-      host.innerHTML = '';
-      host.className = 'app-notice';
-      return;
-    }
+    if (!this.notice) { host.innerHTML = ''; host.className = 'app-notice'; return; }
     host.className = `app-notice app-notice--${this.noticeTone}`;
     host.innerHTML = `<span>${escapeHtml(this.notice)}</span>`;
   }
@@ -105,13 +88,11 @@ export class VibeApp {
     this.renderHeader();
     this.renderFooter();
     this.updateMeta();
-
     if (this.route === 'discover') this.renderDiscover();
     else if (this.route === 'profile') this.renderProfile();
     else if (this.route === 'now') this.renderNow();
     else if (this.route === 'match') this.renderMatch();
     else this.renderHome();
-
     this.renderNotice();
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
@@ -140,7 +121,7 @@ export class VibeApp {
     const copy = this.copy();
     this.footer.innerHTML = `
       <div class="site-footer__inner">
-        <p>© ${new Date().getFullYear()} My Music Vibe</p>
+        <p>© ${new Date().getFullYear()} My Music Vibe <span class="build-badge">QG1</span></p>
         <p>${escapeHtml(copy.footerNote)}</p>
         <button type="button" data-action="privacy">${escapeHtml(copy.footerPrivacy)}</button>
       </div>
