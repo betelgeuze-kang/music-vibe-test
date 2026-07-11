@@ -33,7 +33,7 @@ if (!index.includes(`Stability ${stabilityRelease.toUpperCase()}`)) throw new Er
 
 const expectedStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css'];
 const brandStyles = ['v2-editorial.css'];
-const stabilityStyles = ['v2-stabilization.css'];
+const stabilityStyles = ['v2-stabilization.css', 'v2-stabilization-a11y.css'];
 const expectedModules = [
   'src/v2/main.mjs', 'src/v2/quality/install.mjs', 'src/v2/quality/visuals.mjs',
   'src/v2/ui/app.mjs', 'src/v2/ui/actions.mjs', 'src/v2/ui/screens.mjs', 'src/v2/ui/helpers.mjs',
@@ -78,8 +78,12 @@ for (const file of ['install.mjs', 'interaction.mjs']) {
 if (!read('src/v2/brand/install.mjs').includes(`copy.mjs?brand=${brandRelease}`)) throw new Error('brand copy module is not version-locked');
 if (!read('src/v2/main.mjs').includes(`build-info.json?v=${release}`)) throw new Error('runtime build-info fetch is not version-locked');
 if (buildInfo.brandInteraction !== `/src/v2/brand/interaction.mjs?brand=${brandRelease}`) throw new Error('brand interaction release contract is inconsistent');
-if (buildInfo.stabilityStyle !== `/v2-stabilization.css?stability=${stabilityRelease}`) throw new Error('stability stylesheet release contract is inconsistent');
+const expectedStabilityStyles = stabilityStyles.map((file) => `/${file}?stability=${stabilityRelease}`);
+if (JSON.stringify(buildInfo.stabilityStyles) !== JSON.stringify(expectedStabilityStyles)) {
+  throw new Error('stability stylesheet release contract is inconsistent');
+}
 if (!read('v2-stabilization.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability stylesheet marker is missing');
+if (!read('v2-stabilization-a11y.css').includes(`Stabilization ${stabilityRelease.toUpperCase()}`)) throw new Error('stability accessibility marker is missing');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
 console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} verified at ${root}`);
