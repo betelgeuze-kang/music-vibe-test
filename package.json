@@ -1,11 +1,11 @@
 {
   "name": "music-vibe-test",
   "version": "1.1.0",
-  "description": "Browser-based music persona test deployed at my-music-vibe.com",
+  "description": "Static music identity, moment-based recommendation, and friend matching service deployed at my-music-vibe.com",
   "main": "build_codepen.js",
   "scripts": {
-    "test": "node tests/p0-smoke.test.cjs && node tests/p1-smoke.test.cjs && node tests/p2-smoke.test.cjs",
-    "test:syntax": "node --check p0-fixes.js && node --check p1-experience.js && node --check p2-analytics.js && node --check p2-operations.js && node --check p2-static.js",
+    "test": "node tests/p0-smoke.test.cjs && node tests/p1-smoke.test.cjs && node tests/p2-smoke.test.cjs && node tests/v2-smoke.test.cjs && node tests/v2-domain.test.mjs",
+    "test:syntax": "node --check p0-fixes.js && node --check p1-experience.js && node --check p2-analytics.js && node --check p2-operations.js && node --check p2-static.js && node --check src/v2/main.mjs && node --check src/v2/ui/helpers.mjs && node --check src/v2/ui/app.mjs && node --check src/v2/ui/screens.mjs && node --check src/v2/ui/actions.mjs && node --check src/v2/data/axes.mjs && node --check src/v2/data/archetypes.mjs && node --check src/v2/data/questions.mjs && node --check src/v2/data/contexts.mjs && node --check src/v2/data/tracks.mjs && node --check src/v2/data/copy.mjs && node --check src/v2/domain/profile.mjs && node --check src/v2/domain/recommendation.mjs && node --check src/v2/domain/match.mjs && node --check src/v2/infrastructure/storage.mjs && node --check src/v2/infrastructure/share.mjs",
     "ci": "npm run test:syntax && npm test",
     "build": "tailwindcss -i ./input.css -o ./styles.css --minify"
   },
@@ -15,7 +15,9 @@
   },
   "keywords": [
     "music",
-    "personality-test",
+    "music-identity",
+    "recommendation",
+    "friend-matching",
     "github-pages"
   ],
   "author": "betelgeuze-kang",
