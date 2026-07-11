@@ -3,6 +3,7 @@ import { TRACKS } from '../data/tracks.mjs';
 import { enrichTrack } from '../data/editorial-tracks.mjs';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs';
 import { clamp, localize, similarityScore } from './profile.mjs';
+import { feedbackAdjustment, feedbackDirection } from './feedback.mjs';
 
 const AXIS_COPY = Object.freeze({
   kr: { energy: '에너지 강도', warmth: '감정의 온도', novelty: '새로운 소리', organic: '음향 질감', complexity: '구조의 깊이', sociality: '감상 방식' },
@@ -112,9 +113,14 @@ function contrastSentence(profile, candidate, language) {
 function buildReason(profile, candidate, context, language) {
   const copy = STRATEGY_COPY[language] || STRATEGY_COPY.en;
   const editorial = localize(candidate.track.editorialNote, language);
+  const learned = candidate.feedbackAdjustment
+    ? language === 'kr'
+      ? `이전 반응을 ${candidate.feedbackAdjustment > 0 ? '조금 반영한' : '과도하게 반복하지 않도록 낮춘'} 추천이에요.`
+      : `This recommendation ${candidate.feedbackAdjustment > 0 ? 'lightly reflects' : 'avoids over-repeating'} your earlier feedback.`
+    : '';
   if (editorial) {
-    if (candidate.strategy === 'safe') return editorial;
-    return `${editorial} ${contrastSentence(profile, candidate, language)}`;
+    const base = candidate.strategy === 'safe' ? editorial : `${editorial} ${contrastSentence(profile, candidate, language)}`;
+    return learned ? `${base} ${learned}` : base;
   }
 
   const axes = AXIS_COPY[language] || AXIS_COPY.en;
@@ -122,14 +128,11 @@ function buildReason(profile, candidate, context, language) {
     .map((axisId) => ({ axisId, score: axisSimilarity(profile.scores, candidate.track.profile, axisId) }))
     .sort((left, right) => right.score - left.score)
     .slice(0, 2);
-
-  if (language === 'kr') {
-    const base = `${copy[`${candidate.strategy}Lead`]} ${axes[aligned[0].axisId]}와 ${axes[aligned[1].axisId]}가 가깝고, ${localize(context.shortLabel, 'kr')} 흐름에 맞아요.`;
-    return candidate.strategy === 'safe' ? base : `${base} ${contrastSentence(profile, candidate, language)}`;
-  }
-
-  const base = `${copy[`${candidate.strategy}Lead`]} It aligns with your ${axes[aligned[0].axisId]} and ${axes[aligned[1].axisId]}, while fitting “${localize(context.shortLabel, 'en')}.”`;
-  return candidate.strategy === 'safe' ? base : `${base} ${contrastSentence(profile, candidate, language)}`;
+  const base = language === 'kr'
+    ? `${copy[`${candidate.strategy}Lead`]} ${axes[aligned[0].axisId]}와 ${axes[aligned[1].axisId]}가 가깝고, ${localize(context.shortLabel, 'kr')} 흐름에 맞아요.`
+    : `${copy[`${candidate.strategy}Lead`]} It aligns with your ${axes[aligned[0].axisId]} and ${axes[aligned[1].axisId]}, while fitting “${localize(context.shortLabel, 'en')}.”`;
+  const withContrast = candidate.strategy === 'safe' ? base : `${base} ${contrastSentence(profile, candidate, language)}`;
+  return learned ? `${withContrast} ${learned}` : withContrast;
 }
 
 export function platformUrl(track, platform = 'spotify') {
@@ -141,7 +144,7 @@ export function platformUrl(track, platform = 'spotify') {
   return `https://open.spotify.com/search/${query}`;
 }
 
-function scoreTrack(profile, context, track) {
+function scoreTrack(profile, context, track, feedback = []) {
   const profileFit = similarityScore(profile.scores, track.profile, {
     energy: 1.15, warmth: 1, novelty: 1.05, organic: 0.85, complexity: 1, sociality: 1
   });
@@ -150,15 +153,23 @@ function scoreTrack(profile, context, track) {
   });
   const keywordFit = contextKeywordBonus(track, context);
   const editorialBonus = track.editorial ? 4 : 0;
-  const score = Math.round(clamp(profileFit * 0.56 + contextFit * 0.32 + keywordFit * 0.08 + editorialBonus));
+  const learnedAdjustment = feedbackAdjustment(track, feedback, context.id);
+  const score = Math.round(clamp(profileFit * 0.56 + contextFit * 0.32 + keywordFit * 0.08 + editorialBonus + learnedAdjustment));
   const axisDistance = AXIS_IDS.reduce((sum, axisId) => sum + Math.abs(track.profile[axisId] - profile.scores[axisId]), 0) / AXIS_IDS.length;
-  return { track, score, profileFit, contextFit, keywordFit, axisDistance, naturalStrategy: naturalStrategy(profile, track, profileFit) };
+  return {
+    track,
+    score,
+    profileFit,
+    contextFit,
+    keywordFit,
+    axisDistance,
+    feedbackAdjustment: learnedAdjustment,
+    naturalStrategy: naturalStrategy(profile, track, profileFit)
+  };
 }
 
 function strategySuitability(candidate, strategy) {
-  if (strategy === 'safe') {
-    return candidate.score * 0.62 + candidate.profileFit * 0.34 - candidate.axisDistance * 0.18;
-  }
+  if (strategy === 'safe') return candidate.score * 0.62 + candidate.profileFit * 0.34 - candidate.axisDistance * 0.18;
   if (strategy === 'adjacent') {
     const targetDistance = 29;
     return candidate.score * 0.52 + candidate.contextFit * 0.18 + (100 - Math.abs(candidate.axisDistance - targetDistance) * 2.2) * 0.3;
@@ -168,7 +179,7 @@ function strategySuitability(candidate, strategy) {
   return candidate.contextFit * 0.42 + candidate.score * 0.25 + noveltyDelta * 0.18 + (100 - Math.abs(candidate.axisDistance - targetDistance) * 1.7) * 0.15;
 }
 
-function decorateSelected(profile, context, candidate, language, strategy) {
+function decorateSelected(profile, context, candidate, language, strategy, feedback, placement) {
   const selected = {
     ...candidate,
     strategy,
@@ -183,7 +194,8 @@ function decorateSelected(profile, context, candidate, language, strategy) {
       apple: platformUrl(candidate.track, 'apple')
     }),
     exactPlatforms: Object.freeze(Object.keys(candidate.track.platforms || {})),
-    editorial: Boolean(candidate.track.editorial)
+    editorial: Boolean(candidate.track.editorial),
+    feedbackDirection: feedbackDirection(candidate.track.id, feedback, context.id, placement)
   });
 }
 
@@ -229,10 +241,12 @@ export function recommendTracks(profile, contextId, options = {}) {
   const context = CONTEXT_BY_ID[contextId] || CONTEXT_BY_ID.focus;
   const limit = Math.max(1, Math.min(10, Number(options.limit || 5)));
   const language = options.language === 'en' ? 'en' : 'kr';
+  const feedback = Array.isArray(options.feedback) ? options.feedback : [];
+  const placement = options.placement || 'vibe_now';
   const plan = options.plan || strategyPlan(limit, options.exploration !== false);
-  const ranked = EDITORIAL_CATALOG.map((track) => scoreTrack(profile, context, track)).sort((left, right) => right.score - left.score);
+  const ranked = EDITORIAL_CATALOG.map((track) => scoreTrack(profile, context, track, feedback)).sort((left, right) => right.score - left.score);
   return selectStrategySlots(ranked, plan, limit)
-    .map((candidate) => decorateSelected(profile, context, candidate, language, candidate.assignedStrategy));
+    .map((candidate) => decorateSelected(profile, context, candidate, language, candidate.assignedStrategy, feedback, placement));
 }
 
 export function recommendProfileTracks(profile, options = {}) {
@@ -240,6 +254,8 @@ export function recommendProfileTracks(profile, options = {}) {
     language: options.language,
     limit: options.limit || 3,
     exploration: false,
+    feedback: options.feedback || [],
+    placement: 'profile_signature',
     plan: { safe: 2, adjacent: 1, explore: 0 }
   });
 }
