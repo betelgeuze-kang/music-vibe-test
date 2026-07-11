@@ -3,7 +3,15 @@ import path from 'node:path';
 import { test, expect } from '@playwright/test';
 import { completeProfile, declineAnalytics } from './helpers.mjs';
 
-const baselinesReady = fs.existsSync(path.resolve('tests/e2e/snapshots/.ready'));
+const snapshotDir = path.resolve('tests/e2e/snapshots');
+const baselineMarker = path.join(snapshotDir, '.ready');
+const refreshMarker = path.join(snapshotDir, '.refresh-css-scale');
+const baselinesReady = fs.existsSync(baselineMarker) && !fs.existsSync(refreshMarker);
+const screenshotOptions = Object.freeze({
+  fullPage: true,
+  animations: 'disabled',
+  scale: 'css'
+});
 
 async function stabilize(page) {
   await page.evaluate(async () => {
@@ -19,12 +27,12 @@ async function captureOrCompare(page, testInfo, baseName) {
   const name = `${testInfo.project.name}-${baseName}`;
   await stabilize(page);
   if (baselinesReady) {
-    await expect(page).toHaveScreenshot(name, { fullPage: true });
+    await expect(page).toHaveScreenshot(name, screenshotOptions);
     return;
   }
   const output = path.resolve('test-results/visual-capture', name);
   fs.mkdirSync(path.dirname(output), { recursive: true });
-  await page.screenshot({ path: output, fullPage: true, animations: 'disabled' });
+  await page.screenshot({ path: output, ...screenshotOptions });
   expect(fs.statSync(output).size).toBeGreaterThan(20_000);
 }
 
