@@ -11,10 +11,12 @@ const app = [
   read('src/v2/ui/app.mjs'),
   read('src/v2/ui/actions.mjs'),
   read('src/v2/ui/timeline-actions.mjs'),
+  read('src/v2/ui/weekly-actions.mjs'),
   read('src/v2/ui/components/shell.mjs'),
   read('src/v2/ui/screens/home.mjs'),
   read('src/v2/ui/screens/discover.mjs'),
   read('src/v2/ui/screens/profile.mjs'),
+  read('src/v2/ui/screens/weekly.mjs'),
   read('src/v2/ui/screens/now.mjs'),
   read('src/v2/ui/screens/match.mjs'),
   read('src/v2/quality/visuals.mjs')
@@ -23,8 +25,11 @@ const profile = read('src/v2/domain/profile.mjs');
 const presentation = read('src/v2/domain/presentation.mjs');
 const feedback = read('src/v2/domain/feedback.mjs');
 const timeline = read('src/v2/domain/timeline.mjs');
+const weekly = read('src/v2/domain/weekly.mjs');
 const recommendation = read('src/v2/domain/recommendation.mjs');
 const match = read('src/v2/domain/match.mjs');
+const storage = read('src/v2/infrastructure/storage.mjs');
+const share = read('src/v2/infrastructure/share.mjs');
 const roadmap = read('docs/product/V2_ROADMAP.md');
 const architecture = read('docs/product/V2_ARCHITECTURE.md');
 const qualityGates = read('docs/product/QUALITY_GATES.md');
@@ -42,6 +47,7 @@ for (const file of [
   'v2-stabilization-a11y.css',
   'v2-m4.css',
   'v2-m4-timeline.css',
+  'v2-m4-weekly.css',
   'src/v2/data/axes.mjs',
   'src/v2/data/archetypes.mjs',
   'src/v2/data/questions.mjs',
@@ -53,6 +59,7 @@ for (const file of [
   'src/v2/domain/presentation.mjs',
   'src/v2/domain/feedback.mjs',
   'src/v2/domain/timeline.mjs',
+  'src/v2/domain/weekly.mjs',
   'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs',
   'src/v2/infrastructure/storage.mjs',
@@ -61,11 +68,13 @@ for (const file of [
   'src/v2/ui/app.mjs',
   'src/v2/ui/actions.mjs',
   'src/v2/ui/timeline-actions.mjs',
+  'src/v2/ui/weekly-actions.mjs',
   'src/v2/ui/components/shell.mjs',
   'src/v2/ui/screens/home.mjs',
   'src/v2/ui/screens/discover.mjs',
   'src/v2/ui/screens/empty.mjs',
   'src/v2/ui/screens/profile.mjs',
+  'src/v2/ui/screens/weekly.mjs',
   'src/v2/ui/screens/now.mjs',
   'src/v2/ui/screens/match.mjs',
   'src/v2/quality/visuals.mjs',
@@ -76,23 +85,26 @@ for (const file of [
 }
 
 assert.equal((index.match(/rel="stylesheet"/g) || []).length, 1, 'canonical HTML must load one stylesheet entry');
-assert(index.includes('v2-app.css?timeline=m4t1'), 'timeline-versioned stylesheet must load');
-assert(index.includes('src/v2/main.mjs?timeline=m4t1'), 'timeline-versioned module entry must load');
+assert(index.includes('v2-app.css?weekly=m4w1'), 'weekly-versioned stylesheet must load');
+assert(index.includes('src/v2/main.mjs?weekly=m4w1'), 'weekly-versioned module entry must load');
 assert(index.includes('p2-analytics.js?v=qg1'), 'consent-aware analytics infrastructure must remain');
 assert(index.includes('Version Check: P2 Growth Analytics & Experiments'), 'Pages deployment compatibility marker must remain');
 assert(index.includes('Canonical UI F1'), 'canonical UI deployment marker must remain');
 assert(index.includes('M4 Feedback M4F1'), 'M4 feedback deployment marker must remain');
 assert(index.includes('Profile Timeline M4T1'), 'M4 timeline deployment marker must be explicit');
+assert(index.includes('Weekly Vibe M4W1'), 'M4 Weekly Vibe deployment marker must be explicit');
 assert(index.includes('data-release-id="qg1"'));
 assert(index.includes('data-content-release="e1"'));
 assert(index.includes('data-ui-release="f1"'));
 assert(index.includes('data-engagement-release="m4f1"'));
 assert(index.includes('data-timeline-release="m4t1"'));
+assert(index.includes('data-weekly-release="m4w1"'));
 assert.equal(buildInfo.release, 'qg1');
 assert.equal(buildInfo.contentRelease, 'e1');
 assert.equal(buildInfo.uiRelease, 'f1');
 assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
+assert.equal(buildInfo.weeklyRelease, 'm4w1');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert(!index.includes('logic.js'));
 assert(!index.includes('p1-experience.js'));
@@ -105,9 +117,10 @@ assert(index.includes('data-analytics-consent-ui="standalone"'));
 
 assert(main.includes('retireLegacyRuntime'));
 assert(!main.includes('installQualityGates'));
-assert(main.includes('build-info.json?timeline=m4t1'));
+assert(main.includes('build-info.json?weekly=m4w1'));
 assert(app.includes("this.navigate('discover')"));
 assert(app.includes("import('./screens/profile.mjs?timeline=m4t1')"));
+assert(app.includes("import('./screens/weekly.mjs?weekly=m4w1')"));
 assert(app.includes("import('./screens/now.mjs?engagement=m4f1')"));
 assert(app.includes("import('./screens/match.mjs?engagement=m4f1')"));
 assert(app.includes("track('vibe_now_generate'"));
@@ -115,7 +128,11 @@ assert(app.includes("track('match_view'"));
 assert(app.includes("track('ref_complete'"));
 assert(app.includes("track('track_feedback'"));
 assert(app.includes("track('profile_restore'"));
+assert(app.includes("track('weekly_vibe_view'"));
+assert(app.includes("track('weekly_vibe_share'"));
+assert(app.includes("track('return_visit_7d'"));
 assert(app.includes('profile-timeline'));
+assert(app.includes('weekly-hero'));
 assert(app.includes('renderBipolarAxes'));
 assert(app.includes('renderVibeGlyph'));
 assert(profile.includes('PROFILE_VERSION = 2'));
@@ -126,6 +143,9 @@ assert(feedback.includes('feedbackAdjustmentForTrack'));
 assert(timeline.includes('compareProfileSnapshots'));
 assert(timeline.includes('roundedTimelineDelta'));
 assert(timeline.includes('profileSnapshotKey'));
+assert(weekly.includes('WEEKLY_MIN_INTERACTIONS = 3'));
+assert(weekly.includes('buildWeeklyVibe'));
+assert(weekly.includes('sevenDayReturnStatus'));
 assert(recommendation.includes('editorialBonus'));
 assert(recommendation.includes('candidate.track.editorialNote'));
 assert(recommendation.includes('feedbackAdjustmentForTrack'));
@@ -134,6 +154,10 @@ assert(match.includes('bridgeTrackScore'));
 assert(match.includes('feedbackAdjustmentForTrack'));
 assert(match.includes('resonanceLabel') && match.includes('discoveryLabel'));
 assert(presentation.includes('SCORE_BANDS') && presentation.includes('MATCH_BANDS'));
+assert(storage.includes('music-vibe-v2-weekly-v1'));
+assert(storage.includes('markReturnVisitTracked'));
+assert(share.includes('createWeeklyVibeCardSvg'));
+assert(share.includes('shareWeeklyVibeCard'));
 
 for (const phrase of ['My Vibe', 'Vibe Now', 'Vibe Match', 'North Star Metric', 'Milestone 4']) {
   assert(roadmap.includes(phrase), `roadmap is missing: ${phrase}`);
@@ -150,6 +174,7 @@ assert(packageJson.scripts.test.includes('editorial-integrity.test.mjs'));
 assert(packageJson.scripts.test.includes('frontend-consolidation.test.mjs'));
 assert(packageJson.scripts.test.includes('v2-feedback.test.mjs'));
 assert(packageJson.scripts.test.includes('v2-timeline.test.mjs'));
+assert(packageJson.scripts.test.includes('v2-weekly.test.mjs'));
 assert(packageJson.scripts.test.includes('profile-audit.test.mjs'));
 
-console.log('V2 canonical M4 timeline smoke checks passed.');
+console.log('V2 canonical M4 Weekly Vibe smoke checks passed.');
