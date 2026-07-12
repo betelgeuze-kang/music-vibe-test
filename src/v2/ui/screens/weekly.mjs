@@ -6,11 +6,13 @@ import {
   formatWeeklyRange,
   weeklyActivityStatus,
   weeklyAlias,
-  weeklySummary
+  weeklySummary,
+  weeklyWindow
 } from '../../domain/weekly.mjs?weekly=m4w1';
 import {
   loadInteractions,
   loadLatestWeeklyVibe,
+  loadWeeklyVibes,
   saveWeeklyVibe
 } from '../../infrastructure/storage.mjs?weekly=m4w1';
 import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
@@ -129,16 +131,19 @@ export async function renderWeekly(app) {
   const anchor = app.weeklyAnchorAt || new Date();
   const interactions = loadInteractions();
   const status = weeklyActivityStatus(interactions, anchor);
+  const window = weeklyWindow(anchor);
+  const savedForWindow = loadWeeklyVibes({ profileId: app.profile.id }).find((item) => item.weekKey === window.weekKey) || null;
   const latest = loadLatestWeeklyVibe(app.profile.id);
   const { TRACK_BY_ID, platformUrl } = await import('../../domain/recommendation.mjs?weekly=m4w1');
-  const vibe = buildWeeklyVibe({ profile: app.profile, interactions, trackById: TRACK_BY_ID, anchor });
+  const computed = buildWeeklyVibe({ profile: app.profile, interactions, trackById: TRACK_BY_ID, anchor });
+  const vibe = computed.sufficientData ? computed : savedForWindow;
 
-  if (!vibe.sufficientData) {
+  if (!vibe?.sufficientData) {
     renderInsufficient(app, status, latest);
     return;
   }
 
-  saveWeeklyVibe(vibe);
+  if (computed.sufficientData) saveWeeklyVibe(computed);
   app.latestWeeklyVibe = vibe;
   const archetype = getProfileArchetype(vibe);
   const [start, middle, end] = archetype.gradient;
@@ -190,7 +195,7 @@ export async function renderWeekly(app) {
   app.renderNotice();
   track('weekly_vibe_view', {
     product_version: 'v2-m4w1',
-    state: 'ready',
+    state: computed.sufficientData ? 'ready' : 'saved',
     profile_id: app.profile.id,
     week_key: vibe.weekKey,
     interaction_count: vibe.interactionCount,
