@@ -1,4 +1,4 @@
-/* F1 canonical CSS entry with M4 engagement, profile timeline, Weekly Vibe, frontend quality, and HE1 human editorial layers. */
+/* F1 canonical CSS entry with M4 engagement, HE1 editorial, and CR1 commercial-readiness layers. */
 @import url("v2-core.css?v=qg1") layer(core);
 @import url("v2-features.css?v=qg1") layer(features);
 @import url("v2-responsive.css?v=qg1") layer(responsive);
@@ -11,5 +11,6 @@
 @import url("v2-m4-weekly.css?frontend=fq1") layer(weekly);
 @import url("v2-frontend-quality.css?frontend=fq1") layer(frontend-quality);
 @import url("v2-human-editorial.css?home=he1") layer(human-editorial);
+@import url("v2-commercial-readiness.css?commercial=cr1") layer(commercial-readiness);
 
-@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, human-editorial;
+@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, human-editorial, commercial-readiness;
