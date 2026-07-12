@@ -14,6 +14,7 @@ import {
 } from '../infrastructure/storage.mjs?weekly=m4w1';
 import { actionMethods } from './actions.mjs?weekly=m4w1';
 import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?weekly=m4w1';
+import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?weekly=m4w1';
 import { renderDiscover } from './screens/discover.mjs?ui=f1';
 import { renderHome } from './screens/home.mjs?weekly=m4w1';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1';
@@ -62,8 +63,10 @@ export class VibeApp {
     this.matchResult = null;
     this.notice = '';
     this.noticeTone = 'neutral';
+    this.noticeTimer = null;
     this.startedAt = 0;
     this.renderTicket = 0;
+    this.showPrivacy = () => showPrivacyDialog(this);
     this.boundHashChange = () => this.handleRouteChange();
     this.boundClick = (event) => {
       if (!handleWeeklyClick(this, event) && !handleTimelineClick(this, event)) this.handleClick(event);
@@ -132,6 +135,7 @@ export class VibeApp {
     const safeRoute = ROUTES.has(route) ? route : 'home';
     if (parseRoute() === safeRoute && !params) {
       this.route = safeRoute;
+      this.clearNotice();
       this.render();
       return;
     }
@@ -141,10 +145,20 @@ export class VibeApp {
   handleRouteChange() {
     this.stopPreview();
     this.stopHomePreview(true);
+    this.clearNotice();
+    closeOpenAppDialogs();
     this.route = parseRoute();
     if (this.route !== 'weekly') this.weeklyAnchorAt = null;
     track('route_view', { route: this.route, product_version: 'v2-m4w1', has_profile: Boolean(this.profile) });
     this.render();
+  }
+
+  clearNotice() {
+    window.clearTimeout(this.noticeTimer);
+    this.noticeTimer = null;
+    this.notice = '';
+    this.noticeTone = 'neutral';
+    this.renderNotice();
   }
 
   setNotice(message, tone = 'neutral') {
@@ -152,12 +166,15 @@ export class VibeApp {
     this.noticeTone = tone;
     this.renderNotice();
     window.clearTimeout(this.noticeTimer);
-    this.noticeTimer = window.setTimeout(() => { this.notice = ''; this.renderNotice(); }, 3200);
+    this.noticeTimer = window.setTimeout(() => this.clearNotice(), 3200);
   }
 
   renderNotice() {
     const host = document.getElementById('app-notice');
     if (!host) return;
+    host.setAttribute('aria-live', this.noticeTone === 'error' ? 'assertive' : 'polite');
+    host.setAttribute('aria-atomic', 'true');
+    host.setAttribute('role', this.noticeTone === 'error' ? 'alert' : 'status');
     if (!this.notice) { host.innerHTML = ''; host.className = 'app-notice'; return; }
     host.className = `app-notice app-notice--${this.noticeTone}`;
     host.innerHTML = `<span>${escapeHtml(this.notice)}</span>`;
