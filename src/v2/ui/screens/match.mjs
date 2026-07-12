@@ -50,12 +50,15 @@ export function renderMatch(app) {
         <div><input id="invite-input" name="invite" placeholder="${escapeHtml(copy.matchPastePlaceholder)}" autocomplete="off"><button type="submit">${escapeHtml(copy.matchLoad)}</button></div>
       </form>
     `;
+    app.renderNotice();
     track('match_view', { state: 'invite', profile_id: app.profile.id, product_version: 'v2-m4' });
     return;
   }
 
+  const generated = !app.matchResult;
   const match = app.matchResult || compareProfiles(app.profile, app.friendProfile, app.language, { feedbackRecords: app.trackFeedback });
   app.matchResult = match;
+  if (generated) app.feedbackChangesSinceRefresh = 0;
   app.root.innerHTML = `
     <div id="app-notice" class="app-notice"></div>
     <section class="match-hero">
@@ -91,19 +94,22 @@ export function renderMatch(app) {
       <button type="button" data-action="clear-friend">${app.language === 'kr' ? '다른 친구와 비교' : 'Compare another friend'}</button>
     </section>
   `;
+  app.renderNotice();
 
-  track('match_view', {
-    state: 'result',
-    compatibility_score: match.score,
-    resonance: match.resonance,
-    discovery: match.discovery,
-    profile_id: app.profile.id,
-    friend_profile_id: app.friendProfile.id,
-    product_version: 'v2-m4'
-  });
-  track('ref_complete', {
-    ref_type: app.friendProfile.archetypeId,
-    result_type: getProfileArchetype(app.profile).id,
-    compatibility_score: match.score
-  });
+  if (generated) {
+    track('match_view', {
+      state: 'result',
+      compatibility_score: match.score,
+      resonance: match.resonance,
+      discovery: match.discovery,
+      profile_id: app.profile.id,
+      friend_profile_id: app.friendProfile.id,
+      product_version: 'v2-m4'
+    });
+    track('ref_complete', {
+      ref_type: app.friendProfile.archetypeId,
+      result_type: getProfileArchetype(app.profile).id,
+      compatibility_score: match.score
+    });
+  }
 }
