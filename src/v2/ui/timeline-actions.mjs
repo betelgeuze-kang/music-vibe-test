@@ -7,6 +7,7 @@ import {
   recordInteraction,
   restoreProfileSnapshot
 } from '../infrastructure/storage.mjs?timeline=m4t1';
+import { showConfirmDialog } from './dialogs.mjs?weekly=m4w1';
 import { track } from './helpers.mjs?engagement=m4f1';
 
 const PRODUCT_VERSION = 'v2-m4t1';
@@ -18,7 +19,7 @@ function resetProfileDependents(app) {
   app.matchResult = null;
 }
 
-function restoreSnapshot(app, target) {
+async function restoreSnapshot(app, target) {
   const snapshotKey = String(target.dataset.snapshotKey || '');
   const snapshot = findProfileSnapshot(snapshotKey);
   if (!snapshot) {
@@ -26,9 +27,17 @@ function restoreSnapshot(app, target) {
     return;
   }
 
-  const confirmed = window.confirm(app.language === 'kr'
-    ? '이 기록을 현재 취향으로 다시 열까요? 최근 기록은 지워지지 않아요.'
-    : 'Restore this note as the current taste? Newer notes will remain in the timeline.');
+  app.clearNotice?.();
+  const confirmed = await showConfirmDialog({
+    title: app.language === 'kr' ? '이 기록으로 돌아갈까요?' : 'Restore this listening note?',
+    description: app.language === 'kr'
+      ? '현재 취향만 이 기록으로 바뀝니다. 최근 기록과 곡 반응은 지워지지 않아요.'
+      : 'Only the current taste will change. Newer notes and track feedback will remain.',
+    confirmLabel: app.language === 'kr' ? '이 기록으로 돌아가기' : 'Restore this note',
+    cancelLabel: app.language === 'kr' ? '취소' : 'Cancel',
+    tone: 'primary',
+    opener: target
+  });
   if (!confirmed) return;
 
   const saved = restoreProfileSnapshot(snapshot);
@@ -47,12 +56,20 @@ function restoreSnapshot(app, target) {
   void app.render();
 }
 
-function clearTimeline(app) {
+async function clearTimeline(app, target) {
   const history = mergeActiveSnapshot(app.profile, loadProfileHistory());
   if (history.length <= 1) return;
-  const confirmed = window.confirm(app.language === 'kr'
-    ? '과거 취향 기록을 모두 지울까요? 현재 취향은 그대로 유지됩니다.'
-    : 'Clear all earlier taste notes? Your current taste will remain.');
+  app.clearNotice?.();
+  const confirmed = await showConfirmDialog({
+    title: app.language === 'kr' ? '과거 취향 기록을 지울까요?' : 'Clear earlier taste notes?',
+    description: app.language === 'kr'
+      ? '과거 기록만 삭제합니다. 현재 취향과 곡 반응은 그대로 유지돼요.'
+      : 'Only earlier notes will be removed. Your current taste and track feedback will remain.',
+    confirmLabel: app.language === 'kr' ? '과거 기록 지우기' : 'Clear earlier notes',
+    cancelLabel: app.language === 'kr' ? '취소' : 'Cancel',
+    tone: 'danger',
+    opener: target
+  });
   if (!confirmed) return;
 
   const saved = clearProfileHistory(app.profile);
@@ -68,8 +85,20 @@ function clearTimeline(app) {
   void app.render();
 }
 
-function deleteAllProfileData(app) {
-  if (!window.confirm(app.copy().resetConfirm)) return;
+async function deleteAllProfileData(app, target) {
+  app.clearNotice?.();
+  const confirmed = await showConfirmDialog({
+    title: app.language === 'kr' ? '저장된 취향과 기록을 모두 지울까요?' : 'Delete saved taste notes and history?',
+    description: app.language === 'kr'
+      ? '현재 취향과 과거 타임라인을 삭제합니다. 이 작업은 되돌릴 수 없어요.'
+      : 'This removes the current taste and profile timeline. This action cannot be undone.',
+    confirmLabel: app.language === 'kr' ? '모두 삭제하기' : 'Delete everything',
+    cancelLabel: app.language === 'kr' ? '취소' : 'Cancel',
+    tone: 'danger',
+    opener: target
+  });
+  if (!confirmed) return;
+
   clearProfile();
   clearProfileHistory();
   app.profile = null;
@@ -86,8 +115,8 @@ export function handleTimelineClick(app, event) {
   if (!['restore-profile-snapshot', 'clear-profile-history', 'clear-profile'].includes(action)) return false;
 
   event.preventDefault();
-  if (action === 'restore-profile-snapshot') restoreSnapshot(app, target);
-  else if (action === 'clear-profile-history') clearTimeline(app);
-  else deleteAllProfileData(app);
+  if (action === 'restore-profile-snapshot') void restoreSnapshot(app, target);
+  else if (action === 'clear-profile-history') void clearTimeline(app, target);
+  else void deleteAllProfileData(app, target);
   return true;
 }

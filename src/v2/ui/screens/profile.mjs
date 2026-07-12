@@ -12,7 +12,7 @@ import {
 } from '../../domain/timeline.mjs?timeline=m4t1';
 import { loadProfileHistory } from '../../infrastructure/storage.mjs?timeline=m4t1';
 import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track, trackCard } from '../helpers.mjs?engagement=m4f1';
+import { escapeHtml, track, trackCard } from '../helpers.mjs?weekly=m4w1';
 import { renderEmptyProfile } from './empty.mjs?ui=f1';
 
 function timelineHighlights(profile, language) {
@@ -170,9 +170,10 @@ export function renderProfile(app) {
     </section>
 
     <section class="action-band">
-      <div><span class="eyebrow">${app.language === 'kr' ? '다음에 들을 것' : 'NEXT LISTEN'}</span><h2>${app.language === 'kr' ? '이 기록을 오늘의 선곡과 친구 사이의 음악으로 이어보세요.' : 'Continue these notes into music for today or music for two.'}</h2></div>
+      <div><span class="eyebrow">${app.language === 'kr' ? '다음에 들을 것' : 'NEXT LISTEN'}</span><h2>${app.language === 'kr' ? '이 기록을 이번 주의 흐름, 오늘의 선곡, 친구 사이의 음악으로 이어보세요.' : 'Continue these notes into your week, music for today, or music for two.'}</h2></div>
       <div class="action-band__buttons">
-        <button class="button button--light" type="button" data-route="now">${escapeHtml(copy.profileNow)}</button>
+        <button class="button button--light" type="button" data-action="open-weekly">${app.language === 'kr' ? '이번 주 기록 보기' : 'Open Weekly Vibe'}</button>
+        <button class="button button--ghost" type="button" data-route="now">${escapeHtml(copy.profileNow)}</button>
         <button class="button button--ghost" type="button" data-route="match">${escapeHtml(copy.profileMatch)}</button>
       </div>
     </section>
@@ -186,7 +187,7 @@ export function renderProfile(app) {
   `;
 
   track('result_view', {
-    product_version: 'v2-m4t1',
+    product_version: 'v2-m4w1',
     result_type: archetype.id,
     profile_id: app.profile.id,
     result_origin: app.profile.source,
@@ -195,10 +196,10 @@ export function renderProfile(app) {
   track('profile_quality_view', {
     result_type: archetype.id,
     archetype_confidence: app.profile.archetypeConfidence,
-    product_version: 'v2-m4t1'
+    product_version: 'v2-m4w1'
   });
   track('profile_timeline_view', {
-    product_version: 'v2-m4t1',
+    product_version: 'v2-m4w1',
     profile_id: app.profile.id,
     snapshot_count: app.profileHistory.length,
     comparison_available: app.profileHistory.length > 1

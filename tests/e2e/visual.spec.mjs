@@ -19,11 +19,18 @@ const screenshotOptions = Object.freeze({
 async function stabilize(page) {
   await page.evaluate(async () => {
     await document.fonts?.ready;
+    window.__musicVibeV2?.clearNotice?.();
+    document.querySelectorAll('dialog[open]').forEach((dialog) => {
+      try { dialog.close('cancel'); } catch (_) { dialog.remove(); }
+    });
     document.documentElement.style.scrollBehavior = 'auto';
     document.querySelectorAll('audio').forEach((audio) => audio.pause());
     window.scrollTo(0, 0);
   });
-  await page.waitForTimeout(150);
+  const notice = page.locator('.app-notice');
+  if (await notice.count()) await expect(notice).toBeEmpty();
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await page.waitForTimeout(180);
 }
 
 async function captureOrCompare(page, testInfo, baseName) {
@@ -37,6 +44,16 @@ async function captureOrCompare(page, testInfo, baseName) {
   fs.mkdirSync(path.dirname(output), { recursive: true });
   await page.screenshot({ path: output, ...screenshotOptions });
   expect(fs.statSync(output).size).toBeGreaterThan(20_000);
+}
+
+async function openReadyWeekly(page) {
+  await completeProfile(page, 'a');
+  await page.locator('[data-route="now"]').first().click();
+  await page.locator('[data-context-id="night"]').click();
+  await page.locator('[data-action="track-feedback"][data-feedback-value="more"]').nth(0).click();
+  await page.locator('[data-action="track-feedback"][data-feedback-value="more"]').nth(2).click();
+  await page.locator('[data-route="weekly"]').first().click();
+  await expect(page.locator('.weekly-hero')).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -59,6 +76,12 @@ test('profile visual snapshot', async ({ page }, testInfo) => {
   await page.goto('/?lang=ko#/home');
   await completeProfile(page, 'a');
   await captureOrCompare(page, testInfo, 'profile.png');
+});
+
+test('weekly visual snapshot', async ({ page }, testInfo) => {
+  await page.goto('/?lang=ko#/home');
+  await openReadyWeekly(page);
+  await captureOrCompare(page, testInfo, 'weekly.png');
 });
 
 test('today-listen visual snapshot', async ({ page }, testInfo) => {
