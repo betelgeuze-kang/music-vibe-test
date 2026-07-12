@@ -7,6 +7,7 @@ import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?e
 import { renderDiscover } from './screens/discover.mjs?ui=f1';
 import { renderHome } from './screens/home.mjs?ui=f1';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?engagement=m4f1';
+import { handleTimelineClick } from './timeline-actions.mjs?timeline=m4t1';
 
 export const ENGAGEMENT_RELEASE = 'm4f1';
 export const TIMELINE_RELEASE = 'm4t1';
@@ -47,7 +48,9 @@ export class VibeApp {
     this.startedAt = 0;
     this.renderTicket = 0;
     this.boundHashChange = () => this.handleRouteChange();
-    this.boundClick = (event) => this.handleClick(event);
+    this.boundClick = (event) => {
+      if (!handleTimelineClick(this, event)) this.handleClick(event);
+    };
     this.boundSubmit = (event) => this.handleSubmit(event);
     this.boundKeydown = (event) => this.handleKeydown(event);
   }
