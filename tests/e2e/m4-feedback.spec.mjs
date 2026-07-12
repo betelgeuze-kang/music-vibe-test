@@ -46,7 +46,7 @@ test('track feedback persists and refresh preserves the 3/1/1 recommendation bud
 
   await page.reload();
   await page.locator('[data-action="restore-context"]').click();
-  const restoredCard = page.locator(`[data-track-id="${firstTrackId}"]`);
+  const restoredCard = page.locator(`.track-card[data-track-id="${firstTrackId}"]`);
   await expect(restoredCard).toHaveCount(1);
   await expect(restoredCard.locator('[data-feedback-value="more"]')).toHaveAttribute('aria-pressed', 'true');
 });
