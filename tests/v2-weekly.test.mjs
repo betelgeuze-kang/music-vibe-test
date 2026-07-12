@@ -73,7 +73,7 @@ assert.equal(loadWeeklyVibes({ profileId: profile.id }).length, 1);
 const svg = await createWeeklyVibeCardSvg(weekly, profile, TRACK_BY_ID, 'kr');
 assert(svg.includes('width="1200" height="1500"'));
 assert(svg.includes('MY MUSIC VIBE · WEEKLY'));
-assert(svg.includes(weeklyAlias(weekly, 'kr'));
+assert(svg.includes(weeklyAlias(weekly, 'kr')));
 
 window.localStorage.clear();
 const firstVisit = registerVisit(new Date('2026-07-01T09:00:00.000Z'));
