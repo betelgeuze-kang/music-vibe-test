@@ -3,7 +3,7 @@ import { CONTEXT_BY_ID } from '../data/contexts.mjs';
 import { feedbackAdjustmentForTrack } from './feedback.mjs';
 import { getProfileArchetype, localize, similarityScore, clamp } from './profile.mjs';
 import { matchBand } from './presentation.mjs';
-import { averageProfiles, EDITORIAL_CATALOG, platformUrl, selectDiverseCandidates } from './recommendation.mjs';
+import { averageProfiles, EDITORIAL_CATALOG, platformUrl, selectDiverseCandidates } from './recommendation.mjs?engagement=m4f1';
 
 function axisGap(left, right, axisId) {
   return Math.abs(Number(left?.scores?.[axisId] ?? 50) - Number(right?.scores?.[axisId] ?? 50));
