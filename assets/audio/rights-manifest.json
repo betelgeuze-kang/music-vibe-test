@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "release": "cr1",
+  "generatedAt": "2026-07-12",
+  "activeAudioDelivery": "client-side deterministic PCM/WAV synthesis",
+  "thirdPartySamplesUsed": false,
+  "creator": "My Music Vibe / betelgeuze-kang",
+  "rightsHolder": "My Music Vibe / betelgeuze-kang",
+  "license": {
+    "name": "Creative Commons Attribution 4.0 International",
+    "shortName": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "commercialUseAllowed": true,
+    "attributionRequired": true
+  },
+  "sourceModule": "/src/v2/audio/original-clips.mjs",
+  "sourceUrl": "https://github.com/betelgeuze-kang/music-vibe-test/blob/main/src/v2/audio/original-clips.mjs",
+  "attribution": "Original listening-test audio by My Music Vibe / betelgeuze-kang, licensed under CC BY 4.0.",
+  "modificationNote": "Each clip is rendered in the browser from mathematical oscillators, envelopes, and seeded noise. No third-party recordings, samples, loops, or recognizable melodies are used.",
+  "clips": [
+    { "id": "groove-pulse-cr1", "titleKr": "탄력 있는 그루브", "titleEn": "Groove Pulse", "seed": 101, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "dream-space-cr1", "titleKr": "몽환적인 여백", "titleEn": "Dream Space", "seed": 202, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "organic-room-cr1", "titleKr": "손끝의 울림", "titleEn": "Organic Room", "seed": 303, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "synthetic-layers-cr1", "titleKr": "변하는 전자 표면", "titleEn": "Synthetic Layers", "seed": 404, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "precision-grid-cr1", "titleKr": "정교한 그리드", "titleEn": "Precision Grid", "seed": 505, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "emotional-afterglow-cr1", "titleKr": "감정의 잔향", "titleEn": "Emotional Afterglow", "seed": 606, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "resolved-arc-cr1", "titleKr": "차곡차곡 쌓이는 흐름", "titleEn": "Resolved Arc", "seed": 707, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false },
+    { "id": "playful-turns-cr1", "titleKr": "예상 밖의 전환", "titleEn": "Playful Turns", "seed": 808, "durationSeconds": 12, "sampleRate": 22050, "commercialUseAllowed": true, "samplesUsed": false }
+  ],
+  "retiredAssets": {
+    "activeInCurrentRelease": false,
+    "auditDocument": "/docs/legal/RETIRED_AUDIO_AUDIT.md",
+    "note": "Earlier third-party and unverified MP3 files were removed from the active repository tree in CR1."
+  }
+}
