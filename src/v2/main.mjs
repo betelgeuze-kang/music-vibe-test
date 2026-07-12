@@ -1,4 +1,4 @@
-import { VibeApp } from './ui/app.mjs?engagement=m4f1';
+import { VibeApp } from './ui/app.mjs?timeline=m4t1';
 
 async function retireLegacyRuntime() {
   if ('serviceWorker' in navigator) {
@@ -17,13 +17,13 @@ async function retireLegacyRuntime() {
 
 async function loadBuildInfo() {
   try {
-    const response = await fetch('/build-info.json?engagement=m4f1', { cache: 'no-store' });
+    const response = await fetch('/build-info.json?timeline=m4t1', { cache: 'no-store' });
     if (!response.ok) return;
     const info = await response.json();
-    document.documentElement.dataset.buildId = info.engagementRelease || info.uiRelease || info.releaseId || 'm4f1';
+    document.documentElement.dataset.buildId = info.timelineRelease || info.engagementRelease || info.uiRelease || info.releaseId || 'm4t1';
     window.__musicVibeBuild = Object.freeze(info);
   } catch (_) {
-    document.documentElement.dataset.buildId = 'm4f1';
+    document.documentElement.dataset.buildId = 'm4t1';
   }
 }
 
