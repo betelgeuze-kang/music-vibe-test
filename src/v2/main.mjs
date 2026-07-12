@@ -1,4 +1,5 @@
 import { VibeApp } from './ui/app.mjs?weekly=m4w1';
+import { installConsentAccessibility } from './ui/consent-a11y.mjs?weekly=m4w1';
 
 async function retireLegacyRuntime() {
   if ('serviceWorker' in navigator) {
@@ -34,6 +35,7 @@ function boot() {
   if (!root || !header || !footer) throw new Error('Application shell is incomplete.');
   retireLegacyRuntime();
   loadBuildInfo();
+  installConsentAccessibility();
   const app = new VibeApp({ root, header, footer });
   window.__musicVibeV2 = app;
   app.start();
