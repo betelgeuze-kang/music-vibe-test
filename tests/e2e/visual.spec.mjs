@@ -39,6 +39,16 @@ async function captureOrCompare(page, testInfo, baseName) {
   expect(fs.statSync(output).size).toBeGreaterThan(20_000);
 }
 
+async function openReadyWeekly(page) {
+  await completeProfile(page, 'a');
+  await page.locator('[data-route="now"]').first().click();
+  await page.locator('[data-context-id="night"]').click();
+  await page.locator('[data-action="track-feedback"][data-feedback-value="more"]').nth(0).click();
+  await page.locator('[data-action="track-feedback"][data-feedback-value="more"]').nth(2).click();
+  await page.locator('[data-route="weekly"]').first().click();
+  await expect(page.locator('.weekly-hero')).toBeVisible();
+}
+
 test.beforeEach(async ({ page }) => {
   await declineAnalytics(page);
 });
@@ -59,6 +69,12 @@ test('profile visual snapshot', async ({ page }, testInfo) => {
   await page.goto('/?lang=ko#/home');
   await completeProfile(page, 'a');
   await captureOrCompare(page, testInfo, 'profile.png');
+});
+
+test('weekly visual snapshot', async ({ page }, testInfo) => {
+  await page.goto('/?lang=ko#/home');
+  await openReadyWeekly(page);
+  await captureOrCompare(page, testInfo, 'weekly.png');
 });
 
 test('today-listen visual snapshot', async ({ page }, testInfo) => {
