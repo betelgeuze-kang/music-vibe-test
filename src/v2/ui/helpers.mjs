@@ -1,7 +1,7 @@
 import { getProfileArchetype } from '../domain/profile.mjs?v=qg1';
-import { loadLanguage } from '../infrastructure/storage.mjs?engagement=m4f1';
+import { loadLanguage } from '../infrastructure/storage.mjs?weekly=m4w1';
 
-export const ROUTES = new Set(['home', 'discover', 'profile', 'now', 'match']);
+export const ROUTES = new Set(['home', 'discover', 'profile', 'weekly', 'now', 'match']);
 
 export function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
