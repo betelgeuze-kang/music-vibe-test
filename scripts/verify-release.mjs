@@ -16,8 +16,9 @@ const brandRelease = buildInfo.brandRelease;
 const stabilityRelease = buildInfo.stabilityRelease;
 const contentRelease = buildInfo.contentRelease;
 const uiRelease = buildInfo.uiRelease;
+const engagementRelease = buildInfo.engagementRelease;
 
-for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease, contentRelease, uiRelease })) {
+for (const [label, value] of Object.entries({ release, brandRelease, stabilityRelease, contentRelease, uiRelease, engagementRelease })) {
   if (!value || !/^[a-z0-9-]+$/i.test(value)) throw new Error(`build-info.json must define a stable ${label} ID`);
 }
 
@@ -26,7 +27,8 @@ for (const [attribute, value] of [
   ['data-brand-release', brandRelease],
   ['data-stability-release', stabilityRelease],
   ['data-content-release', contentRelease],
-  ['data-ui-release', uiRelease]
+  ['data-ui-release', uiRelease],
+  ['data-engagement-release', engagementRelease]
 ]) {
   if (!index.includes(`${attribute}="${value}"`)) throw new Error(`${attribute} does not match build-info.json`);
 }
@@ -35,18 +37,20 @@ for (const [meta, value] of [
   ['music-vibe-brand-release', brandRelease],
   ['music-vibe-stability-release', stabilityRelease],
   ['music-vibe-content-release', contentRelease],
-  ['music-vibe-ui-release', uiRelease]
+  ['music-vibe-ui-release', uiRelease],
+  ['music-vibe-engagement-release', engagementRelease]
 ]) {
   if (!index.includes(`name="${meta}" content="${value}"`)) throw new Error(`${meta} meta does not match build-info.json`);
 }
 if (!index.includes(`Canonical UI ${uiRelease.toUpperCase()}`)) throw new Error('canonical UI release marker is missing');
+if (!index.includes(`M4 Feedback ${engagementRelease.toUpperCase()}`)) throw new Error('M4 feedback release marker is missing');
 if ((index.match(/rel="stylesheet"/g) || []).length !== 1) throw new Error('HTML must load exactly one canonical stylesheet');
-if (!index.includes(`v2-app.css?ui=${uiRelease}`)) throw new Error('canonical stylesheet is not version-locked');
-if (!index.includes(`src/v2/main.mjs?ui=${uiRelease}`)) throw new Error('canonical application entry is not version-locked');
+if (!index.includes(`v2-app.css?engagement=${engagementRelease}`)) throw new Error('canonical stylesheet is not engagement-versioned');
+if (!index.includes(`src/v2/main.mjs?engagement=${engagementRelease}`)) throw new Error('canonical application entry is not engagement-versioned');
 if (index.includes('src/v2/brand/install.mjs') || index.includes('src/v2/brand/interaction.mjs')) throw new Error('runtime override modules must not load');
 if (index.includes('brand-pending')) throw new Error('canonical UI must not use a post-boot design mask');
 
-const sourceStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css', 'v2-editorial.css', 'v2-stabilization.css', 'v2-stabilization-a11y.css'];
+const sourceStyles = ['v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css', 'v2-editorial.css', 'v2-stabilization.css', 'v2-stabilization-a11y.css', 'v2-m4.css'];
 const canonicalModules = [
   'src/v2/main.mjs',
   'src/v2/ui/app.mjs',
@@ -67,6 +71,7 @@ const canonicalModules = [
   'src/v2/data/home-showcase.mjs',
   'src/v2/domain/profile.mjs',
   'src/v2/domain/presentation.mjs',
+  'src/v2/domain/feedback.mjs',
   'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs',
   'src/v2/infrastructure/storage.mjs',
@@ -83,7 +88,7 @@ for (const file of ['v2-app.css', ...sourceStyles, ...canonicalModules, ...expec
 }
 
 const cssEntry = read('v2-app.css');
-for (const layer of ['core', 'features', 'responsive', 'quality', 'editorial', 'stability', 'accessibility']) {
+for (const layer of ['core', 'features', 'responsive', 'quality', 'editorial', 'stability', 'accessibility', 'engagement']) {
   if (!cssEntry.includes(`layer(${layer})`)) throw new Error(`canonical CSS is missing the ${layer} layer`);
 }
 for (const source of sourceStyles) {
@@ -95,17 +100,21 @@ const appSource = read('src/v2/ui/app.mjs');
 const actionSource = read('src/v2/ui/actions.mjs');
 const homeSource = read('src/v2/ui/screens/home.mjs');
 if (mainSource.includes('installQualityGates') || mainSource.includes('quality/install.mjs')) throw new Error('quality runtime mutation must be removed');
-if (!appSource.includes("import('./screens/profile.mjs?ui=f1')") || !appSource.includes("import('./screens/now.mjs?ui=f1')") || !appSource.includes("import('./screens/match.mjs?ui=f1')")) throw new Error('lazy route modules are incomplete');
+for (const route of ['profile', 'now', 'match']) {
+  if (!appSource.includes(`import('./screens/${route}.mjs?engagement=${engagementRelease}')`)) throw new Error(`lazy ${route} route is not engagement-versioned`);
+}
 for (const source of [mainSource, appSource, actionSource, homeSource]) {
   if (/from ['"].*domain\/recommendation\.mjs/.test(source) || /from ['"].*domain\/match\.mjs/.test(source) || /from ['"].*data\/tracks\.mjs/.test(source)) {
     throw new Error('home boot graph statically imports the full catalog');
   }
 }
-if (!actionSource.includes("await import('../domain/recommendation.mjs?content=e1')")) throw new Error('context recommendations are not lazy-loaded');
-if (buildInfo.entry !== `/src/v2/main.mjs?ui=${uiRelease}`) throw new Error('canonical entry release contract is inconsistent');
-if (buildInfo.styleEntry !== `/v2-app.css?ui=${uiRelease}`) throw new Error('canonical style release contract is inconsistent');
+if (!actionSource.includes(`await import('../domain/recommendation.mjs?engagement=${engagementRelease}')`)) throw new Error('context recommendations are not engagement-versioned');
+if (!actionSource.includes("action === 'track-feedback'") || !actionSource.includes("action === 'refresh-recommendations'")) throw new Error('M4 feedback actions are incomplete');
+if (buildInfo.entry !== `/src/v2/main.mjs?engagement=${engagementRelease}`) throw new Error('canonical entry release contract is inconsistent');
+if (buildInfo.styleEntry !== `/v2-app.css?engagement=${engagementRelease}`) throw new Error('canonical style release contract is inconsistent');
 if (buildInfo.runtimeOverrides !== false) throw new Error('runtime override contract must be false');
 if (!Array.isArray(buildInfo.lazyRoutes) || buildInfo.lazyRoutes.length !== 3) throw new Error('lazy route contract is incomplete');
+if (!Array.isArray(buildInfo.engagementData) || buildInfo.engagementData.length !== 3) throw new Error('M4 engagement data contract is incomplete');
 
 const editorialTrackSource = read('src/v2/data/editorial-tracks.mjs');
 const editorialTable = editorialTrackSource.match(/const RAW_EDITORIAL_TRACKS = `([\s\S]*?)`;/)?.[1] || '';
@@ -114,4 +123,4 @@ if (editorialRows.length !== 60) throw new Error(`editorial track catalog must c
 if (!read('src/v2/data/home-showcase.mjs').includes('HOME_SHOWCASE')) throw new Error('fixed editorial home showcase is missing');
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) throw new Error('legacy ENFP result continuity is missing');
 
-console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} + content ${contentRelease} + UI ${uiRelease} verified at ${root}`);
+console.log(`Core ${release} + brand ${brandRelease} + stability ${stabilityRelease} + content ${contentRelease} + UI ${uiRelease} + engagement ${engagementRelease} verified at ${root}`);

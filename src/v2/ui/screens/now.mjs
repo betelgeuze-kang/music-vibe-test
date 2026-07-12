@@ -1,9 +1,23 @@
 import { VIBE_CONTEXTS, CONTEXT_BY_ID } from '../../data/contexts.mjs?v=qg1';
 import { localize } from '../../domain/profile.mjs?v=qg1';
-import { recommendationSummary } from '../../domain/recommendation.mjs';
-import { loadNowHistory } from '../../infrastructure/storage.mjs?v=qg1';
-import { escapeHtml, track, trackCard } from '../helpers.mjs?ui=f1';
+import { recommendationSummary } from '../../domain/recommendation.mjs?engagement=m4f1';
+import { loadNowHistory } from '../../infrastructure/storage.mjs?engagement=m4f1';
+import { escapeHtml, track, trackCard } from '../helpers.mjs?engagement=m4f1';
 import { renderEmptyProfile } from './empty.mjs?ui=f1';
+
+function refreshPanel(app) {
+  if (app.feedbackChangesSinceRefresh < 2) return '';
+  return `
+    <section class="feedback-refresh" aria-live="polite">
+      <div>
+        <span class="eyebrow">${app.language === 'kr' ? '내 반응 반영' : 'USE MY FEEDBACK'}</span>
+        <h2>${app.language === 'kr' ? '반응을 반영해 5곡을 다시 골라볼까요?' : 'Refresh these five tracks using your feedback?'}</h2>
+        <p>${app.language === 'kr' ? '현재 취향과 3·1·1 구성은 유지하고, 각 자리 안에서 더 잘 맞는 곡을 찾습니다.' : 'Your taste profile and the 3/1/1 mix stay intact; only the candidates within each slot are reconsidered.'}</p>
+      </div>
+      <button class="button button--primary" type="button" data-action="refresh-recommendations">${app.language === 'kr' ? '반응을 반영해 다시 고르기' : 'Refresh the five tracks'}</button>
+    </section>
+  `;
+}
 
 export function renderNow(app) {
   const copy = app.copy();
@@ -30,7 +44,8 @@ export function renderNow(app) {
         `).join('')}
       </section>
     `;
-    track('vibe_now_view', { state: 'context_picker', profile_id: app.profile.id, product_version: 'v2-f1' });
+    app.renderNotice();
+    track('vibe_now_view', { state: 'context_picker', profile_id: app.profile.id, product_version: 'v2-m4' });
     return;
   }
 
@@ -46,11 +61,17 @@ export function renderNow(app) {
     </section>
     <section class="recommendation-list" aria-label="${escapeHtml(copy.nowResultTitle)}">
       <div class="list-heading"><h2>${escapeHtml(copy.nowResultTitle)}</h2><span>${app.recommendations.length} TRACKS</span></div>
-      ${app.recommendations.map((candidate) => trackCard(candidate, app.language, 'vibe_now')).join('')}
+      ${app.recommendations.map((candidate) => trackCard(candidate, app.language, 'vibe_now', {
+        feedbackEnabled: true,
+        feedbackValue: app.trackFeedback[candidate.track.id]?.value || '',
+        contextId: app.selectedContextId
+      })).join('')}
     </section>
+    ${refreshPanel(app)}
     <section class="action-band action-band--compact">
       <div><span class="eyebrow">${app.language === 'kr' ? '같이 듣기' : 'LISTEN TOGETHER'}</span><h2>${app.language === 'kr' ? '이 선곡을 친구 취향과 섞어볼까요?' : 'Blend this direction with a friend’s taste.'}</h2></div>
       <button class="button button--light" type="button" data-route="match">${escapeHtml(copy.openMatch)}</button>
     </section>
   `;
+  app.renderNotice();
 }

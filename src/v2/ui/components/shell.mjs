@@ -1,4 +1,4 @@
-import { escapeHtml } from '../helpers.mjs?ui=f1';
+import { escapeHtml } from '../helpers.mjs?engagement=m4f1';
 
 export const UI_RELEASE = 'f1';
 
@@ -11,7 +11,7 @@ export function renderHeader(app) {
     <div class="site-header__inner editorial-header">
       <button class="brand editorial-wordmark" type="button" data-route="home" aria-label="My Music Vibe home">
         <span class="editorial-wordmark__name">MY MUSIC VIBE</span>
-        <span class="editorial-wordmark__issue">LISTENING NOTES / ${UI_RELEASE.toUpperCase()}</span>
+        <span class="editorial-wordmark__issue">LISTENING NOTES / M4</span>
       </button>
       <nav class="site-nav editorial-nav" aria-label="${app.language === 'kr' ? '주요 메뉴' : 'Primary navigation'}">
         ${nav('home', copy.navHome)}
