@@ -44,6 +44,7 @@ export function renderNow(app) {
         `).join('')}
       </section>
     `;
+    app.renderNotice();
     track('vibe_now_view', { state: 'context_picker', profile_id: app.profile.id, product_version: 'v2-m4' });
     return;
   }
@@ -72,4 +73,5 @@ export function renderNow(app) {
       <button class="button button--light" type="button" data-route="match">${escapeHtml(copy.openMatch)}</button>
     </section>
   `;
+  app.renderNotice();
 }
