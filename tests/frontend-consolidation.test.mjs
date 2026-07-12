@@ -30,7 +30,7 @@ for (const file of [
   'src/v2/ui/weekly-actions.mjs', 'src/v2/domain/feedback.mjs', 'src/v2/domain/timeline.mjs',
   'src/v2/domain/tag-visibility.mjs', 'src/v2/domain/weekly.mjs', 'src/v2/audio/original-clips.mjs',
   'src/v2/ads/policy.mjs', 'v2-app.css', 'v2-m4.css', 'v2-m4-timeline.css', 'v2-m4-weekly.css',
-  'v2-frontend-quality.css', 'v2-human-editorial.css', 'v2-commercial-readiness.css'
+  'v2-frontend-quality.css', 'v2-human-editorial.css', 'v2-commercial-readiness.css', 'ads.txt'
 ]) assert(exists(file), `canonical UI module is missing: ${file}`);
 
 assert.equal((index.match(/rel="stylesheet"/g) || []).length, 1);
@@ -90,7 +90,10 @@ assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1');
 assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert.equal(buildInfo.adsEnabled, false);
+assert.equal(buildInfo.adProvider, 'google-adsense');
+assert.equal(buildInfo.adPublisherId, 'pub-1386368370627622');
+assert.equal(buildInfo.adsTxt, '/ads.txt');
 assert.equal(buildInfo.lazyRoutes.length, 4);
-assert.equal(buildInfo.commercialReadinessData.length, 8);
+assert.equal(buildInfo.commercialReadinessData.length, 9);
 
 console.log('Frontend consolidation through CR1 commercial readiness checks passed.');
