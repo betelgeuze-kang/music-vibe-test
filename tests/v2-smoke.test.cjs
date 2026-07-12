@@ -19,7 +19,7 @@ const packageJson = JSON.parse(read('package.json'));
 const buildInfo = JSON.parse(read('build-info.json'));
 
 for (const file of [
-  'v2-app.css', 'v2-commercial-readiness.css', 'legal.css', 'src/v2/main.mjs', 'src/v2/ui/app.mjs',
+  'v2-app.css', 'v2-commercial-readiness.css', 'legal.css', 'ads.txt', 'src/v2/main.mjs', 'src/v2/ui/app.mjs',
   'src/v2/ui/commercial-audio-actions.mjs', 'src/v2/audio/original-clips.mjs', 'src/v2/ads/policy.mjs',
   'src/v2/data/questions.mjs', 'src/v2/data/editorial-tracks.mjs', 'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs', 'src/v2/domain/weekly.mjs', 'src/v2/domain/timeline.mjs',
@@ -66,10 +66,14 @@ assert.equal(buildInfo.frontendQualityRelease, 'fq1');
 assert.equal(buildInfo.humanEditorialRelease, 'he1');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
 assert.equal(buildInfo.adsEnabled, false);
+assert.equal(buildInfo.adProvider, 'google-adsense');
+assert.equal(buildInfo.adPublisherId, 'pub-1386368370627622');
+assert.equal(buildInfo.adsTxt, '/ads.txt');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1');
 assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1');
-assert.equal(buildInfo.commercialReadinessData.length, 8);
+assert.equal(buildInfo.commercialReadinessData.length, 9);
+assert.equal(read('ads.txt').trim(), 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0');
 
 assert.equal(packageJson.version, '2.0.0');
 assert(packageJson.description.includes('Commercial-ready'));
