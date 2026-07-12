@@ -23,7 +23,7 @@ test('Weekly Vibe requires three meaningful listening actions', async ({ page })
   await page.locator('[data-route="weekly"]').first().click();
   await expect(page.locator('.weekly-empty')).toBeVisible();
   await expect(page.locator('.weekly-progress__label')).toContainText('0 / 3');
-  await expect(page.locator('[data-route="now"]')).toContainText('오늘');
+  await expect(page.locator('.weekly-empty [data-route="now"]')).toContainText('오늘');
 });
 
 test('Weekly Vibe aggregates listening, persists, shares, and continues into five tracks', async ({ page }, testInfo) => {
@@ -81,7 +81,9 @@ test('seven-day return CTA and analytics interaction are deduplicated', async ({
     localStorage.setItem('music-vibe-v2-interactions-v1', JSON.stringify({ version: 1, items: [] }));
   });
 
-  await page.goto('/?lang=kr#/home');
+  // Changing the query forces a new document load. A hash-only navigation would
+  // stay inside the existing SPA and would not represent a genuine return visit.
+  await page.goto('/?lang=kr&return-test=1#/home');
   await expect(page.locator('.home-weekly-band--return')).toContainText('다시 왔네요');
   let returns = await page.evaluate(() => {
     const data = JSON.parse(localStorage.getItem('music-vibe-v2-interactions-v1') || '{"items":[]}');
