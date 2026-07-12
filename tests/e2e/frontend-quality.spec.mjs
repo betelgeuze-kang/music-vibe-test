@@ -19,9 +19,7 @@ async function expectTouchTargets(page, selectors, label) {
         const style = getComputedStyle(element);
         const rect = element.getBoundingClientRect();
         if (style.display === 'none' || style.visibility === 'hidden' || rect.width === 0 || rect.height === 0) return;
-        if (rect.height < 44 || rect.width < 44) {
-          results.push({ selector, text: element.textContent.trim().slice(0, 50), width: Math.round(rect.width), height: Math.round(rect.height) });
-        }
+        if (rect.height < 44 || rect.width < 44) results.push({ selector, text: element.textContent.trim().slice(0, 50), width: Math.round(rect.width), height: Math.round(rect.height) });
       });
     });
     return results;
@@ -46,9 +44,11 @@ test('privacy dialog has an accessible name, keyboard close, and focus restorati
   await trigger.scrollIntoViewIfNeeded();
   await trigger.click();
 
-  const dialog = page.getByRole('dialog', { name: '취향 기록은 어떻게 저장되나요?' });
+  const dialog = page.getByRole('dialog', { name: '취향 기록과 광고는 어떻게 다뤄지나요?' });
   await expect(dialog).toBeVisible();
   await expect(dialog).toHaveAttribute('aria-describedby', /privacy-description/);
+  await expect(dialog.locator('a[href="/privacy/"]')).toBeVisible();
+  await expect(dialog.locator('a[href="/audio-credits/"]')).toBeVisible();
   await expect(page.locator(':focus')).toHaveAttribute('data-dialog-primary', '');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
@@ -57,9 +57,7 @@ test('privacy dialog has an accessible name, keyboard close, and focus restorati
 
 test('destructive actions use the application confirm dialog instead of window.confirm', async ({ page }) => {
   await declineAnalytics(page);
-  await page.addInitScript(() => {
-    window.confirm = () => { throw new Error('Native confirm must not be called'); };
-  });
+  await page.addInitScript(() => { window.confirm = () => { throw new Error('Native confirm must not be called'); }; });
   await page.goto('/?lang=kr#/home');
   await completeProfile(page, 'a');
 
@@ -80,9 +78,7 @@ test('destructive actions use the application confirm dialog instead of window.c
 });
 
 test('optional analytics consent is a non-blocking labelled region with keyboard-operable buttons', async ({ page }) => {
-  await page.addInitScript(() => {
-    try { localStorage.removeItem('music-vibe-consent-v2'); } catch (_) {}
-  });
+  await page.addInitScript(() => { try { localStorage.removeItem('music-vibe-consent-v2'); } catch (_) {} });
   await page.goto('/?lang=en#/home');
   const banner = page.getByRole('region', { name: 'Optional analytics cookies' });
   await expect(banner).toBeVisible();
@@ -100,7 +96,6 @@ test('route changes clear transient notices before mobile navigation renders', a
   await declineAnalytics(page);
   await page.goto('/?lang=kr#/home');
   await createReadyWeekly(page);
-
   const notice = page.locator('.app-notice');
   await expect(notice).toBeEmpty();
   const nav = page.locator('.site-nav');
@@ -130,19 +125,14 @@ test('responsive matrix has no horizontal overflow at 390, 768, 1024, and 1440 p
     await page.setViewportSize({ width, height: width <= 768 ? 900 : 1000 });
     await page.goto(`/?lang=kr&matrix=${width}#/home`);
     await expectNoHorizontalOverflow(page, `${width}px home`);
-
     await completeProfile(page, 'a');
     await expectNoHorizontalOverflow(page, `${width}px profile`);
-
     await page.locator('[data-route="weekly"]').first().click();
     await expectNoHorizontalOverflow(page, `${width}px weekly`);
-
     await page.locator('[data-route="now"]').first().click();
     await expectNoHorizontalOverflow(page, `${width}px now`);
-
     await page.locator('[data-route="match"]').first().click();
     await expectNoHorizontalOverflow(page, `${width}px match`);
-
     await page.evaluate(() => {
       localStorage.removeItem('music-vibe-v2-profile');
       localStorage.removeItem('music-vibe-v2-history');
@@ -157,17 +147,11 @@ test('mobile primary controls meet the 44px hit-target contract', async ({ page 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?lang=kr#/home');
   await expectTouchTargets(page, [
-    '.editorial-button',
-    '.listening-choice__choose',
-    '.listening-choice__transport button',
-    '.editorial-track__links a',
-    '.editorial-text-link',
-    '.editorial-footer button'
+    '.editorial-button', '.listening-choice__choose', '.listening-choice__transport button',
+    '.editorial-track__links a', '.editorial-text-link', '.commercial-footer__links a', '.commercial-footer__links button'
   ], '390px home');
-
   await completeProfile(page, 'a');
   await expectTouchTargets(page, ['.site-nav__link', '.button', '.utility-actions button'], '390px profile');
-
   await page.locator('[data-route="weekly"]').first().click();
   await expectTouchTargets(page, ['.site-nav__link', '.button', '.editorial-text-link'], '390px weekly');
 });
@@ -181,31 +165,27 @@ test('HE1 home header never covers section titles and shared-listening copy stay
     await page.setViewportSize({ width, height: width <= 768 ? 900 : 1000 });
     await page.goto(`/?lang=kr&he1=${width}#/home`);
     await expect(page.locator('body')).toHaveAttribute('data-human-editorial-release', 'he1');
+    await expect(page.locator('body')).toHaveAttribute('data-commercial-readiness-release', 'cr1');
     await expect(page.locator('.human-editorial-home')).toBeVisible();
     await expect(page.locator('.sample-match__scores')).toHaveCount(0);
     await expect(page.locator('.human-match__person')).toHaveCount(2);
     await expect(page.locator('.human-match__meter')).toHaveCount(2);
-    await expectNoHorizontalOverflow(page, `${width}px HE1 home`);
-
+    await expectNoHorizontalOverflow(page, `${width}px HE1/CR1 home`);
     const headerPosition = await page.locator('.site-header').evaluate((node) => getComputedStyle(node).position);
     expect(headerPosition, `${width}px home header must not be sticky`).toBe('static');
-
     const togetherHeading = page.locator('.human-together > header h2');
     await togetherHeading.evaluate((node) => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
     await page.waitForTimeout(60);
     const headingBox = await togetherHeading.boundingBox();
-    expect(headingBox, `${width}px together heading must have a box`).not.toBeNull();
-    expect(headingBox.y, `${width}px together heading must not be clipped above the viewport`).toBeGreaterThanOrEqual(0);
-
-    const bridge = page.locator('.human-match__bridge');
-    const bridgeBox = await bridge.boundingBox();
-    expect(bridgeBox, `${width}px bridge must have a box`).not.toBeNull();
-    expect(bridgeBox.width, `${width}px bridge must have readable width`).toBeGreaterThan(width <= 390 ? 300 : 340);
-
+    expect(headingBox).not.toBeNull();
+    expect(headingBox.y).toBeGreaterThanOrEqual(0);
+    const bridgeBox = await page.locator('.human-match__bridge').boundingBox();
+    expect(bridgeBox).not.toBeNull();
+    expect(bridgeBox.width).toBeGreaterThan(width <= 390 ? 300 : 340);
     const labelBoxes = await page.locator('.human-match__meter span').evaluateAll((nodes) => nodes.map((node) => {
       const rect = node.getBoundingClientRect();
-      return { width: rect.width, height: rect.height, text: node.textContent.trim() };
+      return { width: rect.width, height: rect.height };
     }));
-    expect(labelBoxes.every((item) => item.width > 74 && item.height < 44), `${width}px meter labels must not stack vertically`).toBe(true);
+    expect(labelBoxes.every((item) => item.width > 74 && item.height < 44)).toBe(true);
   }
 });
