@@ -52,6 +52,7 @@ for (const file of [
   'v2-m4-timeline.css',
   'v2-m4-weekly.css',
   'v2-frontend-quality.css',
+  'v2-human-editorial.css',
   'src/v2/data/axes.mjs',
   'src/v2/data/archetypes.mjs',
   'src/v2/data/questions.mjs',
@@ -92,8 +93,8 @@ for (const file of [
 }
 
 assert.equal((index.match(/rel="stylesheet"/g) || []).length, 1, 'canonical HTML must load one stylesheet entry');
-assert(index.includes('v2-app.css?frontend=fq1'), 'frontend-quality-versioned stylesheet must load');
-assert(index.includes('src/v2/main.mjs?frontend=fq1'), 'frontend-quality-versioned module entry must load');
+assert(index.includes('v2-app.css?home=he1'), 'human-editorial-versioned stylesheet must load');
+assert(index.includes('src/v2/main.mjs?home=he1'), 'human-editorial-versioned module entry must load');
 assert(index.includes('p2-analytics.js?v=qg1'), 'consent-aware analytics infrastructure must remain');
 assert(index.includes('Version Check: P2 Growth Analytics & Experiments'), 'Pages deployment compatibility marker must remain');
 assert(index.includes('Canonical UI F1'), 'canonical UI deployment marker must remain');
@@ -101,6 +102,7 @@ assert(index.includes('M4 Feedback M4F1'), 'M4 feedback deployment marker must r
 assert(index.includes('Profile Timeline M4T1'), 'M4 timeline deployment marker must be explicit');
 assert(index.includes('Weekly Vibe M4W1'), 'M4 Weekly Vibe deployment marker must be explicit');
 assert(index.includes('Frontend Quality FQ1'), 'frontend quality deployment marker must be explicit');
+assert(index.includes('Human Editorial HE1'), 'human editorial deployment marker must be explicit');
 assert(index.includes('data-release-id="qg1"'));
 assert(index.includes('data-content-release="e1"'));
 assert(index.includes('data-ui-release="f1"'));
@@ -108,6 +110,7 @@ assert(index.includes('data-engagement-release="m4f1"'));
 assert(index.includes('data-timeline-release="m4t1"'));
 assert(index.includes('data-weekly-release="m4w1"'));
 assert(index.includes('data-frontend-quality-release="fq1"'));
+assert(index.includes('data-human-editorial-release="he1"'));
 assert.equal(buildInfo.release, 'qg1');
 assert.equal(buildInfo.contentRelease, 'e1');
 assert.equal(buildInfo.uiRelease, 'f1');
@@ -115,6 +118,7 @@ assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert.equal(buildInfo.weeklyRelease, 'm4w1');
 assert.equal(buildInfo.frontendQualityRelease, 'fq1');
+assert.equal(buildInfo.humanEditorialRelease, 'he1');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert(!index.includes('logic.js'));
 assert(!index.includes('p1-experience.js'));
@@ -127,13 +131,17 @@ assert(index.includes('data-analytics-consent-ui="standalone"'));
 
 assert(main.includes('retireLegacyRuntime'));
 assert(!main.includes('installQualityGates'));
-assert(main.includes('build-info.json?frontend=fq1'));
+assert(main.includes('build-info.json?home=he1'));
+assert(main.includes('./ui/app.mjs?home=he1'));
 assert(main.includes('./ui/consent-a11y.mjs?frontend=fq1'));
 assert(app.includes("this.navigate('discover')"));
 assert(app.includes("import('./screens/profile.mjs?timeline=m4t1')"));
 assert(app.includes("import('./screens/weekly.mjs?frontend=fq1')"));
 assert(app.includes("import('./screens/now.mjs?engagement=m4f1')"));
 assert(app.includes("import('./screens/match.mjs?engagement=m4f1')"));
+assert(app.includes("../brand/copy.mjs?home=he1"));
+assert(app.includes("./screens/home.mjs?home=he1"));
+assert(app.includes("HUMAN_EDITORIAL_RELEASE = 'he1'"));
 assert(app.includes("track('vibe_now_generate'"));
 assert(app.includes("track('match_view'"));
 assert(app.includes("track('ref_complete'"));
@@ -144,6 +152,8 @@ assert(app.includes("track('weekly_vibe_share'"));
 assert(app.includes("track('return_visit_7d'"));
 assert(app.includes('profile-timeline'));
 assert(app.includes('weekly-hero'));
+assert(app.includes('human-editorial-home'));
+assert(app.includes('human-match__bridge'));
 assert(app.includes('renderBipolarAxes'));
 assert(app.includes('renderVibeGlyph'));
 assert(app.includes('showConfirmDialog'));
@@ -188,9 +198,10 @@ assert(packageJson.scripts.test.includes('v2-quality.test.mjs'));
 assert(packageJson.scripts.test.includes('editorial-integrity.test.mjs'));
 assert(packageJson.scripts.test.includes('frontend-consolidation.test.mjs'));
 assert(packageJson.scripts.test.includes('frontend-quality.test.mjs'));
+assert(packageJson.scripts.test.includes('human-editorial-home.test.mjs'));
 assert(packageJson.scripts.test.includes('v2-feedback.test.mjs'));
 assert(packageJson.scripts.test.includes('v2-timeline.test.mjs'));
 assert(packageJson.scripts.test.includes('v2-weekly.test.mjs'));
 assert(packageJson.scripts.test.includes('profile-audit.test.mjs'));
 
-console.log('V2 canonical M4 Weekly Vibe + FQ1 smoke checks passed.');
+console.log('V2 canonical M4 Weekly Vibe + FQ1 + HE1 smoke checks passed.');
