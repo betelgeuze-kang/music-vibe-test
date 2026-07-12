@@ -1,27 +1,33 @@
 {
-  "schema": 5,
+  "schema": 6,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
   "stabilityRelease": "sr1",
   "contentRelease": "e1",
   "uiRelease": "f1",
-  "productVersion": "v2-canonical-editorial-application",
-  "assetVersion": "f1",
-  "builtAt": "2026-07-11T00:00:00Z",
-  "entry": "/src/v2/main.mjs?ui=f1",
-  "styleEntry": "/v2-app.css?ui=f1",
+  "engagementRelease": "m4f1",
+  "productVersion": "v2-feedback-listening-loop",
+  "assetVersion": "m4f1",
+  "builtAt": "2026-07-12T00:00:00Z",
+  "entry": "/src/v2/main.mjs?engagement=m4f1",
+  "styleEntry": "/v2-app.css?engagement=m4f1",
   "canonicalCopy": "/src/v2/brand/copy.mjs?brand=bd1",
   "lazyRoutes": [
-    "/src/v2/ui/screens/profile.mjs?ui=f1",
-    "/src/v2/ui/screens/now.mjs?ui=f1",
-    "/src/v2/ui/screens/match.mjs?ui=f1"
+    "/src/v2/ui/screens/profile.mjs?engagement=m4f1",
+    "/src/v2/ui/screens/now.mjs?engagement=m4f1",
+    "/src/v2/ui/screens/match.mjs?engagement=m4f1"
   ],
   "editorialData": [
     "/src/v2/data/editorial-tracks.mjs",
     "/src/v2/data/home-showcase.mjs",
     "/src/v2/domain/presentation.mjs"
   ],
+  "engagementData": [
+    "/src/v2/domain/feedback.mjs",
+    "/src/v2/infrastructure/storage.mjs?engagement=m4f1",
+    "/v2-m4.css?engagement=m4f1"
+  ],
   "runtimeOverrides": false,
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes"]
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger"]
 }
