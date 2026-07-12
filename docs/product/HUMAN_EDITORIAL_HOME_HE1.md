@@ -78,3 +78,5 @@ Home CSS                 /v2-human-editorial.css?home=he1
 - Korean headings preserve words rather than splitting syllable blocks
 - home passes axe including color contrast
 - desktop and mobile home visual baselines are re-approved for HE1
+
+The approved HE1 captures are stored as the active 12-screen CSS-pixel visual baseline set. Subsequent Browser Quality runs compare against them with the existing 2.5% maximum pixel-difference contract.
