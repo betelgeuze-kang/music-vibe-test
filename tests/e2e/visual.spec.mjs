@@ -19,11 +19,18 @@ const screenshotOptions = Object.freeze({
 async function stabilize(page) {
   await page.evaluate(async () => {
     await document.fonts?.ready;
+    window.__musicVibeV2?.clearNotice?.();
+    document.querySelectorAll('dialog[open]').forEach((dialog) => {
+      try { dialog.close('cancel'); } catch (_) { dialog.remove(); }
+    });
     document.documentElement.style.scrollBehavior = 'auto';
     document.querySelectorAll('audio').forEach((audio) => audio.pause());
     window.scrollTo(0, 0);
   });
-  await page.waitForTimeout(150);
+  const notice = page.locator('.app-notice');
+  if (await notice.count()) await expect(notice).toBeEmpty();
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await page.waitForTimeout(180);
 }
 
 async function captureOrCompare(page, testInfo, baseName) {
