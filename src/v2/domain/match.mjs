@@ -1,5 +1,6 @@
 import { AXES } from '../data/axes.mjs';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs';
+import { feedbackAdjustmentForTrack } from './feedback.mjs';
 import { getProfileArchetype, localize, similarityScore, clamp } from './profile.mjs';
 import { matchBand } from './presentation.mjs';
 import { averageProfiles, EDITORIAL_CATALOG, platformUrl, selectDiverseCandidates } from './recommendation.mjs';
@@ -43,15 +44,17 @@ function axisSentence(axis, leftScore, rightScore, language, common) {
   return `On ${label.toLowerCase()}, you lean ${leftDirection.toLowerCase()} while your friend leans ${rightDirection.toLowerCase()}, expanding the shared range.`;
 }
 
-function bridgeTrackScore(track, leftProfile, rightProfile, midpoint) {
+function bridgeTrackScore(track, leftProfile, rightProfile, midpoint, feedbackRecords = {}) {
   const leftFit = similarityScore(leftProfile.scores, track.profile);
   const rightFit = similarityScore(rightProfile.scores, track.profile);
   const midpointFit = similarityScore(midpoint, track.profile);
   const togetherFit = similarityScore(CONTEXT_BY_ID.together.target, track.profile);
   const fairness = 100 - Math.abs(leftFit - rightFit);
   const editorialBonus = track.editorial ? 4 : 0;
-  const total = Math.round(clamp(midpointFit * 0.36 + fairness * 0.27 + togetherFit * 0.2 + Math.min(leftFit, rightFit) * 0.13 + editorialBonus));
-  return { score: total, total, leftFit, rightFit, midpointFit, togetherFit, fairness };
+  const baseTotal = Math.round(clamp(midpointFit * 0.36 + fairness * 0.27 + togetherFit * 0.2 + Math.min(leftFit, rightFit) * 0.13 + editorialBonus));
+  const feedbackAdjustment = feedbackAdjustmentForTrack(track, 'together', feedbackRecords);
+  const total = Math.round(clamp(baseTotal + feedbackAdjustment));
+  return { score: total, total, baseTotal, feedbackAdjustment, leftFit, rightFit, midpointFit, togetherFit, fairness };
 }
 
 function bridgeReason(candidate, language) {
@@ -67,7 +70,7 @@ function bridgeReason(candidate, language) {
     : `This balances the midpoint with a shared-listening context and is ${sharedBand.toLowerCase()} for both listeners.`;
 }
 
-export function compareProfiles(leftProfile, rightProfile, language = 'kr') {
+export function compareProfiles(leftProfile, rightProfile, language = 'kr', options = {}) {
   if (!leftProfile?.scores || !rightProfile?.scores) return null;
   const gaps = AXES.map((axis) => ({ axis, gap: axisGap(leftProfile, rightProfile, axis.id), leftScore: leftProfile.scores[axis.id], rightScore: rightProfile.scores[axis.id] }));
   const averageGap = gaps.reduce((sum, item) => sum + item.gap, 0) / gaps.length;
@@ -90,7 +93,10 @@ export function compareProfiles(leftProfile, rightProfile, language = 'kr') {
   }));
 
   const midpoint = averageProfiles(leftProfile.scores, rightProfile.scores);
-  const ranked = EDITORIAL_CATALOG.map((track) => ({ track, ...bridgeTrackScore(track, leftProfile, rightProfile, midpoint), strategy: 'bridge' })).sort((a, b) => b.score - a.score);
+  const feedbackRecords = options.feedbackRecords || {};
+  const ranked = EDITORIAL_CATALOG
+    .map((track) => ({ track, ...bridgeTrackScore(track, leftProfile, rightProfile, midpoint, feedbackRecords), strategy: 'bridge' }))
+    .sort((left, right) => right.score - left.score || right.baseTotal - left.baseTotal || left.track.id.localeCompare(right.track.id));
   const bridgeTracks = selectDiverseCandidates(ranked, 5, { lambda: 0.7 }).map((candidate) => Object.freeze({
     ...candidate,
     sharedFit: Math.round((candidate.leftFit + candidate.rightFit) / 2),
