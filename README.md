@@ -34,7 +34,7 @@ The active listening-test audio is not downloaded commercial music. Eight 12-sec
 - Privacy and future advertising policy: `/privacy/`
 - Service and recommendation principles: `/about/`
 
-Advertising is disabled by default in `src/v2/ads/policy.mjs`. There is no live ad script, publisher ID, or root `ads.txt`. See [Advertising monetization readiness](docs/operations/ADS_MONETIZATION_READINESS.md) before enabling any provider.
+Advertising delivery is disabled by default in `src/v2/ads/policy.mjs`. The repository already contains the provider-issued Google AdSense seller record for publisher `pub-1386368370627622` at the root `/ads.txt`, but there is no live ad script, ad slot, or advertising cookie in CR1. A seller record identifies the authorized account; it does not turn on advertising. See [Advertising monetization readiness](docs/operations/ADS_MONETIZATION_READINESS.md) before enabling any provider code or placement.
 
 ## Development
 
