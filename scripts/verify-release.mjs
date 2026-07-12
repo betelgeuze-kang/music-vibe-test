@@ -56,7 +56,10 @@ if (!index.includes('v2-app.css?commercial=cr1')) fail('canonical stylesheet mus
 if (!index.includes('src/v2/main.mjs?commercial=cr1')) fail('canonical app entry must be CR1-versioned');
 if (!index.includes('data-ads-enabled="false"')) fail('advertising must be disabled by default');
 if (/pagead2\.googlesyndication\.com|adsbygoogle|doubleclick\.net/i.test(index)) fail('live advertising code must not be present in CR1');
-if (exists('ads.txt')) fail('root ads.txt must not exist before a real publisher ID is issued');
+
+const expectedAdsTxt = 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0';
+if (!exists('ads.txt')) fail('the provider-issued root ads.txt seller record is missing');
+if (read('ads.txt').trim() !== expectedAdsTxt) fail('root ads.txt does not match the configured AdSense seller record');
 
 const requiredFiles = [
   'v2-app.css', 'v2-core.css', 'v2-features.css', 'v2-responsive.css', 'v2-quality.css', 'v2-editorial.css',
@@ -70,7 +73,7 @@ const requiredFiles = [
   'src/v2/data/editorial-tracks.mjs', 'src/v2/data/home-showcase.mjs', 'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs', 'src/v2/domain/weekly.mjs', 'src/v2/domain/timeline.mjs',
   'src/v2/infrastructure/storage.mjs', 'src/v2/infrastructure/share.mjs',
-  'assets/audio/rights-manifest.json', 'about/index.html', 'privacy/index.html', 'audio-credits/index.html',
+  'assets/audio/rights-manifest.json', 'ads.txt', 'about/index.html', 'privacy/index.html', 'audio-credits/index.html',
   'docs/legal/RETIRED_AUDIO_AUDIT.md', 'docs/operations/ADS_MONETIZATION_READINESS.md', 'docs/operations/ads.txt.example'
 ];
 for (const file of requiredFiles) if (!exists(file)) fail(`release asset is missing: ${file}`);
@@ -119,7 +122,10 @@ for (const item of manifest.clips) {
   if (!item.commercialUseAllowed || item.samplesUsed !== false || !item.titleKr || !item.titleEn) fail(`invalid rights manifest entry: ${item.id}`);
 }
 
-if (!adPolicy.includes('ADS_ENABLED = false') || !adPolicy.includes("AD_PUBLISHER_ID = ''")) fail('advertising must remain disabled and unconfigured');
+if (!adPolicy.includes('ADS_ENABLED = false')) fail('advertising delivery must remain disabled');
+if (!adPolicy.includes("AD_PROVIDER = 'google-adsense'")) fail('configured ad provider is missing');
+if (!adPolicy.includes("AD_PUBLISHER_ID = 'pub-1386368370627622'")) fail('configured AdSense publisher ID is missing');
+if (!adPolicy.includes(`ADS_TXT_RECORD = '${expectedAdsTxt}'`)) fail('configured ads.txt record is inconsistent');
 if (!adPolicy.includes("'discover'") || !adPolicy.includes("'listening-booth'") || !adPolicy.includes('canRenderAd')) fail('ad route/context safety contract is incomplete');
 if (!shell.includes('/about/') || !shell.includes('/privacy/') || !shell.includes('/audio-credits/')) fail('footer legal links are incomplete');
 if (!dialogs.includes('/privacy/') || !dialogs.includes('/audio-credits/') || !dialogs.includes('현재 광고 스크립트')) fail('privacy dialog commercial disclosure is incomplete');
@@ -128,7 +134,7 @@ const about = read('about/index.html');
 const privacy = read('privacy/index.html');
 const credits = read('audio-credits/index.html');
 if (!about.includes('data-commercial-readiness-release="cr1"') || !about.includes('상업 음원 파일')) fail('about page is incomplete');
-if (!privacy.includes('data-commercial-readiness-release="cr1"') || !privacy.includes('현재 광고 비활성') || !privacy.includes('맞춤형 광고')) fail('privacy page is incomplete');
+if (!privacy.includes('data-commercial-readiness-release="cr1"') || !privacy.includes('현재 광고 비활성') || !privacy.includes('맞춤형 광고') || !privacy.includes('pub-1386368370627622')) fail('privacy page is incomplete');
 if (!credits.includes('data-commercial-readiness-release="cr1"') || !credits.includes('직접 합성') || !credits.includes('rights-manifest.json')) fail('audio credits page is incomplete');
 
 if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1') fail('build-info entry contract is inconsistent');
@@ -136,7 +142,8 @@ if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1') fail('build-info styl
 if (buildInfo.audioSource !== '/src/v2/audio/original-clips.mjs?commercial=cr1') fail('build-info audio source contract is inconsistent');
 if (buildInfo.audioRightsManifest !== '/assets/audio/rights-manifest.json') fail('build-info rights manifest contract is inconsistent');
 if (buildInfo.adsEnabled !== false || buildInfo.runtimeOverrides !== false) fail('build-info commercial safety flags are invalid');
-if (!Array.isArray(buildInfo.commercialReadinessData) || buildInfo.commercialReadinessData.length !== 8) fail('commercial readiness data contract is incomplete');
+if (buildInfo.adProvider !== 'google-adsense' || buildInfo.adPublisherId !== 'pub-1386368370627622' || buildInfo.adsTxt !== '/ads.txt') fail('build-info seller record contract is inconsistent');
+if (!Array.isArray(buildInfo.commercialReadinessData) || buildInfo.commercialReadinessData.length !== 9) fail('commercial readiness data contract is incomplete');
 
 const editorialSource = read('src/v2/data/editorial-tracks.mjs');
 const editorialTable = editorialSource.match(/const RAW_EDITORIAL_TRACKS = `([\s\S]*?)`;/)?.[1] || '';
