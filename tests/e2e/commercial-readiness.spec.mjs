@@ -78,8 +78,8 @@ test('CR1 public legal pages pass accessibility and publish the current state', 
     await page.goto(url);
     await expect(page.locator('body')).toHaveAttribute('data-commercial-readiness-release', 'cr1');
     await expect(page.getByRole('heading', { level: 1 })).toContainText(heading);
-    await expect(page.locator('a[href="/privacy/"]')).toBeVisible();
-    await expect(page.locator('a[href="/audio-credits/"]')).toBeVisible();
+    await expect(page.locator('.legal-nav a[href="/privacy/"]')).toBeVisible();
+    await expect(page.locator('.legal-nav a[href="/audio-credits/"]')).toBeVisible();
     await expectAccessible(page, url);
   }
   await page.goto('/privacy/');
