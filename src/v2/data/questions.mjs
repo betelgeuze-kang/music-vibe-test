@@ -14,37 +14,37 @@ export const PROFILE_QUESTIONS = Object.freeze([
   q({
     id: 'pulse-response', kind: 'audio',
     prompt: { kr: '지금 몸이 먼저 반응하는 사운드는?', en: 'Which sound makes your body react first?' },
-    helper: { kr: '두 곡은 에너지와 감상 방식의 차이에 초점을 맞췄어요. 짧게 비교한 뒤 더 자연스럽게 끌리는 쪽을 골라보세요.', en: 'This pair focuses on energy and listening style. Preview both, then choose the one that pulls you in naturally.' },
+    helper: { kr: '두 소리는 에너지와 감상 방식의 차이에 초점을 맞춘 자체 제작 음원이에요. 짧게 비교한 뒤 더 자연스럽게 끌리는 쪽을 골라보세요.', en: 'These original clips focus on energy and listening style. Preview both, then choose the one that pulls you in naturally.' },
     options: [
-      { id: 'groove', label: { kr: '펑키한 그루브', en: 'Funky groove' }, description: { kr: '공간의 에너지를 올리는 탄력 있는 리듬', en: 'A springy rhythm that lifts the room' }, audioSrc: 'assets/audio/Funkorama.mp3', vector: { energy: 2, sociality: 1 } },
-      { id: 'dream-space', label: { kr: '몽환적인 여백', en: 'Dreamy space' }, description: { kr: '혼자 깊게 잠기게 하는 느린 흐름', en: 'A slow flow that invites private immersion' }, audioSrc: 'assets/audio/Dream_Catcher.mp3', vector: { energy: -2, sociality: -1 } }
+      { id: 'groove', label: { kr: '펑키한 그루브', en: 'Funky groove' }, description: { kr: '공간의 에너지를 올리는 탄력 있는 리듬', en: 'A springy rhythm that lifts the room' }, audioClipId: 'groove-pulse-cr1', vector: { energy: 2, sociality: 1 } },
+      { id: 'dream-space', label: { kr: '몽환적인 여백', en: 'Dreamy space' }, description: { kr: '혼자 깊게 잠기게 하는 느린 흐름', en: 'A slow flow that invites private immersion' }, audioClipId: 'dream-space-cr1', vector: { energy: -2, sociality: -1 } }
     ]
   }),
   q({
     id: 'texture-instinct', kind: 'audio',
     prompt: { kr: '소리의 질감은 어느 쪽이 더 매력적인가요?', en: 'Which sound texture feels more compelling?' },
-    helper: { kr: '템포보다 실제 악기와 전자 질감의 촉감 차이에 집중해보세요.', en: 'Focus on the tactile contrast between organic instruments and electronic texture.' },
+    helper: { kr: '샘플을 가져오지 않고 직접 합성한 두 소리입니다. 실제 악기처럼 느껴지는 질감과 전자적으로 변하는 표면의 차이에 집중해보세요.', en: 'These clips are synthesized without third-party samples. Focus on the contrast between an instrument-like texture and an evolving electronic surface.' },
     options: [
-      { id: 'organic-room', label: { kr: '선명한 실제 악기', en: 'Clear organic instruments' }, description: { kr: '손으로 연주한 듯 자연스럽고 따뜻한 울림', en: 'Natural, warm sound with a played-by-hand feel' }, audioSrc: 'assets/audio/Lobby_Time.mp3', vector: { organic: 2, warmth: 1 } },
-      { id: 'synthetic-layers', label: { kr: '낯선 전자 레이어', en: 'Unfamiliar electronic layers' }, description: { kr: '가공된 음색과 차갑게 변하는 표면', en: 'Processed timbre and a cooler evolving surface' }, audioSrc: 'assets/audio/Cipher.mp3', vector: { organic: -2, warmth: -1 } }
+      { id: 'organic-room', label: { kr: '선명한 실제 악기', en: 'Clear organic instruments' }, description: { kr: '손으로 연주한 듯 자연스럽고 따뜻한 울림', en: 'Natural, warm sound with a played-by-hand feel' }, audioClipId: 'organic-room-cr1', vector: { organic: 2, warmth: 1 } },
+      { id: 'synthetic-layers', label: { kr: '낯선 전자 레이어', en: 'Unfamiliar electronic layers' }, description: { kr: '가공된 음색과 차갑게 변하는 표면', en: 'Processed timbre and a cooler evolving surface' }, audioClipId: 'synthetic-layers-cr1', vector: { organic: -2, warmth: -1 } }
     ]
   }),
   q({
     id: 'attention-hook', kind: 'audio',
     prompt: { kr: '어떤 음악에 더 오래 집중하게 되나요?', en: 'Which kind of music holds your attention longer?' },
-    helper: { kr: '정교한 구조와 감정적 온도 중 어느 쪽이 집중을 붙잡는지 살펴보세요.', en: 'Notice whether structural precision or emotional warmth holds your attention.' },
+    helper: { kr: '정교한 박자 배열과 따뜻한 화음의 잔향 중 어느 쪽이 집중을 붙잡는지 살펴보세요.', en: 'Notice whether a precise rhythmic grid or the afterglow of warm harmony holds your attention.' },
     options: [
-      { id: 'precision', label: { kr: '정교한 구조와 추진력', en: 'Precise structure and drive' }, description: { kr: '박자와 구성의 완성도를 따라가게 되는 음악', en: 'Music that rewards following rhythm and construction' }, audioSrc: 'assets/audio/Tech_Talk.mp3', vector: { complexity: 2, warmth: -2 } },
-      { id: 'emotional-afterglow', label: { kr: '감정적인 멜로디와 잔향', en: 'Emotional melody and reverb' }, description: { kr: '선율과 분위기가 마음에 먼저 닿는 음악', en: 'Music that reaches feeling before analysis' }, audioSrc: 'assets/audio/Dreamy_Flashback.mp3', vector: { complexity: -2, warmth: 2 } }
+      { id: 'precision', label: { kr: '정교한 구조와 추진력', en: 'Precise structure and drive' }, description: { kr: '박자와 구성의 완성도를 따라가게 되는 음악', en: 'Music that rewards following rhythm and construction' }, audioClipId: 'precision-grid-cr1', vector: { complexity: 2, warmth: -2 } },
+      { id: 'emotional-afterglow', label: { kr: '감정적인 멜로디와 잔향', en: 'Emotional melody and reverb' }, description: { kr: '선율과 분위기가 마음에 먼저 닿는 음악', en: 'Music that reaches feeling before analysis' }, audioClipId: 'emotional-afterglow-cr1', vector: { complexity: -2, warmth: 2 } }
     ]
   }),
   q({
     id: 'progression-reward', kind: 'audio',
     prompt: { kr: '전개 방식은 어느 쪽이 더 만족스러운가요?', en: 'Which kind of progression feels more satisfying?' },
-    helper: { kr: '익숙하고 명확한 흐름과 예상 밖의 다층적 변화 중 더 즐거운 쪽을 고르세요.', en: 'Choose between a familiar resolved arc and unfamiliar layered turns.' },
+    helper: { kr: '방향이 또렷하게 쌓이는 흐름과 길이가 달라지며 예상 밖으로 움직이는 흐름을 비교해보세요.', en: 'Compare a clearly resolving build with a sequence that changes step lengths and turns unexpectedly.' },
     options: [
-      { id: 'resolved-arc', label: { kr: '차곡차곡 쌓이는 전개', en: 'A structured build' }, description: { kr: '방향이 분명하고 결말로 수렴하는 흐름', en: 'A clear direction that resolves into an ending' }, audioSrc: 'assets/audio/Movement_Proposition.mp3', vector: { complexity: -1, novelty: -2 } },
-      { id: 'playful-turns', label: { kr: '예상 밖으로 튀는 전개', en: 'Unpredictable turns' }, description: { kr: '즉흥적인 변화와 장난스러운 반전', en: 'Spontaneous changes and playful surprises' }, audioSrc: 'assets/audio/Pixel_Peeker_Polka_faster.mp3', vector: { complexity: 1, novelty: 2 } }
+      { id: 'resolved-arc', label: { kr: '차곡차곡 쌓이는 전개', en: 'A structured build' }, description: { kr: '방향이 분명하고 결말로 수렴하는 흐름', en: 'A clear direction that resolves into an ending' }, audioClipId: 'resolved-arc-cr1', vector: { complexity: -1, novelty: -2 } },
+      { id: 'playful-turns', label: { kr: '예상 밖으로 튀는 전개', en: 'Unpredictable turns' }, description: { kr: '즉흥적인 변화와 장난스러운 반전', en: 'Spontaneous changes and playful surprises' }, audioClipId: 'playful-turns-cr1', vector: { complexity: 1, novelty: 2 } }
     ]
   }),
   q({
