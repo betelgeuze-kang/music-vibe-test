@@ -1,5 +1,5 @@
 {
-  "schema": 8,
+  "schema": 9,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -9,15 +9,16 @@
   "engagementRelease": "m4f1",
   "timelineRelease": "m4t1",
   "weeklyRelease": "m4w1",
-  "productVersion": "v2-weekly-vibe-return-loop",
-  "assetVersion": "m4w1",
+  "frontendQualityRelease": "fq1",
+  "productVersion": "v2-weekly-vibe-frontend-quality",
+  "assetVersion": "fq1",
   "builtAt": "2026-07-12T00:00:00Z",
-  "entry": "/src/v2/main.mjs?weekly=m4w1",
-  "styleEntry": "/v2-app.css?weekly=m4w1",
+  "entry": "/src/v2/main.mjs?frontend=fq1",
+  "styleEntry": "/v2-app.css?frontend=fq1",
   "canonicalCopy": "/src/v2/brand/copy.mjs?brand=bd1",
   "lazyRoutes": [
     "/src/v2/ui/screens/profile.mjs?timeline=m4t1",
-    "/src/v2/ui/screens/weekly.mjs?weekly=m4w1",
+    "/src/v2/ui/screens/weekly.mjs?frontend=fq1",
     "/src/v2/ui/screens/now.mjs?engagement=m4f1",
     "/src/v2/ui/screens/match.mjs?engagement=m4f1"
   ],
@@ -33,18 +34,24 @@
   ],
   "timelineData": [
     "/src/v2/domain/timeline.mjs?timeline=m4t1",
-    "/src/v2/ui/timeline-actions.mjs?timeline=m4t1",
+    "/src/v2/ui/timeline-actions.mjs?frontend=fq1",
     "/src/v2/infrastructure/storage.mjs?timeline=m4t1",
     "/v2-m4-timeline.css?timeline=m4t1"
   ],
   "weeklyData": [
     "/src/v2/domain/weekly.mjs?weekly=m4w1",
     "/src/v2/ui/weekly-actions.mjs?weekly=m4w1",
-    "/src/v2/ui/screens/weekly.mjs?weekly=m4w1",
+    "/src/v2/ui/screens/weekly.mjs?frontend=fq1",
     "/src/v2/infrastructure/storage.mjs?weekly=m4w1",
     "/src/v2/infrastructure/share.mjs?weekly=m4w1",
-    "/v2-m4-weekly.css?weekly=m4w1"
+    "/v2-m4-weekly.css?frontend=fq1"
+  ],
+  "frontendQualityData": [
+    "/src/v2/ui/dialogs.mjs?frontend=fq1",
+    "/src/v2/ui/consent-a11y.mjs?frontend=fq1",
+    "/src/v2/domain/tag-visibility.mjs?weekly=m4w1",
+    "/v2-frontend-quality.css?frontend=fq1"
   ],
   "runtimeOverrides": false,
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe"]
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe", "accessible-dialogs", "notice-navigation-separation", "responsive-matrix", "hit-targets", "internal-tag-filtering"]
 }
