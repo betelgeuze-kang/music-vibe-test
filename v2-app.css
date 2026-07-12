@@ -1,4 +1,4 @@
-/* F1 canonical CSS entry. Source layers remain independently auditable while the HTML loads one stylesheet. */
+/* F1 canonical CSS entry with the M4 engagement layer. */
 @import url("v2-core.css?v=qg1") layer(core);
 @import url("v2-features.css?v=qg1") layer(features);
 @import url("v2-responsive.css?v=qg1") layer(responsive);
@@ -6,5 +6,6 @@
 @import url("v2-editorial.css?brand=bd1") layer(editorial);
 @import url("v2-stabilization.css?stability=sr1") layer(stability);
 @import url("v2-stabilization-a11y.css?stability=sr1") layer(accessibility);
+@import url("v2-m4.css?engagement=m4f1") layer(engagement);
 
-@layer core, features, responsive, quality, editorial, stability, accessibility;
+@layer core, features, responsive, quality, editorial, stability, accessibility, engagement;
