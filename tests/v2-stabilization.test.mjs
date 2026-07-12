@@ -10,9 +10,11 @@ const exists = (file) => fs.existsSync(path.join(root, file));
 const index = read('index.html');
 const css = read('v2-stabilization.css');
 const a11yCss = read('v2-stabilization-a11y.css');
+const timelineCss = read('v2-m4-timeline.css');
 const cssEntry = read('v2-app.css');
 const helpers = read('src/v2/ui/helpers.mjs');
 const nowScreen = read('src/v2/ui/screens/now.mjs');
+const profileScreen = read('src/v2/ui/screens/profile.mjs');
 const qualitySpec = read('tests/e2e/v2-quality.spec.mjs');
 const visualSpec = read('tests/e2e/visual.spec.mjs');
 const buildInfo = JSON.parse(read('build-info.json'));
@@ -20,12 +22,15 @@ const buildInfo = JSON.parse(read('build-info.json'));
 assert.equal(buildInfo.stabilityRelease, 'sr1');
 assert.equal(buildInfo.uiRelease, 'f1');
 assert.equal(buildInfo.engagementRelease, 'm4f1');
+assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert(index.includes('music-vibe-stability-release" content="sr1"'));
 assert(index.includes('data-stability-release="sr1"'));
-assert(index.includes('v2-app.css?engagement=m4f1'));
+assert(index.includes('data-timeline-release="m4t1"'));
+assert(index.includes('v2-app.css?timeline=m4t1'));
 assert(cssEntry.includes('v2-stabilization.css?stability=sr1'));
 assert(cssEntry.includes('v2-stabilization-a11y.css?stability=sr1'));
 assert(cssEntry.includes('v2-m4.css?engagement=m4f1'));
+assert(cssEntry.includes('v2-m4-timeline.css?timeline=m4t1'));
 
 for (const token of [
   'body[data-route="home"] .editorial-nav.site-nav',
@@ -51,6 +56,9 @@ assert(a11yCss.includes('.sr-only'));
 assert(helpers.includes('role="group" aria-label='));
 assert(!helpers.includes('track-card__score" aria-label='));
 assert(nowScreen.includes('now-hero__symbol" aria-hidden="true"'));
+assert(profileScreen.includes('aria-current="true"'));
+assert(timelineCss.includes('@media (max-width: 680px)'));
+assert(timelineCss.includes('.timeline-entry__restore'));
 
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"));
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
@@ -79,4 +87,4 @@ for (const snapshot of snapshotNames) {
   assert(fs.statSync(path.join(root, relative)).size > 20_000, `visual baseline is unexpectedly small: ${snapshot}`);
 }
 
-console.log('F1 stabilization with M4 engagement checks passed.');
+console.log('F1 stabilization with M4 feedback and timeline checks passed.');
