@@ -13,17 +13,18 @@ import {
   returnVisitAlreadyTracked
 } from '../infrastructure/storage.mjs?weekly=m4w1';
 import { actionMethods } from './actions.mjs?weekly=m4w1';
-import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?weekly=m4w1';
-import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?weekly=m4w1';
+import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?frontend=fq1';
+import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?frontend=fq1';
 import { renderDiscover } from './screens/discover.mjs?ui=f1';
 import { renderHome } from './screens/home.mjs?weekly=m4w1';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1';
-import { handleTimelineClick } from './timeline-actions.mjs?timeline=m4t1';
+import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1';
 import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1';
 
 export const ENGAGEMENT_RELEASE = 'm4f1';
 export const TIMELINE_RELEASE = 'm4t1';
 export const WEEKLY_RELEASE = 'm4w1';
+export const FRONTEND_QUALITY_RELEASE = 'fq1';
 
 export class VibeApp {
   constructor({ root, header, footer }) {
@@ -82,6 +83,7 @@ export class VibeApp {
     document.documentElement.dataset.engagementRelease = ENGAGEMENT_RELEASE;
     document.documentElement.dataset.timelineRelease = TIMELINE_RELEASE;
     document.documentElement.dataset.weeklyRelease = WEEKLY_RELEASE;
+    document.documentElement.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
     document.addEventListener('submit', this.boundSubmit);
@@ -191,7 +193,7 @@ export class VibeApp {
   }
 
   async renderWeekly() {
-    const module = await import('./screens/weekly.mjs?weekly=m4w1');
+    const module = await import('./screens/weekly.mjs?frontend=fq1');
     await module.renderWeekly(this);
   }
 
@@ -218,6 +220,7 @@ export class VibeApp {
     document.body.dataset.engagementRelease = ENGAGEMENT_RELEASE;
     document.body.dataset.timelineRelease = TIMELINE_RELEASE;
     document.body.dataset.weeklyRelease = WEEKLY_RELEASE;
+    document.body.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     this.renderHeader();
     this.renderFooter();
     this.updateMeta();
