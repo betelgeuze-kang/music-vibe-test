@@ -1,4 +1,4 @@
-import { BRAND_COPY } from '../brand/copy.mjs?brand=bd1';
+import { BRAND_COPY } from '../brand/copy.mjs?home=he1';
 import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
 import { mergeActiveSnapshot } from '../domain/timeline.mjs?timeline=m4t1';
 import { sevenDayReturnStatus } from '../domain/weekly.mjs?weekly=m4w1';
@@ -16,7 +16,7 @@ import { actionMethods } from './actions.mjs?weekly=m4w1';
 import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?frontend=fq1';
 import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?frontend=fq1';
 import { renderDiscover } from './screens/discover.mjs?ui=f1';
-import { renderHome } from './screens/home.mjs?weekly=m4w1';
+import { renderHome } from './screens/home.mjs?home=he1';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1';
 import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1';
 import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1';
@@ -25,6 +25,7 @@ export const ENGAGEMENT_RELEASE = 'm4f1';
 export const TIMELINE_RELEASE = 'm4t1';
 export const WEEKLY_RELEASE = 'm4w1';
 export const FRONTEND_QUALITY_RELEASE = 'fq1';
+export const HUMAN_EDITORIAL_RELEASE = 'he1';
 
 export class VibeApp {
   constructor({ root, header, footer }) {
@@ -84,6 +85,7 @@ export class VibeApp {
     document.documentElement.dataset.timelineRelease = TIMELINE_RELEASE;
     document.documentElement.dataset.weeklyRelease = WEEKLY_RELEASE;
     document.documentElement.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
+    document.documentElement.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
     document.addEventListener('submit', this.boundSubmit);
@@ -221,6 +223,7 @@ export class VibeApp {
     document.body.dataset.timelineRelease = TIMELINE_RELEASE;
     document.body.dataset.weeklyRelease = WEEKLY_RELEASE;
     document.body.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
+    document.body.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
     this.renderHeader();
     this.renderFooter();
     this.updateMeta();
@@ -241,7 +244,7 @@ export class VibeApp {
   updateMeta() {
     const copy = this.copy();
     const titles = {
-      home: this.language === 'kr' ? 'My Music Vibe — 내가 좋아하는 소리엔 이유가 있어요' : 'My Music Vibe — There is a reason some sounds stay with you',
+      home: this.language === 'kr' ? 'My Music Vibe — 설명하기 어려운 노래도, 마음은 먼저 알아봐요' : 'My Music Vibe — Your ears know before words do',
       discover: this.language === 'kr' ? '듣고 고르기 | My Music Vibe' : 'Listen and choose | My Music Vibe',
       profile: this.language === 'kr' ? '내 취향 기록 | My Music Vibe' : 'My taste notes | My Music Vibe',
       weekly: this.language === 'kr' ? '이번 주의 듣기 기록 | My Music Vibe' : 'My Weekly Vibe | My Music Vibe',
