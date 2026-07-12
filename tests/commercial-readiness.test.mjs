@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROFILE_QUESTIONS } from '../src/v2/data/questions.mjs';
 import { ORIGINAL_AUDIO_CLIPS, ORIGINAL_AUDIO_BY_ID, isCommercialAudioClip } from '../src/v2/audio/original-clips.mjs';
-import { ADS_ENABLED, AD_PROVIDER, AD_PUBLISHER_ID, ALLOWED_AD_PLACEMENTS, BLOCKED_AD_CONTEXTS, BLOCKED_AD_ROUTES, canRenderAd } from '../src/v2/ads/policy.mjs';
+import { ADS_ENABLED, AD_PROVIDER, AD_PUBLISHER_ID, ADS_TXT_RECORD, ALLOWED_AD_PLACEMENTS, BLOCKED_AD_CONTEXTS, BLOCKED_AD_ROUTES, canRenderAd } from '../src/v2/ads/policy.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -56,37 +56,44 @@ const retiredFiles = ['Funkorama.mp3', 'Dream_Catcher.mp3', 'Lobby_Time.mp3', 'C
 for (const filename of retiredFiles) assert.equal(exists(`assets/audio/${filename}`), false, `retired asset remains: ${filename}`);
 
 assert.equal(ADS_ENABLED, false);
-assert.equal(AD_PROVIDER, '');
-assert.equal(AD_PUBLISHER_ID, '');
-assert.equal(canRenderAd({ route: 'home', placement: ALLOWED_AD_PLACEMENTS[0], consent: true }), false);
+assert.equal(AD_PROVIDER, 'google-adsense');
+assert.equal(AD_PUBLISHER_ID, 'pub-1386368370627622');
+assert.equal(ADS_TXT_RECORD, 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0');
+assert.equal(canRenderAd({ route: 'home', placement: ALLOWED_AD_PLACEMENTS[0], consent: true }), false, 'seller configuration must not enable ad delivery by itself');
 assert(BLOCKED_AD_ROUTES.includes('discover'));
 assert(BLOCKED_AD_ROUTES.includes('match'));
 for (const context of ['listening-booth', 'quiz-option', 'track-feedback', 'streaming-link-group', 'dialog', 'consent-region']) {
   assert(BLOCKED_AD_CONTEXTS.includes(context), `blocked ad context is missing: ${context}`);
 }
-assert.equal(exists('ads.txt'), false, 'a fake root ads.txt must not be published before a real publisher ID exists');
+assert.equal(exists('ads.txt'), true, 'the existing authorized seller record must remain public');
+assert.equal(read('ads.txt').trim(), ADS_TXT_RECORD, 'ads.txt must match the configured public publisher record exactly');
 assert(!/pagead2\.googlesyndication\.com|adsbygoogle|doubleclick\.net/i.test(index), 'live advertising code must not ship in CR1');
 assert(index.includes('data-ads-enabled="false"'));
 
-for (const file of ['privacy/index.html', 'about/index.html', 'audio-credits/index.html', 'assets/audio/rights-manifest.json', 'docs/legal/RETIRED_AUDIO_AUDIT.md', 'docs/operations/ADS_MONETIZATION_READINESS.md', 'docs/operations/ads.txt.example']) {
+for (const file of ['privacy/index.html', 'about/index.html', 'audio-credits/index.html', 'assets/audio/rights-manifest.json', 'docs/legal/RETIRED_AUDIO_AUDIT.md', 'docs/operations/ADS_MONETIZATION_READINESS.md', 'docs/operations/ads.txt.example', 'ads.txt']) {
   assert(exists(file), `commercial transparency file is missing: ${file}`);
 }
 assert(shell.includes('/privacy/') && shell.includes('/about/') && shell.includes('/audio-credits/'));
 assert(dialogs.includes('/privacy/') && dialogs.includes('/audio-credits/') && dialogs.includes('현재 광고 스크립트'));
 assert(privacy.includes('현재 광고 비활성'));
 assert(privacy.includes('맞춤형 광고'));
+assert(privacy.includes('pub-1386368370627622'));
 assert(about.includes('상업 음원 파일'));
 assert(about.includes('공식 제휴'));
 assert(credits.includes('직접 합성'));
 assert(credits.includes('rights-manifest.json'));
 assert(adsOps.includes('ADS_ENABLED = false'));
-assert(adsOps.includes('Do not publish a placeholder seller record'));
+assert(adsOps.includes('pub-1386368370627622'));
+assert(adsOps.includes('seller record does not enable ad delivery'));
 
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
 assert.equal(buildInfo.adsEnabled, false);
+assert.equal(buildInfo.adProvider, 'google-adsense');
+assert.equal(buildInfo.adPublisherId, 'pub-1386368370627622');
+assert.equal(buildInfo.adsTxt, '/ads.txt');
 assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1');
 assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1');
 assert.equal(buildInfo.audioRightsManifest, '/assets/audio/rights-manifest.json');
 assert.deepEqual(buildInfo.publicPolicies, ['/about/', '/privacy/', '/audio-credits/']);
 
-console.log('CR1 commercial readiness, audio rights, and advertising safety checks passed.');
+console.log('CR1 commercial readiness, audio rights, seller record, and advertising safety checks passed.');
