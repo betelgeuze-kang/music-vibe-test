@@ -1,6 +1,7 @@
 import { AXES } from '../../data/axes.mjs?v=qg1';
 import { CONTEXT_BY_ID } from '../../data/contexts.mjs?v=qg1';
 import { getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
+import { visibleWeeklyTags } from '../../domain/tag-visibility.mjs?weekly=m4w1';
 import {
   buildWeeklyVibe,
   formatWeeklyRange,
@@ -43,16 +44,17 @@ function activitySuggestions(app, status) {
 }
 
 function contextCards(vibe, language) {
-  if (!vibe.topContexts.length) return '';
+  const cards = vibe.topContexts.map((item, index) => {
+    const context = CONTEXT_BY_ID[item.contextId];
+    if (!context) return '';
+    return `<article class="weekly-context-card ${index === 0 ? 'is-primary' : ''}"><span aria-hidden="true">${escapeHtml(context.icon)}</span><div><small>${String(index + 1).padStart(2, '0')}</small><h3>${escapeHtml(localize(context.shortLabel, language))}</h3><p>${escapeHtml(localize(context.description, language))}</p></div></article>`;
+  }).filter(Boolean);
+  if (!cards.length) return '';
   return `
     <section class="weekly-section" aria-labelledby="weekly-contexts-title">
       <div class="weekly-section__heading"><span class="eyebrow">${language === 'kr' ? '자주 고른 장면' : 'TOP MOMENTS'}</span><h2 id="weekly-contexts-title">${language === 'kr' ? '이번 주에는 이런 순간에 음악을 찾았어요.' : 'These were the moments you returned to.'}</h2></div>
-      <div class="weekly-context-grid">
-        ${vibe.topContexts.map((item, index) => {
-          const context = CONTEXT_BY_ID[item.contextId];
-          if (!context) return '';
-          return `<article class="weekly-context-card ${index === 0 ? 'is-primary' : ''}"><span aria-hidden="true">${escapeHtml(context.icon)}</span><div><small>${String(index + 1).padStart(2, '0')}</small><h3>${escapeHtml(localize(context.shortLabel, language))}</h3><p>${escapeHtml(localize(context.description, language))}</p></div></article>`;
-        }).join('')}
+      <div class="weekly-context-grid is-count-${Math.min(3, cards.length)}">
+        ${cards.join('')}
       </div>
     </section>
   `;
@@ -93,11 +95,12 @@ function trackRows(vibe, trackById, platformUrl, language) {
 }
 
 function tagList(vibe, language) {
-  if (!vibe.topTags.length) return '';
+  const tags = visibleWeeklyTags(vibe.topTags, 5);
+  if (!tags.length) return '';
   return `
     <section class="weekly-tags" aria-labelledby="weekly-tags-title">
       <div><span class="eyebrow">${language === 'kr' ? '남은 질감' : 'TEXTURES THAT STAYED'}</span><h2 id="weekly-tags-title">${language === 'kr' ? '이번 주에 자주 겹친 소리' : 'Sounds that kept overlapping this week'}</h2></div>
-      <div class="weekly-tags__list">${vibe.topTags.map((item) => `<span>#${escapeHtml(item.tag.replaceAll(' ', '-'))}</span>`).join('')}</div>
+      <div class="weekly-tags__list">${tags.map((item) => `<span>#${escapeHtml(item.tag.replaceAll(' ', '-'))}</span>`).join('')}</div>
     </section>
   `;
 }
@@ -136,14 +139,15 @@ export async function renderWeekly(app) {
   const latest = loadLatestWeeklyVibe(app.profile.id);
   const { TRACK_BY_ID, platformUrl } = await import('../../domain/recommendation.mjs?weekly=m4w1');
   const computed = buildWeeklyVibe({ profile: app.profile, interactions, trackById: TRACK_BY_ID, anchor });
-  const vibe = computed.sufficientData ? computed : savedForWindow;
+  const rawVibe = computed.sufficientData ? computed : savedForWindow;
 
-  if (!vibe?.sufficientData) {
+  if (!rawVibe?.sufficientData) {
     renderInsufficient(app, status, latest);
     return;
   }
 
   if (computed.sufficientData) saveWeeklyVibe(computed);
+  const vibe = Object.freeze({ ...rawVibe, topTags: visibleWeeklyTags(rawVibe.topTags, 5) });
   app.latestWeeklyVibe = vibe;
   const archetype = getProfileArchetype(vibe);
   const [start, middle, end] = archetype.gradient;
