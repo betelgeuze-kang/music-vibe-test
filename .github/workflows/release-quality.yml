@@ -43,18 +43,21 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - name: Poll the public origin for the canonical UI release
+      - name: Poll the public origin for the M4T1 timeline release
         id: smoke
         shell: bash
         run: |
           set -uo pipefail
           ui="$(jq -r .uiRelease build-info.json)"
           content="$(jq -r .contentRelease build-info.json)"
+          engagement="$(jq -r .engagementRelease build-info.json)"
+          timeline="$(jq -r .timelineRelease build-info.json)"
           verified=false
           home_ok=false
           build_ok=false
           entry_ok=false
           style_ok=false
+          timeline_ok=false
           content_ok=false
           audio_ok=false
           result_ok=false
@@ -64,18 +67,21 @@ jobs:
             build="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/build-info.json?${bust}" 2>/dev/null || true)"
             entry="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/main.mjs?${bust}" 2>/dev/null || true)"
             style="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/v2-app.css?${bust}" 2>/dev/null || true)"
+            timeline_module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/domain/timeline.mjs?${bust}" 2>/dev/null || true)"
+            profile_screen="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/screens/profile.mjs?${bust}" 2>/dev/null || true)"
             editorial="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/data/editorial-tracks.mjs?${bust}" 2>/dev/null || true)"
             audio_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "https://my-music-vibe.com/assets/audio/Funkorama.mp3?${bust}" || true)"
             result="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/ko/results/enfp/?${bust}" 2>/dev/null || true)"
-            home_ok=false; build_ok=false; entry_ok=false; style_ok=false; content_ok=false; audio_ok=false; result_ok=false
-            grep -q "Canonical UI ${ui^^}" <<<"$home" && grep -q '내가 좋아하는 소리엔' <<<"$home" && home_ok=true
-            jq -e --arg ui "$ui" --arg content "$content" '.uiRelease == $ui and .contentRelease == $content and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 && build_ok=true
-            grep -q 'new VibeApp' <<<"$entry" && ! grep -q 'installQualityGates' <<<"$entry" && entry_ok=true
-            grep -q '@layer core' <<<"$style" && grep -q 'v2-editorial.css' <<<"$style" && style_ok=true
+            home_ok=false; build_ok=false; entry_ok=false; style_ok=false; timeline_ok=false; content_ok=false; audio_ok=false; result_ok=false
+            grep -q "Profile Timeline ${timeline^^}" <<<"$home" && grep -q '내가 좋아하는 소리엔' <<<"$home" && home_ok=true
+            jq -e --arg ui "$ui" --arg content "$content" --arg engagement "$engagement" --arg timeline "$timeline" '.uiRelease == $ui and .contentRelease == $content and .engagementRelease == $engagement and .timelineRelease == $timeline and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 && build_ok=true
+            grep -q 'new VibeApp' <<<"$entry" && grep -q 'timeline=m4t1' <<<"$entry" && ! grep -q 'installQualityGates' <<<"$entry" && entry_ok=true
+            grep -q '@layer core' <<<"$style" && grep -q 'v2-m4-timeline.css' <<<"$style" && style_ok=true
+            grep -q 'compareProfileSnapshots' <<<"$timeline_module" && grep -q 'profileSnapshotKey' <<<"$timeline_module" && grep -q 'profile-timeline' <<<"$profile_screen" && timeline_ok=true
             grep -q 'RAW_EDITORIAL_TRACKS' <<<"$editorial" && grep -q 'CURATED_TRACK_COUNT' <<<"$editorial" && content_ok=true
             [ "$audio_code" = '200' ] && audio_ok=true
             grep -q 'data-page-type="static_result"' <<<"$result" && result_ok=true
-            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$entry_ok" = true ] && [ "$style_ok" = true ] && [ "$content_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
+            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$entry_ok" = true ] && [ "$style_ok" = true ] && [ "$timeline_ok" = true ] && [ "$content_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
             sleep 10
           done
           echo "verified=$verified" >> "$GITHUB_OUTPUT"
@@ -83,11 +89,12 @@ jobs:
           echo "build_ok=$build_ok" >> "$GITHUB_OUTPUT"
           echo "entry_ok=$entry_ok" >> "$GITHUB_OUTPUT"
           echo "style_ok=$style_ok" >> "$GITHUB_OUTPUT"
+          echo "timeline_ok=$timeline_ok" >> "$GITHUB_OUTPUT"
           echo "content_ok=$content_ok" >> "$GITHUB_OUTPUT"
           echo "audio_ok=$audio_ok" >> "$GITHUB_OUTPUT"
           echo "result_ok=$result_ok" >> "$GITHUB_OUTPUT"
           [ "$verified" = true ]
-      - name: Report canonical UI deployment to issue 19
+      - name: Report M4T1 public deployment to issue 10
         if: always()
         uses: actions/github-script@v7
         env:
@@ -96,6 +103,7 @@ jobs:
           BUILD_OK: ${{ steps.smoke.outputs.build_ok }}
           ENTRY_OK: ${{ steps.smoke.outputs.entry_ok }}
           STYLE_OK: ${{ steps.smoke.outputs.style_ok }}
+          TIMELINE_OK: ${{ steps.smoke.outputs.timeline_ok }}
           CONTENT_OK: ${{ steps.smoke.outputs.content_ok }}
           AUDIO_OK: ${{ steps.smoke.outputs.audio_ok }}
           RESULT_OK: ${{ steps.smoke.outputs.result_ok }}
@@ -105,6 +113,6 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: 19,
-              body: `## F1 canonical UI public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- canonical entry: \`${process.env.ENTRY_OK}\`\n- CSS entry: \`${process.env.STYLE_OK}\`\n- E1 content data: \`${process.env.CONTENT_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``
+              issue_number: 10,
+              body: `## M4T1 profile timeline public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home marker: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- canonical entry: \`${process.env.ENTRY_OK}\`\n- CSS entry: \`${process.env.STYLE_OK}\`\n- timeline module + screen: \`${process.env.TIMELINE_OK}\`\n- E1 content data: \`${process.env.CONTENT_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``
             });
