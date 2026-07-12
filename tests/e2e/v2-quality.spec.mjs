@@ -66,7 +66,6 @@ test('Vibe Now returns five diverse strategy slots', async ({ page }) => {
 
 test('fragment invite completes a friend match without exposing the token in the query', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'cross-context referral contract is viewport-independent');
-
   const sender = await browser.newContext();
   const senderPage = await sender.newPage();
   await declineAnalytics(senderPage);
@@ -83,7 +82,6 @@ test('fragment invite completes a friend match without exposing the token in the
   await completeProfile(friendPage, 'b', { finalSelector: '.quality-match-score' });
   await expect(friendPage.locator('.quality-match-score')).toContainText('Resonance');
   await expect(friendPage.locator('.recommendation-list--bridge .track-card')).toHaveCount(5);
-
   await sender.close();
   await friend.close();
 });
@@ -101,7 +99,7 @@ test('analytics rejection prevents GA script loading', async ({ page }) => {
 });
 
 test('audio failure is recoverable from the home listening booth', async ({ page }) => {
-  await page.route('**/assets/audio/**', (route) => route.abort('failed'));
+  await page.addInitScript(() => { globalThis.__musicVibeTestAudioFailure = true; });
   await page.goto('/?lang=en#/home');
   await page.locator('[data-action="home-preview"]').first().click();
   await expect(page.locator('.listening-choice.has-error').first()).toBeVisible();
