@@ -14,6 +14,7 @@ const consent = read('src/v2/ui/consent-a11y.mjs');
 const shell = read('src/v2/ui/components/shell.mjs');
 const weeklyScreen = read('src/v2/ui/screens/weekly.mjs');
 const weeklyCss = read('v2-m4-weekly.css');
+const humanCss = read('v2-human-editorial.css');
 const visualSpec = read('tests/e2e/visual.spec.mjs');
 const browserSpec = read('tests/e2e/frontend-quality.spec.mjs');
 
@@ -54,6 +55,19 @@ for (const token of [
   assert(weeklyCss.includes(token), `weekly frontend CSS is missing ${token}`);
 }
 
+for (const token of [
+  'body[data-route="home"] .site-header',
+  'position: static',
+  '.human-hero__whisper',
+  '.human-match__bridge',
+  '.human-match__meter',
+  '@media (max-width: 1179px)',
+  '@media (max-width: 920px)',
+  '@media (max-width: 680px)'
+]) {
+  assert(humanCss.includes(token), `HE1 frontend CSS is missing ${token}`);
+}
+
 assert(visualSpec.includes('window.__musicVibeV2?.clearNotice?.()'));
 assert(visualSpec.includes("page.locator('dialog[open]')"));
 for (const phrase of [
@@ -62,9 +76,10 @@ for (const phrase of [
   'optional analytics consent is a non-blocking labelled region',
   'route changes clear transient notices',
   'responsive matrix has no horizontal overflow',
-  'mobile primary controls meet the 44px hit-target contract'
+  'mobile primary controls meet the 44px hit-target contract',
+  'HE1 home header never covers section titles and shared-listening copy stays readable'
 ]) {
   assert(browserSpec.includes(phrase), `browser quality gate is missing: ${phrase}`);
 }
 
-console.log('Frontend quality sweep contracts passed.');
+console.log('Frontend quality sweep and HE1 contracts passed.');
