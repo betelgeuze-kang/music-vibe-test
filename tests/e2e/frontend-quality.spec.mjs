@@ -42,7 +42,7 @@ async function createReadyWeekly(page) {
 test('privacy dialog has an accessible name, keyboard close, and focus restoration', async ({ page }) => {
   await declineAnalytics(page);
   await page.goto('/?lang=kr#/home');
-  const trigger = page.locator('[data-action="privacy"]');
+  const trigger = page.locator('.editorial-privacy [data-action="privacy"]');
   await trigger.scrollIntoViewIfNeeded();
   await trigger.click();
 
