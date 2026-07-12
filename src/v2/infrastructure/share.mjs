@@ -1,5 +1,7 @@
 import { AXES } from '../data/axes.mjs?v=qg1';
+import { CONTEXT_BY_ID } from '../data/contexts.mjs?v=qg1';
 import { encodeProfile, getProfileArchetype, localize } from '../domain/profile.mjs?v=qg1';
+import { formatWeeklyRange, weeklyAlias, weeklySummary } from '../domain/weekly.mjs?weekly=m4w1';
 
 function xmlEscape(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
@@ -113,6 +115,46 @@ export async function createProfileCardSvg(profile, language = 'kr') {
   </svg>`;
 }
 
+function weeklyTrackText(vibe, trackById, language) {
+  return vibe.topTracks.slice(0, 3).map((item, index) => {
+    const track = trackById[item.trackId];
+    return track ? `${String(index + 1).padStart(2, '0')}  ${track.title} — ${track.artist}` : '';
+  }).filter(Boolean);
+}
+
+export async function createWeeklyVibeCardSvg(vibe, profile, trackById = {}, language = 'kr') {
+  const archetype = getProfileArchetype(vibe);
+  const [start, middle, end] = archetype.gradient;
+  const alias = weeklyAlias(vibe, language);
+  const range = formatWeeklyRange(vibe, language);
+  const summary = weeklySummary(vibe, language);
+  const context = CONTEXT_BY_ID[vibe.dominantContextId];
+  const titleLines = segmentLines(alias, language, 20, 2);
+  const summaryLines = segmentLines(summary, language, 43, 4);
+  const tracks = weeklyTrackText(vibe, trackById, language);
+  const tags = vibe.topTags.slice(0, 5).map((item) => `#${item.tag.replaceAll(' ', '-')}`).join('   ');
+  const font = `font-family="Pretendard, Noto Sans KR, Apple SD Gothic Neo, Inter, Arial, sans-serif"`;
+  const glyphProfile = { ...profile, scores: vibe.scores, archetypeId: vibe.archetypeId };
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500">
+    <defs><linearGradient id="weekly-bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${start}"/><stop offset=".52" stop-color="${middle}"/><stop offset="1" stop-color="${end}"/></linearGradient><radialGradient id="weekly-light" cx="82%" cy="8%" r="70%"><stop stop-color="rgba(255,255,255,.34)"/><stop offset="1" stop-color="rgba(255,255,255,0)"/></radialGradient></defs>
+    <rect width="1200" height="1500" fill="url(#weekly-bg)"/><rect width="1200" height="1500" fill="url(#weekly-light)"/><rect x="52" y="52" width="1096" height="1396" rx="44" fill="rgba(5,5,8,.48)" stroke="rgba(255,255,255,.22)" stroke-width="2"/>
+    <text x="104" y="138" fill="rgba(255,255,255,.74)" font-size="25" font-weight="800" letter-spacing="8" ${font}>MY MUSIC VIBE · WEEKLY</text>
+    <text x="104" y="205" fill="rgba(255,255,255,.62)" font-size="24" font-weight="700" ${font}>${xmlEscape(range)}</text>
+    ${glyphMarkup(glyphProfile, 735, 120, 360)}
+    <text x="104" y="392" fill="#fff" font-size="118" font-weight="900" ${font}>${xmlEscape(archetype.symbol)}</text>
+    ${textLines(titleLines, 104, 550, 100, `fill="#fff" font-size="86" font-weight="900" ${font}`)}
+    ${textLines(summaryLines, 108, 745, 45, `fill="rgba(255,255,255,.82)" font-size="31" font-weight="650" ${font}`)}
+    <rect x="88" y="920" width="1024" height="382" rx="30" fill="rgba(0,0,0,.28)"/>
+    <text x="128" y="982" fill="rgba(255,255,255,.58)" font-size="20" font-weight="800" letter-spacing="4" ${font}>${language === 'kr' ? '이번 주의 장면' : 'TOP MOMENT'}</text>
+    <text x="128" y="1040" fill="#fff" font-size="39" font-weight="850" ${font}>${xmlEscape(context ? localize(context.shortLabel, language) : localize(archetype.name, language))}</text>
+    <text x="128" y="1102" fill="rgba(255,255,255,.58)" font-size="20" font-weight="800" letter-spacing="4" ${font}>${language === 'kr' ? '이번 주의 세 곡' : 'THREE TRACKS'}</text>
+    ${tracks.map((line, index) => `<text x="128" y="${1152 + index * 45}" fill="#fff" font-size="27" font-weight="720" ${font}>${xmlEscape(line)}</text>`).join('')}
+    <text x="128" y="1270" fill="rgba(255,255,255,.66)" font-size="21" font-weight="700" ${font}>${xmlEscape(tags)}</text>
+    <text x="104" y="1385" fill="#fff" font-size="27" font-weight="900" ${font}>my-music-vibe.com</text>
+    <text x="1096" y="1385" text-anchor="end" fill="rgba(255,255,255,.58)" font-size="20" font-weight="700" ${font}>${xmlEscape(vibe.interactionCount)} ${language === 'kr' ? '개의 청취 행동' : 'listening actions'}</text>
+  </svg>`;
+}
+
 async function svgToPngBlob(svg) {
   if (document.fonts?.ready) await document.fonts.ready;
   const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
@@ -129,16 +171,45 @@ async function svgToPngBlob(svg) {
   } finally { URL.revokeObjectURL(url); }
 }
 
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
 export async function downloadProfileCard(profile, language = 'kr') {
   const svg = await createProfileCardSvg(profile, language);
   const blob = await svgToPngBlob(svg);
   if (!blob) throw new Error('Could not create profile image.');
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `my-music-vibe-${getProfileArchetype(profile).id}.png`;
-  document.body.appendChild(link);
-  link.click(); link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+  downloadBlob(blob, `my-music-vibe-${getProfileArchetype(profile).id}.png`);
   return true;
+}
+
+export async function shareWeeklyVibeCard(vibe, profile, trackById = {}, language = 'kr') {
+  const svg = await createWeeklyVibeCardSvg(vibe, profile, trackById, language);
+  const blob = await svgToPngBlob(svg);
+  if (!blob) throw new Error('Could not create weekly image.');
+  const filename = `my-music-vibe-weekly-${vibe.weekKey}.png`;
+  const title = language === 'kr' ? `이번 주의 음악 기록: ${weeklyAlias(vibe, 'kr')}` : `My Weekly Vibe: ${weeklyAlias(vibe, 'en')}`;
+  const text = weeklySummary(vibe, language);
+
+  if (typeof File === 'function' && navigator.share && navigator.canShare) {
+    const file = new File([blob], filename, { type: 'image/png' });
+    if (navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ title, text, files: [file] });
+        return { status: 'shared', method: 'native' };
+      } catch (error) {
+        if (error?.name === 'AbortError') return { status: 'cancelled', method: 'native' };
+      }
+    }
+  }
+
+  downloadBlob(blob, filename);
+  return { status: 'shared', method: 'download' };
 }
