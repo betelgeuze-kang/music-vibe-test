@@ -30,12 +30,12 @@ function activitySuggestions(app, status) {
         ['Leave track feedback', 'Mark whether you want more or less in that direction.']
       ];
   return `
-    <div class="weekly-progress" role="progressbar" aria-valuemin="0" aria-valuemax="${status.required}" aria-valuenow="${Math.min(status.count, status.required)}">
+    <div class="weekly-progress" role="progressbar" aria-label="${app.language === 'kr' ? '주간 기록 준비 진행률' : 'Weekly note readiness'}" aria-valuemin="0" aria-valuemax="${status.required}" aria-valuenow="${Math.min(status.count, status.required)}">
       <i style="width:${Math.min(100, status.count / status.required * 100)}%"></i>
     </div>
     <p class="weekly-progress__label">${app.language === 'kr' ? `${status.count} / ${status.required}개 행동 기록` : `${status.count} / ${status.required} listening actions`}</p>
     <ol class="weekly-suggestions">
-      ${items.map(([title, description], index) => `<li><span>${index + 1}</span><div><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></li>`).join('')}
+      ${items.map(([title, description], index) => `<li><span aria-hidden="true">${index + 1}</span><div><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></li>`).join('')}
     </ol>
   `;
 }
@@ -78,7 +78,7 @@ function trackRows(vibe, trackById, platformUrl, language) {
         const song = trackById[item.trackId];
         if (!song) return '';
         return `<article class="weekly-track" data-track-id="${escapeHtml(song.id)}" data-track-artist="${escapeHtml(song.artist)}">
-          <span class="weekly-track__number">${String(index + 1).padStart(2, '0')}</span>
+          <span class="weekly-track__number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>
           <div><strong>${escapeHtml(song.title)}</strong><span>${escapeHtml(song.artist)}</span><p>${language === 'kr' ? `${item.clicks || 0}회 열어보고, 더 듣기 ${item.more || 0}회` : `${item.clicks || 0} opens · ${item.more || 0} more-like-this marks`}</p></div>
           <div class="weekly-track__links" role="group" aria-label="${language === 'kr' ? '음악 서비스에서 듣기' : 'Listen on a music service'}">
             <a href="${escapeHtml(platformUrl(song, 'spotify'))}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="weekly_vibe">Spotify</a>
@@ -163,7 +163,7 @@ export async function renderWeekly(app) {
             <button type="button" class="button button--ghost" data-action="share-weekly-card">${app.language === 'kr' ? '주간 카드 공유·저장' : 'Share or save weekly card'}</button>
           </div>
         </div>
-        <div class="weekly-hero__glyph">${renderVibeGlyph(vibe, app.language, { id: `weekly-${vibe.weekKey}`, size: 320 })}<span>${escapeHtml(archetype.symbol)}</span></div>
+        <div class="weekly-hero__glyph">${renderVibeGlyph(vibe, app.language, { id: `weekly-${vibe.weekKey}`, size: 320 })}<span aria-hidden="true">${escapeHtml(archetype.symbol)}</span></div>
       </section>
 
       ${contextCards(vibe, app.language)}
