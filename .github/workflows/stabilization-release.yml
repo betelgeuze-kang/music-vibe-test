@@ -5,6 +5,7 @@ on:
     paths:
       - 'index.html'
       - 'build-info.json'
+      - 'ads.txt'
       - 'v2-*.css'
       - 'legal.css'
       - 'src/v2/**'
@@ -52,6 +53,7 @@ jobs:
           grep -q 'v2-commercial-readiness.css' _site/v2-app.css
           grep -q 'createOriginalAudioUrl' _site/src/v2/audio/original-clips.mjs
           grep -q '현재 광고 비활성' _site/privacy/index.html
+          grep -qx 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0' _site/ads.txt
           grep -q 'MY_MUSIC_VIBE_STABILITY_SR1' _site/deploy-probe-sr1.txt
       - uses: actions/upload-artifact@v4
         with:
@@ -59,6 +61,7 @@ jobs:
           path: |
             _site/build-info.json
             _site/assets/audio/rights-manifest.json
+            _site/ads.txt
             _site/deploy-probe-sr1.txt
           retention-days: 14
 
@@ -106,6 +109,7 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
+          expected_ads='google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0'
           ips=(185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153)
           headers=(-H 'Cache-Control: no-cache, no-store, must-revalidate' -H 'Pragma: no-cache' -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36')
           origin_transport='unavailable'
@@ -123,7 +127,7 @@ jobs:
           fetch_public() { curl -fsSL --connect-timeout 8 --max-time 25 --retry 1 "${headers[@]}" "${PUBLIC_ORIGIN}$1" 2>/dev/null || true; }
 
           verify_payloads() {
-            local mode="$1" bust home build style entry audio questions manifest policy privacy credits probe result
+            local mode="$1" bust home build style entry audio questions manifest policy ads_txt privacy credits probe result
             bust="cr1=${GITHUB_SHA}-$(date +%s)"
             local fetcher=fetch_public
             [ "$mode" = origin ] && fetcher=fetch_origin
@@ -135,13 +139,14 @@ jobs:
             questions="$($fetcher "/src/v2/data/questions.mjs?${bust}")"
             manifest="$($fetcher "/assets/audio/rights-manifest.json?${bust}")"
             policy="$($fetcher "/src/v2/ads/policy.mjs?${bust}")"
+            ads_txt="$($fetcher "/ads.txt?${bust}")"
             privacy="$($fetcher "/privacy/?${bust}")"
             credits="$($fetcher "/audio-credits/?${bust}")"
             probe="$($fetcher "/deploy-probe-sr1.txt?${bust}")"
             result="$($fetcher "/ko/results/enfp/?${bust}")"
             grep -q 'Commercial Readiness CR1' <<<"$home" \
               && grep -q 'data-ads-enabled="false"' <<<"$home" \
-              && jq -e '.commercialReadinessRelease == "cr1" and .adsEnabled == false and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 \
+              && jq -e '.commercialReadinessRelease == "cr1" and .adsEnabled == false and .adProvider == "google-adsense" and .adPublisherId == "pub-1386368370627622" and .adsTxt == "/ads.txt" and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 \
               && grep -q 'v2-commercial-readiness.css' <<<"$style" \
               && grep -q 'app.mjs?commercial=cr1' <<<"$entry" \
               && grep -q 'createOriginalAudioUrl' <<<"$audio" \
@@ -149,7 +154,10 @@ jobs:
               && ! grep -q '\.mp3' <<<"$questions" \
               && jq -e '.release == "cr1" and .thirdPartySamplesUsed == false and (.clips | length) == 8' <<<"$manifest" >/dev/null 2>&1 \
               && grep -q 'ADS_ENABLED = false' <<<"$policy" \
+              && grep -q "AD_PUBLISHER_ID = 'pub-1386368370627622'" <<<"$policy" \
+              && [ "$(printf '%s' "$ads_txt" | tr -d '\r' | sed -e 's/[[:space:]]*$//')" = "$expected_ads" ] \
               && grep -q '현재 광고 비활성' <<<"$privacy" \
+              && grep -q 'pub-1386368370627622' <<<"$privacy" \
               && grep -q '직접 합성' <<<"$credits" \
               && grep -q 'MY_MUSIC_VIBE_STABILITY_SR1' <<<"$probe" \
               && grep -q 'data-page-type="static_result"' <<<"$result"
@@ -185,7 +193,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: 28,
-              body: `## CR1 origin + Cloudflare verification\n\n- commit: \`${context.sha}\`\n- GitHub Pages origin: **${process.env.ORIGIN_OK === 'true' ? 'PASS' : 'FAIL'}**\n- Cloudflare public: **${process.env.PUBLIC_OK === 'true' ? 'PASS' : 'FAIL'}**\n- origin transport: \`${process.env.ORIGIN_TRANSPORT || 'unavailable'}\`\n- attempts: \`${process.env.ATTEMPTS || '0'}\`\n- legacy build HTTP: \`${process.env.LEGACY_HTTP || '(none)'}\`\n- Cloudflare purge: \`${process.env.CF_STATUS || 'not-run'}\``
+              body: `## CR1 origin + Cloudflare verification\n\n- commit: \`${context.sha}\`\n- GitHub Pages origin: **${process.env.ORIGIN_OK === 'true' ? 'PASS' : 'FAIL'}**\n- Cloudflare public: **${process.env.PUBLIC_OK === 'true' ? 'PASS' : 'FAIL'}**\n- seller record checked: **yes**\n- ad delivery: **disabled**\n- origin transport: \`${process.env.ORIGIN_TRANSPORT || 'unavailable'}\`\n- attempts: \`${process.env.ATTEMPTS || '0'}\`\n- legacy build HTTP: \`${process.env.LEGACY_HTTP || '(none)'}\`\n- Cloudflare purge: \`${process.env.CF_STATUS || 'not-run'}\``
             });
 
       - name: Fail when the public CR1 release is stale
