@@ -1,8 +1,10 @@
 import { PROFILE_QUESTIONS } from '../../data/questions.mjs?v=qg1';
 import { HOME_SHOWCASE, localizedShowcaseReason } from '../../data/home-showcase.mjs';
 import { profileFromArchetype, getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
+import { formatWeeklyRange, weeklyActivityStatus, weeklyAlias } from '../../domain/weekly.mjs?weekly=m4w1';
+import { loadInteractions } from '../../infrastructure/storage.mjs?weekly=m4w1';
 import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track } from '../helpers.mjs?ui=f1';
+import { escapeHtml, track } from '../helpers.mjs?weekly=m4w1';
 
 const sampleProfile = profileFromArchetype(HOME_SHOWCASE.profileArchetypeId, 'home_showcase');
 const sampleFriend = profileFromArchetype(HOME_SHOWCASE.friendArchetypeId, 'home_showcase');
@@ -41,6 +43,53 @@ function homeOption(app, question, option, index) {
       </div>
       <button type="button" class="listening-choice__choose" data-action="home-choose" data-option-id="${escapeHtml(option.id)}">${escapeHtml(copy.boothContinue)} <span aria-hidden="true">→</span></button>
     </article>
+  `;
+}
+
+function weeklyBand(app) {
+  if (!app.profile) return '';
+  const interactions = loadInteractions();
+  const current = weeklyActivityStatus(interactions, new Date());
+  const latest = app.latestWeeklyVibe;
+  const returning = app.returnStatus?.eligible;
+
+  if (returning) {
+    const anchor = app.returnStatus.anchorAt || latest?.windowEndAt || '';
+    return `
+      <section class="home-weekly-band home-weekly-band--return">
+        <div class="home-weekly-band__mark" aria-hidden="true">7D</div>
+        <div><span class="eyebrow">${app.language === 'kr' ? '다시 왔네요' : 'WELCOME BACK'}</span><h2>${app.language === 'kr' ? '지난 방문까지의 음악 기록을 다시 열어보세요.' : 'Reopen the listening note from your last visit.'}</h2><p>${app.language === 'kr' ? `${app.returnStatus.daysSincePrevious}일 만의 방문이에요. 그때 머문 장면과 곡을 한 장으로 정리합니다.` : `It has been ${app.returnStatus.daysSincePrevious} days. See the moments and tracks that stayed with you then.`}</p></div>
+        <button type="button" data-action="open-weekly" data-weekly-anchor="${escapeHtml(anchor)}">${app.language === 'kr' ? '지난 기록 보기' : 'Open the previous note'} →</button>
+      </section>
+    `;
+  }
+
+  if (current.ready) {
+    return `
+      <section class="home-weekly-band">
+        <div class="home-weekly-band__mark" aria-hidden="true">W</div>
+        <div><span class="eyebrow">${app.language === 'kr' ? '이번 주 기록 준비됨' : 'WEEKLY NOTE READY'}</span><h2>${app.language === 'kr' ? '최근에 머문 음악을 한 장으로 모았어요.' : 'Your recent listening is ready as one weekly note.'}</h2><p>${app.language === 'kr' ? `${current.count}개의 청취 행동에서 자주 고른 장면과 곡을 정리합니다.` : `A recap built from ${current.count} listening actions.`}</p></div>
+        <button type="button" data-action="open-weekly">${app.language === 'kr' ? '이번 주 기록 보기' : 'Open Weekly Vibe'} →</button>
+      </section>
+    `;
+  }
+
+  if (latest) {
+    return `
+      <section class="home-weekly-band home-weekly-band--saved">
+        <div class="home-weekly-band__mark" aria-hidden="true">W</div>
+        <div><span class="eyebrow">${escapeHtml(formatWeeklyRange(latest, app.language))}</span><h2>${escapeHtml(weeklyAlias(latest, app.language))}</h2><p>${app.language === 'kr' ? '저장된 주간 기록을 다시 보고, 오늘의 선곡으로 이어갈 수 있어요.' : 'Revisit the saved weekly note and continue into music for today.'}</p></div>
+        <button type="button" data-action="open-weekly" data-weekly-anchor="${escapeHtml(latest.windowEndAt)}">${app.language === 'kr' ? '최근 기록 열기' : 'Open saved note'} →</button>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="home-weekly-band home-weekly-band--progress">
+      <div class="home-weekly-band__mark" aria-hidden="true">${current.count}/${current.required}</div>
+      <div><span class="eyebrow">${app.language === 'kr' ? '이번 주의 듣기 기록' : 'WEEKLY VIBE'}</span><h2>${app.language === 'kr' ? '조금만 더 들으면 주간 기록이 완성돼요.' : 'A few more listening actions will complete your weekly note.'}</h2><p>${app.language === 'kr' ? `오늘의 선곡에서 ${current.remaining}개 행동을 더 남겨보세요.` : `Leave ${current.remaining} more action${current.remaining === 1 ? '' : 's'} in Music for Today.`}</p></div>
+      <button type="button" data-route="now">${app.language === 'kr' ? '오늘의 선곡 열기' : 'Open music for today'} →</button>
+    </section>
   `;
 }
 
@@ -94,6 +143,7 @@ export function renderHome(app) {
         </aside>
       </section>
 
+      ${weeklyBand(app)}
       ${invite}
 
       <section class="editorial-spread" id="result-example">
@@ -145,5 +195,5 @@ export function renderHome(app) {
   `;
 
   app.renderNotice();
-  track('landing_view', { product_version: 'v2-f1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', showcase_version: 'e1-fixed' });
+  track('landing_view', { product_version: 'v2-m4w1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', showcase_version: 'e1-fixed', weekly_ready: Boolean(hasProfile && weeklyActivityStatus(loadInteractions(), new Date()).ready), return_eligible: Boolean(app.returnStatus?.eligible) });
 }
