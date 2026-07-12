@@ -1,4 +1,4 @@
-/* F1 canonical CSS entry with M4 engagement, profile timeline, and Weekly Vibe layers. */
+/* F1 canonical CSS entry with M4 engagement, profile timeline, Weekly Vibe, and frontend quality layers. */
 @import url("v2-core.css?v=qg1") layer(core);
 @import url("v2-features.css?v=qg1") layer(features);
 @import url("v2-responsive.css?v=qg1") layer(responsive);
@@ -9,5 +9,6 @@
 @import url("v2-m4.css?engagement=m4f1") layer(engagement);
 @import url("v2-m4-timeline.css?timeline=m4t1") layer(timeline);
 @import url("v2-m4-weekly.css?weekly=m4w1") layer(weekly);
+@import url("v2-frontend-quality.css?frontend=fq1") layer(frontend-quality);
 
-@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly;
+@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality;
