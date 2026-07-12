@@ -12,6 +12,7 @@ const staticBindings = read('p2-static.js');
 const v2App = [
   read('src/v2/ui/app.mjs'),
   read('src/v2/ui/actions.mjs'),
+  read('src/v2/ui/timeline-actions.mjs'),
   read('src/v2/ui/weekly-actions.mjs'),
   read('src/v2/ui/screens/home.mjs'),
   read('src/v2/ui/screens/discover.mjs'),
