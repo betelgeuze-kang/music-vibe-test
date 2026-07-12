@@ -12,9 +12,11 @@ const staticBindings = read('p2-static.js');
 const v2App = [
   read('src/v2/ui/app.mjs'),
   read('src/v2/ui/actions.mjs'),
+  read('src/v2/ui/weekly-actions.mjs'),
   read('src/v2/ui/screens/home.mjs'),
   read('src/v2/ui/screens/discover.mjs'),
   read('src/v2/ui/screens/profile.mjs'),
+  read('src/v2/ui/screens/weekly.mjs'),
   read('src/v2/ui/screens/now.mjs'),
   read('src/v2/ui/screens/match.mjs')
 ].join('\n');
@@ -27,7 +29,8 @@ for (const file of [
   'docs/analytics/FUNNEL.md',
   'docs/analytics/GA4_SETUP.md',
   'docs/experiments/README.md',
-  'docs/operations/WEEKLY_RUNBOOK.md'
+  'docs/operations/WEEKLY_RUNBOOK.md',
+  'docs/product/M4_WEEKLY.md'
 ]) assert(fs.existsSync(path.join(root, file)), `missing P2 operating document: ${file}`);
 
 const analyticsScriptIndex = index.search(/<script src="p2-analytics\.js(?:\?[^\"]+)?"><\/script>/);
@@ -53,7 +56,9 @@ const requiredEvents = [
   'landing_view', 'start_test', 'question_answer', 'test_complete', 'result_view',
   'test_abandon', 'ref_visit', 'ref_complete', 'audio_play', 'playlist_click',
   'share_click', 'share_success', 'share_cancel', 'share_error',
-  'image_save', 'image_save_success', 'vibe_now_generate', 'match_view', 'match_invite_created'
+  'image_save', 'image_save_success', 'vibe_now_generate', 'match_view', 'match_invite_created',
+  'track_feedback', 'recommendation_refresh', 'profile_timeline_view', 'profile_restore',
+  'profile_history_clear', 'weekly_vibe_view', 'weekly_vibe_share', 'weekly_vibe_continue', 'return_visit_7d'
 ];
 const combinedRuntime = `${analytics}\n${v2App}\n${staticBindings}`;
 for (const eventName of requiredEvents) assert(combinedRuntime.includes(`'${eventName}'`), `missing active analytics event: ${eventName}`);
@@ -70,9 +75,10 @@ assert(workflow.includes('npm ci'));
 assert(workflow.includes('npm run ci'));
 assert(packageJson.scripts.test.includes('p2-smoke.test.cjs'));
 assert(packageJson.scripts.test.includes('v2-domain.test.mjs'));
+assert(packageJson.scripts.test.includes('v2-weekly.test.mjs'));
 assert.equal(packageJson.scripts.ci, 'npm run test:syntax && npm test');
 
 new Function(analytics);
 new Function(legacyOperations);
 new Function(staticBindings);
-console.log('P2 canonical compatibility checks passed.');
+console.log('P2 canonical compatibility checks passed through M4 Weekly Vibe.');
