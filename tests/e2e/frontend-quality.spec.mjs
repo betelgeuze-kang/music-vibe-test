@@ -171,3 +171,41 @@ test('mobile primary controls meet the 44px hit-target contract', async ({ page 
   await page.locator('[data-route="weekly"]').first().click();
   await expectTouchTargets(page, ['.site-nav__link', '.button', '.editorial-text-link'], '390px weekly');
 });
+
+test('HE1 home header never covers section titles and shared-listening copy stays readable', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'single Chromium responsive matrix');
+  test.setTimeout(90_000);
+  await declineAnalytics(page);
+
+  for (const width of [390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: width <= 768 ? 900 : 1000 });
+    await page.goto(`/?lang=kr&he1=${width}#/home`);
+    await expect(page.locator('body')).toHaveAttribute('data-human-editorial-release', 'he1');
+    await expect(page.locator('.human-editorial-home')).toBeVisible();
+    await expect(page.locator('.sample-match__scores')).toHaveCount(0);
+    await expect(page.locator('.human-match__person')).toHaveCount(2);
+    await expect(page.locator('.human-match__meter')).toHaveCount(2);
+    await expectNoHorizontalOverflow(page, `${width}px HE1 home`);
+
+    const headerPosition = await page.locator('.site-header').evaluate((node) => getComputedStyle(node).position);
+    expect(headerPosition, `${width}px home header must not be sticky`).toBe('static');
+
+    const togetherHeading = page.locator('.human-together > header h2');
+    await togetherHeading.evaluate((node) => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    await page.waitForTimeout(60);
+    const headingBox = await togetherHeading.boundingBox();
+    expect(headingBox, `${width}px together heading must have a box`).not.toBeNull();
+    expect(headingBox.y, `${width}px together heading must not be clipped above the viewport`).toBeGreaterThanOrEqual(0);
+
+    const bridge = page.locator('.human-match__bridge');
+    const bridgeBox = await bridge.boundingBox();
+    expect(bridgeBox, `${width}px bridge must have a box`).not.toBeNull();
+    expect(bridgeBox.width, `${width}px bridge must have readable width`).toBeGreaterThan(width <= 390 ? 300 : 340);
+
+    const labelBoxes = await page.locator('.human-match__meter span').evaluateAll((nodes) => nodes.map((node) => {
+      const rect = node.getBoundingClientRect();
+      return { width: rect.width, height: rect.height, text: node.textContent.trim() };
+    }));
+    expect(labelBoxes.every((item) => item.width > 74 && item.height < 44), `${width}px meter labels must not stack vertically`).toBe(true);
+  }
+});
