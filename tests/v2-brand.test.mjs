@@ -17,9 +17,11 @@ const koreanCopy = JSON.stringify(BRAND_COPY.kr);
 
 assert.equal(buildInfo.brandRelease, 'bd1', 'brand release must remain explicit');
 assert.equal(buildInfo.uiRelease, 'f1', 'brand must be served by the canonical UI');
+assert.equal(buildInfo.engagementRelease, 'm4f1', 'M4 must layer on the canonical brand UI');
 assert(index.includes('data-brand-release="bd1"'));
 assert(index.includes('data-ui-release="f1"'));
-assert(index.includes('v2-app.css?ui=f1'));
+assert(index.includes('data-engagement-release="m4f1"'));
+assert(index.includes('v2-app.css?engagement=m4f1'));
 assert(cssEntry.includes('v2-editorial.css?brand=bd1'));
 assert(!index.includes('src/v2/brand/install.mjs'));
 assert(!index.includes('src/v2/brand/interaction.mjs'));
@@ -47,6 +49,7 @@ assert(actions.includes('this.answers = [{ questionId: question.id, optionId: op
 assert(actions.includes("action === 'choose-option'"));
 assert(actions.includes("action === 'select-context'"));
 assert(actions.includes("action === 'copy-invite'"));
+assert(actions.includes("action === 'track-feedback'"));
 assert.equal((actions.match(/handleClick\(event\)/g) || []).length, 1, 'one canonical delegated action handler is required');
 
 for (const token of ['--paper: #f1ede4', '--signal: #ff5a45', '.editorial-track', '.sample-sleeve', '.listening-booth']) {
@@ -57,4 +60,4 @@ assert(!css.includes('.product-card::before'));
 assert(css.includes('border-radius: 8px'));
 assert(css.includes('font-family: "IBM Plex Mono"'));
 
-console.log('V2 canonical brand checks passed.');
+console.log('V2 canonical brand and M4 layering checks passed.');
