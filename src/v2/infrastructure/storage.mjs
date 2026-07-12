@@ -1,5 +1,6 @@
 import { PROFILE_VERSION } from '../domain/profile.mjs';
 import { normalizeFeedbackRecords, normalizeFeedbackValue } from '../domain/feedback.mjs';
+import { profileSnapshotKey, sortProfileSnapshots } from '../domain/timeline.mjs?timeline=m4t1';
 
 const PROFILE_KEY = 'music-vibe-v2-profile';
 const HISTORY_KEY = 'music-vibe-v2-history';
@@ -40,8 +41,9 @@ function write(key, value) {
 function remove(key) {
   try {
     window.localStorage.removeItem(key);
+    return true;
   } catch (_) {
-    // Storage is optional.
+    return false;
   }
 }
 
@@ -73,19 +75,36 @@ export function saveProfile(profile) {
   const saved = write(PROFILE_KEY, profile);
   if (saved) {
     const history = loadProfileHistory();
-    const next = [profile, ...history.filter((item) => item.id !== profile.id)].slice(0, MAX_HISTORY);
+    const next = sortProfileSnapshots([profile, ...history]).slice(0, MAX_HISTORY);
     write(HISTORY_KEY, next);
   }
   return saved;
 }
 
+export function restoreProfileSnapshot(profile) {
+  if (!validProfile(profile)) return false;
+  return write(PROFILE_KEY, profile);
+}
+
 export function clearProfile() {
-  remove(PROFILE_KEY);
+  return remove(PROFILE_KEY);
 }
 
 export function loadProfileHistory() {
   const history = read(HISTORY_KEY, []);
-  return Array.isArray(history) ? history.filter(validProfile).slice(0, MAX_HISTORY) : [];
+  if (!Array.isArray(history)) return [];
+  return sortProfileSnapshots(history.filter(validProfile)).slice(0, MAX_HISTORY);
+}
+
+export function clearProfileHistory(keepProfile = null) {
+  if (validProfile(keepProfile)) return write(HISTORY_KEY, [keepProfile]);
+  return remove(HISTORY_KEY);
+}
+
+export function findProfileSnapshot(snapshotKey) {
+  const key = String(snapshotKey || '');
+  if (!key) return null;
+  return loadProfileHistory().find((profile) => profileSnapshotKey(profile) === key) || null;
 }
 
 export function saveNowSession(session) {
