@@ -13,6 +13,7 @@ const a11yCss = read('v2-stabilization-a11y.css');
 const timelineCss = read('v2-m4-timeline.css');
 const weeklyCss = read('v2-m4-weekly.css');
 const frontendCss = read('v2-frontend-quality.css');
+const humanCss = read('v2-human-editorial.css');
 const cssEntry = read('v2-app.css');
 const helpers = read('src/v2/ui/helpers.mjs');
 const nowScreen = read('src/v2/ui/screens/now.mjs');
@@ -30,18 +31,21 @@ assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert.equal(buildInfo.weeklyRelease, 'm4w1');
 assert.equal(buildInfo.frontendQualityRelease, 'fq1');
+assert.equal(buildInfo.humanEditorialRelease, 'he1');
 assert(index.includes('music-vibe-stability-release" content="sr1"'));
 assert(index.includes('data-stability-release="sr1"'));
 assert(index.includes('data-timeline-release="m4t1"'));
 assert(index.includes('data-weekly-release="m4w1"'));
 assert(index.includes('data-frontend-quality-release="fq1"'));
-assert(index.includes('v2-app.css?frontend=fq1'));
+assert(index.includes('data-human-editorial-release="he1"'));
+assert(index.includes('v2-app.css?home=he1'));
 assert(cssEntry.includes('v2-stabilization.css?stability=sr1'));
 assert(cssEntry.includes('v2-stabilization-a11y.css?stability=sr1'));
 assert(cssEntry.includes('v2-m4.css?engagement=m4f1'));
 assert(cssEntry.includes('v2-m4-timeline.css?timeline=m4t1'));
 assert(cssEntry.includes('v2-m4-weekly.css?frontend=fq1'));
 assert(cssEntry.includes('v2-frontend-quality.css?frontend=fq1'));
+assert(cssEntry.includes('v2-human-editorial.css?home=he1'));
 
 for (const token of [
   'body[data-route="home"] .editorial-nav.site-nav',
@@ -80,6 +84,13 @@ assert(weeklyCss.includes('.app-dialog'));
 assert(weeklyCss.includes('.weekly-context-grid.is-count-1'));
 assert(frontendCss.includes('Frontend Quality Sweep FQ1'));
 assert(frontendCss.includes('min-height: 44px'));
+assert(humanCss.includes('Human Editorial Home HE1'));
+assert(humanCss.includes('body[data-route="home"] .site-header'));
+assert(humanCss.includes('position: static'));
+assert(humanCss.includes('.human-match__bridge'));
+assert(humanCss.includes('@media (max-width: 1179px)'));
+assert(humanCss.includes('@media (max-width: 920px)'));
+assert(humanCss.includes('@media (max-width: 680px)'));
 
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"));
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
@@ -96,7 +107,8 @@ for (const phrase of [
   'destructive actions use the application confirm dialog',
   'optional analytics consent is a non-blocking labelled region',
   'responsive matrix has no horizontal overflow',
-  'mobile primary controls meet the 44px hit-target contract'
+  'mobile primary controls meet the 44px hit-target contract',
+  'HE1 home header never covers section titles and shared-listening copy stays readable'
 ]) assert(frontendSpec.includes(phrase), `frontend browser gate is missing: ${phrase}`);
 
 const snapshotNames = [
@@ -114,7 +126,7 @@ assert(visualSpec.includes('window.scrollTo(0, 0)'));
 
 const refreshing = exists('tests/e2e/snapshots/.refresh');
 if (!refreshing) {
-  assert(/FQ1 visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()));
+  assert(/HE1 visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()));
   for (const snapshot of snapshotNames) {
     const relative = `tests/e2e/snapshots/${snapshot}`;
     assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);
@@ -127,4 +139,4 @@ if (!refreshing) {
   }
 }
 
-console.log('F1 stabilization with M4 and FQ1 frontend quality checks passed.');
+console.log('F1 stabilization with M4, FQ1, and HE1 frontend quality checks passed.');
