@@ -1,5 +1,5 @@
 {
-  "schema": 9,
+  "schema": 10,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -10,12 +10,14 @@
   "timelineRelease": "m4t1",
   "weeklyRelease": "m4w1",
   "frontendQualityRelease": "fq1",
-  "productVersion": "v2-weekly-vibe-frontend-quality",
-  "assetVersion": "fq1",
+  "humanEditorialRelease": "he1",
+  "productVersion": "v2-weekly-vibe-human-editorial-home",
+  "assetVersion": "he1",
   "builtAt": "2026-07-12T00:00:00Z",
-  "entry": "/src/v2/main.mjs?frontend=fq1",
-  "styleEntry": "/v2-app.css?frontend=fq1",
-  "canonicalCopy": "/src/v2/brand/copy.mjs?brand=bd1",
+  "entry": "/src/v2/main.mjs?home=he1",
+  "styleEntry": "/v2-app.css?home=he1",
+  "canonicalCopy": "/src/v2/brand/copy.mjs?home=he1",
+  "homeScreen": "/src/v2/ui/screens/home.mjs?home=he1",
   "lazyRoutes": [
     "/src/v2/ui/screens/profile.mjs?timeline=m4t1",
     "/src/v2/ui/screens/weekly.mjs?frontend=fq1",
@@ -52,6 +54,11 @@
     "/src/v2/domain/tag-visibility.mjs?weekly=m4w1",
     "/v2-frontend-quality.css?frontend=fq1"
   ],
+  "humanEditorialData": [
+    "/src/v2/brand/copy.mjs?home=he1",
+    "/src/v2/ui/screens/home.mjs?home=he1",
+    "/v2-human-editorial.css?home=he1"
+  ],
   "runtimeOverrides": false,
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe", "accessible-dialogs", "notice-navigation-separation", "responsive-matrix", "hit-targets", "internal-tag-filtering"]
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe", "accessible-dialogs", "notice-navigation-separation", "responsive-matrix", "hit-targets", "internal-tag-filtering", "human-editorial-home", "non-sticky-home-header", "shared-listening-layout"]
 }
