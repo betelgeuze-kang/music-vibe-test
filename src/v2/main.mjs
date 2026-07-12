@@ -1,4 +1,5 @@
-import { VibeApp } from './ui/app.mjs?timeline=m4t1';
+import { VibeApp } from './ui/app.mjs?home=he1';
+import { installConsentAccessibility } from './ui/consent-a11y.mjs?frontend=fq1';
 
 async function retireLegacyRuntime() {
   if ('serviceWorker' in navigator) {
@@ -17,13 +18,13 @@ async function retireLegacyRuntime() {
 
 async function loadBuildInfo() {
   try {
-    const response = await fetch('/build-info.json?timeline=m4t1', { cache: 'no-store' });
+    const response = await fetch('/build-info.json?home=he1', { cache: 'no-store' });
     if (!response.ok) return;
     const info = await response.json();
-    document.documentElement.dataset.buildId = info.timelineRelease || info.engagementRelease || info.uiRelease || info.releaseId || 'm4t1';
+    document.documentElement.dataset.buildId = info.humanEditorialRelease || info.frontendQualityRelease || info.weeklyRelease || info.timelineRelease || info.engagementRelease || info.uiRelease || info.releaseId || 'he1';
     window.__musicVibeBuild = Object.freeze(info);
   } catch (_) {
-    document.documentElement.dataset.buildId = 'm4t1';
+    document.documentElement.dataset.buildId = 'he1';
   }
 }
 
@@ -34,6 +35,7 @@ function boot() {
   if (!root || !header || !footer) throw new Error('Application shell is incomplete.');
   retireLegacyRuntime();
   loadBuildInfo();
+  installConsentAccessibility();
   const app = new VibeApp({ root, header, footer });
   window.__musicVibeV2 = app;
   app.start();

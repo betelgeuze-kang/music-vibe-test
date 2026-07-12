@@ -1,6 +1,7 @@
 import { PROFILE_VERSION } from '../domain/profile.mjs';
 import { normalizeFeedbackRecords, normalizeFeedbackValue } from '../domain/feedback.mjs';
 import { profileSnapshotKey, sortProfileSnapshots } from '../domain/timeline.mjs?timeline=m4t1';
+import { weeklySnapshotKey } from '../domain/weekly.mjs?weekly=m4w1';
 
 const PROFILE_KEY = 'music-vibe-v2-profile';
 const HISTORY_KEY = 'music-vibe-v2-history';
@@ -9,8 +10,11 @@ const LANGUAGE_KEY = 'music-vibe-v2-language';
 const FEEDBACK_KEY = 'music-vibe-v2-feedback-v1';
 const INTERACTIONS_KEY = 'music-vibe-v2-interactions-v1';
 const VISITS_KEY = 'music-vibe-v2-visits-v1';
+const WEEKLY_KEY = 'music-vibe-v2-weekly-v1';
 const MAX_HISTORY = 12;
 const MAX_INTERACTIONS = 400;
+const MAX_WEEKLY_VIBES = 12;
+const MAX_VISIT_DAYS = 45;
 
 function safeParse(value, fallback) {
   if (!value) return fallback;
@@ -47,6 +51,23 @@ function remove(key) {
   }
 }
 
+function timestamp(value) {
+  const time = new Date(value || 0).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
+
+function dayKey(value) {
+  const date = new Date(value || 0);
+  return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : '';
+}
+
+function dayDistance(left, right) {
+  const leftDay = timestamp(`${dayKey(left)}T00:00:00.000Z`);
+  const rightDay = timestamp(`${dayKey(right)}T00:00:00.000Z`);
+  if (!leftDay || !rightDay) return null;
+  return Math.floor((rightDay - leftDay) / 86_400_000);
+}
+
 function validProfile(profile) {
   return profile
     && Number(profile.version) === PROFILE_VERSION
@@ -56,6 +77,17 @@ function validProfile(profile) {
     && typeof profile.scores === 'object';
 }
 
+function validWeeklyVibe(vibe) {
+  return Boolean(
+    vibe
+    && Number(vibe.version) === 1
+    && typeof vibe.profileId === 'string'
+    && typeof vibe.weekKey === 'string'
+    && vibe.scores
+    && typeof vibe.scores === 'object'
+  );
+}
+
 function interactionId() {
   try {
     if (globalThis.crypto?.randomUUID) return `ix-${globalThis.crypto.randomUUID()}`;
@@ -63,6 +95,30 @@ function interactionId() {
     // Fall through to a deterministic-enough local identifier.
   }
   return `ix-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function normalizeVisitState(stored) {
+  if (!stored || typeof stored !== 'object') return null;
+  const currentVisitAt = String(stored.currentVisitAt || stored.lastSeenAt || stored.firstVisitAt || '');
+  if (!timestamp(currentVisitAt)) return null;
+  const firstVisitAt = String(stored.firstVisitAt || currentVisitAt);
+  const currentDay = String(stored.currentDay || dayKey(currentVisitAt));
+  const visitDays = [...new Set([
+    ...(Array.isArray(stored.visitDays) ? stored.visitDays.map(String) : []),
+    dayKey(firstVisitAt),
+    currentDay
+  ].filter(Boolean))].sort().slice(-MAX_VISIT_DAYS);
+  return {
+    version: 2,
+    firstVisitAt,
+    previousVisitAt: stored.previousVisitAt ? String(stored.previousVisitAt) : null,
+    currentVisitAt,
+    currentDay,
+    lastSeenAt: String(stored.lastSeenAt || currentVisitAt),
+    visitDays,
+    lastReturnEventKey: stored.lastReturnEventKey ? String(stored.lastReturnEventKey) : '',
+    lastReturnEventAt: stored.lastReturnEventAt ? String(stored.lastReturnEventAt) : null
+  };
 }
 
 export function loadProfile() {
@@ -184,24 +240,95 @@ export function loadInteractions(options = {}) {
     .slice(0, limit);
 }
 
+export function saveWeeklyVibe(vibe) {
+  if (!validWeeklyVibe(vibe) || !vibe.sufficientData) return false;
+  const key = weeklySnapshotKey(vibe);
+  if (!key) return false;
+  const current = loadWeeklyVibes();
+  const next = [vibe, ...current.filter((item) => weeklySnapshotKey(item) !== key)]
+    .sort((left, right) => timestamp(right.generatedAt) - timestamp(left.generatedAt) || weeklySnapshotKey(left).localeCompare(weeklySnapshotKey(right)))
+    .slice(0, MAX_WEEKLY_VIBES);
+  return write(WEEKLY_KEY, { version: 1, items: next });
+}
+
+export function loadWeeklyVibes(options = {}) {
+  const stored = read(WEEKLY_KEY, { version: 1, items: [] });
+  const items = Array.isArray(stored?.items) ? stored.items : Array.isArray(stored) ? stored : [];
+  const profileId = String(options.profileId || '');
+  return items
+    .filter(validWeeklyVibe)
+    .filter((item) => !profileId || item.profileId === profileId)
+    .sort((left, right) => timestamp(right.generatedAt) - timestamp(left.generatedAt) || weeklySnapshotKey(left).localeCompare(weeklySnapshotKey(right)))
+    .slice(0, MAX_WEEKLY_VIBES);
+}
+
+export function loadLatestWeeklyVibe(profileId = '') {
+  return loadWeeklyVibes({ profileId })[0] || null;
+}
+
+export function clearWeeklyVibes() {
+  return remove(WEEKLY_KEY);
+}
+
 export function registerVisit(at = new Date()) {
-  const currentAt = at instanceof Date ? at.toISOString() : new Date(at).toISOString();
-  const stored = read(VISITS_KEY, null);
-  const firstVisitAt = String(stored?.firstVisitAt || currentAt);
-  const previousVisitAt = stored?.currentVisitAt ? String(stored.currentVisitAt) : null;
-  const state = Object.freeze({
-    version: 1,
-    firstVisitAt,
-    previousVisitAt,
-    currentVisitAt: currentAt,
-    lastReturnEventAt: stored?.lastReturnEventAt || null
-  });
-  return { state, saved: write(VISITS_KEY, state) };
+  const date = at instanceof Date ? at : new Date(at);
+  const currentAt = Number.isFinite(date.getTime()) ? date.toISOString() : new Date().toISOString();
+  const currentDay = dayKey(currentAt);
+  const stored = normalizeVisitState(read(VISITS_KEY, null));
+  let state;
+  let isNewDay = true;
+  let daysSincePrevious = null;
+
+  if (!stored) {
+    state = {
+      version: 2,
+      firstVisitAt: currentAt,
+      previousVisitAt: null,
+      currentVisitAt: currentAt,
+      currentDay,
+      lastSeenAt: currentAt,
+      visitDays: [currentDay],
+      lastReturnEventKey: '',
+      lastReturnEventAt: null
+    };
+  } else if (stored.currentDay === currentDay) {
+    isNewDay = false;
+    state = { ...stored, lastSeenAt: currentAt };
+    daysSincePrevious = stored.previousVisitAt ? dayDistance(stored.previousVisitAt, stored.currentVisitAt) : null;
+  } else {
+    daysSincePrevious = dayDistance(stored.currentVisitAt, currentAt);
+    state = {
+      ...stored,
+      previousVisitAt: stored.currentVisitAt,
+      currentVisitAt: currentAt,
+      currentDay,
+      lastSeenAt: currentAt,
+      visitDays: [...new Set([...stored.visitDays, currentDay])].sort().slice(-MAX_VISIT_DAYS)
+    };
+  }
+
+  const saved = write(VISITS_KEY, state);
+  return Object.freeze({ state: Object.freeze(state), saved, isNewDay, daysSincePrevious });
 }
 
 export function loadVisitState() {
-  const stored = read(VISITS_KEY, null);
-  return stored?.version === 1 ? stored : null;
+  return normalizeVisitState(read(VISITS_KEY, null));
+}
+
+export function markReturnVisitTracked(eventKey, at = new Date()) {
+  const key = String(eventKey || '');
+  const stored = normalizeVisitState(read(VISITS_KEY, null));
+  if (!stored || !key) return false;
+  return write(VISITS_KEY, {
+    ...stored,
+    lastReturnEventKey: key,
+    lastReturnEventAt: at instanceof Date ? at.toISOString() : new Date(at).toISOString()
+  });
+}
+
+export function returnVisitAlreadyTracked(eventKey) {
+  const state = loadVisitState();
+  return Boolean(eventKey && state?.lastReturnEventKey === String(eventKey));
 }
 
 export function saveLanguage(language) {

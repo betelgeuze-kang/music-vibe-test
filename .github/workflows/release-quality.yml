@@ -40,10 +40,10 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: artifact
-    timeout-minutes: 8
+    timeout-minutes: 9
     steps:
       - uses: actions/checkout@v4
-      - name: Poll the public origin for the M4T1 timeline release
+      - name: Poll the public origin for the M4W1 + FQ1 + HE1 release
         id: smoke
         shell: bash
         run: |
@@ -52,11 +52,17 @@ jobs:
           content="$(jq -r .contentRelease build-info.json)"
           engagement="$(jq -r .engagementRelease build-info.json)"
           timeline="$(jq -r .timelineRelease build-info.json)"
+          weekly="$(jq -r .weeklyRelease build-info.json)"
+          frontend="$(jq -r .frontendQualityRelease build-info.json)"
+          human="$(jq -r .humanEditorialRelease build-info.json)"
           verified=false
           home_ok=false
           build_ok=false
           entry_ok=false
           style_ok=false
+          weekly_ok=false
+          frontend_ok=false
+          human_ok=false
           timeline_ok=false
           content_ok=false
           audio_ok=false
@@ -67,21 +73,33 @@ jobs:
             build="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/build-info.json?${bust}" 2>/dev/null || true)"
             entry="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/main.mjs?${bust}" 2>/dev/null || true)"
             style="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/v2-app.css?${bust}" 2>/dev/null || true)"
+            frontend_css="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/v2-frontend-quality.css?${bust}" 2>/dev/null || true)"
+            human_css="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/v2-human-editorial.css?${bust}" 2>/dev/null || true)"
+            home_screen="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/screens/home.mjs?${bust}" 2>/dev/null || true)"
+            home_copy="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/brand/copy.mjs?${bust}" 2>/dev/null || true)"
+            dialogs="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/dialogs.mjs?${bust}" 2>/dev/null || true)"
+            consent="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/consent-a11y.mjs?${bust}" 2>/dev/null || true)"
+            tag_visibility="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/domain/tag-visibility.mjs?${bust}" 2>/dev/null || true)"
+            weekly_module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/domain/weekly.mjs?${bust}" 2>/dev/null || true)"
+            weekly_screen="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/screens/weekly.mjs?${bust}" 2>/dev/null || true)"
+            weekly_actions="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/weekly-actions.mjs?${bust}" 2>/dev/null || true)"
             timeline_module="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/domain/timeline.mjs?${bust}" 2>/dev/null || true)"
-            profile_screen="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/ui/screens/profile.mjs?${bust}" 2>/dev/null || true)"
             editorial="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/src/v2/data/editorial-tracks.mjs?${bust}" 2>/dev/null || true)"
             audio_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "https://my-music-vibe.com/assets/audio/Funkorama.mp3?${bust}" || true)"
             result="$(curl -fsSL --max-time 25 -H 'Cache-Control: no-cache' "https://my-music-vibe.com/ko/results/enfp/?${bust}" 2>/dev/null || true)"
-            home_ok=false; build_ok=false; entry_ok=false; style_ok=false; timeline_ok=false; content_ok=false; audio_ok=false; result_ok=false
-            grep -q "Profile Timeline ${timeline^^}" <<<"$home" && grep -q '내가 좋아하는 소리엔' <<<"$home" && home_ok=true
-            jq -e --arg ui "$ui" --arg content "$content" --arg engagement "$engagement" --arg timeline "$timeline" '.uiRelease == $ui and .contentRelease == $content and .engagementRelease == $engagement and .timelineRelease == $timeline and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 && build_ok=true
-            grep -q 'new VibeApp' <<<"$entry" && grep -q 'timeline=m4t1' <<<"$entry" && ! grep -q 'installQualityGates' <<<"$entry" && entry_ok=true
-            grep -q '@layer core' <<<"$style" && grep -q 'v2-m4-timeline.css' <<<"$style" && style_ok=true
-            grep -q 'compareProfileSnapshots' <<<"$timeline_module" && grep -q 'profileSnapshotKey' <<<"$timeline_module" && grep -q 'profile-timeline' <<<"$profile_screen" && timeline_ok=true
+            home_ok=false; build_ok=false; entry_ok=false; style_ok=false; weekly_ok=false; frontend_ok=false; human_ok=false; timeline_ok=false; content_ok=false; audio_ok=false; result_ok=false
+            grep -q "Weekly Vibe ${weekly^^}" <<<"$home" && grep -q "Frontend Quality ${frontend^^}" <<<"$home" && grep -q "Human Editorial ${human^^}" <<<"$home" && grep -q '설명하기 어려운 노래도' <<<"$home" && home_ok=true
+            jq -e --arg ui "$ui" --arg content "$content" --arg engagement "$engagement" --arg timeline "$timeline" --arg weekly "$weekly" --arg frontend "$frontend" --arg human "$human" '.uiRelease == $ui and .contentRelease == $content and .engagementRelease == $engagement and .timelineRelease == $timeline and .weeklyRelease == $weekly and .frontendQualityRelease == $frontend and .humanEditorialRelease == $human and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 && build_ok=true
+            grep -q 'new VibeApp' <<<"$entry" && grep -q 'home=he1' <<<"$entry" && ! grep -q 'installQualityGates' <<<"$entry" && entry_ok=true
+            grep -q '@layer core' <<<"$style" && grep -q 'v2-m4-weekly.css' <<<"$style" && grep -q 'v2-frontend-quality.css' <<<"$style" && grep -q 'v2-human-editorial.css' <<<"$style" && style_ok=true
+            grep -q 'buildWeeklyVibe' <<<"$weekly_module" && grep -q 'WEEKLY_MIN_INTERACTIONS' <<<"$weekly_module" && grep -q 'weekly-hero' <<<"$weekly_screen" && grep -q 'visibleWeeklyTags' <<<"$weekly_screen" && grep -q 'share-weekly-card' <<<"$weekly_actions" && weekly_ok=true
+            grep -q 'showConfirmDialog' <<<"$dialogs" && grep -q 'data-dialog-cancel' <<<"$dialogs" && grep -q "role', 'region" <<<"$consent" && grep -q 'editorial-curated' <<<"$tag_visibility" && grep -q 'Frontend Quality Sweep FQ1' <<<"$frontend_css" && frontend_ok=true
+            grep -q 'human-editorial-home' <<<"$home_screen" && grep -q 'human-match__bridge' <<<"$home_screen" && grep -q '설명하기 어려운 노래도' <<<"$home_copy" && grep -q 'body\[data-route="home"\] .site-header' <<<"$human_css" && grep -q 'Human Editorial Home HE1' <<<"$human_css" && human_ok=true
+            grep -q 'compareProfileSnapshots' <<<"$timeline_module" && grep -q 'profileSnapshotKey' <<<"$timeline_module" && timeline_ok=true
             grep -q 'RAW_EDITORIAL_TRACKS' <<<"$editorial" && grep -q 'CURATED_TRACK_COUNT' <<<"$editorial" && content_ok=true
             [ "$audio_code" = '200' ] && audio_ok=true
             grep -q 'data-page-type="static_result"' <<<"$result" && result_ok=true
-            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$entry_ok" = true ] && [ "$style_ok" = true ] && [ "$timeline_ok" = true ] && [ "$content_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
+            if [ "$home_ok" = true ] && [ "$build_ok" = true ] && [ "$entry_ok" = true ] && [ "$style_ok" = true ] && [ "$weekly_ok" = true ] && [ "$frontend_ok" = true ] && [ "$human_ok" = true ] && [ "$timeline_ok" = true ] && [ "$content_ok" = true ] && [ "$audio_ok" = true ] && [ "$result_ok" = true ]; then verified=true; break; fi
             sleep 10
           done
           echo "verified=$verified" >> "$GITHUB_OUTPUT"
@@ -89,12 +107,15 @@ jobs:
           echo "build_ok=$build_ok" >> "$GITHUB_OUTPUT"
           echo "entry_ok=$entry_ok" >> "$GITHUB_OUTPUT"
           echo "style_ok=$style_ok" >> "$GITHUB_OUTPUT"
+          echo "weekly_ok=$weekly_ok" >> "$GITHUB_OUTPUT"
+          echo "frontend_ok=$frontend_ok" >> "$GITHUB_OUTPUT"
+          echo "human_ok=$human_ok" >> "$GITHUB_OUTPUT"
           echo "timeline_ok=$timeline_ok" >> "$GITHUB_OUTPUT"
           echo "content_ok=$content_ok" >> "$GITHUB_OUTPUT"
           echo "audio_ok=$audio_ok" >> "$GITHUB_OUTPUT"
           echo "result_ok=$result_ok" >> "$GITHUB_OUTPUT"
           [ "$verified" = true ]
-      - name: Report M4T1 public deployment to issue 10
+      - name: Report and close the HE1 release issue
         if: always()
         uses: actions/github-script@v7
         env:
@@ -103,6 +124,9 @@ jobs:
           BUILD_OK: ${{ steps.smoke.outputs.build_ok }}
           ENTRY_OK: ${{ steps.smoke.outputs.entry_ok }}
           STYLE_OK: ${{ steps.smoke.outputs.style_ok }}
+          WEEKLY_OK: ${{ steps.smoke.outputs.weekly_ok }}
+          FRONTEND_OK: ${{ steps.smoke.outputs.frontend_ok }}
+          HUMAN_OK: ${{ steps.smoke.outputs.human_ok }}
           TIMELINE_OK: ${{ steps.smoke.outputs.timeline_ok }}
           CONTENT_OK: ${{ steps.smoke.outputs.content_ok }}
           AUDIO_OK: ${{ steps.smoke.outputs.audio_ok }}
@@ -110,9 +134,16 @@ jobs:
         with:
           script: |
             const ok = process.env.VERIFIED === 'true';
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: 10,
-              body: `## M4T1 profile timeline public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home marker: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- canonical entry: \`${process.env.ENTRY_OK}\`\n- CSS entry: \`${process.env.STYLE_OK}\`\n- timeline module + screen: \`${process.env.TIMELINE_OK}\`\n- E1 content data: \`${process.env.CONTENT_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``
-            });
+            const body = `## HE1 public smoke\n\n- commit: \`${context.sha}\`\n- overall: **${ok ? 'PASS' : 'FAIL'}**\n- home marker + emotional headline: \`${process.env.HOME_OK}\`\n- build-info: \`${process.env.BUILD_OK}\`\n- canonical entry: \`${process.env.ENTRY_OK}\`\n- CSS entry: \`${process.env.STYLE_OK}\`\n- Weekly continuity: \`${process.env.WEEKLY_OK}\`\n- FQ1 continuity: \`${process.env.FRONTEND_OK}\`\n- human editorial copy + home + CSS: \`${process.env.HUMAN_OK}\`\n- timeline continuity: \`${process.env.TIMELINE_OK}\`\n- E1 content data: \`${process.env.CONTENT_OK}\`\n- audio: \`${process.env.AUDIO_OK}\`\n- legacy static result: \`${process.env.RESULT_OK}\``;
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: 26, body });
+            if (ok) {
+              const { data: issue } = await github.rest.issues.get({ owner: context.repo.owner, repo: context.repo.repo, issue_number: 26 });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: 26,
+                body: (issue.body || '').replaceAll('- [ ]', '- [x]'),
+                state: 'closed',
+                state_reason: 'completed'
+              });
+            }

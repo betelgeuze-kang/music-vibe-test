@@ -1,0 +1,49 @@
+/* Frontend Quality Sweep FQ1 */
+.listening-choice__choose,
+.utility-actions button,
+.load-invite button,
+.recent-session,
+.context-card,
+.track-card__actions a,
+.editorial-track__links a,
+.track-feedback__button {
+  min-height: 44px;
+}
+
+.utility-actions button,
+.track-card__actions a,
+.editorial-track__links a,
+.track-feedback__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editorial-track__links a {
+  min-width: 44px;
+  padding-inline: 6px;
+}
+
+#standalone-cookie-banner {
+  bottom: max(16px, env(safe-area-inset-bottom)) !important;
+}
+
+#standalone-cookie-banner button {
+  min-height: 44px !important;
+  min-width: 44px !important;
+}
+
+@media (max-width: 680px) {
+  .utility-actions {
+    gap: 8px;
+  }
+
+  .utility-actions button,
+  .track-feedback__button,
+  .track-card__actions a,
+  .editorial-track__links a {
+    min-height: 44px;
+    min-width: 44px;
+    padding-block: 10px;
+  }
+}

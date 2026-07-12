@@ -1,8 +1,10 @@
 import { PROFILE_QUESTIONS } from '../../data/questions.mjs?v=qg1';
 import { HOME_SHOWCASE, localizedShowcaseReason } from '../../data/home-showcase.mjs';
 import { profileFromArchetype, getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
+import { formatWeeklyRange, weeklyActivityStatus, weeklyAlias } from '../../domain/weekly.mjs?weekly=m4w1';
+import { loadInteractions } from '../../infrastructure/storage.mjs?weekly=m4w1';
 import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track } from '../helpers.mjs?ui=f1';
+import { escapeHtml, track } from '../helpers.mjs?weekly=m4w1';
 
 const sampleProfile = profileFromArchetype(HOME_SHOWCASE.profileArchetypeId, 'home_showcase');
 const sampleFriend = profileFromArchetype(HOME_SHOWCASE.friendArchetypeId, 'home_showcase');
@@ -44,6 +46,75 @@ function homeOption(app, question, option, index) {
   `;
 }
 
+function weeklyBand(app) {
+  if (!app.profile) return '';
+  const interactions = loadInteractions();
+  const current = weeklyActivityStatus(interactions, new Date());
+  const latest = app.latestWeeklyVibe;
+  const returning = app.returnStatus?.eligible;
+
+  if (returning) {
+    const anchor = app.returnStatus.anchorAt || latest?.windowEndAt || '';
+    return `
+      <section class="home-weekly-band home-weekly-band--return">
+        <div class="home-weekly-band__mark" aria-hidden="true">7D</div>
+        <div><span class="eyebrow">${app.language === 'kr' ? '다시 왔네요' : 'WELCOME BACK'}</span><h2>${app.language === 'kr' ? '지난 방문까지의 음악 기록을 다시 열어보세요.' : 'Reopen the listening note from your last visit.'}</h2><p>${app.language === 'kr' ? `${app.returnStatus.daysSincePrevious}일 만의 방문이에요. 그때 머문 장면과 곡을 한 장으로 정리합니다.` : `It has been ${app.returnStatus.daysSincePrevious} days. See the moments and tracks that stayed with you then.`}</p></div>
+        <button type="button" data-action="open-weekly" data-weekly-anchor="${escapeHtml(anchor)}">${app.language === 'kr' ? '지난 기록 보기' : 'Open the previous note'} →</button>
+      </section>
+    `;
+  }
+
+  if (current.ready) {
+    return `
+      <section class="home-weekly-band">
+        <div class="home-weekly-band__mark" aria-hidden="true">W</div>
+        <div><span class="eyebrow">${app.language === 'kr' ? '이번 주 기록 준비됨' : 'WEEKLY NOTE READY'}</span><h2>${app.language === 'kr' ? '최근에 머문 음악을 한 장으로 모았어요.' : 'Your recent listening is ready as one weekly note.'}</h2><p>${app.language === 'kr' ? `${current.count}개의 청취 행동에서 자주 고른 장면과 곡을 정리합니다.` : `A recap built from ${current.count} listening actions.`}</p></div>
+        <button type="button" data-action="open-weekly">${app.language === 'kr' ? '이번 주 기록 보기' : 'Open Weekly Vibe'} →</button>
+      </section>
+    `;
+  }
+
+  if (latest) {
+    return `
+      <section class="home-weekly-band home-weekly-band--saved">
+        <div class="home-weekly-band__mark" aria-hidden="true">W</div>
+        <div><span class="eyebrow">${escapeHtml(formatWeeklyRange(latest, app.language))}</span><h2>${escapeHtml(weeklyAlias(latest, app.language))}</h2><p>${app.language === 'kr' ? '저장된 주간 기록을 다시 보고, 오늘의 선곡으로 이어갈 수 있어요.' : 'Revisit the saved weekly note and continue into music for today.'}</p></div>
+        <button type="button" data-action="open-weekly" data-weekly-anchor="${escapeHtml(latest.windowEndAt)}">${app.language === 'kr' ? '최근 기록 열기' : 'Open saved note'} →</button>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="home-weekly-band home-weekly-band--progress">
+      <div class="home-weekly-band__mark" aria-hidden="true">${current.count}/${current.required}</div>
+      <div><span class="eyebrow">${app.language === 'kr' ? '이번 주의 듣기 기록' : 'WEEKLY VIBE'}</span><h2>${app.language === 'kr' ? '조금만 더 들으면 주간 기록이 완성돼요.' : 'A few more listening actions will complete your weekly note.'}</h2><p>${app.language === 'kr' ? `오늘의 선곡에서 ${current.remaining}개 행동을 더 남겨보세요.` : `Leave ${current.remaining} more action${current.remaining === 1 ? '' : 's'} in Music for Today.`}</p></div>
+      <button type="button" data-route="now">${app.language === 'kr' ? '오늘의 선곡 열기' : 'Open music for today'} →</button>
+    </section>
+  `;
+}
+
+function matchPortrait(archetype, label, language, tone) {
+  return `
+    <article class="human-match__person human-match__person--${tone}">
+      <span class="human-match__role">${escapeHtml(label)}</span>
+      <span class="human-match__symbol" aria-hidden="true">${escapeHtml(archetype.symbol)}</span>
+      <div>
+        <h3>${escapeHtml(localize(archetype.name, language))}</h3>
+        <p>${escapeHtml(localize(archetype.tagline, language))}</p>
+      </div>
+    </article>
+  `;
+}
+
+function matchMeter(label, score) {
+  return `
+    <div class="human-match__meter" style="--match-score:${Math.max(0, Math.min(100, score))}%">
+      <div><span>${escapeHtml(label)}</span><b>${score}</b></div>
+      <i aria-hidden="true"><em></em></i>
+    </div>
+  `;
+}
+
 export function renderHome(app) {
   const copy = app.copy();
   const question = PROFILE_QUESTIONS[0];
@@ -52,12 +123,10 @@ export function renderHome(app) {
   const sampleArchetype = getProfileArchetype(sampleProfile);
   const friendArchetype = getProfileArchetype(sampleFriend);
   const sampleMatch = HOME_SHOWCASE.match;
-  const resonanceLabel = sampleMatch.resonanceLabel[app.language] || sampleMatch.resonanceLabel.en;
-  const discoveryLabel = sampleMatch.discoveryLabel[app.language] || sampleMatch.discoveryLabel.en;
 
   const invite = app.friendProfile ? `
     <section class="editorial-invite">
-      <span class="editorial-kicker">A FRIEND SENT A LISTENING NOTE</span>
+      <span class="editorial-kicker">${app.language === 'kr' ? '친구가 건넨 듣기 기록' : 'A FRIEND SENT A LISTENING NOTE'}</span>
       <div><h2>${escapeHtml(copy.invitedTitle)}</h2><p>${escapeHtml(copy.invitedDesc)}</p></div>
       <button type="button" data-route="${hasProfile ? 'match' : 'discover'}">${escapeHtml(hasProfile ? copy.openMatch : copy.beginProfile)} →</button>
     </section>
@@ -65,12 +134,13 @@ export function renderHome(app) {
 
   app.root.innerHTML = `
     <div id="app-notice" class="app-notice"></div>
-    <div class="editorial-home">
-      <section class="editorial-hero">
+    <div class="editorial-home human-editorial-home">
+      <section class="editorial-hero human-hero">
         <div class="editorial-hero__copy">
           <span class="editorial-kicker">${escapeHtml(copy.homeEyebrow)}</span>
           <h1>${escapeHtml(copy.homeTitle).replaceAll('\n', '<br>')}</h1>
           <p class="editorial-dek">${escapeHtml(copy.homeDescription)}</p>
+          <p class="human-hero__whisper">${app.language === 'kr' ? '좋아하는 이유를 아직 몰라도 괜찮아요. 귀가 먼저 고른 쪽에서 시작하면 됩니다.' : 'You do not need the reason yet. Start with the sound your ear chooses first.'}</p>
           <div class="editorial-hero__actions">
             ${hasProfile
               ? `<button class="editorial-button editorial-button--ink" type="button" data-route="profile">${escapeHtml(copy.continueProfile)} →</button><button class="editorial-button editorial-button--line" type="button" data-route="now">${escapeHtml(copy.openNow)}</button>`
@@ -78,9 +148,9 @@ export function renderHome(app) {
             }
           </div>
           <div class="editorial-hero__note">
-            <span>${app.language === 'kr' ? '회원가입 없음' : 'No account'}</span>
-            <span>${app.language === 'kr' ? '브라우저에만 저장' : 'Saved in your browser'}</span>
-            <span>${app.language === 'kr' ? '음악 API 로그인 없음' : 'No streaming login'}</span>
+            <span>${app.language === 'kr' ? '이름은 묻지 않아요' : 'No name required'}</span>
+            <span>${app.language === 'kr' ? '기록은 이 브라우저에' : 'Notes stay in this browser'}</span>
+            <span>${app.language === 'kr' ? '음악 계정 연결 없음' : 'No streaming account needed'}</span>
           </div>
           ${hasProfile ? `<div class="editorial-saved"><span aria-hidden="true">${escapeHtml(currentArchetype.symbol)}</span><div><small>${escapeHtml(copy.existingProfile)}</small><strong>${escapeHtml(localize(currentArchetype.name, app.language))}</strong></div></div>` : ''}
         </div>
@@ -94,6 +164,7 @@ export function renderHome(app) {
         </aside>
       </section>
 
+      ${weeklyBand(app)}
       ${invite}
 
       <section class="editorial-spread" id="result-example">
@@ -101,14 +172,14 @@ export function renderHome(app) {
           <span class="editorial-kicker">${escapeHtml(copy.sampleEyebrow)}</span>
           <h2>${escapeHtml(copy.sampleTitle)}</h2>
           <p>${escapeHtml(copy.sampleBody)}</p>
-          <div class="editorial-folio"><span>01</span><i></i><b>${app.language === 'kr' ? '취향 예시' : 'PROFILE SAMPLE'}</b></div>
+          <div class="editorial-folio"><span>01</span><i></i><b>${app.language === 'kr' ? '다른 사람의 듣기 기록' : 'ANOTHER LISTENING NOTE'}</b></div>
         </div>
         <article class="sample-sleeve" style="--sample-start:${sampleArchetype.gradient[0]};--sample-end:${sampleArchetype.gradient[2]}">
           <div class="sample-sleeve__glyph">${renderVibeGlyph(sampleProfile, app.language, { id: 'sample-profile', size: 260 })}</div>
           <span aria-hidden="true">${escapeHtml(sampleArchetype.symbol)}</span>
           <h3>${escapeHtml(localize(sampleArchetype.name, app.language))}</h3>
           <p>${escapeHtml(localize(sampleArchetype.tagline, app.language))}</p>
-          <small>EXAMPLE / ${escapeHtml(sampleProfile.id)}</small>
+          <small>${app.language === 'kr' ? '듣기 기록 예시' : 'LISTENING NOTE SAMPLE'} / ${escapeHtml(sampleProfile.id)}</small>
         </article>
         <div class="editorial-spread__tracks">
           <span class="editorial-kicker">${escapeHtml(copy.sampleTracks)}</span>
@@ -125,25 +196,35 @@ export function renderHome(app) {
         <button class="editorial-text-link" type="button" data-route="now">${escapeHtml(copy.openNow)} →</button>
       </section>
 
-      <section class="editorial-section editorial-section--together">
+      <section class="editorial-section editorial-section--together human-together">
         <header><span class="editorial-kicker">${escapeHtml(copy.togetherEyebrow)}</span><h2>${escapeHtml(copy.togetherTitle)}</h2><p>${escapeHtml(copy.togetherBody)}</p></header>
-        <div class="sample-match">
-          <article class="sample-match__person"><span aria-hidden="true">${escapeHtml(sampleArchetype.symbol)}</span><strong>${escapeHtml(localize(sampleArchetype.name, app.language))}</strong><small>${app.language === 'kr' ? '내 취향 예시' : 'My sample taste'}</small></article>
-          <div class="sample-match__scores"><div><b>${escapeHtml(resonanceLabel)}</b><span>${app.language === 'kr' ? `공명도 · ${sampleMatch.resonance}` : `Resonance · ${sampleMatch.resonance}`}</span></div><i></i><div><b>${escapeHtml(discoveryLabel)}</b><span>${app.language === 'kr' ? `발견 가능성 · ${sampleMatch.discovery}` : `Discovery · ${sampleMatch.discovery}`}</span></div></div>
-          <article class="sample-match__person"><span aria-hidden="true">${escapeHtml(friendArchetype.symbol)}</span><strong>${escapeHtml(localize(friendArchetype.name, app.language))}</strong><small>${app.language === 'kr' ? '친구 취향 예시' : 'Friend sample taste'}</small></article>
+        <div class="human-match">
+          ${matchPortrait(sampleArchetype, copy.togetherYouLabel, app.language, 'paper')}
+          <div class="human-match__bridge">
+            <span class="human-match__bridge-label">${escapeHtml(copy.togetherBridgeLabel)}</span>
+            <blockquote>${escapeHtml(copy.togetherBridgeNote)}</blockquote>
+            <div class="human-match__meters">
+              ${matchMeter(copy.togetherEaseLabel, sampleMatch.resonance)}
+              ${matchMeter(copy.togetherDiscoveryLabel, sampleMatch.discovery)}
+            </div>
+          </div>
+          ${matchPortrait(friendArchetype, copy.togetherFriendLabel, app.language, 'ink')}
         </div>
-        <div class="editorial-tracklist editorial-tracklist--compact">${trackRows(HOME_SHOWCASE.match.bridgeTracks, app.language, 'home_match_sample', 3)}</div>
+        <div class="human-together__tracks">
+          <div class="human-together__track-intro"><span>${app.language === 'kr' ? '둘 사이를 이어주는 세 곡' : 'THREE SONGS BETWEEN YOU'}</span><p>${app.language === 'kr' ? '한 사람의 취향을 지우지 않고, 두 사람이 함께 머물 수 있는 순서로 골랐어요.' : 'Chosen in an order that leaves room for both people without erasing either taste.'}</p></div>
+          <div class="editorial-tracklist editorial-tracklist--compact">${trackRows(HOME_SHOWCASE.match.bridgeTracks, app.language, 'home_match_sample', 3)}</div>
+        </div>
         <button class="editorial-text-link" type="button" data-route="match">${escapeHtml(copy.openMatch)} →</button>
       </section>
 
       <section class="editorial-privacy">
         <span class="editorial-privacy__mark" aria-hidden="true">LOCAL<br>FIRST</span>
-        <div><span class="editorial-kicker">PRIVATE BY DEFAULT</span><h2>${escapeHtml(copy.privacyTitle)}</h2><p>${escapeHtml(copy.privacyBody)}</p></div>
+        <div><span class="editorial-kicker">${app.language === 'kr' ? '기록은 가까이에' : 'PRIVATE BY DEFAULT'}</span><h2>${escapeHtml(copy.privacyTitle)}</h2><p>${escapeHtml(copy.privacyBody)}</p></div>
         <button type="button" data-action="privacy">${escapeHtml(copy.footerPrivacy)} →</button>
       </section>
     </div>
   `;
 
   app.renderNotice();
-  track('landing_view', { product_version: 'v2-f1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', showcase_version: 'e1-fixed' });
+  track('landing_view', { product_version: 'v2-he1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', home_release: 'he1', showcase_version: 'e1-fixed', weekly_ready: Boolean(hasProfile && weeklyActivityStatus(loadInteractions(), new Date()).ready), return_eligible: Boolean(app.returnStatus?.eligible) });
 }

@@ -39,16 +39,20 @@ jobs:
         with:
           source: ./
           destination: ./_site
-      - name: Verify canonical Jekyll artifact
+      - name: Verify canonical HE1 Jekyll artifact
         run: |
           set -euo pipefail
           node scripts/verify-release.mjs --root _site
           grep -q 'Canonical UI F1' _site/index.html
+          grep -q 'Weekly Vibe M4W1' _site/index.html
+          grep -q 'Human Editorial HE1' _site/index.html
           grep -q '@layer core' _site/v2-app.css
+          grep -q 'v2-m4-weekly.css' _site/v2-app.css
+          grep -q 'v2-human-editorial.css' _site/v2-app.css
           grep -q 'MY_MUSIC_VIBE_STABILITY_SR1' _site/deploy-probe-sr1.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: canonical-artifact-${{ github.run_id }}
+          name: canonical-he1-artifact-${{ github.run_id }}
           path: |
             _site/build-info.json
             _site/deploy-probe-sr1.txt
@@ -123,17 +127,28 @@ jobs:
           }
 
           verify_payloads() {
-            local mode="$1" bust home build style entry probe result
-            bust="f1=${GITHUB_SHA}-$(date +%s)"
+            local mode="$1" bust home build style entry weekly human_css home_screen copy probe result
+            bust="he1=${GITHUB_SHA}-$(date +%s)"
             if [ "$mode" = origin ]; then
-              home="$(fetch_origin "/?${bust}")"; build="$(fetch_origin "/build-info.json?${bust}")"; style="$(fetch_origin "/v2-app.css?${bust}")"; entry="$(fetch_origin "/src/v2/main.mjs?${bust}")"; probe="$(fetch_origin "/deploy-probe-sr1.txt?${bust}")"; result="$(fetch_origin "/ko/results/enfp/?${bust}")"
+              home="$(fetch_origin "/?${bust}")"; build="$(fetch_origin "/build-info.json?${bust}")"; style="$(fetch_origin "/v2-app.css?${bust}")"; entry="$(fetch_origin "/src/v2/main.mjs?${bust}")"; weekly="$(fetch_origin "/src/v2/domain/weekly.mjs?${bust}")"; human_css="$(fetch_origin "/v2-human-editorial.css?${bust}")"; home_screen="$(fetch_origin "/src/v2/ui/screens/home.mjs?${bust}")"; copy="$(fetch_origin "/src/v2/brand/copy.mjs?${bust}")"; probe="$(fetch_origin "/deploy-probe-sr1.txt?${bust}")"; result="$(fetch_origin "/ko/results/enfp/?${bust}")"
             else
-              home="$(fetch_public "/?${bust}")"; build="$(fetch_public "/build-info.json?${bust}")"; style="$(fetch_public "/v2-app.css?${bust}")"; entry="$(fetch_public "/src/v2/main.mjs?${bust}")"; probe="$(fetch_public "/deploy-probe-sr1.txt?${bust}")"; result="$(fetch_public "/ko/results/enfp/?${bust}")"
+              home="$(fetch_public "/?${bust}")"; build="$(fetch_public "/build-info.json?${bust}")"; style="$(fetch_public "/v2-app.css?${bust}")"; entry="$(fetch_public "/src/v2/main.mjs?${bust}")"; weekly="$(fetch_public "/src/v2/domain/weekly.mjs?${bust}")"; human_css="$(fetch_public "/v2-human-editorial.css?${bust}")"; home_screen="$(fetch_public "/src/v2/ui/screens/home.mjs?${bust}")"; copy="$(fetch_public "/src/v2/brand/copy.mjs?${bust}")"; probe="$(fetch_public "/deploy-probe-sr1.txt?${bust}")"; result="$(fetch_public "/ko/results/enfp/?${bust}")"
             fi
             grep -q 'Canonical UI F1' <<<"$home" \
-              && jq -e '.uiRelease == "f1" and .contentRelease == "e1" and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 \
+              && grep -q 'Weekly Vibe M4W1' <<<"$home" \
+              && grep -q 'Frontend Quality FQ1' <<<"$home" \
+              && grep -q 'Human Editorial HE1' <<<"$home" \
+              && grep -q '설명하기 어려운 노래도' <<<"$home" \
+              && jq -e '.uiRelease == "f1" and .contentRelease == "e1" and .weeklyRelease == "m4w1" and .frontendQualityRelease == "fq1" and .humanEditorialRelease == "he1" and .runtimeOverrides == false' <<<"$build" >/dev/null 2>&1 \
               && grep -q '@layer core' <<<"$style" \
+              && grep -q 'v2-m4-weekly.css' <<<"$style" \
+              && grep -q 'v2-human-editorial.css' <<<"$style" \
               && grep -q 'new VibeApp' <<<"$entry" \
+              && grep -q 'home=he1' <<<"$entry" \
+              && grep -q 'buildWeeklyVibe' <<<"$weekly" \
+              && grep -q 'Human Editorial Home HE1' <<<"$human_css" \
+              && grep -q 'human-match__bridge' <<<"$home_screen" \
+              && grep -q '설명하기 어려운 노래도' <<<"$copy" \
               && grep -q 'MY_MUSIC_VIBE_STABILITY_SR1' <<<"$probe" \
               && grep -q 'data-page-type="static_result"' <<<"$result"
           }
@@ -152,7 +167,7 @@ jobs:
           echo "attempts=$attempts" >> "$GITHUB_OUTPUT"
           echo "origin_transport=$origin_transport" >> "$GITHUB_OUTPUT"
 
-      - name: Report canonical deployment
+      - name: Report HE1 deployment
         if: always()
         uses: actions/github-script@v7
         env:
@@ -169,14 +184,11 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: 19,
-              body: `## F1 canonical deployment\n\n- commit: \`${context.sha}\`\n- GitHub Pages origin: **${originOK ? 'PASS' : 'FAIL'}**\n- Cloudflare public: **${publicOK ? 'PASS' : 'FAIL'}**\n- origin transport: \`${process.env.ORIGIN_TRANSPORT || 'unavailable'}\`\n- attempts: \`${process.env.ATTEMPTS || '0'}\`\n- legacy build HTTP: \`${process.env.LEGACY_HTTP || '(none)'}\`\n- Cloudflare purge: \`${process.env.CF_STATUS || 'not-run'}\``
+              issue_number: 26,
+              body: `## HE1 Human Editorial Home deployment\n\n- commit: \`${context.sha}\`\n- GitHub Pages origin: **${originOK ? 'PASS' : 'FAIL'}**\n- Cloudflare public: **${publicOK ? 'PASS' : 'FAIL'}**\n- origin transport: \`${process.env.ORIGIN_TRANSPORT || 'unavailable'}\`\n- attempts: \`${process.env.ATTEMPTS || '0'}\`\n- legacy build HTTP: \`${process.env.LEGACY_HTTP || '(none)'}\`\n- Cloudflare purge: \`${process.env.CF_STATUS || 'not-run'}\``
             });
-            if (originOK && publicOK) {
-              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: 19, state: 'closed', state_reason: 'completed' });
-            }
 
-      - name: Fail when the canonical public release is stale
+      - name: Fail when the public HE1 release is stale
         if: always()
         run: |
           test "${{ steps.verify.outputs.origin_ok }}" = 'true'
