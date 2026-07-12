@@ -1,4 +1,6 @@
-# EXAMPLE ONLY — do not publish this file at the domain root.
-# Replace values only after the selected ad provider issues a real seller record.
-# Google example format:
-# google.com, pub-REPLACE_WITH_REAL_PUBLISHER_ID, DIRECT, f08c47fec0942fa0
+# DOCUMENTATION TEMPLATE ONLY — never overwrite the live root /ads.txt with placeholders.
+# The current production seller record is already published at the domain root:
+# google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0
+#
+# Use this format only when documenting a future provider-issued seller record:
+# provider-domain.example, publisher-id, DIRECT|RESELLER, certification-authority-id
