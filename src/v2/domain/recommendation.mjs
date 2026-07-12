@@ -2,6 +2,7 @@ import { AXES, AXIS_IDS } from '../data/axes.mjs';
 import { TRACKS } from '../data/tracks.mjs';
 import { enrichTrack } from '../data/editorial-tracks.mjs';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs';
+import { feedbackAdjustmentForTrack } from './feedback.mjs';
 import { clamp, localize, similarityScore } from './profile.mjs';
 
 const AXIS_COPY = Object.freeze({
@@ -141,7 +142,7 @@ export function platformUrl(track, platform = 'spotify') {
   return `https://open.spotify.com/search/${query}`;
 }
 
-function scoreTrack(profile, context, track) {
+function scoreTrack(profile, context, track, feedbackRecords = {}) {
   const profileFit = similarityScore(profile.scores, track.profile, {
     energy: 1.15, warmth: 1, novelty: 1.05, organic: 0.85, complexity: 1, sociality: 1
   });
@@ -150,9 +151,11 @@ function scoreTrack(profile, context, track) {
   });
   const keywordFit = contextKeywordBonus(track, context);
   const editorialBonus = track.editorial ? 4 : 0;
-  const score = Math.round(clamp(profileFit * 0.56 + contextFit * 0.32 + keywordFit * 0.08 + editorialBonus));
+  const baseScore = Math.round(clamp(profileFit * 0.56 + contextFit * 0.32 + keywordFit * 0.08 + editorialBonus));
+  const feedbackAdjustment = feedbackAdjustmentForTrack(track, context.id, feedbackRecords);
+  const score = Math.round(clamp(baseScore + feedbackAdjustment));
   const axisDistance = AXIS_IDS.reduce((sum, axisId) => sum + Math.abs(track.profile[axisId] - profile.scores[axisId]), 0) / AXIS_IDS.length;
-  return { track, score, profileFit, contextFit, keywordFit, axisDistance, naturalStrategy: naturalStrategy(profile, track, profileFit) };
+  return { track, score, baseScore, feedbackAdjustment, profileFit, contextFit, keywordFit, axisDistance, naturalStrategy: naturalStrategy(profile, track, profileFit) };
 }
 
 function strategySuitability(candidate, strategy) {
@@ -230,7 +233,10 @@ export function recommendTracks(profile, contextId, options = {}) {
   const limit = Math.max(1, Math.min(10, Number(options.limit || 5)));
   const language = options.language === 'en' ? 'en' : 'kr';
   const plan = options.plan || strategyPlan(limit, options.exploration !== false);
-  const ranked = EDITORIAL_CATALOG.map((track) => scoreTrack(profile, context, track)).sort((left, right) => right.score - left.score);
+  const feedbackRecords = options.feedbackRecords || {};
+  const ranked = EDITORIAL_CATALOG
+    .map((track) => scoreTrack(profile, context, track, feedbackRecords))
+    .sort((left, right) => right.score - left.score || right.baseScore - left.baseScore || left.track.id.localeCompare(right.track.id));
   return selectStrategySlots(ranked, plan, limit)
     .map((candidate) => decorateSelected(profile, context, candidate, language, candidate.assignedStrategy));
 }
@@ -240,7 +246,8 @@ export function recommendProfileTracks(profile, options = {}) {
     language: options.language,
     limit: options.limit || 3,
     exploration: false,
-    plan: { safe: 2, adjacent: 1, explore: 0 }
+    plan: { safe: 2, adjacent: 1, explore: 0 },
+    feedbackRecords: options.feedbackRecords || {}
   });
 }
 
