@@ -19,11 +19,13 @@ const buildInfo = JSON.parse(read('build-info.json'));
 
 assert.equal(buildInfo.stabilityRelease, 'sr1');
 assert.equal(buildInfo.uiRelease, 'f1');
+assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert(index.includes('music-vibe-stability-release" content="sr1"'));
 assert(index.includes('data-stability-release="sr1"'));
-assert(index.includes('v2-app.css?ui=f1'));
+assert(index.includes('v2-app.css?engagement=m4f1'));
 assert(cssEntry.includes('v2-stabilization.css?stability=sr1'));
 assert(cssEntry.includes('v2-stabilization-a11y.css?stability=sr1'));
+assert(cssEntry.includes('v2-m4.css?engagement=m4f1'));
 
 for (const token of [
   'body[data-route="home"] .editorial-nav.site-nav',
@@ -77,4 +79,4 @@ for (const snapshot of snapshotNames) {
   assert(fs.statSync(path.join(root, relative)).size > 20_000, `visual baseline is unexpectedly small: ${snapshot}`);
 }
 
-console.log('F1 stabilization checks passed.');
+console.log('F1 stabilization with M4 engagement checks passed.');
