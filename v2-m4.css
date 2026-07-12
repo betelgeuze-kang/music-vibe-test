@@ -1,0 +1,111 @@
+/* M4F1 — recommendation feedback and explicit refresh loop */
+.track-card__feedback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.feedback-button {
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 1px solid #4b4842;
+  border-radius: 7px;
+  color: #b5b0a7;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 680;
+  line-height: 1.35;
+  transition: border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
+}
+
+.feedback-button:hover {
+  border-color: #8f8980;
+  color: #f1ede4;
+  transform: translateY(-1px);
+}
+
+.feedback-button.is-active,
+.feedback-button[aria-pressed="true"] {
+  border-color: #ff5a45;
+  color: #0a0a09;
+  background: #ff5a45;
+}
+
+.feedback-button:focus-visible {
+  outline: 3px solid #ffb7ab;
+  outline-offset: 3px;
+}
+
+.track-card__feedback-applied {
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 183, 171, .38);
+  border-radius: 4px;
+  color: #ffb7ab !important;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.feedback-refresh {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: center;
+  margin-top: 26px;
+  padding: 26px 28px;
+  border: 1px solid #403d37;
+  border-radius: 10px;
+  background: #11110f;
+}
+
+.feedback-refresh h2 {
+  margin: 8px 0 7px;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -.025em;
+}
+
+.feedback-refresh p {
+  max-width: 690px;
+  margin: 0;
+  color: #b5b0a7;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.feedback-refresh .button--primary {
+  min-width: 210px;
+  color: #0a0a09;
+}
+
+@media (max-width: 680px) {
+  .track-card__feedback {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .feedback-button {
+    width: 100%;
+    min-height: 42px;
+    text-align: left;
+  }
+
+  .feedback-refresh {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 22px 18px;
+  }
+
+  .feedback-refresh .button--primary {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-button {
+    transition: none;
+  }
+}
