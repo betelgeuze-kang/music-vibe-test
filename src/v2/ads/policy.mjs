@@ -1,10 +1,12 @@
 export const COMMERCIAL_READINESS_RELEASE = 'cr1';
 
-// Advertising remains intentionally disabled until a real publisher account,
-// privacy disclosure, consent management, and public-domain validation are complete.
+// The seller record is already public, but advertising remains intentionally
+// disabled until the provider script, privacy disclosure, consent mode, and
+// placement review are explicitly activated in a later release.
 export const ADS_ENABLED = false;
-export const AD_PROVIDER = '';
-export const AD_PUBLISHER_ID = '';
+export const AD_PROVIDER = 'google-adsense';
+export const AD_PUBLISHER_ID = 'pub-1386368370627622';
+export const ADS_TXT_RECORD = 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0';
 
 export const ALLOWED_AD_PLACEMENTS = Object.freeze([
   'home-after-profile-story',
@@ -36,8 +38,8 @@ export const BLOCKED_AD_CONTEXTS = Object.freeze([
 
 export const AD_SAFETY_CONTRACT = Object.freeze({
   enabledByDefault: false,
-  requiresRealPublisherId: true,
-  requiresPrivacyPolicyUpdate: true,
+  publisherRecordConfigured: true,
+  requiresPrivacyPolicyUpdateBeforeActivation: true,
   requiresConsentManagementWhereApplicable: true,
   requiresAdvertisementLabel: true,
   minimumActionSeparationPx: 32,
@@ -65,7 +67,9 @@ export function commercialAdPolicySnapshot() {
     release: COMMERCIAL_READINESS_RELEASE,
     enabled: ADS_ENABLED,
     provider: AD_PROVIDER,
+    publisherId: AD_PUBLISHER_ID,
     publisherConfigured: Boolean(AD_PUBLISHER_ID),
+    adsTxtRecord: ADS_TXT_RECORD,
     allowedPlacements: [...ALLOWED_AD_PLACEMENTS],
     blockedRoutes: [...BLOCKED_AD_ROUTES],
     blockedContexts: [...BLOCKED_AD_CONTEXTS],
