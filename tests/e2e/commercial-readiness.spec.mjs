@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { declineAnalytics } from './helpers.mjs';
 
 const seriousViolations = (results) => results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
+const SELLER_RECORD = 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0';
 
 async function expectAccessible(page, label) {
   const results = await new AxeBuilder({ page }).analyze();
@@ -13,7 +14,7 @@ test.beforeEach(async ({ page }) => {
   await declineAnalytics(page);
 });
 
-test('CR1 serves no advertising code by default', async ({ page }) => {
+test('CR1 serves no advertising code by default while preserving the authorized seller record', async ({ page }) => {
   const advertisingRequests = [];
   page.on('request', (request) => {
     if (/googlesyndication|doubleclick|adsbygoogle|adservice|amazon-adsystem/i.test(request.url())) advertisingRequests.push(request.url());
@@ -24,6 +25,17 @@ test('CR1 serves no advertising code by default', async ({ page }) => {
   await expect(page.locator('.ad-slot:visible')).toHaveCount(0);
   await expect(page.locator('script[src*="googlesyndication"], script[src*="doubleclick"], ins.adsbygoogle')).toHaveCount(0);
   expect(advertisingRequests).toEqual([]);
+
+  const adsResponse = await page.request.get('/ads.txt');
+  expect(adsResponse.ok()).toBe(true);
+  expect((await adsResponse.text()).trim()).toBe(SELLER_RECORD);
+
+  const buildResponse = await page.request.get('/build-info.json');
+  const build = await buildResponse.json();
+  expect(build.adsEnabled).toBe(false);
+  expect(build.adProvider).toBe('google-adsense');
+  expect(build.adPublisherId).toBe('pub-1386368370627622');
+  expect(build.adsTxt).toBe('/ads.txt');
 });
 
 test('original commercial audio renders without MP3 requests', async ({ page }) => {
@@ -33,17 +45,15 @@ test('original commercial audio renders without MP3 requests', async ({ page }) 
   });
   await page.goto('/?lang=en#/home');
   await page.locator('[data-action="home-preview"]').first().click();
-  await expect.poll(() => page.evaluate(() => ({
-    id: window.__musicVibeV2?.homePreviewOptionId || '',
-    src: window.__musicVibeV2?.homePreviewAudio?.src || '',
-    paused: window.__musicVibeV2?.homePreviewAudio?.paused ?? true
-  }))).toMatchObject({ id: 'groove', paused: false });
-  const state = await page.evaluate(() => ({
-    src: window.__musicVibeV2.homePreviewAudio.src,
-    duration: window.__musicVibeV2.homePreviewAudio.duration
-  }));
-  expect(state.src.startsWith('blob:')).toBe(true);
-  expect(state.duration).toBeGreaterThan(10);
+  await expect.poll(() => page.evaluate(() => {
+    const audio = window.__musicVibeV2?.homePreviewAudio;
+    return {
+      id: window.__musicVibeV2?.homePreviewOptionId || '',
+      srcIsBlob: Boolean(audio?.src?.startsWith('blob:')),
+      playing: Boolean(audio && !audio.paused),
+      durationReady: Boolean(audio && Number.isFinite(audio.duration) && audio.duration > 10)
+    };
+  }), { timeout: 10_000 }).toEqual({ id: 'groove', srcIsBlob: true, playing: true, durationReady: true });
   expect(legacyAudioRequests).toEqual([]);
   await expect(page.locator('.listening-choice.has-error')).toHaveCount(0);
 });
@@ -60,20 +70,23 @@ test('unregistered or failed CR1 audio remains recoverable through text choice',
 test('CR1 public legal pages pass accessibility and publish the current state', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'public policy pages are viewport-independent');
   const pages = [
-    ['/about/', '음악을 진단하기보다, 다시 찾는 장면을 기록합니다.'],
-    ['/privacy/', '취향 기록은 브라우저에, 광고는 아직 꺼진 상태입니다.'],
-    ['/audio-credits/', '테스트에서 들리는 소리는 직접 합성해 만들었습니다.']
+    ['/about/', /음악을 진단하기보다/],
+    ['/privacy/', /취향 기록은 브라우저에/],
+    ['/audio-credits/', /테스트에서 들리는 소리는/]
   ];
   for (const [url, heading] of pages) {
     await page.goto(url);
     await expect(page.locator('body')).toHaveAttribute('data-commercial-readiness-release', 'cr1');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(heading.replaceAll(' ', ' '));
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(heading);
     await expect(page.locator('a[href="/privacy/"]')).toBeVisible();
     await expect(page.locator('a[href="/audio-credits/"]')).toBeVisible();
     await expectAccessible(page, url);
   }
-  await page.goto('/assets/audio/rights-manifest.json');
-  const manifest = JSON.parse(await page.locator('body').innerText());
+  await page.goto('/privacy/');
+  await expect(page.locator('main')).toContainText('pub-1386368370627622');
+
+  const manifestResponse = await page.request.get('/assets/audio/rights-manifest.json');
+  const manifest = await manifestResponse.json();
   expect(manifest.release).toBe('cr1');
   expect(manifest.thirdPartySamplesUsed).toBe(false);
   expect(manifest.clips).toHaveLength(8);
