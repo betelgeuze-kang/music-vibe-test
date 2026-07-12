@@ -4,23 +4,28 @@ export const UI_RELEASE = 'f1';
 
 export function renderHeader(app) {
   const copy = app.copy();
-  const nav = (route, label) => `
-    <button type="button" data-route="${route}" class="site-nav__link ${app.route === route ? 'is-active' : ''}" ${app.route === route ? 'aria-current="page"' : ''}>${escapeHtml(label)}</button>
+  const korean = app.language === 'kr';
+  const nav = (route, label, shortLabel, icon) => `
+    <button type="button" data-route="${route}" class="site-nav__link ${app.route === route ? 'is-active' : ''}" aria-label="${escapeHtml(label)}" ${app.route === route ? 'aria-current="page"' : ''}>
+      <span class="site-nav__icon" aria-hidden="true">${escapeHtml(icon)}</span>
+      <span class="site-nav__label">${escapeHtml(label)}</span>
+      <span class="site-nav__short" aria-hidden="true">${escapeHtml(shortLabel)}</span>
+    </button>
   `;
   app.header.innerHTML = `
     <div class="site-header__inner editorial-header">
-      <button class="brand editorial-wordmark" type="button" data-route="home" aria-label="My Music Vibe home">
+      <button class="brand editorial-wordmark" type="button" data-route="home" aria-label="${korean ? 'My Music Vibe 처음 화면' : 'My Music Vibe home'}">
         <span class="editorial-wordmark__name">MY MUSIC VIBE</span>
         <span class="editorial-wordmark__issue">LISTENING NOTES / M4 WEEKLY</span>
       </button>
-      <nav class="site-nav editorial-nav" aria-label="${app.language === 'kr' ? '주요 메뉴' : 'Primary navigation'}">
-        ${nav('home', copy.navHome)}
-        ${nav('profile', copy.navProfile)}
-        ${app.profile ? nav('weekly', app.language === 'kr' ? '이번 주' : 'This week') : ''}
-        ${nav('now', copy.navNow)}
-        ${nav('match', copy.navMatch)}
+      <nav class="site-nav editorial-nav" aria-label="${korean ? '주요 메뉴' : 'Primary navigation'}">
+        ${nav('home', copy.navHome, korean ? '처음' : 'Home', '⌂')}
+        ${nav('profile', copy.navProfile, korean ? '취향' : 'Taste', '◉')}
+        ${app.profile ? nav('weekly', korean ? '이번 주의 듣기 기록' : 'This week', korean ? '주간' : 'Week', 'W') : ''}
+        ${nav('now', copy.navNow, korean ? '선곡' : 'Today', '♫')}
+        ${nav('match', copy.navMatch, korean ? '같이' : 'Match', '∞')}
       </nav>
-      <button type="button" class="language-toggle editorial-language" data-action="toggle-language" aria-label="${app.language === 'kr' ? '영어로 보기' : '한국어로 보기'}">${app.language === 'kr' ? 'EN' : '한국어'}</button>
+      <button type="button" class="language-toggle editorial-language" data-action="toggle-language" aria-label="${korean ? '영어로 보기' : '한국어로 보기'}">${korean ? 'EN' : '한국어'}</button>
     </div>
   `;
 }
