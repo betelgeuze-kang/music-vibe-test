@@ -11,6 +11,7 @@ const index = read('index.html');
 const home = read('src/v2/ui/screens/home.mjs');
 const actions = read('src/v2/ui/actions.mjs');
 const timelineActions = read('src/v2/ui/timeline-actions.mjs');
+const weeklyActions = read('src/v2/ui/weekly-actions.mjs');
 const css = read('v2-editorial.css');
 const cssEntry = read('v2-app.css');
 const buildInfo = JSON.parse(read('build-info.json'));
@@ -20,13 +21,16 @@ assert.equal(buildInfo.brandRelease, 'bd1', 'brand release must remain explicit'
 assert.equal(buildInfo.uiRelease, 'f1', 'brand must be served by the canonical UI');
 assert.equal(buildInfo.engagementRelease, 'm4f1', 'M4 feedback must layer on the canonical brand UI');
 assert.equal(buildInfo.timelineRelease, 'm4t1', 'M4 timeline must layer on the canonical brand UI');
+assert.equal(buildInfo.weeklyRelease, 'm4w1', 'M4 Weekly Vibe must layer on the canonical brand UI');
 assert(index.includes('data-brand-release="bd1"'));
 assert(index.includes('data-ui-release="f1"'));
 assert(index.includes('data-engagement-release="m4f1"'));
 assert(index.includes('data-timeline-release="m4t1"'));
-assert(index.includes('v2-app.css?timeline=m4t1'));
+assert(index.includes('data-weekly-release="m4w1"'));
+assert(index.includes('v2-app.css?weekly=m4w1'));
 assert(cssEntry.includes('v2-editorial.css?brand=bd1'));
 assert(cssEntry.includes('v2-m4-timeline.css?timeline=m4t1'));
+assert(cssEntry.includes('v2-m4-weekly.css?weekly=m4w1'));
 assert(!index.includes('src/v2/brand/install.mjs'));
 assert(!index.includes('src/v2/brand/interaction.mjs'));
 assert(!index.includes('brand-pending'));
@@ -40,7 +44,7 @@ assert.equal(BRAND_COPY.kr.navProfile, '내 취향');
 assert.equal(BRAND_COPY.kr.navNow, '오늘의 선곡');
 assert.equal(BRAND_COPY.kr.navMatch, '같이 듣기');
 
-for (const required of ['listening-booth', 'editorial-spread', 'editorial-section--today', 'editorial-section--together', 'editorial-privacy']) {
+for (const required of ['listening-booth', 'editorial-spread', 'editorial-section--today', 'editorial-section--together', 'editorial-privacy', 'home-weekly-band']) {
   assert(home.includes(required), `canonical editorial home is missing: ${required}`);
 }
 for (const removed of ['orbit--outer', 'product-grid', 'dimension-preview__bars', 'floating-label']) {
@@ -55,6 +59,8 @@ assert(actions.includes("action === 'select-context'"));
 assert(actions.includes("action === 'copy-invite'"));
 assert(actions.includes("action === 'track-feedback'"));
 assert(timelineActions.includes('restore-profile-snapshot'));
+assert(weeklyActions.includes('open-weekly'));
+assert(weeklyActions.includes('share-weekly-card'));
 assert.equal((actions.match(/handleClick\(event\)/g) || []).length, 1, 'one canonical delegated action handler is required');
 
 for (const token of ['--paper: #f1ede4', '--signal: #ff5a45', '.editorial-track', '.sample-sleeve', '.listening-booth']) {
@@ -65,4 +71,4 @@ assert(!css.includes('.product-card::before'));
 assert(css.includes('border-radius: 8px'));
 assert(css.includes('font-family: "IBM Plex Mono"'));
 
-console.log('V2 canonical brand, feedback, and timeline layering checks passed.');
+console.log('V2 canonical brand, feedback, timeline, and Weekly Vibe layering checks passed.');
