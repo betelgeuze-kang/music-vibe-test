@@ -22,6 +22,9 @@
   "audioSource": "/src/v2/audio/original-clips.mjs?commercial=cr1",
   "audioRightsManifest": "/assets/audio/rights-manifest.json",
   "adsEnabled": false,
+  "adProvider": "google-adsense",
+  "adPublisherId": "pub-1386368370627622",
+  "adsTxt": "/ads.txt",
   "adsPolicy": "/src/v2/ads/policy.mjs",
   "publicPolicies": [
     "/about/",
@@ -74,11 +77,12 @@
     "/src/v2/ui/commercial-audio-actions.mjs?commercial=cr1",
     "/src/v2/ads/policy.mjs",
     "/assets/audio/rights-manifest.json",
+    "/ads.txt",
     "/v2-commercial-readiness.css?commercial=cr1",
     "/about/",
     "/privacy/",
     "/audio-credits/"
   ],
   "runtimeOverrides": false,
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe", "accessible-dialogs", "notice-navigation-separation", "responsive-matrix", "hit-targets", "internal-tag-filtering", "human-editorial-home", "non-sticky-home-header", "shared-listening-layout", "original-audio-provenance", "commercial-audio-allowlist", "public-legal-pages", "ads-disabled-default", "ad-placement-safety", "no-third-party-audio-assets"]
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe", "accessible-dialogs", "notice-navigation-separation", "responsive-matrix", "hit-targets", "internal-tag-filtering", "human-editorial-home", "non-sticky-home-header", "shared-listening-layout", "original-audio-provenance", "commercial-audio-allowlist", "public-legal-pages", "ads-disabled-default", "authorized-seller-record", "ad-placement-safety", "no-third-party-audio-assets"]
 }
