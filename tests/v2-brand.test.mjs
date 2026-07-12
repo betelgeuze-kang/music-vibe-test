@@ -13,6 +13,7 @@ const actions = read('src/v2/ui/actions.mjs');
 const timelineActions = read('src/v2/ui/timeline-actions.mjs');
 const weeklyActions = read('src/v2/ui/weekly-actions.mjs');
 const css = read('v2-editorial.css');
+const humanCss = read('v2-human-editorial.css');
 const cssEntry = read('v2-app.css');
 const buildInfo = JSON.parse(read('build-info.json'));
 const koreanCopy = JSON.stringify(BRAND_COPY.kr);
@@ -23,17 +24,20 @@ assert.equal(buildInfo.engagementRelease, 'm4f1', 'M4 feedback must layer on the
 assert.equal(buildInfo.timelineRelease, 'm4t1', 'M4 timeline must layer on the canonical brand UI');
 assert.equal(buildInfo.weeklyRelease, 'm4w1', 'M4 Weekly Vibe must layer on the canonical brand UI');
 assert.equal(buildInfo.frontendQualityRelease, 'fq1', 'FQ1 must layer on the canonical brand UI');
+assert.equal(buildInfo.humanEditorialRelease, 'he1', 'HE1 must layer on the canonical brand UI');
 assert(index.includes('data-brand-release="bd1"'));
 assert(index.includes('data-ui-release="f1"'));
 assert(index.includes('data-engagement-release="m4f1"'));
 assert(index.includes('data-timeline-release="m4t1"'));
 assert(index.includes('data-weekly-release="m4w1"'));
 assert(index.includes('data-frontend-quality-release="fq1"'));
-assert(index.includes('v2-app.css?frontend=fq1'));
+assert(index.includes('data-human-editorial-release="he1"'));
+assert(index.includes('v2-app.css?home=he1'));
 assert(cssEntry.includes('v2-editorial.css?brand=bd1'));
 assert(cssEntry.includes('v2-m4-timeline.css?timeline=m4t1'));
 assert(cssEntry.includes('v2-m4-weekly.css?frontend=fq1'));
 assert(cssEntry.includes('v2-frontend-quality.css?frontend=fq1'));
+assert(cssEntry.includes('v2-human-editorial.css?home=he1'));
 assert(!index.includes('src/v2/brand/install.mjs'));
 assert(!index.includes('src/v2/brand/interaction.mjs'));
 assert(!index.includes('brand-pending'));
@@ -41,16 +45,19 @@ assert(!index.includes('brand-pending'));
 for (const banned of ['MUSIC IDENTITY, NOT ANOTHER MBTI', 'Vibe Profile', 'Bridge Playlist', '왜 이 Vibe인가요?']) {
   assert(!koreanCopy.includes(banned), `Korean brand copy must avoid planning-language phrase: ${banned}`);
 }
-assert.equal(BRAND_COPY.kr.homeTitle, '내가 좋아하는 소리엔\n이유가 있어요.');
-assert.equal(BRAND_COPY.kr.beginProfile, '첫 번째 소리 듣기');
+assert.equal(BRAND_COPY.kr.homeTitle, '설명하기 어려운 노래도,\n마음은 먼저 알아봐요.');
+assert.equal(BRAND_COPY.kr.beginProfile, '첫 소리부터 들어보기');
+assert.equal(BRAND_COPY.kr.boothContinue, '이 소리를 따라가볼게요');
+assert.equal(BRAND_COPY.kr.togetherEaseLabel, '함께 편안한 정도');
+assert.equal(BRAND_COPY.kr.togetherDiscoveryLabel, '새 곡을 건넬 여지');
 assert.equal(BRAND_COPY.kr.navProfile, '내 취향');
 assert.equal(BRAND_COPY.kr.navNow, '오늘의 선곡');
 assert.equal(BRAND_COPY.kr.navMatch, '같이 듣기');
 
-for (const required of ['listening-booth', 'editorial-spread', 'editorial-section--today', 'editorial-section--together', 'editorial-privacy', 'home-weekly-band']) {
+for (const required of ['listening-booth', 'editorial-spread', 'editorial-section--today', 'editorial-section--together', 'editorial-privacy', 'home-weekly-band', 'human-editorial-home', 'human-match__bridge']) {
   assert(home.includes(required), `canonical editorial home is missing: ${required}`);
 }
-for (const removed of ['orbit--outer', 'product-grid', 'dimension-preview__bars', 'floating-label']) {
+for (const removed of ['orbit--outer', 'product-grid', 'dimension-preview__bars', 'floating-label', 'sample-match__scores']) {
   assert(!home.includes(removed), `AI-template home structure must not return: ${removed}`);
 }
 assert(home.includes('HOME_SHOWCASE'), 'home must use the fixed editorial showcase');
@@ -71,9 +78,12 @@ assert.equal((actions.match(/handleClick\(event\)/g) || []).length, 1, 'one cano
 for (const token of ['--paper: #f1ede4', '--signal: #ff5a45', '.editorial-track', '.sample-sleeve', '.listening-booth']) {
   assert(css.includes(token), `editorial design token or component is missing: ${token}`);
 }
+for (const token of ['.human-hero', '.human-hero__whisper', '.human-match', '.human-match__meter', 'body[data-route="home"] .site-header']) {
+  assert(humanCss.includes(token), `HE1 design token or component is missing: ${token}`);
+}
 assert(!css.includes('.hero__glow'));
 assert(!css.includes('.product-card::before'));
 assert(css.includes('border-radius: 8px'));
 assert(css.includes('font-family: "IBM Plex Mono"'));
 
-console.log('V2 canonical brand, feedback, timeline, Weekly Vibe, and FQ1 layering checks passed.');
+console.log('V2 canonical brand, feedback, timeline, Weekly Vibe, FQ1, and HE1 layering checks passed.');
