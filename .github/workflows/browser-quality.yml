@@ -24,7 +24,7 @@ concurrency:
 jobs:
   playwright:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 24
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,11 +59,13 @@ jobs:
             chromium-home.png
             chromium-discover.png
             chromium-profile.png
+            chromium-weekly.png
             chromium-now.png
             chromium-match.png
             mobile-chromium-home.png
             mobile-chromium-discover.png
             mobile-chromium-profile.png
+            mobile-chromium-weekly.png
             mobile-chromium-now.png
             mobile-chromium-match.png
           )
@@ -71,7 +73,7 @@ jobs:
             test -s "${capture_dir}/${image}"
           done
 
-          release_label="$(jq -r '.timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
+          release_label="$(jq -r '.weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
           cp "${capture_dir}"/*.png "$snapshot_dir"/
           printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"
