@@ -67,6 +67,10 @@ Restoration does not create a duplicate snapshot.
 
 Timeline data stays in browser localStorage. It contains anonymous profile IDs, six numeric scores, answers, source, and timestamps. It does not contain a name, email address, friend name, or external streaming history.
 
+## Visual and browser gates
+
+The M4T1 profile screen is included in the approved desktop and 360px mobile visual baselines. Browser gates also cover two-profile comparison, snapshot restoration, earlier-history clearing, reload persistence, keyboard access, color contrast, and the existing recommendation-feedback regression suite.
+
 ## Follow-up
 
 M4-3 will use the existing interaction ledger and visit state to generate a deterministic seven-day Weekly Vibe. Timeline snapshots remain a separate source: Weekly Vibe summarizes recent activity, while the profile timeline preserves explicit retest results.
