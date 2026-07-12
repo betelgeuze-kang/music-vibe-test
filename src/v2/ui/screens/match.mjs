@@ -1,8 +1,22 @@
 import { getProfileArchetype } from '../../domain/profile.mjs?v=qg1';
-import { compareProfiles } from '../../domain/match.mjs';
+import { compareProfiles } from '../../domain/match.mjs?engagement=m4f1';
 import { buildInviteUrl } from '../../infrastructure/share.mjs?v=qg1';
-import { escapeHtml, profileMiniCard, track, trackCard } from '../helpers.mjs?ui=f1';
+import { escapeHtml, profileMiniCard, track, trackCard } from '../helpers.mjs?engagement=m4f1';
 import { renderEmptyProfile } from './empty.mjs?ui=f1';
+
+function refreshPanel(app) {
+  if (app.feedbackChangesSinceRefresh < 2) return '';
+  return `
+    <section class="feedback-refresh feedback-refresh--bridge" aria-live="polite">
+      <div>
+        <span class="eyebrow">${app.language === 'kr' ? '내 반응 반영' : 'USE MY FEEDBACK'}</span>
+        <h2>${app.language === 'kr' ? '내 반응을 반영해 둘이 들을 곡을 다시 골라볼까요?' : 'Refresh the shared list using your feedback?'}</h2>
+        <p>${app.language === 'kr' ? '친구의 취향 값은 바꾸지 않고, 두 사람의 중간 지점 안에서 내 반응만 제한적으로 반영합니다.' : 'Your friend’s taste stays untouched; only your feedback is used within the shared middle ground.'}</p>
+      </div>
+      <button class="button button--primary" type="button" data-action="refresh-recommendations">${app.language === 'kr' ? '둘이 들을 5곡 다시 고르기' : 'Refresh the five shared tracks'}</button>
+    </section>
+  `;
+}
 
 export function renderMatch(app) {
   const copy = app.copy();
@@ -12,6 +26,7 @@ export function renderMatch(app) {
   }
 
   if (!app.friendProfile) {
+    app.matchResult = null;
     const inviteUrl = buildInviteUrl(app.profile, app.language);
     app.root.innerHTML = `
       <div id="app-notice" class="app-notice"></div>
@@ -35,11 +50,12 @@ export function renderMatch(app) {
         <div><input id="invite-input" name="invite" placeholder="${escapeHtml(copy.matchPastePlaceholder)}" autocomplete="off"><button type="submit">${escapeHtml(copy.matchLoad)}</button></div>
       </form>
     `;
-    track('match_view', { state: 'invite', profile_id: app.profile.id, product_version: 'v2-f1' });
+    track('match_view', { state: 'invite', profile_id: app.profile.id, product_version: 'v2-m4' });
     return;
   }
 
-  const match = compareProfiles(app.profile, app.friendProfile, app.language);
+  const match = app.matchResult || compareProfiles(app.profile, app.friendProfile, app.language, { feedbackRecords: app.trackFeedback });
+  app.matchResult = match;
   app.root.innerHTML = `
     <div id="app-notice" class="app-notice"></div>
     <section class="match-hero">
@@ -63,8 +79,13 @@ export function renderMatch(app) {
     </section>
     <section class="recommendation-list recommendation-list--bridge">
       <div class="list-heading"><div><span class="eyebrow">${app.language === 'kr' ? '두 취향 사이의 선곡' : 'BRIDGE PLAYLIST'}</span><h2>${escapeHtml(copy.matchPlaylist)}</h2></div><span>5 TRACKS</span></div>
-      ${match.bridgeTracks.map((candidate) => trackCard(candidate, app.language, 'bridge_playlist')).join('')}
+      ${match.bridgeTracks.map((candidate) => trackCard(candidate, app.language, 'bridge_playlist', {
+        feedbackEnabled: true,
+        feedbackValue: app.trackFeedback[candidate.track.id]?.value || '',
+        contextId: 'together'
+      })).join('')}
     </section>
+    ${refreshPanel(app)}
     <section class="utility-actions">
       <button type="button" data-action="share-profile">${escapeHtml(copy.matchShare)}</button>
       <button type="button" data-action="clear-friend">${app.language === 'kr' ? '다른 친구와 비교' : 'Compare another friend'}</button>
@@ -78,7 +99,7 @@ export function renderMatch(app) {
     discovery: match.discovery,
     profile_id: app.profile.id,
     friend_profile_id: app.friendProfile.id,
-    product_version: 'v2-f1'
+    product_version: 'v2-m4'
   });
   track('ref_complete', {
     ref_type: app.friendProfile.archetypeId,
