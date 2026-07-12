@@ -20,6 +20,7 @@ const app = [
 ].join('\n');
 const profile = read('src/v2/domain/profile.mjs');
 const presentation = read('src/v2/domain/presentation.mjs');
+const feedback = read('src/v2/domain/feedback.mjs');
 const recommendation = read('src/v2/domain/recommendation.mjs');
 const match = read('src/v2/domain/match.mjs');
 const roadmap = read('docs/product/V2_ROADMAP.md');
@@ -37,6 +38,7 @@ for (const file of [
   'v2-editorial.css',
   'v2-stabilization.css',
   'v2-stabilization-a11y.css',
+  'v2-m4.css',
   'src/v2/data/axes.mjs',
   'src/v2/data/archetypes.mjs',
   'src/v2/data/questions.mjs',
@@ -46,6 +48,7 @@ for (const file of [
   'src/v2/data/home-showcase.mjs',
   'src/v2/domain/profile.mjs',
   'src/v2/domain/presentation.mjs',
+  'src/v2/domain/feedback.mjs',
   'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs',
   'src/v2/infrastructure/storage.mjs',
@@ -68,17 +71,20 @@ for (const file of [
 }
 
 assert.equal((index.match(/rel="stylesheet"/g) || []).length, 1, 'canonical HTML must load one stylesheet entry');
-assert(index.includes('v2-app.css?ui=f1'), 'canonical stylesheet must load');
-assert(index.includes('src/v2/main.mjs?ui=f1'), 'canonical module entry must load');
+assert(index.includes('v2-app.css?engagement=m4f1'), 'engagement-versioned stylesheet must load');
+assert(index.includes('src/v2/main.mjs?engagement=m4f1'), 'engagement-versioned module entry must load');
 assert(index.includes('p2-analytics.js?v=qg1'), 'consent-aware analytics infrastructure must remain');
 assert(index.includes('Version Check: P2 Growth Analytics & Experiments'), 'Pages deployment compatibility marker must remain');
-assert(index.includes('Canonical UI F1'), 'canonical UI deployment marker must be explicit');
+assert(index.includes('Canonical UI F1'), 'canonical UI deployment marker must remain');
+assert(index.includes('M4 Feedback M4F1'), 'M4 feedback deployment marker must be explicit');
 assert(index.includes('data-release-id="qg1"'));
 assert(index.includes('data-content-release="e1"'));
 assert(index.includes('data-ui-release="f1"'));
+assert(index.includes('data-engagement-release="m4f1"'));
 assert.equal(buildInfo.release, 'qg1');
 assert.equal(buildInfo.contentRelease, 'e1');
 assert.equal(buildInfo.uiRelease, 'f1');
+assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert(!index.includes('logic.js'));
 assert(!index.includes('p1-experience.js'));
@@ -91,23 +97,28 @@ assert(index.includes('data-analytics-consent-ui="standalone"'));
 
 assert(main.includes('retireLegacyRuntime'));
 assert(!main.includes('installQualityGates'));
-assert(main.includes('build-info.json?ui=f1'));
+assert(main.includes('build-info.json?engagement=m4f1'));
 assert(app.includes("this.navigate('discover')"));
-assert(app.includes("import('./screens/profile.mjs?ui=f1')"));
-assert(app.includes("import('./screens/now.mjs?ui=f1')"));
-assert(app.includes("import('./screens/match.mjs?ui=f1')"));
+assert(app.includes("import('./screens/profile.mjs?engagement=m4f1')"));
+assert(app.includes("import('./screens/now.mjs?engagement=m4f1')"));
+assert(app.includes("import('./screens/match.mjs?engagement=m4f1')"));
 assert(app.includes("track('vibe_now_generate'"));
 assert(app.includes("track('match_view'"));
 assert(app.includes("track('ref_complete'"));
+assert(app.includes("track('track_feedback'"));
 assert(app.includes('renderBipolarAxes'));
 assert(app.includes('renderVibeGlyph'));
 assert(profile.includes('PROFILE_VERSION = 2'));
 assert(profile.includes('PROFILE_TOKEN_VERSION = 3'));
 assert(profile.includes('tokenChecksum'));
+assert(feedback.includes('FEEDBACK_ADJUSTMENT_LIMIT = 8'));
+assert(feedback.includes('feedbackAdjustmentForTrack'));
 assert(recommendation.includes('editorialBonus'));
 assert(recommendation.includes('candidate.track.editorialNote'));
+assert(recommendation.includes('feedbackAdjustmentForTrack'));
 assert(recommendation.includes('selectDiverseCandidates'));
 assert(match.includes('bridgeTrackScore'));
+assert(match.includes('feedbackAdjustmentForTrack'));
 assert(match.includes('resonanceLabel') && match.includes('discoveryLabel'));
 assert(presentation.includes('SCORE_BANDS') && presentation.includes('MATCH_BANDS'));
 
@@ -124,6 +135,7 @@ assert(packageJson.scripts.test.includes('v2-domain.test.mjs'));
 assert(packageJson.scripts.test.includes('v2-quality.test.mjs'));
 assert(packageJson.scripts.test.includes('editorial-integrity.test.mjs'));
 assert(packageJson.scripts.test.includes('frontend-consolidation.test.mjs'));
+assert(packageJson.scripts.test.includes('v2-feedback.test.mjs'));
 assert(packageJson.scripts.test.includes('profile-audit.test.mjs'));
 
-console.log('V2 canonical smoke checks passed.');
+console.log('V2 canonical M4 smoke checks passed.');
