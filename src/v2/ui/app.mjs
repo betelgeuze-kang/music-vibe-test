@@ -1,13 +1,16 @@
 import { BRAND_COPY } from '../brand/copy.mjs?brand=bd1';
 import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
-import { loadProfile, loadTrackFeedback, registerVisit } from '../infrastructure/storage.mjs?engagement=m4f1';
-import { actionMethods } from './actions.mjs?engagement=m4f1';
+import { mergeActiveSnapshot } from '../domain/timeline.mjs?timeline=m4t1';
+import { loadProfile, loadProfileHistory, loadTrackFeedback, registerVisit } from '../infrastructure/storage.mjs?timeline=m4t1';
+import { actionMethods } from './actions.mjs?timeline=m4t1';
 import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?engagement=m4f1';
 import { renderDiscover } from './screens/discover.mjs?ui=f1';
 import { renderHome } from './screens/home.mjs?ui=f1';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?engagement=m4f1';
+import { handleTimelineClick } from './timeline-actions.mjs?timeline=m4t1';
 
 export const ENGAGEMENT_RELEASE = 'm4f1';
+export const TIMELINE_RELEASE = 'm4t1';
 
 export class VibeApp {
   constructor({ root, header, footer }) {
@@ -16,6 +19,7 @@ export class VibeApp {
     this.footer = footer;
     this.language = detectLanguage();
     this.profile = loadProfile();
+    this.profileHistory = mergeActiveSnapshot(this.profile, loadProfileHistory());
     this.friendProfile = this.resolveIncomingProfile();
     this.friendSource = this.friendProfile?.source || '';
     this.route = parseRoute();
@@ -44,16 +48,19 @@ export class VibeApp {
     this.startedAt = 0;
     this.renderTicket = 0;
     this.boundHashChange = () => this.handleRouteChange();
-    this.boundClick = (event) => this.handleClick(event);
+    this.boundClick = (event) => {
+      if (!handleTimelineClick(this, event)) this.handleClick(event);
+    };
     this.boundSubmit = (event) => this.handleSubmit(event);
     this.boundKeydown = (event) => this.handleKeydown(event);
   }
 
   start() {
     document.documentElement.lang = this.language === 'kr' ? 'ko' : 'en';
-    document.documentElement.dataset.testMode = 'vibe-profile-v2-m4f1';
+    document.documentElement.dataset.testMode = 'vibe-profile-v2-m4t1';
     document.documentElement.dataset.uiRelease = UI_RELEASE;
     document.documentElement.dataset.engagementRelease = ENGAGEMENT_RELEASE;
+    document.documentElement.dataset.timelineRelease = TIMELINE_RELEASE;
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
     document.addEventListener('submit', this.boundSubmit);
@@ -61,12 +68,12 @@ export class VibeApp {
     const visit = registerVisit();
     track('route_view', {
       route: this.route,
-      product_version: 'v2-m4',
+      product_version: 'v2-m4t1',
       has_profile: Boolean(this.profile),
       previous_visit_at: visit.state.previousVisitAt || ''
     });
     if (this.friendProfile) {
-      track('ref_visit', { referral_stage: 'v2_landing', ref_type: this.friendProfile.archetypeId, referral_source: this.friendSource, product_version: 'v2-m4' });
+      track('ref_visit', { referral_stage: 'v2_landing', ref_type: this.friendProfile.archetypeId, referral_source: this.friendSource, product_version: 'v2-m4t1' });
       if (this.profile && this.route === 'home') this.route = 'match';
     }
     this.render();
@@ -97,7 +104,7 @@ export class VibeApp {
     this.stopPreview();
     this.stopHomePreview(true);
     this.route = parseRoute();
-    track('route_view', { route: this.route, product_version: 'v2-m4', has_profile: Boolean(this.profile) });
+    track('route_view', { route: this.route, product_version: 'v2-m4t1', has_profile: Boolean(this.profile) });
     this.render();
   }
 
@@ -123,7 +130,7 @@ export class VibeApp {
   renderDiscover() { renderDiscover(this); }
 
   async renderProfile() {
-    const module = await import('./screens/profile.mjs?engagement=m4f1');
+    const module = await import('./screens/profile.mjs?timeline=m4t1');
     module.renderProfile(this);
   }
 
@@ -142,6 +149,7 @@ export class VibeApp {
     document.body.dataset.route = this.route;
     document.body.dataset.uiRelease = UI_RELEASE;
     document.body.dataset.engagementRelease = ENGAGEMENT_RELEASE;
+    document.body.dataset.timelineRelease = TIMELINE_RELEASE;
     this.renderHeader();
     this.renderFooter();
     this.updateMeta();

@@ -1,5 +1,5 @@
 {
-  "schema": 6,
+  "schema": 7,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -7,14 +7,15 @@
   "contentRelease": "e1",
   "uiRelease": "f1",
   "engagementRelease": "m4f1",
-  "productVersion": "v2-feedback-listening-loop",
-  "assetVersion": "m4f1",
+  "timelineRelease": "m4t1",
+  "productVersion": "v2-profile-timeline-listening-loop",
+  "assetVersion": "m4t1",
   "builtAt": "2026-07-12T00:00:00Z",
-  "entry": "/src/v2/main.mjs?engagement=m4f1",
-  "styleEntry": "/v2-app.css?engagement=m4f1",
+  "entry": "/src/v2/main.mjs?timeline=m4t1",
+  "styleEntry": "/v2-app.css?timeline=m4t1",
   "canonicalCopy": "/src/v2/brand/copy.mjs?brand=bd1",
   "lazyRoutes": [
-    "/src/v2/ui/screens/profile.mjs?engagement=m4f1",
+    "/src/v2/ui/screens/profile.mjs?timeline=m4t1",
     "/src/v2/ui/screens/now.mjs?engagement=m4f1",
     "/src/v2/ui/screens/match.mjs?engagement=m4f1"
   ],
@@ -28,6 +29,12 @@
     "/src/v2/infrastructure/storage.mjs?engagement=m4f1",
     "/v2-m4.css?engagement=m4f1"
   ],
+  "timelineData": [
+    "/src/v2/domain/timeline.mjs?timeline=m4t1",
+    "/src/v2/ui/timeline-actions.mjs?timeline=m4t1",
+    "/src/v2/infrastructure/storage.mjs?timeline=m4t1",
+    "/v2-m4-timeline.css?timeline=m4t1"
+  ],
   "runtimeOverrides": false,
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger"]
+  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore"]
 }
