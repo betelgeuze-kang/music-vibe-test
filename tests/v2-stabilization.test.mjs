@@ -12,6 +12,7 @@ const css = read('v2-stabilization.css');
 const a11yCss = read('v2-stabilization-a11y.css');
 const timelineCss = read('v2-m4-timeline.css');
 const weeklyCss = read('v2-m4-weekly.css');
+const frontendCss = read('v2-frontend-quality.css');
 const cssEntry = read('v2-app.css');
 const helpers = read('src/v2/ui/helpers.mjs');
 const nowScreen = read('src/v2/ui/screens/now.mjs');
@@ -19,6 +20,7 @@ const profileScreen = read('src/v2/ui/screens/profile.mjs');
 const weeklyScreen = read('src/v2/ui/screens/weekly.mjs');
 const qualitySpec = read('tests/e2e/v2-quality.spec.mjs');
 const weeklySpec = read('tests/e2e/m4-weekly.spec.mjs');
+const frontendSpec = read('tests/e2e/frontend-quality.spec.mjs');
 const visualSpec = read('tests/e2e/visual.spec.mjs');
 const buildInfo = JSON.parse(read('build-info.json'));
 
@@ -27,16 +29,19 @@ assert.equal(buildInfo.uiRelease, 'f1');
 assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert.equal(buildInfo.weeklyRelease, 'm4w1');
+assert.equal(buildInfo.frontendQualityRelease, 'fq1');
 assert(index.includes('music-vibe-stability-release" content="sr1"'));
 assert(index.includes('data-stability-release="sr1"'));
 assert(index.includes('data-timeline-release="m4t1"'));
 assert(index.includes('data-weekly-release="m4w1"'));
-assert(index.includes('v2-app.css?weekly=m4w1'));
+assert(index.includes('data-frontend-quality-release="fq1"'));
+assert(index.includes('v2-app.css?frontend=fq1'));
 assert(cssEntry.includes('v2-stabilization.css?stability=sr1'));
 assert(cssEntry.includes('v2-stabilization-a11y.css?stability=sr1'));
 assert(cssEntry.includes('v2-m4.css?engagement=m4f1'));
 assert(cssEntry.includes('v2-m4-timeline.css?timeline=m4t1'));
-assert(cssEntry.includes('v2-m4-weekly.css?weekly=m4w1'));
+assert(cssEntry.includes('v2-m4-weekly.css?frontend=fq1'));
+assert(cssEntry.includes('v2-frontend-quality.css?frontend=fq1'));
 
 for (const token of [
   'body[data-route="home"] .editorial-nav.site-nav',
@@ -66,10 +71,15 @@ assert(!helpers.includes('track-card__score" aria-label='));
 assert(nowScreen.includes('now-hero__symbol" aria-hidden="true"'));
 assert(profileScreen.includes('aria-current="true"'));
 assert(weeklyScreen.includes('role="progressbar"'));
+assert(weeklyScreen.includes('visibleWeeklyTags'));
 assert(timelineCss.includes('@media (max-width: 680px)'));
 assert(timelineCss.includes('.timeline-entry__restore'));
 assert(weeklyCss.includes('@media (max-width: 680px)'));
 assert(weeklyCss.includes('.weekly-hero'));
+assert(weeklyCss.includes('.app-dialog'));
+assert(weeklyCss.includes('.weekly-context-grid.is-count-1'));
+assert(frontendCss.includes('Frontend Quality Sweep FQ1'));
+assert(frontendCss.includes('min-height: 44px'));
 
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"));
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) {
@@ -81,6 +91,13 @@ assert(qualitySpec.includes('mobile navigation is hidden during discovery and st
 assert(qualitySpec.includes('expectStaticNavigationBefore'));
 assert(qualitySpec.includes("expect(contract.overflowWrap).toBe('normal')"));
 assert(qualitySpec.includes("await expect(nav).toHaveCSS('position', 'static')"));
+for (const phrase of [
+  'privacy dialog has an accessible name',
+  'destructive actions use the application confirm dialog',
+  'optional analytics consent is a non-blocking labelled region',
+  'responsive matrix has no horizontal overflow',
+  'mobile primary controls meet the 44px hit-target contract'
+]) assert(frontendSpec.includes(phrase), `frontend browser gate is missing: ${phrase}`);
 
 const snapshotNames = [
   'chromium-home.png', 'chromium-discover.png', 'chromium-profile.png', 'chromium-weekly.png', 'chromium-now.png', 'chromium-match.png',
@@ -92,11 +109,12 @@ for (const screen of ['home.png', 'discover.png', 'profile.png', 'weekly.png', '
 assert(visualSpec.includes("const baselineMarker = path.join(snapshotDir, '.ready')"));
 assert(visualSpec.includes("path.join(snapshotDir, '.refresh')"));
 assert(visualSpec.includes("scale: 'css'"));
+assert(visualSpec.includes('window.__musicVibeV2?.clearNotice?.()'));
 assert(visualSpec.includes('window.scrollTo(0, 0)'));
 
 const refreshing = exists('tests/e2e/snapshots/.refresh');
 if (!refreshing) {
-  assert(/M4W1 visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()));
+  assert(/FQ1 visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()));
   for (const snapshot of snapshotNames) {
     const relative = `tests/e2e/snapshots/${snapshot}`;
     assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);
@@ -109,4 +127,4 @@ if (!refreshing) {
   }
 }
 
-console.log('F1 stabilization with M4 feedback, timeline, and Weekly Vibe checks passed.');
+console.log('F1 stabilization with M4 and FQ1 frontend quality checks passed.');
