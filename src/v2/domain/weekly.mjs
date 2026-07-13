@@ -1,5 +1,5 @@
-import { AXES, AXIS_IDS } from '../data/axes.mjs';
-import { CONTEXT_BY_ID } from '../data/contexts.mjs';
+import { AXES, AXIS_IDS } from '../data/axes.mjs?v3=nv1';
+import { CONTEXT_BY_ID } from '../data/contexts.mjs?v3=nv1';
 import { clamp, createProfile, getProfileArchetype, localize } from './profile.mjs';
 
 export const WEEKLY_VERSION = 1;
@@ -15,13 +15,13 @@ const TRACK_WEIGHTS = Object.freeze({ track_click: 2, feedback_more: 4, feedback
 const VECTOR_WEIGHTS = Object.freeze({ context_select: 1, track_click: 1, feedback_more: 2, feedback_less: 0 });
 
 const WEEKLY_ALIASES = Object.freeze({
-  focus: Object.freeze({ kr: '고요한 집중', en: 'Quiet focus' }),
-  lift: Object.freeze({ kr: '가벼운 상승', en: 'A gentle lift' }),
-  night: Object.freeze({ kr: '밤의 잔향', en: 'Night afterglow' }),
-  reset: Object.freeze({ kr: '느린 회복', en: 'Slow recovery' }),
-  explore: Object.freeze({ kr: '새로운 전류', en: 'A new current' }),
-  together: Object.freeze({ kr: '함께 부르는 주간', en: 'A week in chorus' }),
-  balanced: Object.freeze({ kr: '균형의 기록', en: 'A balanced note' })
+  focus: Object.freeze({ kr: '한곳에 모인 일곱 날', en: 'Seven days gathered in one place' }),
+  lift: Object.freeze({ kr: '걸음이 조금 가벼웠던 주', en: 'A week with a lighter step' }),
+  night: Object.freeze({ kr: '밤길에 오래 남은 소리', en: 'Sounds that stayed on the night road' }),
+  reset: Object.freeze({ kr: '숨을 되찾은 일곱 날', en: 'Seven days of finding the breath again' }),
+  explore: Object.freeze({ kr: '낯선 문을 하나 열어본 주', en: 'A week that opened one unfamiliar door' }),
+  together: Object.freeze({ kr: '누군가와 같은 방에 있던 주', en: 'A week spent in the same room as someone' }),
+  balanced: Object.freeze({ kr: '여러 방을 천천히 오간 주', en: 'A week moving slowly through several rooms' })
 });
 
 function timestamp(value) {
@@ -43,12 +43,7 @@ export function weeklyWindow(anchor = new Date()) {
   start.setUTCDate(start.getUTCDate() - (WEEKLY_WINDOW_DAYS - 1));
   const endExclusive = new Date(endDay);
   endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
-  return Object.freeze({
-    weekKey: utcDayKey(endDay),
-    startAt: start.toISOString(),
-    endAt: endDay.toISOString(),
-    endExclusiveAt: endExclusive.toISOString()
-  });
+  return Object.freeze({ weekKey: utcDayKey(endDay), startAt: start.toISOString(), endAt: endDay.toISOString(), endExclusiveAt: endExclusive.toISOString() });
 }
 
 export function qualifyingWeeklyInteractions(interactions = [], anchor = new Date()) {
@@ -57,22 +52,13 @@ export function qualifyingWeeklyInteractions(interactions = [], anchor = new Dat
   const end = timestamp(window.endExclusiveAt);
   return [...interactions]
     .filter((item) => item && QUALIFYING_TYPES.has(String(item.type || '')))
-    .filter((item) => {
-      const time = timestamp(item.createdAt);
-      return time >= start && time < end;
-    })
+    .filter((item) => { const time = timestamp(item.createdAt); return time >= start && time < end; })
     .sort((left, right) => timestamp(left.createdAt) - timestamp(right.createdAt) || String(left.id || '').localeCompare(String(right.id || '')));
 }
 
 export function weeklyActivityStatus(interactions = [], anchor = new Date()) {
   const qualifying = qualifyingWeeklyInteractions(interactions, anchor);
-  return Object.freeze({
-    count: qualifying.length,
-    required: WEEKLY_MIN_INTERACTIONS,
-    remaining: Math.max(0, WEEKLY_MIN_INTERACTIONS - qualifying.length),
-    ready: qualifying.length >= WEEKLY_MIN_INTERACTIONS,
-    window: weeklyWindow(anchor)
-  });
+  return Object.freeze({ count: qualifying.length, required: WEEKLY_MIN_INTERACTIONS, remaining: Math.max(0, WEEKLY_MIN_INTERACTIONS - qualifying.length), ready: qualifying.length >= WEEKLY_MIN_INTERACTIONS, window: weeklyWindow(anchor) });
 }
 
 function increment(map, key, amount, details = {}) {
@@ -85,19 +71,14 @@ function increment(map, key, amount, details = {}) {
 }
 
 function vectorAccumulator() {
-  return {
-    weight: 0,
-    totals: Object.fromEntries(AXIS_IDS.map((axisId) => [axisId, 0]))
-  };
+  return { weight: 0, totals: Object.fromEntries(AXIS_IDS.map((axisId) => [axisId, 0])) };
 }
 
 function addVector(accumulator, vector, weight) {
   const safeWeight = Number(weight) || 0;
   if (!vector || safeWeight <= 0) return;
   accumulator.weight += safeWeight;
-  AXIS_IDS.forEach((axisId) => {
-    accumulator.totals[axisId] += Number(vector[axisId] ?? 50) * safeWeight;
-  });
+  AXIS_IDS.forEach((axisId) => { accumulator.totals[axisId] += Number(vector[axisId] ?? 50) * safeWeight; });
 }
 
 function behaviorScores(profile, accumulator, interactionCount) {
@@ -122,13 +103,7 @@ function topChanges(profile, weeklyScores) {
     .map((axis) => {
       const rawDelta = Number(weeklyScores[axis.id] || 0) - Number(profile?.scores?.[axis.id] || 50);
       const displayDelta = displayedDelta(rawDelta);
-      return Object.freeze({
-        axisId: axis.id,
-        rawDelta,
-        displayDelta,
-        magnitude: Math.abs(displayDelta),
-        direction: rawDelta >= 0 ? 'high' : 'low'
-      });
+      return Object.freeze({ axisId: axis.id, rawDelta, displayDelta, magnitude: Math.abs(displayDelta), direction: rawDelta >= 0 ? 'high' : 'low' });
     })
     .filter((item) => item.displayDelta !== 0)
     .sort((left, right) => Math.abs(right.rawDelta) - Math.abs(left.rawDelta) || left.axisId.localeCompare(right.axisId))
@@ -172,11 +147,8 @@ export function buildWeeklyVibe({ profile, interactions = [], trackById = {}, an
       more: (trackStats.get(trackId)?.more || 0) + (type === 'feedback_more' ? 1 : 0),
       less: (trackStats.get(trackId)?.less || 0) + (type === 'feedback_less' ? 1 : 0)
     });
-    if (trackWeight > 0) {
-      (track.tags || []).forEach((tag) => increment(tagStats, String(tag), type === 'feedback_more' ? 2 : 1, { tag: String(tag) }));
-    } else if (trackWeight < 0) {
-      (track.tags || []).forEach((tag) => increment(tagStats, String(tag), -1, { tag: String(tag) }));
-    }
+    if (trackWeight > 0) (track.tags || []).forEach((tag) => increment(tagStats, String(tag), type === 'feedback_more' ? 2 : 1, { tag: String(tag) }));
+    else if (trackWeight < 0) (track.tags || []).forEach((tag) => increment(tagStats, String(tag), -1, { tag: String(tag) }));
     addVector(vectors, track.profile, VECTOR_WEIGHTS[type]);
   });
 
@@ -219,14 +191,11 @@ export function weeklySnapshotKey(vibe) {
 }
 
 export function weeklyAlias(vibe, language = 'kr') {
-  const alias = WEEKLY_ALIASES[vibe?.aliasId] || WEEKLY_ALIASES.balanced;
-  return localize(alias, language);
+  return localize(WEEKLY_ALIASES[vibe?.aliasId] || WEEKLY_ALIASES.balanced, language);
 }
 
 export function formatWeeklyRange(vibeOrAnchor, language = 'kr') {
-  const window = vibeOrAnchor?.windowStartAt
-    ? { startAt: vibeOrAnchor.windowStartAt, endAt: vibeOrAnchor.windowEndAt }
-    : weeklyWindow(vibeOrAnchor || new Date());
+  const window = vibeOrAnchor?.windowStartAt ? { startAt: vibeOrAnchor.windowStartAt, endAt: vibeOrAnchor.windowEndAt } : weeklyWindow(vibeOrAnchor || new Date());
   const start = new Date(window.startAt);
   const end = new Date(window.endAt);
   if (language === 'kr') return `${start.getUTCMonth() + 1}월 ${start.getUTCDate()}일 – ${end.getUTCMonth() + 1}월 ${end.getUTCDate()}일`;
@@ -239,11 +208,11 @@ export function weeklySummary(vibe, language = 'kr') {
   const alias = weeklyAlias(vibe, language);
   const context = CONTEXT_BY_ID[vibe?.dominantContextId];
   if (language === 'kr') {
-    const contextCopy = context ? `${localize(context.shortLabel, 'kr')} 장면을 가장 자주 골랐고` : '여러 장면을 고르게 오갔고';
-    return `${alias}. ${contextCopy}, ${localize(archetype.name, 'kr')}에 가까운 소리에 오래 머물렀어요.`;
+    if (context) return `${alias}. ${localize(context.shortLabel, 'kr')}에서 음악을 가장 자주 찾았고, 그때의 귀는 ${localize(archetype.name, 'kr')} 쪽에 조금 더 오래 머물렀습니다.`;
+    return `${alias}. 어느 한 장면에만 머물지 않았고, ${localize(archetype.name, 'kr')}에 가까운 소리가 일곱 날 사이를 느리게 이어주었습니다.`;
   }
-  const contextCopy = context ? `You returned most often to ${localize(context.shortLabel, 'en').toLowerCase()}` : 'You moved across several listening moments';
-  return `${alias}. ${contextCopy}, with listening closest to ${localize(archetype.name, 'en')}.`;
+  if (context) return `${alias}. You reached for music most often in ${localize(context.shortLabel, 'en').toLowerCase()}, and your ear stayed a little longer near ${localize(archetype.name, 'en')}.`;
+  return `${alias}. No single scene held the whole week; sounds near ${localize(archetype.name, 'en')} quietly tied the seven days together.`;
 }
 
 export function daysBetween(left, right) {
