@@ -1,4 +1,4 @@
-/* V3 Human Listening Edition — privacy choices, narrative pages, data controls, and monetization experiments. */
+/* V3 Human Listening Edition — privacy, narrative, data, catalog, and monetization layers. */
 
 .privacy-consent-banner {
   position: fixed;
@@ -36,8 +36,15 @@
   line-height: 1.7;
 }
 
-.privacy-consent-banner__copy a {
+.privacy-consent-banner__copy a,
+.data-file-button,
+.data-section button,
+.data-clear button {
+  min-width: 44px;
   min-height: 44px;
+}
+
+.privacy-consent-banner__copy a {
   display: inline-flex;
   align-items: center;
   color: #ddd7ce;
@@ -94,26 +101,10 @@
 }
 
 .privacy-preference-row strong,
-.privacy-preference-row small {
-  display: block;
-}
-
-.privacy-preference-row strong {
-  color: #f1ede4;
-  font-size: 14px;
-}
-
-.privacy-preference-row small {
-  margin-top: 5px;
-  color: #aaa49b;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.privacy-preference-row.is-disabled {
-  opacity: .58;
-  cursor: not-allowed;
-}
+.privacy-preference-row small { display: block; }
+.privacy-preference-row strong { color: #f1ede4; font-size: 14px; }
+.privacy-preference-row small { margin-top: 5px; color: #aaa49b; font-size: 12px; line-height: 1.55; }
+.privacy-preference-row.is-disabled { opacity: .58; cursor: not-allowed; }
 
 .privacy-identity-reset {
   min-height: 44px;
@@ -126,13 +117,226 @@
   font-size: 12px;
 }
 
-@media (max-width: 680px) {
-  .privacy-consent-banner {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
+/* DATA1: the browser notebook belongs to the listener. */
+.data-page {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 70px 0 120px;
+}
 
-  .privacy-consent-banner__actions {
-    grid-template-columns: 1fr;
-  }
+.data-hero {
+  max-width: 880px;
+  padding: 50px 0 82px;
+}
+
+.data-hero h1 {
+  margin: 16px 0 24px;
+  font-family: "Iowan Old Style", "AppleMyungjo", "NanumMyeongjo", Batang, Georgia, serif;
+  font-size: clamp(42px, 6vw, 72px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.05em;
+  word-break: keep-all;
+}
+
+.data-hero p,
+.data-section__copy p,
+.data-clear header p {
+  max-width: 720px;
+  color: #aaa49a;
+  font-size: 15px;
+  line-height: 1.78;
+}
+
+.data-summary,
+.data-section,
+.data-clear {
+  border-top: 1px solid var(--line, #403d37);
+  padding: 46px 0;
+}
+
+.data-summary {
+  display: grid;
+  grid-template-columns: minmax(220px, .65fr) minmax(0, 1.35fr);
+  gap: 48px;
+}
+
+.data-summary h2,
+.data-section h2,
+.data-clear h2 {
+  margin: 8px 0 0;
+  font-family: "Iowan Old Style", "AppleMyungjo", "NanumMyeongjo", Batang, Georgia, serif;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+
+.data-summary ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.data-summary li {
+  min-height: 54px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid #302e29;
+  color: #b7b1a7;
+  font-size: 13px;
+}
+
+.data-summary li strong { color: #f1ede4; font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+.data-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 36px;
+  align-items: center;
+}
+
+.data-file-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid #69635a;
+  border-radius: 7px;
+  color: #f1ede4;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.data-file-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.data-clear__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.data-clear__grid button {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px;
+  border: 1px solid #454139;
+  border-radius: 8px;
+  background: #11110f;
+  color: #f1ede4;
+  text-align: left;
+}
+
+.data-clear__grid button strong { font-size: 15px; }
+.data-clear__grid button span { color: #9e988f; font-size: 12px; line-height: 1.55; }
+.data-clear__grid button.is-danger { border-color: #86453d; background: #1b100e; }
+
+/* CAT1: say plainly whether a service link is direct or a search. */
+.track-card__search {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 7px;
+  border: 1px solid #666056;
+  border-radius: 999px;
+  color: #a8a198;
+  font-size: 9px;
+  letter-spacing: .07em;
+}
+
+.track-card__actions a {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.track-card__actions a small {
+  color: #8f897f;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: .04em;
+}
+
+/* SEO1 static narrative pages */
+.story-shell {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+}
+
+.story-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+  gap: 64px;
+  align-items: end;
+  padding: 88px 0;
+  border-bottom: 1px solid #403d37;
+}
+
+.story-hero h1 {
+  margin: 18px 0 22px;
+  font-family: "Iowan Old Style", "AppleMyungjo", "NanumMyeongjo", Batang, Georgia, serif;
+  font-size: clamp(48px, 7vw, 82px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.055em;
+  word-break: keep-all;
+}
+
+.story-hero p,
+.story-section p { color: #aaa49a; line-height: 1.8; }
+.story-symbol { font-size: clamp(86px, 14vw, 160px); text-align: center; opacity: .86; }
+.story-section { padding: 56px 0; border-bottom: 1px solid #403d37; }
+.story-section h2 { font-family: "Iowan Old Style", Georgia, serif; font-size: 34px; font-weight: 600; }
+.story-tracks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.story-track { padding: 22px; border: 1px solid #403d37; background: #11110f; }
+.story-track strong, .story-track span { display: block; }
+.story-track span { margin-top: 6px; color: #a29c92; font-size: 12px; }
+.story-cta { display: inline-flex; min-height: 48px; align-items: center; padding: 0 20px; border-radius: 7px; background: #f1ede4; color: #0a0a09; text-decoration: none; font-weight: 800; }
+
+/* MON1: production calls remain impossible without a real slot. */
+.monetization-candidate {
+  clear: both;
+  margin: 64px 0;
+  padding-top: 16px;
+  border-top: 1px solid #403d37;
+}
+
+.monetization-candidate[hidden] { display: none !important; }
+.monetization-candidate__label { color: #8d877d; font-size: 9px; letter-spacing: .1em; }
+
+@media (max-width: 820px) {
+  .data-summary,
+  .data-section,
+  .story-hero { grid-template-columns: 1fr; gap: 24px; }
+  .data-clear__grid,
+  .story-tracks { grid-template-columns: 1fr; }
+  .story-symbol { text-align: left; }
+}
+
+@media (max-width: 680px) {
+  .privacy-consent-banner { grid-template-columns: 1fr; align-items: stretch; }
+  .privacy-consent-banner__actions { grid-template-columns: 1fr; }
+  .data-page { width: min(100% - 28px, 1120px); padding-top: 34px; }
+  .data-summary ul { grid-template-columns: 1fr; }
+  .data-section > button,
+  .data-file-button { width: 100%; }
 }

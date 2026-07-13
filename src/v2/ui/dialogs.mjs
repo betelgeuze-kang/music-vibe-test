@@ -1,4 +1,4 @@
-import { escapeHtml } from './helpers.mjs?weekly=m4w1';
+import { escapeHtml } from './helpers.mjs?v3=nv1';
 
 let dialogSequence = 0;
 
@@ -38,7 +38,7 @@ export function showConfirmDialog({
     dialog.innerHTML = `
       <form method="dialog" class="app-dialog__surface">
         <div class="app-dialog__copy">
-          <span class="eyebrow">CONFIRM</span>
+          <span class="eyebrow">ONE MORE THOUGHT</span>
           <h2 id="${titleId}">${escapeHtml(title || '')}</h2>
           <p id="${descriptionId}">${escapeHtml(description || '')}</p>
         </div>
@@ -75,6 +75,7 @@ export function showPrivacyDialog(app, opener = document.activeElement) {
   const korean = app?.language !== 'en';
   const titleId = nextId('privacy-title');
   const descriptionId = nextId('privacy-description');
+  const policyBase = korean ? '' : '/en';
   const dialog = document.createElement('dialog');
   dialog.id = 'privacy-dialog';
   dialog.className = 'app-dialog privacy-dialog';
@@ -84,27 +85,35 @@ export function showPrivacyDialog(app, opener = document.activeElement) {
     <form method="dialog" class="app-dialog__surface">
       <button type="submit" value="close" class="privacy-dialog__close" aria-label="${escapeHtml(app?.copy?.().close || (korean ? '닫기' : 'Close'))}">×</button>
       <div class="app-dialog__copy">
-        <span class="eyebrow">PRIVACY · CR1</span>
-        <h2 id="${titleId}">${korean ? '취향 기록과 광고는 어떻게 다뤄지나요?' : 'How are taste notes and advertising handled?'}</h2>
+        <span class="eyebrow">WHAT STAYS / WHAT LEAVES</span>
+        <h2 id="${titleId}">${korean ? '이곳에 남는 것과, 밖으로 나가는 것을 나누어 말씀드릴게요.' : 'Here is what stays here—and what may leave the browser.'}</h2>
         <p id="${descriptionId}">${korean
-          ? '취향 기록, 최근 선곡, 곡 반응, 주간 기록은 이 브라우저에 저장됩니다. 친구 비교 값은 URL의 # 뒤에 들어가 서버나 CDN 요청에 포함되지 않으며, 이름이나 이메일 없이 여섯 개 취향 값과 익명 ID만 담습니다. 선택적 분석은 동의한 경우에만 전송됩니다.'
-          : 'Taste notes, recent selections, track feedback, and weekly recaps stay in this browser. Comparison data lives after # in the URL, so it is not sent in server or CDN requests. It contains six taste values and an anonymous ID, not a name or email. Optional analytics are sent only after consent.'}</p>
+          ? '프로필과 지난 기록, 곡에 남긴 반응, Weekly Vibe는 이 브라우저 안에 있습니다. 친구 링크에는 이름과 연락처 대신 여섯 개의 취향 값과 익명 ID만 들어가며, # 뒤의 값은 일반적인 서버 요청에 실리지 않습니다.'
+          : 'Profiles, earlier notes, track feedback, and Weekly Vibe remain in this browser. A friend link carries six taste values and an anonymous ID rather than a name or contact detail, and the fragment after # is not sent in ordinary server requests.'}</p>
         <p>${korean
-          ? '현재 광고 스크립트와 광고 쿠키는 비활성 상태입니다. 향후 광고를 도입할 때는 사업자·쿠키·선택권을 전체 정책에 먼저 고지하고, 질문·오디오·내비게이션·버튼 주변에는 광고를 배치하지 않습니다.'
-          : 'Advertising scripts and advertising cookies are currently disabled. Before ads are introduced, the provider, cookies, and user choices will be disclosed in the full policy, and ads will not be placed next to questions, audio, navigation, or action controls.'}</p>
+          ? '익명 사용 흐름은 허락한 경우에만 전송됩니다. 분석을 허용해도 광고 저장과 맞춤형 광고는 켜지지 않습니다. 광고 제공 자체도 현재 꺼져 있습니다.'
+          : 'Anonymous usage is sent only after permission. Allowing analytics does not enable advertising storage or personalized ads, and ad delivery itself is currently off.'}</p>
         <p>${escapeHtml(app?.copy?.().footerNote || '')}</p>
         <nav class="app-dialog__legal-links" aria-label="${korean ? '전체 운영 정책' : 'Full operation policies'}">
-          <a href="/privacy/">${korean ? '개인정보·쿠키 전체 정책' : 'Full privacy policy'}</a>
-          <a href="/audio-credits/">${korean ? '오디오 출처와 권리' : 'Audio sources and rights'}</a>
-          <a href="/about/">${korean ? '서비스·추천 원칙' : 'Service and recommendation principles'}</a>
+          <a href="${policyBase}/privacy/">${korean ? '개인정보·쿠키 전체 정책' : 'Full privacy policy'}</a>
+          <a href="${policyBase}/audio-credits/">${korean ? '오디오를 만든 방식과 권리' : 'How the audio was made and licensed'}</a>
+          <a href="${policyBase}/about/">${korean ? '서비스와 추천을 만드는 원칙' : 'How the service and recommendations are made'}</a>
         </nav>
       </div>
       <div class="app-dialog__actions">
+        <button type="button" class="button button--ghost" data-consent-settings>${korean ? '개인정보 선택 바꾸기' : 'Change privacy choices'}</button>
         <button type="submit" value="close" class="button button--light" data-dialog-primary>${escapeHtml(app?.copy?.().close || (korean ? '닫기' : 'Close'))}</button>
       </div>
     </form>
   `;
 
+  dialog.addEventListener('click', (event) => {
+    const settings = event.target.closest('[data-consent-settings]');
+    if (!settings) return;
+    event.preventDefault();
+    dialog.close('close');
+    window.setTimeout(() => window.MusicVibeConsent?.openSettings?.(settings), 0);
+  });
   dialog.addEventListener('close', () => {
     dialog.remove();
     restoreFocus(opener);
