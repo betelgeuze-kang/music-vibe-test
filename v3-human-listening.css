@@ -1,0 +1,138 @@
+/* V3 Human Listening Edition — privacy choices, narrative pages, data controls, and monetization experiments. */
+
+.privacy-consent-banner {
+  position: fixed;
+  z-index: 9999;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: max(16px, env(safe-area-inset-left));
+  width: min(680px, calc(100% - 32px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: end;
+  margin: 0 auto;
+  padding: 22px;
+  border: 1px solid #4d4941;
+  border-radius: 10px;
+  background: rgba(12, 12, 10, .97);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .62);
+  color: var(--paper, #f1ede4);
+  transition: opacity .18s ease;
+}
+
+.privacy-consent-banner__copy strong {
+  display: block;
+  font-family: "Iowan Old Style", "AppleMyungjo", "NanumMyeongjo", Batang, Georgia, serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.privacy-consent-banner__copy p {
+  margin: 8px 0 10px;
+  color: #bbb5ab;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.privacy-consent-banner__copy a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: #ddd7ce;
+  font-size: 12px;
+  text-underline-offset: 4px;
+}
+
+.privacy-consent-banner__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(132px, 1fr));
+  gap: 8px;
+}
+
+.privacy-consent-banner__actions button {
+  min-width: 44px;
+  min-height: 48px;
+  padding: 0 15px;
+  border: 1px solid #5a554c;
+  border-radius: 7px;
+  background: transparent;
+  color: #f1ede4;
+  font-weight: 750;
+}
+
+.privacy-consent-banner__actions button:last-child {
+  border-color: #f1ede4;
+  background: #f1ede4;
+  color: #0a0a09;
+}
+
+.privacy-preferences-dialog .app-dialog__surface {
+  width: min(680px, calc(100vw - 28px));
+}
+
+.privacy-preference-row {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid #46423b;
+  border-radius: 8px;
+  background: #11110f;
+  cursor: pointer;
+}
+
+.privacy-preference-row input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--signal, #ff5a45);
+}
+
+.privacy-preference-row strong,
+.privacy-preference-row small {
+  display: block;
+}
+
+.privacy-preference-row strong {
+  color: #f1ede4;
+  font-size: 14px;
+}
+
+.privacy-preference-row small {
+  margin-top: 5px;
+  color: #aaa49b;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.privacy-preference-row.is-disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+.privacy-identity-reset {
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #69635a;
+  background: transparent;
+  color: #c9c3b9;
+  font-size: 12px;
+}
+
+@media (max-width: 680px) {
+  .privacy-consent-banner {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .privacy-consent-banner__actions {
+    grid-template-columns: 1fr;
+  }
+}

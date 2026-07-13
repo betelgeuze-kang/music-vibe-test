@@ -40,14 +40,24 @@ assert(analyticsScriptIndex >= 0, 'analytics runtime must load in the canonical 
 assert(appScriptIndex >= 0 && analyticsScriptIndex < appScriptIndex, 'analytics must initialize before the module script');
 assert(!index.includes('<script src="p2-operations.js"></script>'));
 
-for (const token of ['visitor_id', 'session_id', 'visit_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'experiment_id', 'experiment_variant']) {
+for (const token of ['visitor_id', 'visitor_scope', 'session_id', 'visit_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'experiment_id', 'experiment_variant']) {
   assert(analytics.includes(token), `missing common analytics context: ${token}`);
 }
+assert(analytics.includes("const CONSENT_VERSION = 3"));
 assert(analytics.includes("const VISITOR_KEY = 'music-vibe-visitor-v1'"));
-assert(analytics.includes("consentState === 'accepted'"));
+assert(analytics.includes("analytics_storage: state.analytics ? 'granted' : 'denied'"));
+assert(analytics.includes("ad_storage: state.adMeasurement ? 'granted' : 'denied'"));
+assert(analytics.includes("ad_personalization: state.personalizedAds ? 'granted' : 'denied'"));
+assert(analytics.includes("setPreferences({ analytics: true, adMeasurement: false, personalizedAds: false })"));
+assert(analytics.includes('ephemeralVisitorId'));
+assert(analytics.includes('resetAnalyticsIdentity'));
+assert(analytics.includes('privacy-preferences-dialog'));
 assert(analytics.includes('pendingEvents'));
 assert(analytics.includes('analytics-debug-panel'));
 assert(analytics.includes('PerformanceObserver'));
+assert(!analytics.includes("ad_storage: 'granted'"), 'analytics consent must not silently grant advertising storage');
+assert(!analytics.includes("ad_user_data: 'granted'"), 'analytics consent must not silently grant advertising user data');
+assert(!analytics.includes("ad_personalization: 'granted'"), 'analytics consent must not silently grant personalized advertising');
 
 for (const experimentId of ['landing_copy_v1', 'test_length_v1', 'result_delay_v1', 'share_placement_v1', 'export_card_v1', 'playlist_visibility_v1']) {
   assert(legacyOperations.includes(`${experimentId}:`), `legacy experiment definition missing: ${experimentId}`);
@@ -82,4 +92,4 @@ assert.equal(packageJson.scripts.ci, 'npm run test:syntax && npm test');
 new Function(analytics);
 new Function(legacyOperations);
 new Function(staticBindings);
-console.log('P2 canonical compatibility checks passed through M4 Weekly Vibe.');
+console.log('PV1 consent and P2 analytics compatibility checks passed.');
