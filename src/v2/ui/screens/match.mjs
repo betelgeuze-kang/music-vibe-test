@@ -1,25 +1,27 @@
 import { getProfileArchetype } from '../../domain/profile.mjs?v=qg1';
 import { compareProfiles } from '../../domain/match.mjs?engagement=m4f1';
 import { buildInviteUrl } from '../../infrastructure/share.mjs?v=qg1';
-import { escapeHtml, profileMiniCard, track, trackCard } from '../helpers.mjs?engagement=m4f1';
-import { renderEmptyProfile } from './empty.mjs?ui=f1';
+import { escapeHtml, profileMiniCard, track, trackCard } from '../helpers.mjs?v3=nv1';
+import { renderEmptyProfile } from './empty.mjs?v3=nv1';
 
 function refreshPanel(app) {
   if (app.feedbackChangesSinceRefresh < 2) return '';
+  const korean = app.language === 'kr';
   return `
     <section class="feedback-refresh feedback-refresh--bridge" aria-live="polite">
       <div>
-        <span class="eyebrow">${app.language === 'kr' ? '내 반응 반영' : 'USE MY FEEDBACK'}</span>
-        <h2>${app.language === 'kr' ? '내 반응을 반영해 둘이 들을 곡을 다시 골라볼까요?' : 'Refresh the shared list using your feedback?'}</h2>
-        <p>${app.language === 'kr' ? '친구의 취향 값은 바꾸지 않고, 두 사람의 중간 지점 안에서 내 반응만 제한적으로 반영합니다.' : 'Your friend’s taste stays untouched; only your feedback is used within the shared middle ground.'}</p>
+        <span class="eyebrow">${korean ? '내 쪽에서 두 곡이 달라 보였어요' : 'TWO SONGS FELT DIFFERENT ON YOUR SIDE'}</span>
+        <h2>${korean ? '친구의 기록은 그대로 두고, 둘 사이의 다섯 곡만 다시 놓을까요?' : 'Keep your friend’s note untouched and choose the five between you again?'}</h2>
+        <p>${korean ? '친구가 좋아할 것이라고 짐작하지 않습니다. 두 기록이 겹치는 자리 안에서 내가 남긴 반응만 조금 읽습니다.' : 'We do not guess what your friend would like. We only read your own notes inside the ground the two profiles share.'}</p>
       </div>
-      <button class="button button--primary" type="button" data-action="refresh-recommendations">${app.language === 'kr' ? '둘이 들을 5곡 다시 고르기' : 'Refresh the five shared tracks'}</button>
+      <button class="button button--primary" type="button" data-action="refresh-recommendations">${korean ? '둘 사이의 다섯 곡 다시 놓기' : 'Choose the five between us again'}</button>
     </section>
   `;
 }
 
 export function renderMatch(app) {
   const copy = app.copy();
+  const korean = app.language === 'kr';
   if (!app.profile) {
     renderEmptyProfile(app, app.friendProfile ? copy.invitedDesc : copy.matchInviteDesc, copy.beginProfile);
     return;
@@ -38,12 +40,13 @@ export function renderMatch(app) {
       <section class="invite-builder">
         ${profileMiniCard(app.profile, copy.matchYou, app.language)}
         <div class="invite-builder__plus" aria-hidden="true">+</div>
-        <article class="mini-profile mini-profile--empty"><span aria-hidden="true">?</span><strong>${escapeHtml(copy.matchFriend)}</strong><small>${app.language === 'kr' ? '링크를 열고 취향 기록 만들기' : 'Opens the link and creates taste notes'}</small></article>
+        <article class="mini-profile mini-profile--empty"><span aria-hidden="true">?</span><strong>${escapeHtml(copy.matchFriend)}</strong><small>${korean ? '링크를 열고 열 번의 선택 남기기' : 'Open the link and leave ten choices'}</small></article>
         <div class="invite-builder__actions">
           <button class="button button--primary" type="button" data-action="share-profile">${escapeHtml(copy.matchShare)}</button>
           <button class="button button--ghost" type="button" data-action="copy-invite">${escapeHtml(copy.matchCopy)}</button>
         </div>
         <code class="invite-code">${escapeHtml(inviteUrl)}</code>
+        <p class="invite-builder__privacy">${korean ? '링크에는 이름이 아니라 여섯 방향과 익명 ID만 담깁니다.' : 'The link carries six directions and an anonymous ID, not a name.'}</p>
       </section>
       <form class="load-invite" data-form="load-invite">
         <label for="invite-input">${escapeHtml(copy.matchPasteLabel)}</label>
@@ -51,7 +54,7 @@ export function renderMatch(app) {
       </form>
     `;
     app.renderNotice();
-    track('match_view', { state: 'invite', profile_id: app.profile.id, product_version: 'v2-m4' });
+    track('match_view', { state: 'invite', profile_id: app.profile.id, product_version: 'v3-nv1' });
     return;
   }
 
@@ -67,21 +70,21 @@ export function renderMatch(app) {
       <div class="match-pair">
         ${profileMiniCard(app.profile, copy.matchYou, app.language)}
         <div class="match-score quality-match-score">
-          <div><strong>${escapeHtml(match.resonanceLabel)}</strong><span>${app.language === 'kr' ? `공명도 · ${match.resonance}` : `Resonance · ${match.resonance}`}</span></div>
-          <i></i>
-          <div><strong>${escapeHtml(match.discoveryLabel)}</strong><span>${app.language === 'kr' ? `발견 가능성 · ${match.discovery}` : `Discovery · ${match.discovery}`}</span></div>
+          <div><strong>${escapeHtml(match.resonanceLabel)}</strong><span>${korean ? `함께 편안한 자리 · ${match.resonance}` : `Easy ground · ${match.resonance}`}</span></div>
+          <i aria-hidden="true"></i>
+          <div><strong>${escapeHtml(match.discoveryLabel)}</strong><span>${korean ? `새 노래를 건넬 여지 · ${match.discovery}` : `Room for a new song · ${match.discovery}`}</span></div>
           <small>${escapeHtml(match.label)}</small>
         </div>
         ${profileMiniCard(app.friendProfile, copy.matchFriend, app.language)}
       </div>
-      <p class="match-method-note">${app.language === 'kr' ? '공명도는 이미 함께 머무는 지점을, 발견 가능성은 서로의 선곡을 넓힐 여지를 보여줘요.' : 'Resonance shows where you already meet; Discovery shows how each person can widen the other’s listening.'}</p>
+      <p class="match-method-note">${korean ? '첫 숫자는 이미 함께 앉을 수 있는 자리를, 둘째 숫자는 서로에게 아직 건네지 않은 노래의 자리를 가리킵니다.' : 'The first number marks where you can already sit together; the second marks the songs you have not yet handed one another.'}</p>
     </section>
     <section class="match-insights">
       <article class="panel"><span class="eyebrow">${escapeHtml(copy.matchCommon)}</span><ul>${(match.common.length ? match.common : [{ text: copy.matchNoCommon }]).map((item) => `<li>${escapeHtml(item.text)}</li>`).join('')}</ul></article>
       <article class="panel"><span class="eyebrow">${escapeHtml(copy.matchDifference)}</span><ul>${(match.differences.length ? match.differences : [{ text: copy.matchNoDifference }]).map((item) => `<li>${escapeHtml(item.text)}</li>`).join('')}</ul></article>
     </section>
     <section class="recommendation-list recommendation-list--bridge">
-      <div class="list-heading"><div><span class="eyebrow">${app.language === 'kr' ? '두 취향 사이의 선곡' : 'BRIDGE PLAYLIST'}</span><h2>${escapeHtml(copy.matchPlaylist)}</h2></div><span>5 TRACKS</span></div>
+      <div class="list-heading"><div><span class="eyebrow">${korean ? '두 사람 사이에 차례로 놓기' : 'SET BETWEEN TWO LISTENERS'}</span><h2>${escapeHtml(copy.matchPlaylist)}</h2></div><span>${korean ? '한쪽을 지우지 않은 다섯 곡' : 'FIVE WITHOUT ERASING EITHER SIDE'}</span></div>
       ${match.bridgeTracks.map((candidate) => trackCard(candidate, app.language, 'bridge_playlist', {
         feedbackEnabled: true,
         feedbackValue: app.trackFeedback[candidate.track.id]?.value || '',
@@ -91,25 +94,16 @@ export function renderMatch(app) {
     ${refreshPanel(app)}
     <section class="utility-actions">
       <button type="button" data-action="share-profile">${escapeHtml(copy.matchShare)}</button>
-      <button type="button" data-action="clear-friend">${app.language === 'kr' ? '다른 친구와 비교' : 'Compare another friend'}</button>
+      <button type="button" data-action="clear-friend">${korean ? '다른 친구의 기록 놓아보기' : 'Place another friend’s note here'}</button>
     </section>
   `;
   app.renderNotice();
 
   if (generated) {
     track('match_view', {
-      state: 'result',
-      compatibility_score: match.score,
-      resonance: match.resonance,
-      discovery: match.discovery,
-      profile_id: app.profile.id,
-      friend_profile_id: app.friendProfile.id,
-      product_version: 'v2-m4'
+      state: 'result', compatibility_score: match.score, resonance: match.resonance, discovery: match.discovery,
+      profile_id: app.profile.id, friend_profile_id: app.friendProfile.id, product_version: 'v3-nv1'
     });
-    track('ref_complete', {
-      ref_type: app.friendProfile.archetypeId,
-      result_type: getProfileArchetype(app.profile).id,
-      compatibility_score: match.score
-    });
+    track('ref_complete', { ref_type: app.friendProfile.archetypeId, result_type: getProfileArchetype(app.profile).id, compatibility_score: match.score });
   }
 }
