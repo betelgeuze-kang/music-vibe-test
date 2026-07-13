@@ -1,113 +1,25 @@
----
----
-{% assign result = site.data.results[page.type] %}
-{% assign copy = result[page.lang] %}
-{% assign slug = page.type | downcase %}
-{% assign canonical = site.url | append: page.url %}
-{% assign og_url = site.url | append: result.og_image %}
-{% if page.lang == 'ko' %}
-  {% assign html_lang = 'ko' %}
-  {% assign lang_param = 'kr' %}
-  {% assign language_name = 'English' %}
-  {% assign alternate_lang = 'en' %}
-  {% assign home_label = '전체 테스트' %}
-  {% assign playlist_title = '이 바이브를 위한 4곡' %}
-  {% assign cta_label = '나도 60초 테스트하고 친구와 비교하기' %}
-  {% assign share_label = '이 결과 공유하기' %}
-  {% assign copy_success = '결과 링크가 복사되었습니다.' %}
-  {% assign result_note = '이 결과 페이지는 검색과 공유를 위한 정적 페이지입니다. 테스트 결과는 엔터테인먼트 목적으로 제공됩니다.' %}
-  {% capture page_title %}{{ result.genre }} ({{ page.type }}) | 나의 음악 바이브 결과{% endcapture %}
-{% else %}
-  {% assign html_lang = 'en' %}
-  {% assign lang_param = 'en' %}
-  {% assign language_name = '한국어' %}
-  {% assign alternate_lang = 'ko' %}
-  {% assign home_label = 'Full test' %}
-  {% assign playlist_title = 'Four tracks for this vibe' %}
-  {% assign cta_label = 'Take the 60-second test and compare' %}
-  {% assign share_label = 'Share this result' %}
-  {% assign copy_success = 'Result link copied.' %}
-  {% assign result_note = 'This crawlable result page is built for search and sharing. The test is entertainment content, not a professional diagnosis.' %}
-  {% capture page_title %}{{ result.genre }} ({{ page.type }}) | My Music Vibe Result{% endcapture %}
-{% endif %}
 <!doctype html>
-<html lang="{{ html_lang }}">
+<html lang="{% if page.lang == 'ko' %}ko{% else %}en{% endif %}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{{ page_title | strip | escape }}</title>
-  <meta name="description" content="{{ copy.description | escape }}">
-  <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="canonical" href="{{ canonical }}">
-  <link rel="alternate" hreflang="ko" href="{{ site.url }}/ko/results/{{ slug }}/">
-  <link rel="alternate" hreflang="en" href="{{ site.url }}/en/results/{{ slug }}/">
-  <link rel="alternate" hreflang="x-default" href="{{ site.url }}/en/results/{{ slug }}/">
-  <link rel="icon" type="image/webp" href="{{ result.image }}">
-
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Music Vibe Test">
-  <meta property="og:title" content="🎵 {{ result.genre | escape }} · {{ page.type }} | Music Vibe Test">
-  <meta property="og:description" content="{{ copy.description | escape }}">
-  <meta property="og:url" content="{{ canonical }}">
-  <meta property="og:image" content="{{ og_url }}">
-  <meta property="og:image:type" content="image/svg+xml">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="{{ page.type }} {{ result.genre | escape }} Music Vibe result card">
-  <meta property="og:image" content="{{ site.url }}{{ result.image }}">
-  <meta property="og:image:type" content="image/webp">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="🎵 {{ result.genre | escape }} · {{ page.type }} | Music Vibe Test">
-  <meta name="twitter:description" content="{{ copy.description | escape }}">
-  <meta name="twitter:image" content="{{ og_url }}">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": {{ page_title | strip | jsonify }},
-    "description": {{ copy.description | jsonify }},
-    "url": {{ canonical | jsonify }},
-    "inLanguage": {{ html_lang | jsonify }},
-    "primaryImageOfPage": {
-      "@type": "ImageObject",
-      "url": {{ og_url | jsonify }},
-      "width": 1200,
-      "height": 630
-    },
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "Music Vibe Test",
-      "url": {{ site.url | jsonify }}
-    }
-  }
-  </script>
-  <style>
-    :root{--accent-a:{{ result.color_a }};--accent-b:{{ result.color_b }};color-scheme:dark}
-    *{box-sizing:border-box}
-    html{background:#08080b}
-    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:radial-gradient(circle at 12% 5%,color-mix(in srgb,var(--accent-b) 38%,transparent),transparent 34rem),radial-gradient(circle at 92% 36%,color-mix(in srgb,var(--accent-a) 55%,transparent),transparent 34rem),#08080b}
-    a{color:inherit;text-decoration:none}.shell{width:min(100% - 32px,880px);margin:0 auto;padding:28px 0 64px}.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}.brand{font-size:12px;font-weight:900;letter-spacing:.22em;color:#fde68a}.nav-links{display:flex;gap:10px;font-size:12px;color:#a1a1aa}.nav-links a{padding:9px 12px;border:1px solid #ffffff14;border-radius:999px;background:#ffffff08}
-    .hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.15fr .85fr;gap:34px;padding:42px;border:1px solid #ffffff1a;border-radius:32px;background:linear-gradient(145deg,#101014e8,#09090ce8);box-shadow:0 34px 90px #0008}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-a),var(--accent-b));opacity:.19;pointer-events:none}.copy,.art{position:relative;z-index:1}.eyebrow{display:inline-flex;padding:7px 11px;border:1px solid #ffffff1a;border-radius:999px;background:#ffffff0d;font-size:11px;font-weight:800;letter-spacing:.17em;color:#d4d4d8}h1{margin:20px 0 8px;font-size:clamp(52px,9vw,94px);line-height:.9;letter-spacing:-.06em}.genre{font-size:clamp(24px,4vw,40px);font-weight:900;letter-spacing:-.03em}.subtitle{margin:13px 0 0;font-size:18px;font-weight:700;color:#d4d4d8}.desc{margin:24px 0 0;max-width:58ch;font-size:15px;line-height:1.82;color:#a1a1aa}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:14px;font-size:13px;font-weight:900}.primary{background:#fff;color:#09090b}.secondary{border:1px solid #ffffff24;background:#ffffff0a;color:#fff;cursor:pointer}.art{display:flex;align-items:center;justify-content:center}.art img{width:min(100%,340px);aspect-ratio:1;border-radius:50%;object-fit:cover;border:10px solid #111116;box-shadow:0 28px 60px #000a,0 0 70px color-mix(in srgb,var(--accent-b) 42%,transparent)}
-    .playlist{margin-top:26px;padding:28px;border:1px solid #ffffff17;border-radius:26px;background:#0d0d11d9}.playlist-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:16px}.playlist h2{margin:0;font-size:22px}.playlist p{margin:5px 0 0;color:#71717a;font-size:12px}.track{display:flex;align-items:center;gap:14px;padding:14px;border-top:1px solid #ffffff0d;transition:.2s}.track:hover{background:#ffffff08;border-radius:14px}.track-no{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#ffffff0a;color:#71717a;font-size:11px;font-weight:900}.track-copy{min-width:0;flex:1}.track-copy strong,.track-copy small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.track-copy strong{font-size:13px}.track-copy small{margin-top:4px;color:#71717a;font-size:11px}.track-open{font-size:9px;font-weight:900;letter-spacing:.08em;color:#86efac}.note{margin:24px 2px 0;color:#52525b;font-size:11px;line-height:1.7}
-    @media(max-width:700px){.shell{width:min(100% - 20px,880px);padding-top:14px}.hero{grid-template-columns:1fr;padding:28px 22px;border-radius:24px}.art{order:-1}.art img{width:210px}.playlist{padding:22px 14px}.track-open{display:none}.nav-links a:first-child{display:none}}
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% assign legacy = site.data.results[page.type] %}{% assign legacy_copy = legacy[page.lang] %}{% assign vibe_id = site.data.v3_static.legacy_map[page.type] %}{% assign vibe = site.data.v3_static.vibes[vibe_id] %}{% assign copy = vibe[page.lang] %}
+  <title>{{ copy.title }} — {% if page.lang == 'ko' %}이전 Music Vibe 결과에서 옮겨 읽기{% else %}Reading an earlier Music Vibe result today{% endif %}</title>
+  <meta name="description" content="{{ copy.body | escape }}"><meta name="theme-color" content="{{ legacy.color_a }}">
+  <link rel="canonical" href="https://my-music-vibe.com/{{ page.lang }}/results/{{ page.type | downcase }}/"><link rel="alternate" hreflang="ko" href="https://my-music-vibe.com/ko/results/{{ page.type | downcase }}/"><link rel="alternate" hreflang="en" href="https://my-music-vibe.com/en/results/{{ page.type | downcase }}/"><link rel="alternate" hreflang="x-default" href="https://my-music-vibe.com/en/results/{{ page.type | downcase }}/">
+  <meta property="og:type" content="article"><meta property="og:site_name" content="My Music Vibe"><meta property="og:title" content="{{ copy.title }} — {{ copy.tagline }}"><meta property="og:description" content="{{ copy.body | escape }}"><meta property="og:url" content="https://my-music-vibe.com/{{ page.lang }}/results/{{ page.type | downcase }}/"><meta property="og:image" content="https://my-music-vibe.com/assets/og/v3/vibe.svg">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{{ copy.title }} | My Music Vibe"><meta name="twitter:description" content="{{ copy.tagline }}"><meta name="twitter:image" content="https://my-music-vibe.com/assets/og/v3/vibe.svg">
+  <link rel="stylesheet" href="/v3-static.css?seo=seo1">
+  <style>.legacy-note{padding:14px 18px;border-left:3px solid #ff5a45;background:#11110f;color:#b7b1a8;font-size:13px;line-height:1.7}.legacy-code{display:inline-flex;min-height:34px;align-items:center;margin-bottom:18px;padding:0 12px;border:1px solid #5b554d;border-radius:999px;color:#d9d3ca;font:700 11px ui-monospace,Menlo,monospace;letter-spacing:.08em}.legacy-playlist{padding:90px 0}.legacy-playlist>header{display:grid;grid-template-columns:220px 1fr;gap:40px;margin-bottom:42px}.legacy-playlist h2{margin:0;font:600 clamp(38px,5vw,58px)/1.12 "Iowan Old Style","AppleMyungjo",Georgia,serif;letter-spacing:-.04em}.legacy-playlist ol{margin:0;padding:0;list-style:none;border-top:1px solid #3d3a34}.track{min-height:92px;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid #3d3a34;text-decoration:none}.track>span{color:#7f796f;font:11px ui-monospace,Menlo,monospace}.track strong,.track small{display:block}.track small{margin-top:4px;color:#969087}.legacy-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}.legacy-actions button,.legacy-actions a{min-height:48px;display:inline-flex;align-items:center;padding:0 18px;border:1px solid #f1ede4;border-radius:6px;background:#f1ede4;color:#0a0a09;font-size:13px;font-weight:800;text-decoration:none}.legacy-actions button{background:transparent;color:#f1ede4}.subtitle{font-size:inherit}@media(max-width:680px){.legacy-playlist>header{grid-template-columns:1fr}.track{grid-template-columns:30px 1fr}.track>em{grid-column:2}}</style>
+  <script src="/p2-analytics.js?v=pv1"></script><script src="/p2-static.js?v=seo1"></script>
 </head>
-<body data-page-type="static_result" data-result-type="{{ page.type }}" data-language="{{ html_lang }}" data-analytics-consent-ui="standalone">
-  <main class="shell">
-    <nav class="nav" aria-label="Primary"><a class="brand" href="/">MY MUSIC VIBE</a><div class="nav-links"><a href="/">{{ home_label }}</a><a href="/{{ alternate_lang }}/results/{{ slug }}/">{{ language_name }}</a></div></nav>
-    <article class="hero">
-      <div class="copy"><span class="eyebrow">12-CHOICE RESULT · {{ page.type }}</span><h1>{{ page.type }}</h1><div class="genre">{{ result.genre }}</div><p class="subtitle">{{ copy.subtitle }}</p><p class="desc">{{ copy.description }}</p><div class="actions"><a class="primary" href="/?lang={{ lang_param }}&amp;ref={{ page.type }}&amp;src=static_result">{{ cta_label }}</a><button class="secondary" type="button" id="share-result">{{ share_label }}</button></div></div>
-      <div class="art"><img src="{{ result.image }}" alt="{{ page.type }} {{ result.genre | escape }}" width="340" height="340"></div>
-    </article>
-    <section class="playlist" aria-labelledby="playlist-title"><div class="playlist-head"><div><h2 id="playlist-title">{{ playlist_title }}</h2><p>Music Vibe mini playlist · 4 tracks</p></div></div>
-      {% for track in copy.tracks %}{% capture spotify_query %}{{ track.title }} {{ track.artist }}{% endcapture %}<a class="track" href="https://open.spotify.com/search/{{ spotify_query | strip | url_encode }}" target="_blank" rel="noopener noreferrer"><span class="track-no">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span><span class="track-copy"><strong>{{ track.title }}</strong><small>{{ track.artist }} · {{ track.moment }}</small></span><span class="track-open">SPOTIFY ↗</span></a>{% endfor %}
-    </section>
-    <p class="note">{{ result_note }}</p>
+<body data-page-type="static_result" data-result-type="{{ page.type }}" data-language="{{ page.lang }}" data-legacy-result="true" data-seo-release="seo1" data-narrative-release="nv1">
+  <header class="v3-static-header"><div class="v3-static-shell v3-static-header__inner"><a class="v3-static-brand" href="/?lang={% if page.lang == 'ko' %}kr{% else %}en{% endif %}#/home">MY MUSIC VIBE</a><nav><a href="/{{ page.lang }}/vibes/{{ vibe_id }}/">{% if page.lang == 'ko' %}현재의 듣기 장면{% else %}Current listening vibe{% endif %}</a><a href="/{% if page.lang == 'ko' %}en{% else %}ko{% endif %}/results/{{ page.type | downcase }}/">{% if page.lang == 'ko' %}EN{% else %}한국어{% endif %}</a></nav></div></header>
+  <main>
+    <section class="v3-static-hero" style="--page-a:{{ legacy.color_a }};--page-b:{{ legacy.color_b }}"><div class="v3-static-shell v3-static-hero__grid"><div class="v3-static-hero__copy"><span class="legacy-code">{{ page.type }} · {% if page.lang == 'ko' %}이전 버전 결과{% else %}EARLIER RESULT{% endif %}</span><span class="v3-static-symbol" aria-hidden="true">{{ vibe.symbol }}</span><h1>{{ copy.title }}</h1><p class="v3-static-tagline subtitle">{{ copy.tagline }}</p><p class="v3-static-body">{{ copy.body }}</p><div class="legacy-actions"><a class="primary" href="/?lang={% if page.lang == 'ko' %}kr{% else %}en{% endif %}&src=static_result&utm_source=music_vibe&utm_medium=organic&utm_campaign=legacy_to_v3&utm_content={{ page.type | downcase }}#/discover">{% if page.lang == 'ko' %}현재 방식으로 열 번 들어보기{% else %}Take the current ten-listen experience{% endif %} →</a><button type="button" id="share-result">{% if page.lang == 'ko' %}이 페이지 건네기{% else %}Share this page{% endif %}</button></div></div><aside class="v3-static-note"><span>{% if page.lang == 'ko' %}이 페이지에 대하여{% else %}ABOUT THIS PAGE{% endif %}</span><p class="legacy-note">{% if page.lang == 'ko' %}이 URL은 예전 12개 선택 결과를 보존합니다. 지금 서비스는 직접 만든 소리와 생활 장면을 열 번 고르고, 여섯 방향과 여덟 개 듣기 장면으로 기록합니다. 예전 네 글자는 가까운 현재 장면으로 옮겨 읽었습니다.{% else %}This URL preserves an earlier twelve-choice result. The current service uses ten original sounds and everyday scenes, recorded as six directions and eight listening vibes. The old four letters are translated into the nearest current scene.{% endif %}</p><span>{% if page.lang == 'ko' %}현재 연결되는 장면{% else %}CURRENT VIBE{% endif %}</span><p><a href="/{{ page.lang }}/vibes/{{ vibe_id }}/">{{ copy.title }} →</a></p></aside></div></section>
+    <section class="v3-static-shell legacy-playlist"><header><span class="v3-static-kicker">{% if page.lang == 'ko' %}예전 결과에 남아 있던 네 곡{% else %}FOUR SONGS KEPT FROM THE EARLIER RESULT{% endif %}</span><h2>{% if page.lang == 'ko' %}기록은 오래되었어도, 곡은 다시 들어볼 수 있습니다.{% else %}The note is old; the songs can still be heard again.{% endif %}</h2></header><ol>{% for track in legacy_copy.tracks %}<li><a class="track" href="{{ track.url }}" target="_blank" rel="noopener"><span>{{ forloop.index }}</span><div><strong>{{ track.title }}</strong><small>{{ track.artist }}</small></div><em>{% if page.lang == 'ko' %}열기 ↗{% else %}Open ↗{% endif %}</em></a></li>{% endfor %}</ol></section>
+    <section class="v3-static-shell v3-static-footer-cta"><h2>{% if page.lang == 'ko' %}예전 이름에 머물기보다, 오늘의 귀로 다시 들어보세요.{% else %}Rather than remain inside the old name, listen again with today’s ear.{% endif %}</h2><a class="v3-static-primary" href="/{{ page.lang }}/vibes/{{ vibe_id }}/">{% if page.lang == 'ko' %}{{ copy.title }} 장면 읽기{% else %}Read {{ copy.title }}{% endif %} →</a></section>
   </main>
-  <script>(()=>{const button=document.getElementById('share-result');const url={{ canonical | jsonify }};button.addEventListener('click',async()=>{const payload={title:document.title,text:{{ copy.subtitle | jsonify }},url};try{if(navigator.share){await navigator.share(payload)}else{await navigator.clipboard.writeText(url);alert({{ copy_success | jsonify }})}}catch(error){if(error&&error.name!=='AbortError')prompt('Copy this link:',url)}})})();</script>
-  <script src="/p2-analytics.js"></script>
-  <script src="/p2-static.js"></script>
+  <footer class="v3-static-footer"><div class="v3-static-shell"><span>© {{ 'now' | date:'%Y' }} My Music Vibe</span><nav><a href="/{% if page.lang == 'ko' %}about{% else %}en/about{% endif %}/">{% if page.lang == 'ko' %}서비스 소개{% else %}About{% endif %}</a><a href="/{% if page.lang == 'ko' %}privacy{% else %}en/privacy{% endif %}/">{% if page.lang == 'ko' %}개인정보{% else %}Privacy{% endif %}</a></nav></div></footer>
 </body>
 </html>
