@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="{% if page.lang == 'ko' %}ko{% else %}en{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% assign collection = site.data.v3_static[page.kind] %}
+  {% assign item = collection[page.item_id] %}
+  {% assign copy = item[page.lang] %}
+  {% assign kind_path = 'vibes' %}{% if page.kind == 'moments' %}{% assign kind_path = 'moments' %}{% endif %}
+  <title>{{ copy.title }} | My Music Vibe</title>
+  <meta name="description" content="{{ copy.body | strip_html | escape }}">
+  <meta name="theme-color" content="{{ item.color_a }}">
+  <link rel="canonical" href="https://my-music-vibe.com/{{ page.lang }}/{{ kind_path }}/{{ page.item_id }}/">
+  <link rel="alternate" hreflang="ko" href="https://my-music-vibe.com/ko/{{ kind_path }}/{{ page.item_id }}/">
+  <link rel="alternate" hreflang="en" href="https://my-music-vibe.com/en/{{ kind_path }}/{{ page.item_id }}/">
+  <link rel="alternate" hreflang="x-default" href="https://my-music-vibe.com/en/{{ kind_path }}/{{ page.item_id }}/">
+  <link rel="stylesheet" href="/v3-static.css?seo=seo1">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="My Music Vibe">
+  <meta property="og:title" content="{{ copy.title }} — {{ copy.tagline }}">
+  <meta property="og:description" content="{{ copy.body | strip_html | escape }}">
+  <meta property="og:url" content="https://my-music-vibe.com/{{ page.lang }}/{{ kind_path }}/{{ page.item_id }}/">
+  <meta property="og:image" content="https://my-music-vibe.com/assets/og/v3/{{ page.kind | remove: 's' }}-{{ page.item_id }}.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ copy.title }} | My Music Vibe">
+  <meta name="twitter:description" content="{{ copy.tagline }}">
+  <meta name="twitter:image" content="https://my-music-vibe.com/assets/og/v3/{{ page.kind | remove: 's' }}-{{ page.item_id }}.svg">
+  <script src="/p2-analytics.js?v=pv1"></script>
+  <script src="/p2-static.js?v=seo1"></script>
+</head>
+<body data-page-type="static_editorial" data-static-kind="{{ page.kind }}" data-static-id="{{ page.item_id }}" data-language="{{ page.lang }}" data-narrative-release="nv1" data-seo-release="seo1">
+  <header class="v3-static-header">
+    <div class="v3-static-shell v3-static-header__inner">
+      <a class="v3-static-brand" href="/?lang={% if page.lang == 'ko' %}kr{% else %}en{% endif %}#/home">MY MUSIC VIBE</a>
+      <nav aria-label="{% if page.lang == 'ko' %}이 페이지의 언어와 관련 정보{% else %}Page language and related information{% endif %}">
+        <a href="/{{ page.lang }}/vibes/{% if page.kind == 'vibes' %}{{ page.item_id }}{% else %}midnight-dreamer{% endif %}/">{% if page.lang == 'ko' %}듣기 장면{% else %}Vibes{% endif %}</a>
+        <a href="/{{ page.lang }}/moments/{% if page.kind == 'moments' %}{{ page.item_id }}{% else %}night{% endif %}/">{% if page.lang == 'ko' %}음악이 필요한 순간{% else %}Moments{% endif %}</a>
+        <a href="/{% if page.lang == 'ko' %}en{% else %}ko{% endif %}/{{ kind_path }}/{{ page.item_id }}/">{% if page.lang == 'ko' %}EN{% else %}한국어{% endif %}</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="v3-static-hero" style="--page-a:{{ item.color_a }};--page-b:{{ item.color_b }}">
+      <div class="v3-static-shell v3-static-hero__grid">
+        <div class="v3-static-hero__copy">
+          <span class="v3-static-kicker">{% if page.kind == 'vibes' %}{% if page.lang == 'ko' %}듣기 장면{% else %}LISTENING VIBE{% endif %}{% else %}{% if page.lang == 'ko' %}음악이 필요한 순간{% else %}A MOMENT FOR MUSIC{% endif %}{% endif %}</span>
+          <span class="v3-static-symbol" aria-hidden="true">{{ item.symbol }}</span>
+          <h1>{{ copy.title }}</h1>
+          <p class="v3-static-tagline">{{ copy.tagline }}</p>
+          <p class="v3-static-body">{{ copy.body }}</p>
+          <a class="v3-static-primary" href="/?lang={% if page.lang == 'ko' %}kr{% else %}en{% endif %}#/discover">{{ copy.cta }} →</a>
+        </div>
+        <aside class="v3-static-note">
+          <span>{% if page.lang == 'ko' %}잘 어울리는 시간{% else %}WHEN IT FITS{% endif %}</span>
+          <p>{{ copy.scene }}</p>
+          {% if page.kind == 'vibes' %}<span>{% if page.lang == 'ko' %}가까이 놓이는 다른 장면{% else %}NEARBY VIBES{% endif %}</span><p>{{ copy.near }}</p>{% endif %}
+          <small>{% if page.lang == 'ko' %}이 페이지는 사람을 진단하지 않습니다. 음악을 고를 때 자주 되돌아가는 장면을 설명합니다.{% else %}This page does not diagnose a person. It describes a scene a listener may return to when choosing music.{% endif %}</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="v3-static-shell v3-static-tracks" aria-labelledby="tracks-title">
+      <div class="v3-static-section-heading">
+        <span>{% if page.lang == 'ko' %}먼저 건네고 싶은 세 곡{% else %}THREE SONGS TO HAND OVER FIRST{% endif %}</span>
+        <h2 id="tracks-title">{% if page.lang == 'ko' %}설명보다 음악이 빠를 때가 있습니다.{% else %}Sometimes the music arrives before the explanation.{% endif %}</h2>
+      </div>
+      <ol>
+        {% for track in item.tracks %}
+        <li><span>{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span><div><strong>{{ track[0] }}</strong><small>{{ track[1] }}</small></div><a href="https://www.youtube.com/results?search_query={{ track[0] | append: ' ' | append: track[1] | uri_escape }}" target="_blank" rel="noopener">{% if page.lang == 'ko' %}YouTube에서 찾기{% else %}Find on YouTube{% endif %}</a></li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    <section class="v3-static-shell v3-static-method">
+      <div><span>{% if page.lang == 'ko' %}어떻게 읽나요{% else %}HOW TO READ THIS PAGE{% endif %}</span><h2>{% if page.lang == 'ko' %}열 번의 선택은 이름표가 아니라 연필 자국입니다.{% else %}Ten choices are pencil marks, not a permanent label.{% endif %}</h2></div>
+      <p>{% if page.lang == 'ko' %}현재 서비스는 직접 합성한 짧은 소리와 생활 장면을 나란히 놓습니다. 결과는 여섯 방향의 기울기로 남고, 오늘의 장면을 고르면 가까운 세 곡과 옆길 한 곡, 조금 먼 곳의 한 곡을 차례로 건넵니다.{% else %}The current service places short original sounds beside everyday scenes. The result remains as six directions; choose today’s moment and receive three close songs, one side road, and one track from a little farther away.{% endif %}</p>
+    </section>
+
+    <section class="v3-static-shell v3-static-footer-cta">
+      <h2>{% if page.lang == 'ko' %}이 설명이 맞는지 따지기보다, 첫 소리를 직접 들어보세요.{% else %}Rather than decide whether the description fits, hear the first sound yourself.{% endif %}</h2>
+      <a class="v3-static-primary" href="/?lang={% if page.lang == 'ko' %}kr{% else %}en{% endif %}#/discover">{{ copy.cta }} →</a>
+    </section>
+  </main>
+
+  <footer class="v3-static-footer">
+    <div class="v3-static-shell">
+      <span>© {{ 'now' | date: '%Y' }} My Music Vibe</span>
+      <nav><a href="/{% if page.lang == 'ko' %}about{% else %}en/about{% endif %}/">{% if page.lang == 'ko' %}서비스 소개{% else %}About{% endif %}</a><a href="/{% if page.lang == 'ko' %}privacy{% else %}en/privacy{% endif %}/">{% if page.lang == 'ko' %}개인정보{% else %}Privacy{% endif %}</a><a href="/{% if page.lang == 'ko' %}audio-credits{% else %}en/audio-credits{% endif %}/">{% if page.lang == 'ko' %}오디오 권리{% else %}Audio rights{% endif %}</a></nav>
+    </div>
+  </footer>
+</body>
+</html>
