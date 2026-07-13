@@ -1,8 +1,8 @@
-import { PROFILE_QUESTIONS } from '../../data/questions.mjs?v=qg1';
+import { PROFILE_QUESTIONS } from '../../data/questions.mjs?commercial=cr1';
 import { localize } from '../../domain/profile.mjs?v=qg1';
 import { escapeHtml } from '../helpers.mjs?ui=f1';
 
-const AUDIO_PREVIEW_LIMIT_SECONDS = 20;
+const AUDIO_PREVIEW_LIMIT_SECONDS = 12;
 
 function questionKey(question, option) {
   return `${question.id}:${option.id}`;
@@ -62,7 +62,7 @@ export function renderDiscover(app) {
                     <span aria-hidden="true">${playing ? 'Ⅱ' : '▶'}</span>${escapeHtml(playing ? copy.stop : copy.preview)}
                   </button>
                   <div class="audio-progress" aria-hidden="true"><i data-audio-fill="${escapeHtml(option.id)}" style="width:${Math.round(ratio * 100)}%"></i></div>
-                  <div class="audio-meta"><span data-audio-time="${escapeHtml(option.id)}">${formatTime(progressState.current)} / ${formatTime(duration)}</span><b>${error ? (app.language === 'kr' ? '재생 실패 · 텍스트로 선택 가능' : 'Preview unavailable · text choice still works') : heard ? (app.language === 'kr' ? '✓ 들어봄' : '✓ Heard') : (app.language === 'kr' ? '비교 후 선택해보세요' : 'Preview and compare')}</b></div>
+                  <div class="audio-meta"><span data-audio-time="${escapeHtml(option.id)}">${formatTime(progressState.current)} / ${formatTime(duration)}</span><b>${error ? (app.language === 'kr' ? '재생 실패 · 텍스트로 선택 가능' : 'Preview unavailable · text choice still works') : heard ? (app.language === 'kr' ? '✓ 들어봄' : '✓ Heard') : (app.language === 'kr' ? '직접 만든 소리 · 비교 후 선택' : 'Original clip · preview and compare')}</b></div>
                 </div>
               ` : ''}
               <button type="button" class="button button--option" data-action="choose-option" data-option-id="${escapeHtml(option.id)}" ${app.selectionLocked ? 'disabled' : ''}>${selected === option.id ? (app.language === 'kr' ? '선택했어요' : 'Selected') : escapeHtml(copy.choose)} <span aria-hidden="true">→</span></button>

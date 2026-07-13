@@ -13,9 +13,10 @@ import {
   returnVisitAlreadyTracked
 } from '../infrastructure/storage.mjs?weekly=m4w1';
 import { actionMethods } from './actions.mjs?weekly=m4w1';
-import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?frontend=fq1';
-import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?frontend=fq1';
-import { renderDiscover } from './screens/discover.mjs?ui=f1';
+import { commercialAudioMethods } from './commercial-audio-actions.mjs?commercial=cr1';
+import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1';
+import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?commercial=cr1';
+import { renderDiscover } from './screens/discover.mjs?commercial=cr1';
 import { renderHome } from './screens/home.mjs?home=he1';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1';
 import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1';
@@ -26,6 +27,7 @@ export const TIMELINE_RELEASE = 'm4t1';
 export const WEEKLY_RELEASE = 'm4w1';
 export const FRONTEND_QUALITY_RELEASE = 'fq1';
 export const HUMAN_EDITORIAL_RELEASE = 'he1';
+export const COMMERCIAL_READINESS_RELEASE = 'cr1';
 
 export class VibeApp {
   constructor({ root, header, footer }) {
@@ -79,13 +81,14 @@ export class VibeApp {
 
   start() {
     document.documentElement.lang = this.language === 'kr' ? 'ko' : 'en';
-    document.documentElement.dataset.testMode = 'vibe-profile-v2-m4w1';
+    document.documentElement.dataset.testMode = 'vibe-profile-v2-cr1';
     document.documentElement.dataset.uiRelease = UI_RELEASE;
     document.documentElement.dataset.engagementRelease = ENGAGEMENT_RELEASE;
     document.documentElement.dataset.timelineRelease = TIMELINE_RELEASE;
     document.documentElement.dataset.weeklyRelease = WEEKLY_RELEASE;
     document.documentElement.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     document.documentElement.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
+    document.documentElement.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
     document.addEventListener('submit', this.boundSubmit);
@@ -97,7 +100,7 @@ export class VibeApp {
     if (this.profile && this.returnStatus.eligible && !returnVisitAlreadyTracked(this.returnStatus.eventKey)) {
       track('return_visit_7d', {
         route: this.route,
-        product_version: 'v2-m4w1',
+        product_version: 'v2-cr1',
         profile_id: this.profile.id,
         days_since_previous: this.returnStatus.daysSincePrevious,
         latest_week_key: this.latestWeeklyVibe?.weekKey || ''
@@ -113,12 +116,12 @@ export class VibeApp {
 
     track('route_view', {
       route: this.route,
-      product_version: 'v2-m4w1',
+      product_version: 'v2-cr1',
       has_profile: Boolean(this.profile),
       previous_visit_at: visit.state.previousVisitAt || ''
     });
     if (this.friendProfile) {
-      track('ref_visit', { referral_stage: 'v2_landing', ref_type: this.friendProfile.archetypeId, referral_source: this.friendSource, product_version: 'v2-m4w1' });
+      track('ref_visit', { referral_stage: 'v2_landing', ref_type: this.friendProfile.archetypeId, referral_source: this.friendSource, product_version: 'v2-cr1' });
       if (this.profile && this.route === 'home') this.route = 'match';
     }
     this.render();
@@ -153,7 +156,7 @@ export class VibeApp {
     closeOpenAppDialogs();
     this.route = parseRoute();
     if (this.route !== 'weekly') this.weeklyAnchorAt = null;
-    track('route_view', { route: this.route, product_version: 'v2-m4w1', has_profile: Boolean(this.profile) });
+    track('route_view', { route: this.route, product_version: 'v2-cr1', has_profile: Boolean(this.profile) });
     this.render();
   }
 
@@ -224,6 +227,7 @@ export class VibeApp {
     document.body.dataset.weeklyRelease = WEEKLY_RELEASE;
     document.body.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     document.body.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
+    document.body.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     this.renderHeader();
     this.renderFooter();
     this.updateMeta();
@@ -256,4 +260,4 @@ export class VibeApp {
   }
 }
 
-Object.assign(VibeApp.prototype, actionMethods);
+Object.assign(VibeApp.prototype, actionMethods, commercialAudioMethods);

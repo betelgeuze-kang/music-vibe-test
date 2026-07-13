@@ -5,7 +5,12 @@ on:
     paths:
       - 'index.html'
       - 'v2-*.css'
+      - 'legal.css'
       - 'src/v2/**'
+      - 'assets/audio/**'
+      - 'about/**'
+      - 'privacy/**'
+      - 'audio-credits/**'
       - 'tests/e2e/**'
       - 'playwright.config.mjs'
       - 'package.json'
@@ -38,7 +43,7 @@ jobs:
       - name: Install browser-test packages without changing the lockfile
         run: npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2
       - run: npx playwright install --with-deps chromium
-      - name: Run browser, accessibility, and visual gates
+      - name: Run browser, accessibility, rights, and visual gates
         run: npx playwright test
 
       - name: Promote approved visual captures to baselines
@@ -69,11 +74,9 @@ jobs:
             mobile-chromium-now.png
             mobile-chromium-match.png
           )
-          for image in "${expected[@]}"; do
-            test -s "${capture_dir}/${image}"
-          done
+          for image in "${expected[@]}"; do test -s "${capture_dir}/${image}"; done
 
-          release_label="$(jq -r '.humanEditorialRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
+          release_label="$(jq -r '.commercialReadinessRelease // .humanEditorialRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
           cp "${capture_dir}"/*.png "$snapshot_dir"/
           printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"

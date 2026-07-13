@@ -1,4 +1,4 @@
-import { PROFILE_QUESTIONS } from '../../data/questions.mjs?v=qg1';
+import { PROFILE_QUESTIONS } from '../../data/questions.mjs?commercial=cr1';
 import { HOME_SHOWCASE, localizedShowcaseReason } from '../../data/home-showcase.mjs';
 import { profileFromArchetype, getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
 import { formatWeeklyRange, weeklyActivityStatus, weeklyAlias } from '../../domain/weekly.mjs?weekly=m4w1';
@@ -33,7 +33,7 @@ function homeOption(app, question, option, index) {
   const failed = app.homeAudioErrorIds.has(option.id);
   return `
     <article class="listening-choice ${isPlaying ? 'is-playing' : ''} ${heard ? 'is-heard' : ''} ${failed ? 'has-error' : ''}" data-brand-option="${escapeHtml(option.id)}">
-      <header><span>${index === 0 ? 'A' : 'B'}</span><small>${heard ? `✓ ${copy.boothHeard}` : failed ? (app.language === 'kr' ? '텍스트로 선택 가능' : 'Text choice available') : '15 SEC'}</small></header>
+      <header><span>${index === 0 ? 'A' : 'B'}</span><small>${heard ? `✓ ${copy.boothHeard}` : failed ? (app.language === 'kr' ? '텍스트로 선택 가능' : 'Text choice available') : '12 SEC · ORIGINAL'}</small></header>
       <h3>${escapeHtml(localize(option.label, app.language))}</h3>
       <p>${escapeHtml(localize(option.description, app.language))}</p>
       <div class="listening-choice__transport">
@@ -150,14 +150,14 @@ export function renderHome(app) {
           <div class="editorial-hero__note">
             <span>${app.language === 'kr' ? '이름은 묻지 않아요' : 'No name required'}</span>
             <span>${app.language === 'kr' ? '기록은 이 브라우저에' : 'Notes stay in this browser'}</span>
-            <span>${app.language === 'kr' ? '음악 계정 연결 없음' : 'No streaming account needed'}</span>
+            <span>${app.language === 'kr' ? '직접 만든 테스트 소리' : 'Original test audio'}</span>
           </div>
           ${hasProfile ? `<div class="editorial-saved"><span aria-hidden="true">${escapeHtml(currentArchetype.symbol)}</span><div><small>${escapeHtml(copy.existingProfile)}</small><strong>${escapeHtml(localize(currentArchetype.name, app.language))}</strong></div></div>` : ''}
         </div>
 
         <aside class="listening-booth" id="listening-booth" aria-labelledby="booth-title">
-          <header class="listening-booth__header"><span>${escapeHtml(copy.boothLabel)}</span><b>MY MUSIC VIBE</b></header>
-          <div class="listening-booth__copy"><h2 id="booth-title">${escapeHtml(copy.boothTitle)}</h2><p>${escapeHtml(copy.boothHint)}</p></div>
+          <header class="listening-booth__header"><span>${escapeHtml(copy.boothLabel)}</span><b>ORIGINAL AUDIO · CR1</b></header>
+          <div class="listening-booth__copy"><h2 id="booth-title">${escapeHtml(copy.boothTitle)}</h2><p>${escapeHtml(copy.boothHint)} <a class="listening-booth__rights" href="/audio-credits/">${app.language === 'kr' ? '오디오 권리 보기' : 'Audio rights'}</a></p></div>
           <div class="listening-booth__choices">
             ${question.options.map((option, index) => homeOption(app, question, option, index)).join('')}
           </div>
@@ -226,5 +226,5 @@ export function renderHome(app) {
   `;
 
   app.renderNotice();
-  track('landing_view', { product_version: 'v2-he1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', home_release: 'he1', showcase_version: 'e1-fixed', weekly_ready: Boolean(hasProfile && weeklyActivityStatus(loadInteractions(), new Date()).ready), return_eligible: Boolean(app.returnStatus?.eligible) });
+  track('landing_view', { product_version: 'v2-cr1', has_profile: hasProfile, referral_present: Boolean(app.friendProfile), ui_release: 'f1', home_release: 'he1', commercial_release: 'cr1', showcase_version: 'e1-fixed', weekly_ready: Boolean(hasProfile && weeklyActivityStatus(loadInteractions(), new Date()).ready), return_eligible: Boolean(app.returnStatus?.eligible) });
 }

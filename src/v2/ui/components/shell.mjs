@@ -16,7 +16,7 @@ export function renderHeader(app) {
     <div class="site-header__inner editorial-header">
       <button class="brand editorial-wordmark" type="button" data-route="home" aria-label="${korean ? 'My Music Vibe 처음 화면' : 'My Music Vibe home'}">
         <span class="editorial-wordmark__name">MY MUSIC VIBE</span>
-        <span class="editorial-wordmark__issue">LISTENING NOTES / M4 WEEKLY</span>
+        <span class="editorial-wordmark__issue">LISTENING NOTES / CR1</span>
       </button>
       <nav class="site-nav editorial-nav" aria-label="${korean ? '주요 메뉴' : 'Primary navigation'}">
         ${nav('home', copy.navHome, korean ? '처음' : 'Home', '⌂')}
@@ -32,11 +32,17 @@ export function renderHeader(app) {
 
 export function renderFooter(app) {
   const copy = app.copy();
+  const korean = app.language === 'kr';
   app.footer.innerHTML = `
-    <div class="site-footer__inner editorial-footer">
-      <div><strong>MY MUSIC VIBE</strong><span>© ${new Date().getFullYear()}</span></div>
+    <div class="site-footer__inner editorial-footer commercial-footer">
+      <div class="commercial-footer__brand"><strong>MY MUSIC VIBE</strong><span>© ${new Date().getFullYear()} · CR1</span></div>
       <p>${escapeHtml(copy.footerNote)}</p>
-      <button type="button" data-action="privacy">${escapeHtml(copy.footerPrivacy)} ↗</button>
+      <nav class="commercial-footer__links" aria-label="${korean ? '운영·권리 정보' : 'Operation and rights information'}">
+        <a href="/about/">${korean ? '서비스 소개' : 'About'}</a>
+        <a href="/privacy/">${korean ? '개인정보·쿠키' : 'Privacy'}</a>
+        <a href="/audio-credits/">${korean ? '오디오 권리' : 'Audio rights'}</a>
+        <button type="button" data-action="privacy">${escapeHtml(copy.footerPrivacy)} ↗</button>
+      </nav>
     </div>
   `;
 }

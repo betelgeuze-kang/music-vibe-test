@@ -1,0 +1,6 @@
+# DOCUMENTATION TEMPLATE ONLY — never overwrite the live root /ads.txt with placeholders.
+# The current production seller record is already published at the domain root:
+# google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0
+#
+# Use this format only when documenting a future provider-issued seller record:
+# provider-domain.example, publisher-id, DIRECT|RESELLER, certification-authority-id

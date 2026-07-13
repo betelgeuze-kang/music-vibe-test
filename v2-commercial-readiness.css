@@ -1,0 +1,118 @@
+/* Commercial Readiness CR1
+   Rights links, disabled ad-slot safety, and monetization-safe spacing. */
+.commercial-footer {
+  grid-template-columns: auto minmax(260px, 1fr) auto;
+  gap: 28px;
+  align-items: start;
+}
+
+.commercial-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.commercial-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px 18px;
+}
+
+.commercial-footer__links a,
+.commercial-footer__links button,
+.app-dialog__legal-links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--meta-strong, #b0aba2);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.commercial-footer__links a,
+.commercial-footer__links button {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #57534c;
+  background: transparent;
+}
+
+.commercial-footer__links a:hover,
+.commercial-footer__links button:hover,
+.app-dialog__legal-links a:hover {
+  color: var(--paper, #f1ede4);
+}
+
+.app-dialog__legal-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.app-dialog__legal-links a {
+  justify-content: center;
+  padding: 8px 10px;
+  border: 1px solid var(--line, #403d37);
+  border-radius: 7px;
+  text-align: center;
+}
+
+/* Future ad inventory is deliberately absent in CR1. These rules define the only
+   visual contract an enabled provider may use after policy, consent, and ID setup. */
+.ad-slot {
+  position: relative;
+  clear: both;
+  width: 100%;
+  min-height: 90px;
+  margin: 56px 0;
+  padding: 30px 20px 18px;
+  border: 1px solid var(--line, #403d37);
+  background: #0f0f0d;
+  isolation: isolate;
+}
+
+.ad-slot::before {
+  content: "Advertisement";
+  position: absolute;
+  top: 9px;
+  left: 12px;
+  color: #aaa49a;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+
+.ad-slot[hidden],
+[data-ads-enabled="false"] .ad-slot {
+  display: none !important;
+}
+
+/* Hard safety net: these contexts may never host visible ad inventory. */
+.site-header .ad-slot,
+.site-nav .ad-slot,
+.listening-booth .ad-slot,
+.quiz-shell .ad-slot,
+.option-grid .ad-slot,
+.track-card .ad-slot,
+.track-card__feedback .ad-slot,
+.track-card__actions .ad-slot,
+.app-dialog .ad-slot,
+.analytics-consent .ad-slot,
+.empty-state .ad-slot,
+.invite-builder .ad-slot {
+  display: none !important;
+}
+
+@media (max-width: 860px) {
+  .commercial-footer {
+    grid-template-columns: 1fr;
+  }
+  .commercial-footer__links {
+    justify-content: flex-start;
+  }
+  .app-dialog__legal-links {
+    grid-template-columns: 1fr;
+  }
+}
