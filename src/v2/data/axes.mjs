@@ -1,62 +1,62 @@
 export const AXES = Object.freeze([
   Object.freeze({
     id: 'energy',
-    label: Object.freeze({ kr: '에너지', en: 'Energy' }),
-    low: Object.freeze({ kr: '차분함', en: 'Calm' }),
-    high: Object.freeze({ kr: '강렬함', en: 'Charged' }),
+    label: Object.freeze({ kr: '움직임의 크기', en: 'Motion' }),
+    low: Object.freeze({ kr: '잔잔한 쪽', en: 'Still' }),
+    high: Object.freeze({ kr: '몰아치는 쪽', en: 'Driving' }),
     description: Object.freeze({
-      kr: '잔잔한 흐름과 강한 추진력 사이에서 어느 쪽에 더 반응하는지 보여줘요.',
-      en: 'Shows whether you respond more to calm flow or high-intensity drive.'
+      kr: '고요히 흐르는 소리와 몸을 앞으로 미는 소리 사이에서 귀가 어느 쪽으로 기우는지 봅니다.',
+      en: 'Where your ear leans between sound that moves quietly and sound that pushes the body forward.'
     })
   }),
   Object.freeze({
     id: 'warmth',
-    label: Object.freeze({ kr: '온도', en: 'Warmth' }),
-    low: Object.freeze({ kr: '서늘함', en: 'Cool' }),
-    high: Object.freeze({ kr: '따뜻함', en: 'Warm' }),
+    label: Object.freeze({ kr: '소리의 온도', en: 'Temperature' }),
+    low: Object.freeze({ kr: '서늘한 쪽', en: 'Cool' }),
+    high: Object.freeze({ kr: '따뜻한 쪽', en: 'Warm' }),
     description: Object.freeze({
-      kr: '차갑고 선명한 질감과 포근하고 감정적인 질감의 균형이에요.',
-      en: 'Balances crisp, cool textures with warm, emotionally inviting sound.'
+      kr: '유리처럼 맑고 찬 표면과, 목소리와 화음이 가까이 다가오는 온기 사이의 자리입니다.',
+      en: 'The place between a cool, glass-clear surface and the warmth of a voice or chord coming close.'
     })
   }),
   Object.freeze({
     id: 'novelty',
-    label: Object.freeze({ kr: '새로움', en: 'Novelty' }),
-    low: Object.freeze({ kr: '익숙함', en: 'Familiar' }),
-    high: Object.freeze({ kr: '탐험적', en: 'Exploratory' }),
+    label: Object.freeze({ kr: '낯섦의 거리', en: 'Distance from the familiar' }),
+    low: Object.freeze({ kr: '익숙한 쪽', en: 'Familiar' }),
+    high: Object.freeze({ kr: '낯선 쪽', en: 'Unfamiliar' }),
     description: Object.freeze({
-      kr: '익숙한 공식을 편안하게 느끼는지, 낯선 소리를 찾는지 나타내요.',
-      en: 'Shows whether familiar formulas or unfamiliar discoveries feel more rewarding.'
+      kr: '이미 아는 길을 편안히 걷는 음악과, 한 번도 열어보지 않은 문으로 이끄는 음악 사이의 거리입니다.',
+      en: 'The distance between a road you already know and a door the music has not opened before.'
     })
   }),
   Object.freeze({
     id: 'organic',
-    label: Object.freeze({ kr: '질감', en: 'Texture' }),
-    low: Object.freeze({ kr: '전자적', en: 'Electronic' }),
-    high: Object.freeze({ kr: '유기적', en: 'Organic' }),
+    label: Object.freeze({ kr: '손끝과 회로', en: 'Hand and circuit' }),
+    low: Object.freeze({ kr: '전자적인 쪽', en: 'Electronic' }),
+    high: Object.freeze({ kr: '손으로 연주한 쪽', en: 'Played by hand' }),
     description: Object.freeze({
-      kr: '신스와 가공된 소리, 실제 악기와 자연스러운 울림 사이의 취향이에요.',
-      en: 'Maps your preference between processed electronic sound and organic instrumentation.'
+      kr: '가공된 신스와 기계의 정밀함, 나무와 줄과 숨결이 남은 악기 사이에서 좋아하는 질감을 찾습니다.',
+      en: 'The texture you prefer between processed synth precision and instruments that still carry wood, strings, and breath.'
     })
   }),
   Object.freeze({
     id: 'complexity',
-    label: Object.freeze({ kr: '구조', en: 'Complexity' }),
-    low: Object.freeze({ kr: '직관적', en: 'Direct' }),
-    high: Object.freeze({ kr: '다층적', en: 'Layered' }),
+    label: Object.freeze({ kr: '전개의 층', en: 'Layers' }),
+    low: Object.freeze({ kr: '곧장 닿는 쪽', en: 'Direct' }),
+    high: Object.freeze({ kr: '여러 겹인 쪽', en: 'Layered' }),
     description: Object.freeze({
-      kr: '바로 꽂히는 단순한 전개와 오래 탐색할 수 있는 복합적인 전개의 차이에요.',
-      en: 'Balances immediate, direct structure with layered arrangements that reward exploration.'
+      kr: '첫 소절에 마음을 여는 곡과, 오래 들을수록 숨은 방이 하나씩 보이는 곡 사이의 차이입니다.',
+      en: 'The difference between a song that opens at once and one that reveals another room each time you stay.'
     })
   }),
   Object.freeze({
     id: 'sociality',
-    label: Object.freeze({ kr: '감상 방식', en: 'Sociality' }),
-    low: Object.freeze({ kr: '개인적', en: 'Private' }),
-    high: Object.freeze({ kr: '함께', en: 'Collective' }),
+    label: Object.freeze({ kr: '누구와 듣는가', en: 'Company' }),
+    low: Object.freeze({ kr: '혼자 듣는 쪽', en: 'Private' }),
+    high: Object.freeze({ kr: '함께 듣는 쪽', en: 'Shared' }),
     description: Object.freeze({
-      kr: '혼자 깊이 듣는 음악과 사람들과 에너지를 나누는 음악의 균형이에요.',
-      en: 'Shows whether music works best as a private world or shared social energy.'
+      kr: '혼자만의 방을 지켜주는 음악과, 사람들의 표정과 박자를 한데 묶는 음악 사이의 자리입니다.',
+      en: 'The place between music that protects a private room and music that gathers faces into one pulse.'
     })
   })
 ]);
