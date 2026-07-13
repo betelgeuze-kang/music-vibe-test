@@ -93,6 +93,22 @@ For every ad-enabled release:
 4. remove stale or unauthorized seller records immediately;
 5. keep `docs/operations/ads.txt.example` as documentation only—it must never overwrite the live root file.
 
+## CR1 validation evidence
+
+The CR1 pre-merge gate records the following evidence in source control and GitHub Actions:
+
+```text
+8 active generated audio IDs
+0 active third-party MP3 assets
+0 advertising-network requests
+0 visible ad slots
+1 exact Google AdSense seller record
+3 public transparency pages
+12 approved CSS-pixel visual baselines
+```
+
+The active visual marker is `tests/e2e/snapshots/.ready` and must read `CR1 visual baselines approved by Browser Quality`. A subsequent Browser Quality run must compare against the approved set; the initial capture run alone is not sufficient for release approval.
+
 ## Release review
 
 Every ad-enabled release should record:
