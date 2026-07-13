@@ -1,0 +1,62 @@
+{
+  "release": "seo1",
+  "vibes": {
+    "midnight-dreamer": {
+      "symbol": "☾", "color_a": "#22134a", "color_b": "#6d3dd1",
+      "ko": {"title":"밤의 잔향","tagline":"소리가 사라진 뒤의 여백까지 듣는 사람","body":"큰 장면보다 오래 남는 작은 흔적을 따라갑니다. 낮은 목소리, 멀리 번지는 신스, 마지막 음 뒤에 남은 공기. 혼자 있는 밤이 조용해질수록 이런 소리는 더 또렷해집니다.","scene":"불을 낮춘 방과 늦은 산책","near":"조용한 장면 · 따뜻한 레코드","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Night Afterglow","tagline":"A listener who hears the room after the sound is gone","body":"You follow the smaller trace rather than the grand gesture: a low voice, a synth receding into the distance, the air after the last note. These sounds grow clearer as a solitary night grows quiet.","scene":"A dim room and a late walk","near":"Quiet Scene · Warm Record","cta":"Find the scene where my ear stays"},
+      "tracks":[["Space Song","Beach House"],["About You","The 1975"],["Through the Night","IU"]]
+    },
+    "neon-runner": {
+      "symbol": "↗", "color_a": "#071b2f", "color_b": "#006bff",
+      "ko": {"title":"네온 주행","tagline":"박자가 먼저 몸을 일으키는 사람","body":"선명한 킥이 들어오면 망설이던 몸이 먼저 움직입니다. 밤거리의 불빛, 달리는 차창, 운동화 밑창의 일정한 충격. 음악은 배경이 아니라 속도를 정하는 손입니다.","scene":"이동과 운동, 도시의 늦은 시간","near":"전류를 따라 · 함께 타는 리듬","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Neon Drive","tagline":"A listener whose body rises before the thought arrives","body":"A clean kick arrives and the body moves before hesitation can catch up. Streetlights, a window in motion, the steady strike beneath a shoe: music is the hand that sets the pace.","scene":"Movement, training, and the late city","near":"Following the Current · Shared Pulse","cta":"Find the scene where my ear stays"},
+      "tracks":[["Blinding Lights","The Weeknd"],["Starboy","The Weeknd"],["HUMBLE.","Kendrick Lamar"]]
+    },
+    "warm-vinyl": {
+      "symbol": "◉", "color_a": "#3a160d", "color_b": "#a04a25",
+      "ko": {"title":"따뜻한 레코드","tagline":"손끝과 숨결이 들리는 음악 곁에 머무는 사람","body":"줄을 누르는 손, 마이크 가까이에서 새는 숨, 오래된 건반의 둥근 소리. 완벽하게 닦인 표면보다 사람이 지나간 흔적을 믿습니다.","scene":"햇빛이 드는 작은 방과 조용한 저녁","near":"함께 부르는 후렴 · 밤의 잔향","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Warm Record","tagline":"A listener who stays where fingers and breath remain audible","body":"A hand pressing strings, breath escaping close to the microphone, the rounded note of an old keyboard. You trust the trace of a person more than a perfectly polished surface.","scene":"A sunlit room and a quiet evening","near":"The Chorus We Share · Night Afterglow","cta":"Find the scene where my ear stays"},
+      "tracks":[["Bloom","The Paper Kites"],["Holocene","Bon Iver"],["Best Part","Daniel Caesar feat. H.E.R."]]
+    },
+    "cosmic-architect": {
+      "symbol": "✦", "color_a": "#07182f", "color_b": "#2932a7",
+      "ko": {"title":"소리 설계자","tagline":"반복 속에서 조금씩 달라지는 길을 끝까지 따라가는 사람","body":"처음에는 같은 듯 보이던 패턴이 몇 분 뒤 전혀 다른 건물이 되어 있는 음악을 좋아합니다. 한 번에 이해되지 않는 곡 앞에서 오히려 더 오래 앉아 있습니다.","scene":"긴 작업과 깊은 집중","near":"전류를 따라 · 조용한 장면","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Sound Architect","tagline":"A listener who follows small changes inside repetition","body":"You like music in which a pattern that seemed unchanged has become another building a few minutes later. A track that does not yield at once is often the one you sit with longest.","scene":"Long work and deep focus","near":"Following the Current · Quiet Scene","cta":"Find the scene where my ear stays"},
+      "tracks":[["Giorgio by Moroder","Daft Punk"],["Emerald Rush","Jon Hopkins"],["Strobe","deadmau5"]]
+    },
+    "quiet-cinematic": {
+      "symbol": "▱", "color_a": "#111827", "color_b": "#334155",
+      "ko": {"title":"조용한 장면","tagline":"작은 움직임으로 긴 장면을 보는 사람","body":"크게 울지 않는 피아노 한 음, 멀리서 늦게 들어오는 현, 거의 움직이지 않는 듯한 앰비언트. 음악이 말을 줄일수록 그 안의 장면을 더 오래 봅니다.","scene":"생각이 많은 오후와 늦은 밤","near":"밤의 잔향 · 소리 설계자","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Quiet Scene","tagline":"A listener who sees a long scene in a small movement","body":"A piano note that does not cry out, strings entering late from a distance, ambient sound that barely moves. The fewer words the music uses, the longer you see the scene inside it.","scene":"A thoughtful afternoon and a late night","near":"Night Afterglow · Sound Architect","cta":"Find the scene where my ear stays"},
+      "tracks":[["Avril 14th","Aphex Twin"],["An Ending (Ascent)","Brian Eno"],["On the Nature of Daylight","Max Richter"]]
+    },
+    "rhythm-connector": {
+      "symbol": "∞", "color_a": "#3d102d", "color_b": "#d12f83",
+      "ko": {"title":"함께 타는 리듬","tagline":"한 방의 사람들을 같은 박자로 묶는 사람","body":"혼자 들을 때보다 누군가의 어깨가 함께 움직일 때 노래가 완성된다고 느낍니다. 낯선 사람들이 잠깐 같은 편이 되는 순간을 좋아합니다.","scene":"친구들과 있는 방과 늦은 모임","near":"함께 부르는 후렴 · 네온 주행","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Shared Pulse","tagline":"A listener who brings a room into one pulse","body":"A song feels complete when another shoulder begins to move beside yours. You like the brief moment when strangers become part of the same side.","scene":"A room with friends and a late gathering","near":"The Chorus We Share · Neon Drive","cta":"Find the scene where my ear stays"},
+      "tracks":[["Uptown Funk","Mark Ronson feat. Bruno Mars"],["September","Earth, Wind & Fire"],["Back on 74","Jungle"]]
+    },
+    "electric-explorer": {
+      "symbol": "⚡", "color_a": "#142008", "color_b": "#56a309",
+      "ko": {"title":"전류를 따라","tagline":"익숙한 규칙이 비틀리는 순간 눈을 뜨는 사람","body":"장르의 경계가 흐려지고 예상한 마디가 다른 문으로 열릴 때 호기심이 살아납니다. 매끈한 정답보다 조금 거친 질감과 뜻밖의 전환을 택합니다.","scene":"새 음악을 찾는 밤과 빠른 이동","near":"소리 설계자 · 네온 주행","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"Following the Current","tagline":"A listener who wakes when the familiar rule begins to bend","body":"Curiosity sharpens when genre borders blur and an expected bar opens into another door. You take a rough texture or an unforeseen turn over a polished answer.","scene":"A night of discovery and fast movement","near":"Sound Architect · Neon Drive","cta":"Find the scene where my ear stays"},
+      "tracks":[["360","Charli xcx"],["XS","Rina Sawayama"],["Supernova","aespa"]]
+    },
+    "golden-chorus": {
+      "symbol": "☀", "color_a": "#3a2406", "color_b": "#d08a0a",
+      "ko": {"title":"함께 부르는 후렴","tagline":"좋은 멜로디가 사람 사이를 밝힌다고 믿는 사람","body":"한 사람의 목소리가 방 전체의 표정을 바꾸는 순간을 좋아합니다. 말보다 먼저 건너가는 위로와 뒤늦게 따라 부르게 되는 후렴에 오래 머뭅니다.","scene":"위로가 필요한 저녁과 함께 부르는 자리","near":"따뜻한 레코드 · 함께 타는 리듬","cta":"내 귀가 머무는 장면 찾기"},
+      "en": {"title":"The Chorus We Share","tagline":"A listener who believes a melody can light the space between people","body":"You like the moment when one voice changes the expression of an entire room. You stay with comfort crossing before words and a chorus joined a little late.","scene":"An evening that needs comfort and a room that sings together","near":"Warm Record · Shared Pulse","cta":"Find the scene where my ear stays"},
+      "tracks":[["Good as Hell","Lizzo"],["Spring Day","BTS"],["Love wins all","IU"]]
+    }
+  },
+  "moments": {
+    "focus": {"symbol":"◎","color_a":"#16202a","color_b":"#415468","ko":{"title":"생각을 한곳에 모으는 시간","tagline":"말을 많이 걸지 않는 음악이 필요한 때","body":"해야 할 일이 앞에 있는데 생각이 자꾸 흩어진다면, 멜로디보다 질서와 호흡이 먼저인 곡을 곁에 둡니다. 집중을 재촉하지 않고 오래 지켜주는 순서입니다.","cta":"집중하는 다섯 곡 고르기"},"en":{"title":"An hour for gathering thought","tagline":"When music should keep watch without talking over you","body":"When the work is waiting and thought keeps scattering, place music beside it that begins with order and breath rather than a demanding melody.","cta":"Choose five songs for focus"},"tracks":[["Emerald Rush","Jon Hopkins"],["Avril 14th","Aphex Twin"],["Experience","Ludovico Einaudi"]]},
+    "lift": {"symbol":"↗","color_a":"#4a190f","color_b":"#db6446","ko":{"title":"몸과 마음의 속도를 조금 올리는 시간","tagline":"굳은 어깨가 박자 하나로 풀리기를 바랄 때","body":"기분을 억지로 밝히는 대신, 몸이 먼저 움직이면 마음이 뒤따라올 수 있는 곡을 고릅니다. 첫 곡은 문을 열고 마지막 곡은 밖으로 데려갑니다.","cta":"가벼워지는 다섯 곡 고르기"},"en":{"title":"An hour for moving again","tagline":"When one beat might loosen the shoulders","body":"Rather than forcing brightness, choose songs that let the body move first and allow the feeling to follow.","cta":"Choose five songs for a lift"},"tracks":[["Levitating","Dua Lipa"],["Love Lee","AKMU"],["Blinding Lights","The Weeknd"]]},
+    "night": {"symbol":"☾","color_a":"#16122f","color_b":"#594ab3","ko":{"title":"혼자 밤길을 오래 걷는 시간","tagline":"가로등 사이의 어둠과 함께 갈 음악","body":"사람들의 말이 멀어진 뒤에는 낮보다 작은 소리가 잘 들립니다. 발걸음을 재촉하지 않고, 생각을 해결하려 들지 않는 곡을 차례로 놓습니다.","cta":"밤길의 다섯 곡 고르기"},"en":{"title":"A long walk after dark","tagline":"Music for the darkness between streetlights","body":"After the voices of the day recede, smaller sounds become clear. These songs do not hurry the steps or try to solve the thought.","cta":"Choose five songs for the night road"},"tracks":[["Space Song","Beach House"],["Instagram","DEAN"],["Wait","M83"]]},
+    "reset": {"symbol":"◌","color_a":"#173128","color_b":"#568878","ko":{"title":"하루의 소음을 조금 내려놓는 시간","tagline":"내 호흡이 다시 들리기를 기다릴 때","body":"회복은 언제나 큰 전환으로 오지 않습니다. 방의 볼륨을 조금 낮추고, 숨과 생각 사이에 빈 의자 하나를 두는 곡을 고릅니다.","cta":"숨을 고르는 다섯 곡 고르기"},"en":{"title":"An hour for letting the day settle","tagline":"When you are waiting to hear your own breath again","body":"Recovery does not always arrive as a dramatic turn. Lower the room a little and leave an empty chair between breath and thought.","cta":"Choose five songs for a slower breath"},"tracks":[["Through the Night","IU"],["Only","LeeHi"],["Flight from the City","Jóhann Jóhannsson"]]},
+    "explore": {"symbol":"✦","color_a":"#1b2710","color_b":"#6b9c36","ko":{"title":"모르던 소리 쪽으로 한 걸음 가는 시간","tagline":"익숙한 방을 버리지 않고 옆문 하나를 열 때","body":"새로움은 멀리 뛰는 일이 아닐 수 있습니다. 내가 아는 박자나 멜로디 하나를 손잡이로 삼아, 처음 보는 질감과 구조로 조금만 걸어갑니다.","cta":"낯선 문 너머의 다섯 곡"},"en":{"title":"One step toward a sound not yet known","tagline":"Open a side door without abandoning the familiar room","body":"Newness does not have to be a leap. Use one known rhythm or melody as a handrail and walk a little way into an unfamiliar texture or structure.","cta":"Choose five songs beyond the side door"},"tracks":[["Everything in Its Right Place","Radiohead"],["XS","Rina Sawayama"],["Dayvan Cowboy","Boards of Canada"]]},
+    "together": {"symbol":"∞","color_a":"#3b1729","color_b":"#a44675","ko":{"title":"누군가와 같은 방에서 듣는 시간","tagline":"말이 끊겨도 공기가 어색하지 않게","body":"함께 듣는 음악은 둘을 똑같게 만들 필요가 없습니다. 한 사람의 후렴과 다른 사람의 박자가 같은 방에 머물 수 있도록 순서를 고릅니다.","cta":"둘이 들을 다섯 곡 찾기"},"en":{"title":"An hour in the same room as someone else","tagline":"When the air should remain easy after conversation pauses","body":"Shared music does not need to make two people identical. The order simply leaves room for one person’s chorus and another person’s pulse.","cta":"Find five songs for two"},"tracks":[["Back on 74","Jungle"],["Best Part","Daniel Caesar feat. H.E.R."],["Spring Day","BTS"]]}
+  },
+  "legacy_map": {"ISTJ":"quiet-cinematic","ISFJ":"warm-vinyl","INFJ":"midnight-dreamer","INTJ":"cosmic-architect","ISTP":"neon-runner","ISFP":"warm-vinyl","INFP":"midnight-dreamer","INTP":"cosmic-architect","ESTP":"neon-runner","ESFP":"rhythm-connector","ENFP":"electric-explorer","ENTP":"electric-explorer","ESTJ":"neon-runner","ESFJ":"golden-chorus","ENFJ":"rhythm-connector","ENTJ":"cosmic-architect"}
+}
