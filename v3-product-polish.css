@@ -1,0 +1,78 @@
+/* V3 product polish: transparent link states, narrative reading rhythm, and dormant MON1 inventory. */
+.track-card__actions a {
+  min-width: 78px;
+  min-height: 48px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 7px 10px;
+}
+
+.track-card__actions a small {
+  display: block;
+  color: #8f897f;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  line-height: 1.25;
+  text-transform: none;
+}
+
+.track-card__search,
+.track-card__exact {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid #565149;
+  border-radius: 999px;
+  color: #b8b2a9;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: .04em;
+}
+
+.track-card__exact {
+  color: #d8d2c8;
+  border-color: #716b61;
+}
+
+.track-card__body > p {
+  max-width: 72ch;
+  line-height: 1.75;
+}
+
+.track-card__feedback-applied {
+  color: #a9a399;
+  font-size: 10px;
+}
+
+.monetization-slot {
+  margin: 68px 0;
+}
+
+.monetization-slot[hidden],
+[data-ads-enabled="false"] .monetization-slot {
+  display: none !important;
+}
+
+.privacy-preferences__group p,
+.data-settings__intro,
+.data-card p,
+.data-import p {
+  max-width: 68ch;
+}
+
+@media (max-width: 680px) {
+  .track-card__actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .track-card__actions a {
+    min-width: 0;
+    width: 100%;
+  }
+}
