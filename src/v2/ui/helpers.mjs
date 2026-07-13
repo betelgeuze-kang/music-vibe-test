@@ -1,7 +1,7 @@
 import { getProfileArchetype } from '../domain/profile.mjs?v=qg1';
 import { loadLanguage } from '../infrastructure/storage.mjs?weekly=m4w1';
 
-export const ROUTES = new Set(['home', 'discover', 'profile', 'weekly', 'now', 'match']);
+export const ROUTES = new Set(['home', 'discover', 'profile', 'weekly', 'now', 'match', 'settings']);
 
 export function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -74,28 +74,34 @@ function feedbackLabels(language, placement) {
   const bridge = placement === 'bridge_playlist';
   if (language === 'kr') {
     return bridge
-      ? { group: '이 곡이 내 취향과 얼마나 가까운지 표시', more: '내 취향에 더 가까워요', less: '내 취향에서는 조금 멀어요', applied: '내 이전 반응을 반영한 곡' }
-      : { group: '다음 선곡을 위한 곡 반응', more: '이런 곡 더 듣고 싶어요', less: '이 방향은 덜 듣고 싶어요', applied: '내 이전 반응을 반영한 곡' };
+      ? { group: '이 곡이 내 쪽에 얼마나 가까운지 남기기', more: '내 쪽에도 오래 남아요', less: '내 쪽에서는 금세 멀어져요', applied: '전에 남긴 반응을 조용히 반영함' }
+      : { group: '다음 선곡을 위해 이 곡의 인상 남기기', more: '이런 소리를 더 듣고 싶어요', less: '이쪽으로는 덜 가고 싶어요', applied: '전에 남긴 반응을 조용히 반영함' };
   }
   return bridge
-    ? { group: 'Mark how this track fits your taste', more: 'Closer to my taste', less: 'A little far from my taste', applied: 'Adjusted using your previous feedback' }
-    : { group: 'Feedback for your next selection', more: 'More like this', less: 'Less in this direction', applied: 'Adjusted using your previous feedback' };
+    ? { group: 'Leave a note about how close this track feels', more: 'This stays on my side too', less: 'This slips away from my side', applied: 'Gently adjusted from an earlier note' }
+    : { group: 'Leave a note for the next selection', more: 'I would hear more in this direction', less: 'I would go less in this direction', applied: 'Gently adjusted from an earlier note' };
+}
+
+function linkLabel(language, platform, exact) {
+  if (language === 'kr') return exact ? `${platform}의 곡 페이지` : `${platform}에서 제목으로 찾기`;
+  return exact ? `Open the track in ${platform}` : `Find the title in ${platform}`;
 }
 
 export function trackCard(candidate, language, placement, options = {}) {
   const { track: item, reason, score, urls } = candidate;
-  const strategy = candidate.strategyLabel || (language === 'kr' ? '추천' : 'Recommended');
-  const scoreLabel = language === 'kr' ? '추천 적합도' : 'Match score';
-  const serviceLabel = language === 'kr' ? '음악 서비스에서 듣기' : 'Listen on a music service';
+  const strategy = candidate.strategyLabel || (language === 'kr' ? '이 순서에 놓인 이유' : 'Why it sits here');
+  const scoreLabel = language === 'kr' ? '선곡과의 거리' : 'Distance from this selection';
+  const serviceLabel = language === 'kr' ? '다른 음악 서비스에서 곡 열기' : 'Open the song in another music service';
   const contextId = String(options.contextId || '');
   const feedbackValue = options.feedbackValue === 'more' || options.feedbackValue === 'less' ? options.feedbackValue : '';
   const feedback = feedbackLabels(language, placement);
+  const exactPlatforms = new Set(candidate.exactPlatforms || []);
   const matchMetrics = Number.isFinite(candidate.leftFit) && Number.isFinite(candidate.rightFit)
-    ? `<div class="track-card__fit"><span>${language === 'kr' ? '나' : 'You'} ${candidate.leftFit}</span><span>${language === 'kr' ? '친구' : 'Friend'} ${candidate.rightFit}</span></div>`
+    ? `<div class="track-card__fit"><span>${language === 'kr' ? '내 쪽' : 'My side'} ${candidate.leftFit}</span><span>${language === 'kr' ? '친구 쪽' : 'Friend’s side'} ${candidate.rightFit}</span></div>`
     : '';
-  const exact = candidate.exactPlatforms?.length
-    ? `<span class="track-card__exact" title="${language === 'kr' ? '검증된 직접 링크 포함' : 'Includes a verified direct link'}">✓ LINK</span>`
-    : '';
+  const linkState = exactPlatforms.size
+    ? `<span class="track-card__exact" title="${language === 'kr' ? '검토한 직접 곡 링크가 하나 이상 있습니다.' : 'At least one direct track link has been reviewed.'}">✓ ${language === 'kr' ? '직접 링크' : 'DIRECT'}</span>`
+    : `<span class="track-card__search" title="${language === 'kr' ? '곡명과 아티스트로 검색 결과를 엽니다.' : 'Opens a search for the title and artist.'}">${language === 'kr' ? '검색 링크' : 'SEARCH'}</span>`;
   const feedbackApplied = candidate.feedbackAdjustment
     ? `<span class="track-card__feedback-applied">${escapeHtml(feedback.applied)}</span>`
     : '';
@@ -106,11 +112,16 @@ export function trackCard(candidate, language, placement, options = {}) {
     </div>
   ` : '';
 
+  const link = (platform, label) => {
+    const exact = exactPlatforms.has(platform);
+    return `<a href="${escapeHtml(urls[platform])}" target="_blank" rel="noopener noreferrer" data-track-link data-link-mode="${exact ? 'exact' : 'search'}" data-platform="${platform}" data-placement="${escapeHtml(placement)}" aria-label="${escapeHtml(linkLabel(language, label, exact))}">${label}<small>${language === 'kr' ? (exact ? '곡 바로 열기' : '검색으로 찾기') : (exact ? 'direct' : 'search')}</small></a>`;
+  };
+
   return `
     <article class="track-card" data-track-id="${escapeHtml(item.id)}" data-track-artist="${escapeHtml(item.artist)}" data-strategy="${escapeHtml(candidate.strategy || 'recommended')}" data-placement="${escapeHtml(placement)}">
       <div class="track-card__score"><span class="sr-only">${escapeHtml(scoreLabel)} </span>${score}</div>
       <div class="track-card__body">
-        <div class="track-card__kicker"><span>${escapeHtml(strategy)}</span><span>${escapeHtml(item.region)} · ${item.year}</span>${exact}${feedbackApplied}</div>
+        <div class="track-card__kicker"><span>${escapeHtml(strategy)}</span><span>${escapeHtml(item.region)} · ${item.year}</span>${linkState}${feedbackApplied}</div>
         <strong>${escapeHtml(item.title)}</strong>
         <span>${escapeHtml(item.artist)}</span>
         <p>${escapeHtml(reason)}</p>
@@ -118,9 +129,9 @@ export function trackCard(candidate, language, placement, options = {}) {
         ${feedbackControls}
       </div>
       <div class="track-card__actions" role="group" aria-label="${escapeHtml(serviceLabel)}">
-        <a href="${escapeHtml(urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
-        <a href="${escapeHtml(urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">YouTube</a>
-        <a href="${escapeHtml(urls.apple)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="apple" data-placement="${placement}">Apple</a>
+        ${link('spotify', 'Spotify')}
+        ${link('youtube', 'YouTube')}
+        ${link('apple', 'Apple')}
       </div>
     </article>
   `;
