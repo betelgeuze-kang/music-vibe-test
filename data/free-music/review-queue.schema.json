@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://my-music-vibe.com/schema/free-music-review-queue-v1.json",
+  "title": "My Music Vibe free-music review queue",
+  "type": "object",
+  "required": ["schema", "release", "items"],
+  "properties": {
+    "schema": { "const": 1 },
+    "release": { "const": "cat1" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "creator", "sourceUrl", "licenseId", "licenseUrl", "commercialUseAllowed", "modificationAllowed", "reviewStatus", "sourceSnapshotHash", "audioChecksum"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,79}$" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "creator": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "sourceUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+          "licenseId": { "enum": ["cc0-1.0", "cc-by-4.0", "public-domain", "custom-commercial"] },
+          "licenseUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+          "commercialUseAllowed": { "const": true },
+          "modificationAllowed": { "const": true },
+          "attributionRequired": { "type": ["boolean", "string"] },
+          "attributionText": { "type": "string", "maxLength": 500 },
+          "sourceSnapshotHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "audioChecksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "reviewStatus": { "enum": ["pending", "approved", "published", "rejected"] },
+          "reviewedBy": { "type": ["string", "null"] },
+          "reviewedAt": { "type": ["string", "null"], "format": "date-time" },
+          "publishedAt": { "type": ["string", "null"], "format": "date-time" },
+          "analysis": {
+            "type": "object",
+            "properties": {
+              "bpm": { "type": ["number", "null"], "minimum": 20, "maximum": 300 },
+              "rmsDb": { "type": ["number", "null"] },
+              "spectralCentroid": { "type": ["number", "null"] },
+              "dynamicRangeDb": { "type": ["number", "null"] },
+              "vocalLikelihood": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+              "candidateScenes": { "type": "array", "items": { "enum": ["focus", "lift", "night", "reset", "explore", "together"] } }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
