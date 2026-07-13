@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "release": "cat1",
+  "allow": [
+    {
+      "id": "cc0-1.0",
+      "names": ["CC0", "CC0 1.0", "Creative Commons Zero 1.0"],
+      "commercialUseAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "cc-by-4.0",
+      "names": ["CC BY 4.0", "Creative Commons Attribution 4.0"],
+      "commercialUseAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "id": "public-domain",
+      "names": ["Public Domain", "Public Domain Mark 1.0"],
+      "commercialUseAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
+    },
+    {
+      "id": "custom-commercial",
+      "names": ["Custom Commercial License"],
+      "commercialUseAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": "contract-dependent",
+      "licenseUrl": null
+    }
+  ],
+  "denyByDefault": [
+    "CC BY-NC",
+    "CC BY-ND",
+    "CC BY-NC-ND",
+    "CC BY-NC-SA",
+    "free download",
+    "royalty free without license text",
+    "YouTube extraction",
+    "Spotify preview extraction",
+    "unknown or missing source"
+  ],
+  "rule": "A candidate may enter the pending review queue only if its exact license is on the allowlist. It may not become approved or published without a human reviewer, a source snapshot, and an audio checksum."
+}
