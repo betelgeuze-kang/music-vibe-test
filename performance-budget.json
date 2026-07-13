@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "release": "perf1",
+  "staticBytes": {
+    "index.html": 16000,
+    "p2-analytics.js": 42000,
+    "src/v2/main.mjs": 9000,
+    "src/v2/ui/app.mjs": 30000,
+    "src/v2/audio/audio-worker-client.mjs": 12000,
+    "src/v2/audio/audio-worker.mjs": 5000,
+    "src/v2/audio/original-clips.mjs": 38000,
+    "v2-app.css": 6000,
+    "v3-human-listening.css": 26000
+  },
+  "browserMs": {
+    "audioGenerate": 3500,
+    "audioFirstSound": 5000,
+    "routeModuleLoad": 2500
+  },
+  "coreWebVitals": {
+    "lcpMs": 2500,
+    "inpMs": 200,
+    "cls": 0.1
+  },
+  "notes": "Core Web Vitals are production RUM goals. Browser CI uses generous deterministic caps for generated audio and lazy-route loading on shared GitHub runners."
+}
