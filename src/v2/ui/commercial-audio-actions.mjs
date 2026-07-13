@@ -1,16 +1,15 @@
-import { PROFILE_QUESTIONS } from '../data/questions.mjs?commercial=cr1';
-import { createOriginalAudioUrl, isCommercialAudioClip } from '../audio/original-clips.mjs?commercial=cr1';
-import { track } from './helpers.mjs?weekly=m4w1';
+import { PROFILE_QUESTIONS } from '../data/questions.mjs?v3=nv1';
+import { createPerformanceAudioUrl } from '../audio/audio-worker-client.mjs?perf=perf1';
+import { isCommercialAudioClip } from '../audio/original-clips.mjs?commercial=cr1';
+import { track } from './helpers.mjs?v3=nv1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 12;
 const HOME_PREVIEW_LIMIT_SECONDS = 12;
-const AUDIO_ERROR_WATCHDOG_MS = 3500;
+const AUDIO_ERROR_WATCHDOG_MS = 4500;
 const HEARD_SECONDS = 3;
-const PRODUCT_VERSION = 'v2-cr1';
+const PRODUCT_VERSION = 'v3-perf1';
 
-function questionKey(question, option) {
-  return `${question.id}:${option.id}`;
-}
+function questionKey(question, option) { return `${question.id}:${option.id}`; }
 
 function updateQuestionAudioDom(app, optionId) {
   const progress = app.audioProgress.get(optionId) || { current: 0, duration: AUDIO_PREVIEW_LIMIT_SECONDS };
@@ -37,7 +36,18 @@ function updateHomeAudioDom(app, optionId, current, duration) {
 
 async function commercialAudioUrl(option) {
   if (!option?.audioClipId || !isCommercialAudioClip(option.audioClipId)) throw new Error('Audio clip is not registered for commercial operation.');
-  return createOriginalAudioUrl(option.audioClipId);
+  return createPerformanceAudioUrl(option.audioClipId);
+}
+
+function firstSoundTracker({ startedAt, context, question, option }) {
+  let sent = false;
+  return () => {
+    if (sent) return;
+    sent = true;
+    const elapsed = Math.round(performance.now() - startedAt);
+    window.__musicVibeAudioFirstSound = Object.freeze({ clipId: option.audioClipId, context, audioFirstSoundMs: elapsed });
+    track('audio_first_sound', { product_version: PRODUCT_VERSION, audio_context: context, question_id: question.id, option_id: option.id, audio_clip_id: option.audioClipId, audio_first_sound_ms: elapsed, worker_used: Boolean(window.__musicVibeAudioRuntime?.workerUsed) }, { allowDuplicate: true });
+  };
 }
 
 export const commercialAudioMethods = {
@@ -45,13 +55,10 @@ export const commercialAudioMethods = {
     const question = PROFILE_QUESTIONS[this.quizIndex];
     const option = question?.options.find((candidate) => candidate.id === optionId);
     if (!option?.audioClipId) return;
-    if (this.previewOptionId === optionId && this.previewAudio && !this.previewAudio.paused) {
-      this.stopPreview(false);
-      this.renderDiscover();
-      return;
-    }
+    if (this.previewOptionId === optionId && this.previewAudio && !this.previewAudio.paused) { this.stopPreview(false); this.renderDiscover(); return; }
 
     this.stopPreview(false);
+    const requestStartedAt = performance.now();
     const key = questionKey(question, option);
     let audio;
     let failed = false;
@@ -66,65 +73,42 @@ export const commercialAudioMethods = {
       this.renderDiscover();
     };
 
-    try {
-      audio = new Audio(await commercialAudioUrl(option));
-    } catch (_) {
-      markAudioError();
-      return;
-    }
+    try { audio = new Audio(await commercialAudioUrl(option)); }
+    catch (_) { markAudioError(); return; }
 
     this.previewAudio = audio;
     this.previewOptionId = optionId;
     audio.preload = 'metadata';
     audio.volume = .68;
-
-    const clearWatchdog = () => {
-      window.clearTimeout(this.audioErrorTimer);
-      this.audioErrorTimer = null;
-    };
+    const markFirstSound = firstSoundTracker({ startedAt: requestStartedAt, context: 'profile_question', question, option });
+    const clearWatchdog = () => { window.clearTimeout(this.audioErrorTimer); this.audioErrorTimer = null; };
     const update = () => {
       const duration = Number.isFinite(audio.duration) ? Math.min(audio.duration, AUDIO_PREVIEW_LIMIT_SECONDS) : AUDIO_PREVIEW_LIMIT_SECONDS;
       const current = Math.min(audio.currentTime || 0, duration);
       this.audioProgress.set(optionId, { current, duration });
       if (current >= HEARD_SECONDS || (duration && current / duration >= .35)) this.heardOptionIds.add(key);
       updateQuestionAudioDom(this, optionId);
-      if (current >= AUDIO_PREVIEW_LIMIT_SECONDS) {
-        this.heardOptionIds.add(key);
-        this.stopPreview(false);
-        this.renderDiscover();
-      }
+      if (current >= AUDIO_PREVIEW_LIMIT_SECONDS) { this.heardOptionIds.add(key); this.stopPreview(false); this.renderDiscover(); }
     };
 
     audio.addEventListener('loadedmetadata', () => { clearWatchdog(); update(); });
-    audio.addEventListener('playing', clearWatchdog, { once: true });
+    audio.addEventListener('playing', () => { clearWatchdog(); markFirstSound(); }, { once: true });
     audio.addEventListener('timeupdate', update);
-    audio.addEventListener('ended', () => {
-      clearWatchdog();
-      this.heardOptionIds.add(key);
-      this.stopPreview(false);
-      this.renderDiscover();
-    }, { once: true });
+    audio.addEventListener('ended', () => { clearWatchdog(); this.heardOptionIds.add(key); this.stopPreview(false); this.renderDiscover(); }, { once: true });
     audio.addEventListener('error', markAudioError, { once: true });
-
     this.audioErrorTimer = window.setTimeout(markAudioError, AUDIO_ERROR_WATCHDOG_MS);
     this.renderDiscover();
-    audio.play().then(() => {
-      clearWatchdog();
-      track('audio_play', { product_version: PRODUCT_VERSION, audio_context: 'profile_question', question_id: question.id, option_id: option.id, audio_clip_id: option.audioClipId, rights_release: 'cr1' });
-    }).catch(markAudioError);
+    audio.play().then(() => { clearWatchdog(); track('audio_play', { product_version: PRODUCT_VERSION, audio_context: 'profile_question', question_id: question.id, option_id: option.id, audio_clip_id: option.audioClipId, rights_release: 'cr1', performance_release: 'perf1' }); }).catch(markAudioError);
   },
 
   async toggleHomePreview(optionId) {
     const question = PROFILE_QUESTIONS[0];
     const option = question.options.find((candidate) => candidate.id === optionId);
     if (!option?.audioClipId) return;
-    if (this.homePreviewOptionId === optionId && this.homePreviewAudio && !this.homePreviewAudio.paused) {
-      this.stopHomePreview(true);
-      this.renderHome();
-      return;
-    }
+    if (this.homePreviewOptionId === optionId && this.homePreviewAudio && !this.homePreviewAudio.paused) { this.stopHomePreview(true); this.renderHome(); return; }
 
     this.stopHomePreview(true);
+    const requestStartedAt = performance.now();
     let audio;
     let failed = false;
     const fail = () => {
@@ -138,43 +122,25 @@ export const commercialAudioMethods = {
       track('audio_error', { product_version: PRODUCT_VERSION, audio_context: 'home_listening_booth', question_id: question.id, option_id: option.id, audio_clip_id: option.audioClipId });
     };
 
-    try {
-      audio = new Audio(await commercialAudioUrl(option));
-    } catch (_) {
-      fail();
-      return;
-    }
+    try { audio = new Audio(await commercialAudioUrl(option)); }
+    catch (_) { fail(); return; }
 
     this.homePreviewAudio = audio;
     this.homePreviewOptionId = optionId;
     audio.preload = 'metadata';
     audio.volume = .68;
-
+    const markFirstSound = firstSoundTracker({ startedAt: requestStartedAt, context: 'home_listening_booth', question, option });
     const update = () => {
       updateHomeAudioDom(this, optionId, audio.currentTime, audio.duration);
       if (audio.currentTime >= HEARD_SECONDS) this.homeHeardOptionIds.add(optionId);
-      if (audio.currentTime >= HOME_PREVIEW_LIMIT_SECONDS) {
-        this.homeHeardOptionIds.add(optionId);
-        this.stopHomePreview(true);
-        this.renderHome();
-      }
+      if (audio.currentTime >= HOME_PREVIEW_LIMIT_SECONDS) { this.homeHeardOptionIds.add(optionId); this.stopHomePreview(true); this.renderHome(); }
     };
-
+    audio.addEventListener('playing', markFirstSound, { once: true });
     audio.addEventListener('timeupdate', update);
-    audio.addEventListener('ended', () => {
-      this.homeHeardOptionIds.add(optionId);
-      this.stopHomePreview(true);
-      this.renderHome();
-    }, { once: true });
+    audio.addEventListener('ended', () => { this.homeHeardOptionIds.add(optionId); this.stopHomePreview(true); this.renderHome(); }, { once: true });
     audio.addEventListener('error', fail, { once: true });
-    this.homePreviewTimer = window.setTimeout(() => {
-      if (this.homePreviewAudio === audio && audio.readyState < 2) fail();
-    }, AUDIO_ERROR_WATCHDOG_MS);
+    this.homePreviewTimer = window.setTimeout(() => { if (this.homePreviewAudio === audio && audio.readyState < 2) fail(); }, AUDIO_ERROR_WATCHDOG_MS);
     this.renderHome();
-    audio.play().then(() => {
-      window.clearTimeout(this.homePreviewTimer);
-      this.homePreviewTimer = null;
-      track('audio_play', { product_version: PRODUCT_VERSION, audio_context: 'home_listening_booth', question_id: question.id, option_id: option.id, audio_clip_id: option.audioClipId, rights_release: 'cr1' });
-    }).catch(fail);
+    audio.play().then(() => { window.clearTimeout(this.homePreviewTimer); this.homePreviewTimer = null; track('audio_play', { product_version: PRODUCT_VERSION, audio_context: 'home_listening_booth', question_id: question.id, option_id: option.id, audio_clip_id: option.audioClipId, rights_release: 'cr1', performance_release: 'perf1' }); }).catch(fail);
   }
 };
