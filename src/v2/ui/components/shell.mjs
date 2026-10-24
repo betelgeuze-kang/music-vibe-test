@@ -42,6 +42,7 @@ export function renderFooter(app) {
         <a href="/privacy/">${korean ? '개인정보·쿠키' : 'Privacy'}</a>
         <a href="/audio-credits/">${korean ? '오디오 권리' : 'Audio rights'}</a>
         <button type="button" data-action="privacy">${escapeHtml(copy.footerPrivacy)} ↗</button>
+        <button type="button" data-action="analytics-consent">${korean ? '분석 설정' : 'Analytics settings'}</button>
       </nav>
     </div>
   `;
