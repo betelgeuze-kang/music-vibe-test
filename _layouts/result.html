@@ -107,7 +107,7 @@
     <p class="note">{{ result_note }}</p>
   </main>
   <script>(()=>{const button=document.getElementById('share-result');const url={{ canonical | jsonify }};button.addEventListener('click',async()=>{const payload={title:document.title,text:{{ copy.subtitle | jsonify }},url};try{if(navigator.share){await navigator.share(payload)}else{await navigator.clipboard.writeText(url);alert({{ copy_success | jsonify }})}}catch(error){if(error&&error.name!=='AbortError')prompt('Copy this link:',url)}})})();</script>
-  <script src="/p2-analytics.js"></script>
+  <script src="/p2-analytics.js?v=ga4-reconnect-20261025"></script>
   <script src="/p2-static.js"></script>
 </body>
 </html>
