@@ -102,6 +102,7 @@ export const actionMethods = {
       else if (action === 'refresh-recommendations') this.refreshRecommendations();
       else if (action === 'clear-friend') this.clearFriend();
       else if (action === 'privacy') this.showPrivacy();
+      else if (action === 'analytics-consent') window.MusicVibeAnalytics?.openConsentPreferences?.();
       return;
     }
 
