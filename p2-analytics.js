@@ -17,7 +17,9 @@
     const recentFingerprints = new Map();
     let gaLoadPromise = null;
     let gaConfigured = false;
-    let consentState = safeLocalGet(CONSENT_KEY) || 'unknown';
+    const storedConsent = safeLocalGet(CONSENT_KEY);
+    let consentState = ['accepted', 'declined'].includes(storedConsent) ? storedConsent : 'unknown';
+    let gaLoadStatus = 'idle';
     let performanceSent = false;
 
     const performanceState = {
@@ -110,9 +112,18 @@
         set: safeSessionSet
     };
 
-    const visitorId = getPersistentId(localStore, VISITOR_KEY, 'mvu');
-    const sessionId = getPersistentId(sessionStore, SESSION_KEY, 'mvs');
+    let visitorId = null;
+    let sessionId = null;
     const visitId = randomId('mvv');
+
+    function prepareAnalyticsIdentifiers() {
+        if (consentState !== 'accepted') return;
+        visitorId ||= getPersistentId(localStore, VISITOR_KEY, 'mvu');
+        sessionId ||= getPersistentId(sessionStore, SESSION_KEY, 'mvs');
+    }
+
+    // An identifier must not be persisted until a user has accepted analytics.
+    prepareAnalyticsIdentifiers();
 
     function currentLanguage() {
         const bodyLanguage = document.body?.dataset?.language;
@@ -247,6 +258,14 @@
         window.dataLayer.push(arguments);
     }
 
+    // Establish strict defaults before any Google tag/config/event commands.
+    rawGtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+    });
+
     function eventFingerprint(name, params) {
         const keys = [
             'question_id', 'question_number', 'result_type', 'result_origin',
@@ -300,16 +319,18 @@
         if (consentState !== 'accepted') return Promise.resolve(false);
 
         if (!gaConfigured) {
-            rawGtag('consent', 'default', {
+            rawGtag('consent', 'update', {
                 analytics_storage: 'granted',
-                ad_storage: 'granted',
-                ad_user_data: 'granted',
-                ad_personalization: 'granted'
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
             });
             rawGtag('js', new Date());
             rawGtag('config', GA_MEASUREMENT_ID, {
-                anonymize_ip: true,
-                send_page_view: false
+                send_page_view: true,
+                page_location: `${window.location.origin}${window.location.pathname}`,
+                allow_google_signals: false,
+                allow_ad_personalization_signals: false
             });
             gaConfigured = true;
         }
@@ -326,6 +347,7 @@
             return gaLoadPromise;
         }
 
+        gaLoadStatus = 'loading';
         gaLoadPromise = new Promise((resolve) => {
             const script = document.createElement('script');
             script.id = 'music-vibe-ga4';
@@ -333,11 +355,13 @@
             script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
             script.addEventListener('load', () => {
                 script.dataset.loaded = 'true';
+                gaLoadStatus = 'loaded';
                 flushPending();
                 resolve(true);
             }, { once: true });
             script.addEventListener('error', () => {
-                console.warn('GA4 failed to load; analytics remain queued for this page.');
+                gaLoadStatus = 'failed';
+                console.warn('GA4 failed to load; verify consent, connectivity and browser blockers.');
                 resolve(false);
             }, { once: true });
             document.head.appendChild(script);
@@ -390,15 +414,34 @@
     }
 
     function setConsent(nextState) {
-        if (!['accepted', 'declined', 'unknown'].includes(nextState)) return;
+        if (!['accepted', 'declined'].includes(nextState)) return;
+        const previousState = consentState;
         consentState = nextState;
 
         if (nextState === 'accepted') {
             safeLocalSet(CONSENT_KEY, 'accepted');
+            prepareAnalyticsIdentifiers();
+            if (gaConfigured && previousState !== 'accepted') {
+                rawGtag('consent', 'update', {
+                    analytics_storage: 'granted',
+                    ad_storage: 'denied',
+                    ad_user_data: 'denied',
+                    ad_personalization: 'denied'
+                });
+                // Consent can change without navigation; count the current page once.
+                rawGtag('event', 'page_view', {
+                    page_location: `${window.location.origin}${window.location.pathname}`,
+                    page_title: document.title
+                });
+            }
             ensureGa().then(flushPending);
-        } else if (nextState === 'declined') {
+        } else {
             safeLocalSet(CONSENT_KEY, 'declined');
             pendingEvents.length = 0;
+            visitorId = null;
+            sessionId = null;
+            try { window.localStorage.removeItem(VISITOR_KEY); } catch (_) {}
+            try { window.sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
             if (gaConfigured) {
                 rawGtag('consent', 'update', {
                     analytics_storage: 'denied',
@@ -425,9 +468,13 @@
         track: trackEvent,
         setConsent,
         ensureGa,
+        openConsentPreferences() {
+            showStandaloneConsent(true);
+        },
         getSnapshot() {
             return {
                 consent: consentState,
+                gaLoadStatus,
                 visitorId,
                 sessionId,
                 visitId,
@@ -465,8 +512,8 @@
         window.setTimeout(() => banner.remove(), 220);
     }
 
-    function showStandaloneConsent() {
-        if (consentState !== 'unknown' || document.getElementById('standalone-cookie-banner')) return;
+    function showStandaloneConsent(force = false) {
+        if ((!force && consentState !== 'unknown') || document.getElementById('standalone-cookie-banner')) return;
         if (document.body?.dataset?.analyticsConsentUi !== 'standalone') return;
 
         const isKorean = currentLanguage().toLowerCase().startsWith('ko');
@@ -530,6 +577,7 @@
             const snapshot = window.MusicVibeAnalytics.getSnapshot();
             panel.textContent = JSON.stringify({
                 consent: snapshot.consent,
+                gaStatus: snapshot.gaLoadStatus,
                 visitor: snapshot.visitorId,
                 session: snapshot.sessionId,
                 attribution: snapshot.attribution,
@@ -637,7 +685,7 @@
         renderDebugPanel();
         trackEvent('page_view_internal', {
             document_title: document.title,
-            page_location: window.location.href.slice(0, 300)
+            page_location: `${window.location.origin}${window.location.pathname}`
         }, { allowDuplicate: true });
     });
 })();
