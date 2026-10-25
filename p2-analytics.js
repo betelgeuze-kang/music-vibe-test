@@ -17,7 +17,13 @@
     const recentFingerprints = new Map();
     let gaLoadPromise = null;
     let gaConfigured = false;
-    let consentState = safeLocalGet(CONSENT_KEY) || 'unknown';
+    let gaFrame = null;
+    let gaBridge = null;
+    let finishGaLoad = null;
+    const gaCommands = [];
+    const storedConsent = safeLocalGet(CONSENT_KEY);
+    let consentState = ['accepted', 'declined'].includes(storedConsent) ? storedConsent : 'unknown';
+    let gaLoadStatus = 'idle';
     let performanceSent = false;
 
     const performanceState = {
@@ -110,9 +116,19 @@
         set: safeSessionSet
     };
 
-    const visitorId = getPersistentId(localStore, VISITOR_KEY, 'mvu');
-    const sessionId = getPersistentId(sessionStore, SESSION_KEY, 'mvs');
-    const visitId = randomId('mvv');
+    let visitorId = null;
+    let sessionId = null;
+    let visitId = null;
+
+    function prepareAnalyticsIdentifiers() {
+        if (consentState !== 'accepted') return;
+        visitId ||= randomId('mvv');
+        visitorId ||= getPersistentId(localStore, VISITOR_KEY, 'mvu');
+        sessionId ||= getPersistentId(sessionStore, SESSION_KEY, 'mvs');
+    }
+
+    // An identifier must not be persisted until a user has accepted analytics.
+    prepareAnalyticsIdentifiers();
 
     function currentLanguage() {
         const bodyLanguage = document.body?.dataset?.language;
@@ -184,9 +200,11 @@
     function readAttribution() {
         const params = new URLSearchParams(window.location.search);
         const existing = parseJson(safeSessionGet(ATTRIBUTION_KEY), {});
-        const explicitRef = (params.get('ref') || '').toUpperCase();
-        const source = params.get('src') || params.get('source') || existing.source || '';
-        const utmMedium = params.get('utm_medium') || existing.utm_medium || '';
+        const rawRef = (params.get('ref') || '').toUpperCase();
+        const explicitRef = /^[EI][NS][FT][JP]$/.test(rawRef) ? rawRef : '';
+        const known = (value, allowed) => allowed.includes(value) ? value : '';
+        const source = known(params.get('src') || params.get('source') || existing.source || '', ['share', 'shared_result', 'static_result', 'social']);
+        const utmMedium = known(params.get('utm_medium') || existing.utm_medium || '', ['share', 'social', 'referral']);
         const pathResult = window.location.pathname.match(/\/results\/([a-z]{4})\/?$/i)?.[1]?.toUpperCase() || '';
         const sharedEntry = isSharedEntry(params, source, utmMedium, explicitRef);
         let referrerHost = existing.referrer_host || '';
@@ -200,18 +218,18 @@
         }
 
         const incoming = {
-            ref_type: explicitRef || (sharedEntry ? pathResult : '') || existing.ref_type || '',
+            ref_type: explicitRef || (sharedEntry ? pathResult : '') || (/^[EI][NS][FT][JP]$/.test(existing.ref_type || '') ? existing.ref_type : ''),
             source,
             shared_entry: sharedEntry || Boolean(existing.shared_entry),
-            utm_source: params.get('utm_source') || existing.utm_source || '',
+            utm_source: known(params.get('utm_source') || existing.utm_source || '', ['music_vibe']),
             utm_medium: utmMedium,
-            utm_campaign: params.get('utm_campaign') || existing.utm_campaign || '',
-            utm_content: params.get('utm_content') || existing.utm_content || '',
-            utm_term: params.get('utm_term') || existing.utm_term || '',
+            utm_campaign: known(params.get('utm_campaign') || existing.utm_campaign || '', ['result_share', 'vibe_match_qg1']),
+            utm_content: /^[ei][ns][ft][jp]$/.test(params.get('utm_content') || existing.utm_content || '') ? (params.get('utm_content') || existing.utm_content) : '',
+            utm_term: '',
             referrer_host: referrerHost
         };
 
-        safeSessionSet(ATTRIBUTION_KEY, JSON.stringify(incoming));
+        if (consentState === 'accepted') safeSessionSet(ATTRIBUTION_KEY, JSON.stringify(incoming));
         return incoming;
     }
 
@@ -221,7 +239,7 @@
         const experiment = window.__musicVibeExperimentContext || {};
         return sanitizeParams({
             visitor_id: visitorId,
-            session_id: sessionId,
+            app_session_id: sessionId,
             visit_id: visitId,
             page_type: pageType(),
             page_path: window.location.pathname,
@@ -242,10 +260,41 @@
         });
     }
 
-    function rawGtag() {
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push(arguments);
+    function safePageUrl(value) {
+        try {
+            const url = new URL(value);
+            return /^https?:$/.test(url.protocol) ? `${url.origin}${url.pathname}` : '';
+        } catch (_) { return ''; }
     }
+
+    function safeEventParams(params) {
+        const output = sanitizeParams(params);
+        // Never export profile tokens/IDs, free-form errors or caller-supplied URLs.
+        for (const key of Object.keys(output)) {
+            if (/(?:url|location|referrer|token|compare|profile_id|error_message|source_file)/i.test(key)) delete output[key];
+        }
+        output.page_location = safePageUrl(window.location.href);
+        output.page_referrer = safePageUrl(document.referrer);
+        return output;
+    }
+
+    function rawGtag(...command) {
+        // Diagnostic queue only: Google never runs in the application's window.
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push(command);
+        if (window.dataLayer.length > MAX_DEBUG_EVENTS) window.dataLayer.shift();
+        if (consentState !== 'accepted') return;
+        if (gaBridge) gaBridge.send(command);
+        else if (gaCommands.length < MAX_PENDING_EVENTS) gaCommands.push(command);
+    }
+
+    // Establish strict defaults before any Google tag/config/event commands.
+    rawGtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+    });
 
     function eventFingerprint(name, params) {
         const keys = [
@@ -284,7 +333,7 @@
 
     function pushEventToGa(record) {
         rawGtag('event', record.name, {
-            ...record.params,
+            ...safeEventParams(record.params),
             event_time_ms: record.timestamp,
             engagement_time_msec: Math.max(1, Date.now() - startedAt),
             transport_type: record.transportType || 'beacon'
@@ -300,51 +349,102 @@
         if (consentState !== 'accepted') return Promise.resolve(false);
 
         if (!gaConfigured) {
-            rawGtag('consent', 'default', {
+            rawGtag('consent', 'update', {
                 analytics_storage: 'granted',
-                ad_storage: 'granted',
-                ad_user_data: 'granted',
-                ad_personalization: 'granted'
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
             });
             rawGtag('js', new Date());
             rawGtag('config', GA_MEASUREMENT_ID, {
-                anonymize_ip: true,
-                send_page_view: false
+                send_page_view: true,
+                page_location: safePageUrl(window.location.href),
+                page_referrer: safePageUrl(document.referrer),
+                page_title: document.title,
+                ...sanitizeParams({
+                    campaign_source: attribution.utm_source,
+                    campaign_medium: attribution.utm_medium,
+                    campaign_name: attribution.utm_campaign,
+                    campaign_content: attribution.utm_content
+                }),
+                allow_google_signals: false,
+                allow_ad_personalization_signals: false
             });
             gaConfigured = true;
         }
 
-        const existing = document.getElementById('music-vibe-ga4');
-        if (existing) {
-            gaLoadPromise = gaLoadPromise || Promise.resolve(true);
-            flushPending();
-            return gaLoadPromise;
-        }
-
-        if (gaLoadPromise) {
-            flushPending();
-            return gaLoadPromise;
-        }
-
+        if (gaLoadPromise) return gaLoadPromise;
+        gaLoadStatus = 'loading';
         gaLoadPromise = new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.id = 'music-vibe-ga4';
-            script.async = true;
-            script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
-            script.addEventListener('load', () => {
-                script.dataset.loaded = 'true';
-                flushPending();
-                resolve(true);
-            }, { once: true });
-            script.addEventListener('error', () => {
-                console.warn('GA4 failed to load; analytics remain queued for this page.');
-                resolve(false);
-            }, { once: true });
-            document.head.appendChild(script);
+            finishGaLoad = resolve;
+            const frame = document.createElement('iframe');
+            gaFrame = frame;
+            frame.id = 'music-vibe-ga4-frame';
+            frame.hidden = true;
+            frame.title = 'Optional analytics';
+            frame.referrerPolicy = 'no-referrer';
+            frame.src = '/analytics-frame.html?version=ga4c3';
+            (document.body || document.documentElement).appendChild(frame);
         });
-
-        flushPending();
         return gaLoadPromise;
+    }
+
+    window.addEventListener('message', (event) => {
+        if (!gaFrame || consentState !== 'accepted' || event.source !== gaFrame.contentWindow || event.origin !== window.location.origin) return;
+        if (event.data?.type === 'music-vibe-ga-ready') {
+            const frame = gaFrame;
+            gaBridge = {
+                send(command) {
+                    if (consentState === 'accepted' && frame === gaFrame) {
+                        // Only the current analytics document receives commands.
+                        frame.contentWindow.postMessage({ type: 'music-vibe-ga-command', command }, window.location.origin);
+                    }
+                }
+            };
+            while (gaCommands.length) gaBridge.send(gaCommands.shift());
+        } else if (event.data?.type === 'music-vibe-ga-loaded') {
+            gaLoadStatus = event.data.loaded ? 'loaded' : 'failed';
+            finishGaLoad?.(Boolean(event.data.loaded));
+        }
+    });
+
+    function removeAnalyticsCookies() {
+        // GA uses domain cookies at /; also clear legacy path-scoped variants.
+        const names = (document.cookie || '').split(';').map((part) => part.trim().split('=')[0])
+            .filter((name) => /^_ga(?:_|$)|^_gid$|^_gat(?:_|$)/.test(name));
+        const labels = window.location.hostname.split('.');
+        const domains = [''];
+        for (let index = 0; index < labels.length - 1; index++) {
+            domains.push(labels.slice(index).join('.'), `.${labels.slice(index).join('.')}`);
+        }
+        const paths = new Set(['/']);
+        const segments = window.location.pathname.split('/').filter(Boolean);
+        for (let index = 1; index <= segments.length; index++) {
+            const path = '/' + segments.slice(0, index).join('/');
+            paths.add(path); paths.add(path + '/');
+        }
+        names.forEach((name) => domains.forEach((domain) => paths.forEach((path) => {
+            document.cookie = `${name}=; Max-Age=0; path=${path}${domain ? `; domain=${domain}` : ''}`;
+        })));
+    }
+
+    function stopGa() {
+        // Disable synchronously before removal: unload handlers must not send a final beacon.
+        gaFrame?.contentWindow?.MusicVibeGaBridge?.disable();
+        gaBridge = null;
+        gaFrame?.remove();
+        gaFrame = null;
+        finishGaLoad?.(false);
+        finishGaLoad = null;
+        gaLoadPromise = null;
+        gaConfigured = false;
+        gaLoadStatus = 'idle';
+        gaCommands.length = 0;
+        pendingEvents.length = 0;
+        debugEvents.length = 0;
+        recentFingerprints.clear();
+        window.dataLayer = [];
+        removeAnalyticsCookies();
     }
 
     function trackEvent(name, params = {}, options = {}) {
@@ -358,7 +458,7 @@
             return { status: 'invalid' };
         }
 
-        const mergedParams = sanitizeParams({
+        const mergedParams = safeEventParams({
             ...commonParams(),
             ...params
         });
@@ -376,7 +476,7 @@
         };
         appendDebugEvent(record);
 
-        if (consentState === 'declined') return { status: 'discarded', record };
+        if (consentState !== 'accepted') return { status: 'discarded', record };
 
         if (consentState === 'accepted') {
             ensureGa();
@@ -385,38 +485,52 @@
             return { status: 'sent', record };
         }
 
-        if (pendingEvents.length < MAX_PENDING_EVENTS) pendingEvents.push(record);
-        return { status: 'queued', record };
+        return { status: 'discarded', record };
     }
 
     function setConsent(nextState) {
-        if (!['accepted', 'declined', 'unknown'].includes(nextState)) return;
+        if (!['accepted', 'declined'].includes(nextState)) return;
+        const previousState = consentState;
         consentState = nextState;
 
         if (nextState === 'accepted') {
             safeLocalSet(CONSENT_KEY, 'accepted');
+            prepareAnalyticsIdentifiers();
+            safeSessionSet(ATTRIBUTION_KEY, JSON.stringify(attribution));
             ensureGa().then(flushPending);
-        } else if (nextState === 'declined') {
+            if (previousState !== 'accepted') {
+                // Capture the current consented view, never replay pre-consent behavior.
+                trackEvent('page_view_internal', { view_reason: 'consent_granted' }, { allowDuplicate: true });
+                if (window.__musicVibeV2?.route === 'home') {
+                    trackEvent('landing_view', { view_reason: 'consent_granted' }, { allowDuplicate: true });
+                }
+            }
+        } else {
             safeLocalSet(CONSENT_KEY, 'declined');
             pendingEvents.length = 0;
-            if (gaConfigured) {
-                rawGtag('consent', 'update', {
-                    analytics_storage: 'denied',
-                    ad_storage: 'denied',
-                    ad_user_data: 'denied',
-                    ad_personalization: 'denied'
-                });
-            }
+            stopGa();
+            visitorId = null;
+            sessionId = null;
+            visitId = null;
+            try { window.localStorage.removeItem(VISITOR_KEY); } catch (_) {}
+            try { window.sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
+            try { window.sessionStorage.removeItem(ATTRIBUTION_KEY); } catch (_) {}
+
         }
 
         window.__musicVibeRefreshDebugPanel?.();
     }
 
+    window.addEventListener('storage', (event) => {
+        if ((event.key === CONSENT_KEY || event.key === null) && event.newValue !== 'accepted') {
+            setConsent('declined');
+        }
+    });
+
     // Preserve the public gtag contract while withholding event transmission before consent.
     window.gtag = function gtag(command, ...args) {
         if (command === 'event') return trackEvent(args[0], args[1] || {});
-        if (command === 'config' && args[0] === GA_MEASUREMENT_ID) gaConfigured = true;
-        rawGtag(command, ...args);
+        // Config/consent are controlled only by the consent UI, never callers.
         return undefined;
     };
 
@@ -425,9 +539,13 @@
         track: trackEvent,
         setConsent,
         ensureGa,
+        openConsentPreferences() {
+            showStandaloneConsent(true);
+        },
         getSnapshot() {
             return {
                 consent: consentState,
+                gaLoadStatus,
                 visitorId,
                 sessionId,
                 visitId,
@@ -465,8 +583,8 @@
         window.setTimeout(() => banner.remove(), 220);
     }
 
-    function showStandaloneConsent() {
-        if (consentState !== 'unknown' || document.getElementById('standalone-cookie-banner')) return;
+    function showStandaloneConsent(force = false) {
+        if ((!force && consentState !== 'unknown') || document.getElementById('standalone-cookie-banner')) return;
         if (document.body?.dataset?.analyticsConsentUi !== 'standalone') return;
 
         const isKorean = currentLanguage().toLowerCase().startsWith('ko');
@@ -488,8 +606,8 @@
             </strong>
             <p style="margin:0;color:#a1a1aa;font-size:12px;line-height:1.65">
                 ${isKorean
-                    ? '방문·공유·테스트 완료 흐름을 개선하기 위한 익명 분석은 동의한 경우에만 전송됩니다.'
-                    : 'Anonymous product analytics for visits, sharing, and completions are sent only after consent.'}
+                    ? '방문·공유·테스트 완료 흐름을 개선하기 위한 GA4 분석은 동의한 경우에만 전송됩니다. Cloudflare의 쿠키 없는 성능 측정은 별도로 동작합니다.'
+                    : 'GA4 analytics are sent only after consent. Cloudflare cookie-free performance measurement operates separately.'}
             </p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
                 <button type="button" data-consent="declined" style="min-height:42px;border:1px solid rgba(255,255,255,.15);border-radius:11px;background:rgba(255,255,255,.05);color:#fff;font-weight:800;cursor:pointer">
@@ -530,6 +648,7 @@
             const snapshot = window.MusicVibeAnalytics.getSnapshot();
             panel.textContent = JSON.stringify({
                 consent: snapshot.consent,
+                gaStatus: snapshot.gaLoadStatus,
                 visitor: snapshot.visitorId,
                 session: snapshot.sessionId,
                 attribution: snapshot.attribution,
@@ -630,6 +749,11 @@
     }
 
     installQualityMonitoring();
+    if (consentState !== 'accepted') {
+        try { window.localStorage.removeItem(VISITOR_KEY); } catch (_) {}
+        try { window.sessionStorage.removeItem(SESSION_KEY); window.sessionStorage.removeItem(ATTRIBUTION_KEY); } catch (_) {}
+        removeAnalyticsCookies();
+    }
     if (consentState === 'accepted') ensureGa();
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -637,7 +761,7 @@
         renderDebugPanel();
         trackEvent('page_view_internal', {
             document_title: document.title,
-            page_location: window.location.href.slice(0, 300)
+            page_location: `${window.location.origin}${window.location.pathname}`
         }, { allowDuplicate: true });
     });
 })();

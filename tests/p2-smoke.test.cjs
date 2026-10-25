@@ -67,7 +67,7 @@ for (const eventName of requiredEvents) assert(combinedRuntime.includes(`'${even
 assert(staticBindings.includes("track('static_result_view'"));
 assert(staticBindings.includes('if (sharedEntry)'));
 assert(layout.includes('data-page-type="static_result"'));
-assert(layout.includes('<script src="/p2-analytics.js"></script>'));
+assert(/<script src="\/p2-analytics\.js(?:\?[^"]+)?"><\/script>/.test(layout));
 assert(layout.includes('<script src="/p2-static.js"></script>'));
 
 assert(workflow.includes('actions/checkout@v4'));

@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'p2-analytics.js'
+      - 'analytics-frame.*'
       - 'v2-*.css'
       - 'legal.css'
       - 'src/v2/**'
