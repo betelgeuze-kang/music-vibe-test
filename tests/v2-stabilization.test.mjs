@@ -93,7 +93,7 @@ assert(visualSpec.includes("scale: 'css'"));
 
 const refreshing = exists('tests/e2e/snapshots/.refresh');
 if (!refreshing) {
-  assert(/CR1 visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()));
+  assert.equal(read('tests/e2e/snapshots/.ready').trim(), `${buildInfo.humanEditorialRelease.toUpperCase()} visual baselines approved by Browser Quality`);
   for (const snapshot of snapshotNames) {
     const relative = `tests/e2e/snapshots/${snapshot}`;
     assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);
