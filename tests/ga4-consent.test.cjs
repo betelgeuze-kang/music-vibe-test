@@ -26,7 +26,7 @@ function boot(initialConsent = null) {
     localStorage: storage(local),
     sessionStorage: storage(session),
     location: {
-      origin, pathname: '/', search: '?ref=ENFP',
+      origin, hostname: 'my-music-vibe.com', pathname: '/', search: '?ref=ENFP',
       href: origin + '/?ref=ENFP#/match?profile=PRIVATE'
     },
     addEventListener() {},
@@ -36,7 +36,7 @@ function boot(initialConsent = null) {
     title: 'My Music Vibe',
     body: {
       dataset: { pageType: 'app', analyticsConsentUi: 'standalone' },
-      appendChild() {}
+      appendChild(element) { scripts.push(element); }
     },
     documentElement: { lang: 'ko', dataset: {} },
     addEventListener(name, callback) { documentListeners.set(name, callback); },
@@ -47,6 +47,7 @@ function boot(initialConsent = null) {
       const events = new Map();
       return {
         dataset: {}, style: {}, events,
+        setAttribute() {}, remove() {},
         addEventListener(name, callback) { events.set(name, callback); },
         querySelector() { return { addEventListener() {} }; }
       };
@@ -67,6 +68,8 @@ function commands(harness) {
 }
 
 const fresh = boot();
+assert.equal(fresh.window.MusicVibeAnalytics.getSnapshot().visitId, null);
+assert.equal(fresh.session.has('music-vibe-attribution-v2'), false);
 assert.equal(fresh.scripts.length, 0, 'unknown consent must not load GA4');
 assert.equal(fresh.local.has(VISITOR_KEY), false, 'unknown consent must not persist visitor ID');
 assert.equal(fresh.session.has(SESSION_KEY), false, 'unknown consent must not persist session ID');
@@ -75,7 +78,7 @@ assert(defaults, 'denied consent defaults must precede tag loading');
 for (const key of ['analytics_storage', 'ad_storage', 'ad_user_data', 'ad_personalization']) {
   assert.equal(defaults[2][key], 'denied', key + ' defaults denied');
 }
-assert.equal(fresh.window.trackEvent('start_test', {}).status, 'queued');
+assert.equal(fresh.window.trackEvent('start_test', {}).status, 'discarded');
 assert.equal(fresh.scripts.length, 0);
 
 fresh.window.MusicVibeAnalytics.setConsent('declined');
@@ -86,7 +89,8 @@ assert.equal(fresh.local.has(VISITOR_KEY), false);
 fresh.window.MusicVibeAnalytics.setConsent('accepted');
 assert.equal(fresh.local.get(CONSENT_KEY), 'accepted');
 assert.equal(fresh.scripts.length, 1, 'acceptance must load exactly one GA4 script');
-assert.match(fresh.scripts[0].src, /gtag\/js\?id=G-XJ8Z43C6LQ$/);
+assert.equal(fresh.scripts[0].src, '/analytics-frame.html?version=ga4c3');
+assert.equal(fresh.scripts[0].referrerPolicy, 'no-referrer');
 assert.equal(fresh.local.has(VISITOR_KEY), true, 'ID created only after acceptance');
 assert.equal(fresh.session.has(SESSION_KEY), true);
 const updates = commands(fresh).filter(([type, action]) => type === 'consent' && action === 'update');
@@ -112,6 +116,8 @@ fresh.window.MusicVibeAnalytics.setConsent('declined');
 assert.equal(fresh.local.has(VISITOR_KEY), false, 'revoking consent erases our visitor identifier');
 assert.equal(fresh.session.has(SESSION_KEY), false, 'revoking consent erases our session identifier');
 const before = commands(fresh).length;
+assert.equal(fresh.window.MusicVibeAnalytics.getSnapshot().visitId, null);
+assert.equal(fresh.session.has('music-vibe-attribution-v2'), false);
 assert.equal(fresh.window.trackEvent('playlist_click').status, 'discarded');
 assert.equal(commands(fresh).length, before, 'no analytics event after decline');
 

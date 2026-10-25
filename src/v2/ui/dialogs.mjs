@@ -87,8 +87,8 @@ export function showPrivacyDialog(app, opener = document.activeElement) {
         <span class="eyebrow">PRIVACY · CR1</span>
         <h2 id="${titleId}">${korean ? '취향 기록과 광고는 어떻게 다뤄지나요?' : 'How are taste notes and advertising handled?'}</h2>
         <p id="${descriptionId}">${korean
-          ? '취향 기록, 최근 선곡, 곡 반응, 주간 기록은 이 브라우저에 저장됩니다. 친구 비교 값은 URL의 # 뒤에 들어가 서버나 CDN 요청에 포함되지 않으며, 이름이나 이메일 없이 여섯 개 취향 값과 익명 ID만 담습니다. 선택적 분석은 동의한 경우에만 전송됩니다.'
-          : 'Taste notes, recent selections, track feedback, and weekly recaps stay in this browser. Comparison data lives after # in the URL, so it is not sent in server or CDN requests. It contains six taste values and an anonymous ID, not a name or email. Optional analytics are sent only after consent.'}</p>
+          ? '취향 기록, 최근 선곡, 곡 반응, 주간 기록은 이 브라우저에 저장됩니다. 친구 비교 값은 URL의 # 뒤에 들어가 서버나 CDN 요청에 포함되지 않으며, 이름이나 이메일 없이 여섯 개 취향 값과 익명 ID만 담습니다. GA4 분석은 동의한 경우에만 전송되며, 친구 비교 토큰과 프로필 ID는 GA4에 보내지 않습니다. Cloudflare의 쿠키 없는 방문·성능 측정은 GA4 선택과 별도로 동작합니다.'
+          : 'Taste notes, recent selections, track feedback, and weekly recaps stay in this browser. Comparison data lives after # in the URL, so it is not sent in server or CDN requests. It contains six taste values and an anonymous ID, not a name or email. GA4 analytics are sent only after consent; comparison tokens and profile IDs are excluded. Cloudflare cookie-free visit and performance measurement operates separately from the GA4 choice.'}</p>
         <p>${korean
           ? '현재 광고 스크립트와 광고 쿠키는 비활성 상태입니다. 향후 광고를 도입할 때는 사업자·쿠키·선택권을 전체 정책에 먼저 고지하고, 질문·오디오·내비게이션·버튼 주변에는 광고를 배치하지 않습니다.'
           : 'Advertising scripts and advertising cookies are currently disabled. Before ads are introduced, the provider, cookies, and user choices will be disclosed in the full policy, and ads will not be placed next to questions, audio, navigation, or action controls.'}</p>

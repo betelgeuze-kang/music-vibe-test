@@ -41,11 +41,18 @@
 
     <section class="legal-section">
       <h2>2. 선택적 분석</h2>
-      <p>서비스 개선을 위한 선택적 분석은 사용자가 동의한 경우에만 Google Analytics 4(GA4)를 통해 전송합니다. 선택적 분석 동의는 광고 저장이나 맞춤 광고에 대한 동의가 아닙니다. 동의하지 않아도 취향 테스트·추천·친구 비교 기능을 사용할 수 있으며, 사이트 하단 '분석 설정'에서 분석 허용 여부를 다시 선택할 수 있습니다.</p>
+      <p>서비스 개선을 위한 선택적 분석은 사용자가 동의한 경우에만 Google Analytics 4(GA4)를 통해 전송합니다. 동의 전에 생긴 분석 이벤트는 나중에 소급 전송하지 않습니다. 동의하면 분석용 임의 방문·세션 식별자와 GA 쿠키가 저장될 수 있으며, 철회하면 이 식별자·쿠키를 지우고 GA 실행을 중단합니다. 이미 전송된 데이터가 철회로 자동 삭제되는 것은 아닙니다. 선택적 분석 동의는 광고 저장이나 맞춤 광고에 대한 동의가 아닙니다. 동의하지 않아도 취향 테스트·추천·친구 비교 기능을 사용할 수 있으며, 사이트 하단 '분석 설정'에서 분석 허용 여부를 다시 선택할 수 있습니다.</p>
       <ul>
         <li>예: 화면 이동, 테스트 완료, 추천 생성, 플랫폼 링크 클릭, 곡 반응, Weekly Vibe 확인</li>
+        <li>페이지 주소와 참조 주소에서는 query와 # fragment를 제거합니다. 친구 비교 토큰과 프로필 ID, 자유 입력 오류 메시지는 GA4로 보내지 않습니다.</li>
         <li>전송하지 않는 정보: 이름, 이메일, 친구 이름, 외부 스트리밍 계정, Spotify·YouTube·Apple의 실제 청취 이력</li>
       </ul>
+    </section>
+
+    <section class="legal-section">
+      <h2>Cloudflare 성능 측정과 접속 기록</h2>
+      <p>사이트는 Cloudflare의 DNS 프록시·CDN을 사용합니다. Cloudflare Web Analytics(RUM)는 쿠키·localStorage 식별자 없이 페이지 방문과 성능 정보를 측정하며, 현재 Cloudflare 설정으로 자동 삽입됩니다(EU 제외). 이 성능 측정은 위의 GA4 분석 선택과 별개이므로 '필수만 사용' 또는 GA4 철회로 꺼지지 않습니다. 서버·CDN 요청 기록도 GA4 동의와 별도로 처리됩니다. 브라우저 fragment는 일반 HTTP 요청에 포함되지 않지만 URL query는 요청에 포함될 수 있으므로 민감한 정보를 query에 넣지 마세요.</p>
+      <p><a href="https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/" rel="noopener" target="_blank">Cloudflare 수집 데이터 안내</a> · <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener" target="_blank">Cloudflare 개인정보 정책</a></p>
     </section>
 
     <section class="legal-section">
