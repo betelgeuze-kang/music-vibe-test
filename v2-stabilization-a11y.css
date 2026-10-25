@@ -4,7 +4,7 @@
 .editorial-button--ink,
 .button--primary,
 .button--option {
-  color: var(--ink) !important;
+  color: var(--primary-action-text, var(--ink)) !important;
 }
 
 /* Compact helper and metadata text must remain readable against the ink background. */

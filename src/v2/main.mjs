@@ -1,4 +1,4 @@
-import { VibeApp } from './ui/app.mjs?commercial=cr1';
+import { VibeApp } from './ui/app.mjs?commercial=cr1&home=he2';
 import { installConsentAccessibility } from './ui/consent-a11y.mjs?frontend=fq1';
 
 async function retireLegacyRuntime() {

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 540" fill="none">
+  <title>Original illustration of a record sleeve and vinyl</title>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="#BAC9B8" stroke-width=".6"/></pattern>
+    <pattern id="grooves" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0h8" stroke="#405149" stroke-width=".5"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="170%" height="170%"><feDropShadow dx="0" dy="16" stdDeviation="15" flood-color="#243C32" flood-opacity=".15"/></filter>
+  </defs>
+  <rect x="20" y="20" width="600" height="500" rx="5" fill="#E2E9DA"/>
+  <rect x="20" y="20" width="600" height="500" rx="5" fill="url(#grid)"/>
+  <path d="M55 464h530M55 76h530" stroke="#6F856F" stroke-opacity=".45"/>
+  <g filter="url(#shadow)">
+    <circle cx="420" cy="268" r="164" fill="#22392F"/>
+    <g stroke="#526358" stroke-opacity=".7">
+      <circle cx="420" cy="268" r="153"/><circle cx="420" cy="268" r="146"/><circle cx="420" cy="268" r="139"/><circle cx="420" cy="268" r="132"/><circle cx="420" cy="268" r="125"/><circle cx="420" cy="268" r="118"/><circle cx="420" cy="268" r="111"/><circle cx="420" cy="268" r="104"/><circle cx="420" cy="268" r="97"/><circle cx="420" cy="268" r="90"/><circle cx="420" cy="268" r="83"/>
+    </g>
+    <circle cx="420" cy="268" r="60" fill="#D0DBB9"/>
+    <path d="M380 268h80M420 228v80" stroke="#91A181"/>
+    <circle cx="420" cy="268" r="9" fill="#F6F2E9"/>
+  </g>
+  <g transform="rotate(-9 247 273)" filter="url(#shadow)">
+    <rect x="84" y="100" width="320" height="344" rx="2" fill="#F8F2E3"/>
+    <rect x="100" y="116" width="288" height="226" fill="#C34C31"/>
+    <path d="M100 224c48-130 96 130 144 0s96 130 144 0" stroke="#F0CE89" stroke-width="44"/>
+    <path d="M100 224c48-130 96 130 144 0s96 130 144 0" stroke="#F8F2E3" stroke-width="1"/>
+    <path d="M115 361h260M115 420h260" stroke="#D2C8B6"/>
+    <text x="115" y="389" fill="#263C32" font-family="Georgia,serif" font-size="24" letter-spacing="-1">The way you listen.</text>
+    <text x="116" y="409" fill="#626C5F" font-family="Arial,sans-serif" font-size="9" letter-spacing="2">MY MUSIC VIBE / LISTENING NOTES</text>
+    <circle cx="363" cy="387" r="10" stroke="#263C32"/><circle cx="363" cy="387" r="3" fill="#263C32"/>
+  </g>
+  <g transform="rotate(8 486 428)">
+    <rect x="410" y="393" width="152" height="70" rx="3" fill="#F6CF75"/>
+    <path d="M430 428h16m-8-8v16m16-8h16m8-12v24m8-30v36m8-25v14m8-18v22m8-29v36m8-29v22" stroke="#4C593C" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <path d="M548 94v34m-17-17h34m-29-12 24 24m0-24-24 24" stroke="#B34B32" stroke-width="2"/>
+</svg>

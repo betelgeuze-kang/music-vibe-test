@@ -73,3 +73,19 @@ export const HOME_SHOWCASE = Object.freeze({
 export function localizedShowcaseReason(candidate, language = 'kr') {
   return candidate.reason?.[language] || candidate.reason?.en || candidate.reason?.kr || '';
 }
+
+// Fixed editorial previews. These are examples, not a visitor's personalized result.
+export const HOME_SCENES = Object.freeze([
+  Object.freeze({ id: 'night', number: '01', symbol: '☾', label: { kr: '밤 산책', en: 'Night walk' }, title: { kr: '조금 더 걷고 싶은 밤', en: 'Take the long way home' }, description: { kr: '하루의 소음은 낮추고, 여운은 조금 길게. 느린 리듬과 넓은 공간감을 가진 세 곡이에요.', en: 'Turn down the day and let the afterglow stay. Three tracks with slow rhythms and room to breathe.' }, tracks: HOME_SHOWCASE.night }),
+  Object.freeze({ id: 'focus', number: '02', symbol: '◌', label: { kr: '집중하는 시간', en: 'Time to focus' }, title: { kr: '한 가지에 머무는 오후', en: 'An afternoon for one thing' }, description: { kr: '피아노의 반복과 천천히 쌓이는 소리. 작업하는 동안 곁에 두기 좋은 편집 선곡입니다.', en: 'Repeating piano patterns and slowly building textures: a selection to keep beside your work.' }, tracks: Object.freeze([
+    candidate({ id: 'river-flows', title: 'River Flows in You', artist: 'Yiruma', region: 'KR', year: 2001, reason: { kr: '반복되는 피아노 선율이 생각이 돌아올 작은 기준점을 만들어요.', en: 'A recurring piano melody gives your thoughts a quiet point to return to.' } }),
+    candidate({ id: 'experience-einaudi', title: 'Experience', artist: 'Ludovico Einaudi', region: 'IT', year: 2013, reason: { kr: '차곡차곡 쌓이는 피아노와 현악을 긴 호흡으로 따라가 보세요.', en: 'Follow the piano and strings as their layers gradually unfold.' } }),
+    HOME_SHOWCASE.night[2]
+  ]) }),
+  Object.freeze({ id: 'lift', number: '03', symbol: '✳', label: { kr: '기분 전환', en: 'A little lift' }, title: { kr: '발걸음에 리듬을 더할 때', en: 'Put a rhythm in your step' }, description: { kr: '밝은 후렴과 탄력 있는 그루브. 익숙한 길도 조금 다르게 느껴지는 세 곡을 골랐어요.', en: 'Bright choruses and an easy groove. Three songs to make a familiar route feel a little different.' }, tracks: Object.freeze([
+    candidate({ id: 'love-lee', title: 'Love Lee', artist: 'AKMU', region: 'KR', year: 2023, reason: { kr: '가볍게 튀는 리듬과 밝은 화음으로 시작해 보세요.', en: 'Start with a bouncing rhythm and bright, playful harmonies.' } }),
+    HOME_SHOWCASE.match.bridgeTracks[0],
+    candidate({ id: 'get-lucky', title: 'Get Lucky', artist: 'Daft Punk feat. Pharrell Williams', region: 'FR', year: 2013, reason: { kr: '반복되는 기타 리프와 베이스가 발걸음을 자연스럽게 이끌어요.', en: 'A repeating guitar riff and bass line carry your next step.' } })
+  ]) }),
+  Object.freeze({ id: 'together', number: '04', symbol: '∞', label: { kr: '함께 있는 순간', en: 'Time together' }, title: { kr: '대화 사이에 놓아둘 음악', en: 'Something between conversations' }, description: { kr: '너무 앞서가지도, 멀리 물러나지도 않게. 같은 공간에서 나누기 좋은 온도와 리듬을 담았어요.', en: 'Not too far forward, not too far away. Warmth and rhythm to share in the same room.' }, tracks: HOME_SHOWCASE.match.bridgeTracks })
+]);

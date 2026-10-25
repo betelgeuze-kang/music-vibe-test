@@ -1,16 +1,17 @@
-/* F1 canonical CSS entry with M4 engagement, HE1 editorial, and CR1 commercial-readiness layers. */
+/* F1 canonical CSS entry with M4 engagement, HE2 editorial, and CR1 commercial-readiness layers. */
 @import url("v2-core.css?v=qg1") layer(core);
 @import url("v2-features.css?v=qg1") layer(features);
 @import url("v2-responsive.css?v=qg1") layer(responsive);
 @import url("v2-quality.css?v=qg1") layer(quality);
 @import url("v2-editorial.css?brand=bd1") layer(editorial);
 @import url("v2-stabilization.css?stability=sr1") layer(stability);
-@import url("v2-stabilization-a11y.css?stability=sr1") layer(accessibility);
+@import url("v2-stabilization-a11y.css?stability=sr1&home=he2") layer(accessibility);
 @import url("v2-m4.css?engagement=m4f1") layer(engagement);
 @import url("v2-m4-timeline.css?timeline=m4t1") layer(timeline);
 @import url("v2-m4-weekly.css?frontend=fq1") layer(weekly);
 @import url("v2-frontend-quality.css?frontend=fq1") layer(frontend-quality);
-@import url("v2-human-editorial.css?home=he1") layer(human-editorial);
 @import url("v2-commercial-readiness.css?commercial=cr1") layer(commercial-readiness);
 
-@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, human-editorial, commercial-readiness;
+@import url("v2-human-editorial.css?home=he2") layer(human-editorial);
+
+@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, commercial-readiness, human-editorial;

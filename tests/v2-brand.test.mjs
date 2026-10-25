@@ -27,12 +27,12 @@ assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert.equal(buildInfo.weeklyRelease, 'm4w1');
 assert.equal(buildInfo.frontendQualityRelease, 'fq1');
-assert.equal(buildInfo.humanEditorialRelease, 'he1');
+assert.equal(buildInfo.humanEditorialRelease, 'he2');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
 assert(index.includes('data-commercial-readiness-release="cr1"'));
 assert(index.includes('v2-app.css?commercial=cr1'));
 assert(cssEntry.includes('v2-editorial.css?brand=bd1'));
-assert(cssEntry.includes('v2-human-editorial.css?home=he1'));
+assert(cssEntry.includes('v2-human-editorial.css?home=he2'));
 assert(cssEntry.includes('v2-commercial-readiness.css?commercial=cr1'));
 assert(!index.includes('src/v2/brand/install.mjs'));
 assert(!index.includes('src/v2/brand/interaction.mjs'));
@@ -40,7 +40,7 @@ assert(!index.includes('src/v2/brand/interaction.mjs'));
 for (const banned of ['MUSIC IDENTITY, NOT ANOTHER MBTI', 'Vibe Profile', 'Bridge Playlist', '왜 이 Vibe인가요?']) {
   assert(!koreanCopy.includes(banned), `Korean brand copy must avoid planning-language phrase: ${banned}`);
 }
-assert.equal(BRAND_COPY.kr.homeTitle, '설명하기 어려운 노래도,\n마음은 먼저 알아봐요.');
+assert.equal(BRAND_COPY.kr.homeTitle, '좋아하는 소리에서,\n나다운 음악으로.');
 assert.equal(BRAND_COPY.kr.beginProfile, '첫 소리부터 들어보기');
 assert.equal(BRAND_COPY.kr.boothContinue, '이 소리를 따라가볼게요');
 assert.equal(BRAND_COPY.kr.togetherEaseLabel, '함께 편안한 정도');

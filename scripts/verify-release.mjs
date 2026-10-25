@@ -48,12 +48,12 @@ for (const [meta, bodyAttribute, value] of markerContracts) {
   if (!index.includes(`${bodyAttribute}="${value}"`)) fail(`${bodyAttribute} does not match build-info.json`);
 }
 
-for (const marker of ['Canonical UI F1', 'M4 Feedback M4F1', 'Profile Timeline M4T1', 'Weekly Vibe M4W1', 'Frontend Quality FQ1', 'Human Editorial HE1', 'Commercial Readiness CR1']) {
+for (const marker of ['Canonical UI F1', 'M4 Feedback M4F1', 'Profile Timeline M4T1', 'Weekly Vibe M4W1', 'Frontend Quality FQ1', 'Human Editorial HE2', 'Commercial Readiness CR1']) {
   if (!index.includes(marker)) fail(`index release marker missing: ${marker}`);
 }
 if ((index.match(/rel="stylesheet"/g) || []).length !== 1) fail('index must load exactly one canonical stylesheet');
-if (!index.includes('v2-app.css?commercial=cr1')) fail('canonical stylesheet must be CR1-versioned');
-if (!index.includes('src/v2/main.mjs?commercial=cr1')) fail('canonical app entry must be CR1-versioned');
+if (!index.includes('v2-app.css?commercial=cr1&home=he2')) fail('canonical stylesheet must be CR1-versioned');
+if (!index.includes('src/v2/main.mjs?commercial=cr1&home=he2')) fail('canonical app entry must be CR1-versioned');
 if (!index.includes('data-ads-enabled="false"')) fail('advertising must be disabled by default');
 if (/pagead2\.googlesyndication\.com|adsbygoogle|doubleclick\.net/i.test(index)) fail('live advertising code must not be present in CR1');
 
@@ -137,8 +137,8 @@ if (!about.includes('data-commercial-readiness-release="cr1"') || !about.include
 if (!privacy.includes('data-commercial-readiness-release="cr1"') || !privacy.includes('현재 광고 비활성') || !privacy.includes('맞춤형 광고') || !privacy.includes('pub-1386368370627622')) fail('privacy page is incomplete');
 if (!credits.includes('data-commercial-readiness-release="cr1"') || !credits.includes('직접 합성') || !credits.includes('rights-manifest.json')) fail('audio credits page is incomplete');
 
-if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1') fail('build-info entry contract is inconsistent');
-if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1') fail('build-info style contract is inconsistent');
+if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1&home=he2') fail('build-info entry contract is inconsistent');
+if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1&home=he2') fail('build-info style contract is inconsistent');
 if (buildInfo.audioSource !== '/src/v2/audio/original-clips.mjs?commercial=cr1') fail('build-info audio source contract is inconsistent');
 if (buildInfo.audioRightsManifest !== '/assets/audio/rights-manifest.json') fail('build-info rights manifest contract is inconsistent');
 if (buildInfo.adsEnabled !== false || buildInfo.runtimeOverrides !== false) fail('build-info commercial safety flags are invalid');

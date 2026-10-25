@@ -28,8 +28,8 @@ for (const file of [
 ]) assert(exists(file), `missing V2/CR1 file: ${file}`);
 
 assert.equal((index.match(/rel="stylesheet"/g) || []).length, 1);
-assert(index.includes('v2-app.css?commercial=cr1'));
-assert(index.includes('src/v2/main.mjs?commercial=cr1'));
+assert(index.includes('v2-app.css?commercial=cr1&home=he2'));
+assert(index.includes('src/v2/main.mjs?commercial=cr1&home=he2'));
 assert(index.includes('Commercial Readiness CR1'));
 assert(index.includes('data-commercial-readiness-release="cr1"'));
 assert(index.includes('data-ads-enabled="false"'));
@@ -63,15 +63,15 @@ assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert.equal(buildInfo.weeklyRelease, 'm4w1');
 assert.equal(buildInfo.frontendQualityRelease, 'fq1');
-assert.equal(buildInfo.humanEditorialRelease, 'he1');
+assert.equal(buildInfo.humanEditorialRelease, 'he2');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
 assert.equal(buildInfo.adsEnabled, false);
 assert.equal(buildInfo.adProvider, 'google-adsense');
 assert.equal(buildInfo.adPublisherId, 'pub-1386368370627622');
 assert.equal(buildInfo.adsTxt, '/ads.txt');
 assert.equal(buildInfo.runtimeOverrides, false);
-assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1');
-assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1');
+assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2');
+assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2');
 assert.equal(buildInfo.commercialReadinessData.length, 9);
 assert.equal(read('ads.txt').trim(), 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0');
 

@@ -1,4 +1,4 @@
-import { BRAND_COPY } from '../brand/copy.mjs?home=he1';
+import { BRAND_COPY } from '../brand/copy.mjs?home=he2';
 import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
 import { mergeActiveSnapshot } from '../domain/timeline.mjs?timeline=m4t1';
 import { sevenDayReturnStatus } from '../domain/weekly.mjs?weekly=m4w1';
@@ -14,10 +14,10 @@ import {
 } from '../infrastructure/storage.mjs?weekly=m4w1';
 import { actionMethods } from './actions.mjs?weekly=m4w1';
 import { commercialAudioMethods } from './commercial-audio-actions.mjs?commercial=cr1';
-import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1';
+import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2';
 import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?commercial=cr1';
 import { renderDiscover } from './screens/discover.mjs?commercial=cr1';
-import { renderHome } from './screens/home.mjs?home=he1';
+import { renderHome } from './screens/home.mjs?home=he2';
 import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1';
 import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1';
 import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1';
@@ -26,7 +26,7 @@ export const ENGAGEMENT_RELEASE = 'm4f1';
 export const TIMELINE_RELEASE = 'm4t1';
 export const WEEKLY_RELEASE = 'm4w1';
 export const FRONTEND_QUALITY_RELEASE = 'fq1';
-export const HUMAN_EDITORIAL_RELEASE = 'he1';
+export const HUMAN_EDITORIAL_RELEASE = 'he2';
 export const COMMERCIAL_READINESS_RELEASE = 'cr1';
 
 export class VibeApp {
@@ -248,7 +248,7 @@ export class VibeApp {
   updateMeta() {
     const copy = this.copy();
     const titles = {
-      home: this.language === 'kr' ? 'My Music Vibe — 설명하기 어려운 노래도, 마음은 먼저 알아봐요' : 'My Music Vibe — Your ears know before words do',
+      home: this.language === 'kr' ? 'My Music Vibe — 좋아하는 소리에서, 나다운 음악으로' : 'My Music Vibe — Find your kind of music',
       discover: this.language === 'kr' ? '듣고 고르기 | My Music Vibe' : 'Listen and choose | My Music Vibe',
       profile: this.language === 'kr' ? '내 취향 기록 | My Music Vibe' : 'My taste notes | My Music Vibe',
       weekly: this.language === 'kr' ? '이번 주의 듣기 기록 | My Music Vibe' : 'My Weekly Vibe | My Music Vibe',

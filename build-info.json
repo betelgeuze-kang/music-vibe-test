@@ -1,5 +1,5 @@
 {
-  "schema": 11,
+  "schema": 12,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -10,15 +10,15 @@
   "timelineRelease": "m4t1",
   "weeklyRelease": "m4w1",
   "frontendQualityRelease": "fq1",
-  "humanEditorialRelease": "he1",
+  "humanEditorialRelease": "he2",
   "commercialReadinessRelease": "cr1",
-  "productVersion": "v2-commercial-ready-original-audio",
-  "assetVersion": "cr1",
-  "builtAt": "2026-07-12T00:00:00Z",
-  "entry": "/src/v2/main.mjs?commercial=cr1",
-  "styleEntry": "/v2-app.css?commercial=cr1",
-  "canonicalCopy": "/src/v2/brand/copy.mjs?home=he1",
-  "homeScreen": "/src/v2/ui/screens/home.mjs?home=he1",
+  "productVersion": "v2-editorial-listening-home",
+  "assetVersion": "he2",
+  "builtAt": "2026-10-25T14:21:25+09:00",
+  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2",
+  "styleEntry": "/v2-app.css?commercial=cr1&home=he2",
+  "canonicalCopy": "/src/v2/brand/copy.mjs?home=he2",
+  "homeScreen": "/src/v2/ui/screens/home.mjs?home=he2",
   "audioSource": "/src/v2/audio/original-clips.mjs?commercial=cr1",
   "audioRightsManifest": "/assets/audio/rights-manifest.json",
   "adsEnabled": false,
@@ -39,7 +39,7 @@
   ],
   "editorialData": [
     "/src/v2/data/editorial-tracks.mjs",
-    "/src/v2/data/home-showcase.mjs",
+    "/src/v2/data/home-showcase.mjs?home=he2",
     "/src/v2/domain/presentation.mjs"
   ],
   "engagementData": [
@@ -68,9 +68,10 @@
     "/v2-frontend-quality.css?frontend=fq1"
   ],
   "humanEditorialData": [
-    "/src/v2/brand/copy.mjs?home=he1",
-    "/src/v2/ui/screens/home.mjs?home=he1",
-    "/v2-human-editorial.css?home=he1"
+    "/src/v2/brand/copy.mjs?home=he2",
+    "/src/v2/ui/screens/home.mjs?home=he2",
+    "/v2-human-editorial.css?home=he2",
+    "/assets/images/listening-room.svg"
   ],
   "commercialReadinessData": [
     "/src/v2/audio/original-clips.mjs?commercial=cr1",
@@ -84,5 +85,40 @@
     "/audio-credits/"
   ],
   "runtimeOverrides": false,
-  "qualityGates": ["deployment", "ux", "measurement", "recommendation", "browser", "brand", "mobile", "contrast", "visual-regression", "editorial-integrity", "canonical-ui", "lazy-routes", "bounded-feedback", "interaction-ledger", "profile-timeline", "snapshot-restore", "weekly-vibe", "weekly-card", "return-visit-dedupe", "accessible-dialogs", "notice-navigation-separation", "responsive-matrix", "hit-targets", "internal-tag-filtering", "human-editorial-home", "non-sticky-home-header", "shared-listening-layout", "original-audio-provenance", "commercial-audio-allowlist", "public-legal-pages", "ads-disabled-default", "authorized-seller-record", "ad-placement-safety", "no-third-party-audio-assets"]
+  "qualityGates": [
+    "deployment",
+    "ux",
+    "measurement",
+    "recommendation",
+    "browser",
+    "brand",
+    "mobile",
+    "contrast",
+    "visual-regression",
+    "editorial-integrity",
+    "canonical-ui",
+    "lazy-routes",
+    "bounded-feedback",
+    "interaction-ledger",
+    "profile-timeline",
+    "snapshot-restore",
+    "weekly-vibe",
+    "weekly-card",
+    "return-visit-dedupe",
+    "accessible-dialogs",
+    "notice-navigation-separation",
+    "responsive-matrix",
+    "hit-targets",
+    "internal-tag-filtering",
+    "human-editorial-home",
+    "non-sticky-home-header",
+    "shared-listening-layout",
+    "original-audio-provenance",
+    "commercial-audio-allowlist",
+    "public-legal-pages",
+    "ads-disabled-default",
+    "authorized-seller-record",
+    "ad-placement-safety",
+    "no-third-party-audio-assets"
+  ]
 }

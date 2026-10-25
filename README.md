@@ -19,7 +19,7 @@ E1    manually edited recommendation content
 F1    canonical modular frontend
 M4    feedback, timeline, Weekly Vibe, return loop
 FQ1   dialogs, responsive matrix, hit targets, visual regression
-HE1   human editorial home
+HE2   listening editorial home, original record artwork, interactive listening moments
 CR1   original test audio, rights manifest, public policies, ads-off safety
 ```
 
@@ -57,7 +57,7 @@ npx playwright test
 - [V2 architecture and data contracts](docs/product/V2_ARCHITECTURE.md)
 - [Quality gates](docs/product/QUALITY_GATES.md)
 - [Editorial brand design](docs/product/BRAND_DESIGN.md)
-- [Human editorial home](docs/product/HUMAN_EDITORIAL_HOME_HE1.md)
+- [Listening editorial home](docs/product/LISTENING_HOME_HE2.md)
 - [Profile-space audit](docs/product/PROFILE_AUDIT.md)
 - [Retired audio audit](docs/legal/RETIRED_AUDIO_AUDIT.md)
 - [Advertising monetization readiness](docs/operations/ADS_MONETIZATION_READINESS.md)

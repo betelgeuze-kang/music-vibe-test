@@ -34,8 +34,8 @@ for (const file of [
 ]) assert(exists(file), `canonical UI module is missing: ${file}`);
 
 assert.equal((index.match(/rel="stylesheet"/g) || []).length, 1);
-assert(index.includes('v2-app.css?commercial=cr1'));
-assert(index.includes('src/v2/main.mjs?commercial=cr1'));
+assert(index.includes('v2-app.css?commercial=cr1&home=he2'));
+assert(index.includes('src/v2/main.mjs?commercial=cr1&home=he2'));
 assert(index.includes('data-commercial-readiness-release="cr1"'));
 assert(!index.includes('src/v2/brand/install.mjs'));
 assert(!index.includes('src/v2/brand/interaction.mjs'));
@@ -45,8 +45,8 @@ assert(!index.includes('<script type="importmap">'));
 assert(!main.includes('installQualityGates'));
 assert(main.includes('./ui/app.mjs?commercial=cr1'));
 assert(main.includes('./ui/consent-a11y.mjs?frontend=fq1'));
-assert(app.includes("../brand/copy.mjs?home=he1"));
-assert(app.includes("./screens/home.mjs?home=he1"));
+assert(app.includes("../brand/copy.mjs?home=he2"));
+assert(app.includes("./screens/home.mjs?home=he2"));
 assert(app.includes("import('./screens/profile.mjs?timeline=m4t1')"));
 assert(app.includes("import('./screens/weekly.mjs?frontend=fq1')"));
 assert(app.includes("import('./screens/now.mjs?engagement=m4f1')"));
@@ -84,10 +84,10 @@ for (const layer of ['core', 'features', 'responsive', 'quality', 'editorial', '
 }
 assert(cssEntry.includes('v2-commercial-readiness.css?commercial=cr1'));
 assert.equal(buildInfo.uiRelease, 'f1');
-assert.equal(buildInfo.humanEditorialRelease, 'he1');
+assert.equal(buildInfo.humanEditorialRelease, 'he2');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
-assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1');
-assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1');
+assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2');
+assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert.equal(buildInfo.adsEnabled, false);
 assert.equal(buildInfo.adProvider, 'google-adsense');

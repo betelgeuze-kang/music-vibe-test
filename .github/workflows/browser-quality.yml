@@ -10,6 +10,7 @@ on:
       - 'legal.css'
       - 'src/v2/**'
       - 'assets/audio/**'
+      - 'assets/images/**'
       - 'about/**'
       - 'privacy/**'
       - 'audio-credits/**'
@@ -78,7 +79,7 @@ jobs:
           )
           for image in "${expected[@]}"; do test -s "${capture_dir}/${image}"; done
 
-          release_label="$(jq -r '.commercialReadinessRelease // .humanEditorialRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
+          release_label="$(jq -r '.humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
           cp "${capture_dir}"/*.png "$snapshot_dir"/
           printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"
