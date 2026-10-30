@@ -137,3 +137,24 @@ test('bilingual listening pages pass accessibility in the normal browser', async
     expect(result.violations.filter(v=>['serious','critical'].includes(v.impact)),`${prefix}/listening/${slug}`).toEqual([]);
   }
 });
+
+test('returning home opens the saved weekly window when this week has no activity', async ({page})=>{
+  await page.goto('/?lang=kr#/home');
+  await completeProfile(page,'a');
+  await page.locator('[data-route="now"]').first().click();
+  await page.locator('[data-context-id="night"]').click();
+  await page.locator('[data-action="track-feedback"][data-feedback-value="more"]').nth(0).click();
+  await page.locator('[data-action="track-feedback"][data-feedback-value="more"]').nth(1).click();
+  await page.locator('[data-route="weekly"]').first().click();
+  await expect(page.locator('.weekly-hero')).toBeVisible();
+  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('music-vibe-v2-weekly-v1')).items[0]);
+  await page.clock.setFixedTime(new Date(Date.now()+14*86_400_000));
+  await page.goto('/?lang=kr#/home');
+  const primary=page.locator('.editorial-hero__actions > button').first();
+  await expect(primary).toContainText('지난 기록');
+  await expect(primary).toHaveAttribute('data-weekly-anchor',saved.windowEndAt);
+  await primary.click();
+  await expect(page.locator('.weekly-hero')).toBeVisible();
+  await expect(page.locator('.weekly-empty')).toHaveCount(0);
+  expect(await page.evaluate(()=>window.__musicVibeV2.latestWeeklyVibe.weekKey)).toBe(saved.weekKey);
+});

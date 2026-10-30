@@ -84,7 +84,9 @@ test('seven-day return CTA and analytics interaction are deduplicated', async ({
   // Changing the query forces a new document load. A hash-only navigation would
   // stay inside the existing SPA and would not represent a genuine return visit.
   await page.goto('/?lang=kr&return-test=1#/home');
-  await expect(page.locator('.home-weekly-band--return')).toContainText('다시 왔네요');
+  await expect(page.locator('.home-weekly-band--return')).toHaveCount(0);
+  await expect(page.locator('.editorial-hero__actions > button').first()).toHaveAttribute('data-route','now');
+  await expect(page.locator('.editorial-hero__actions > button').first()).toContainText('오늘');
   let returns = await page.evaluate(() => {
     const data = JSON.parse(localStorage.getItem('music-vibe-v2-interactions-v1') || '{"items":[]}');
     return data.items.filter((item) => item.type === 'return_visit_7d').length;

@@ -53,15 +53,17 @@ function weeklyBand(app) {
   const current = weeklyActivityStatus(interactions, new Date());
   const latest = app.latestWeeklyVibe;
   const returning = app.returnStatus?.eligible;
+  const previousAnchor = app.returnStatus?.anchorAt || latest?.windowEndAt || '';
+  const previousReady = Boolean(previousAnchor && weeklyActivityStatus(interactions, previousAnchor).ready);
 
   if (!current.count && !latest && !returning) return `<section class="home-weekly-band home-weekly-band--first"><div class="home-weekly-band__mark" aria-hidden="true">♫</div><div><span class="eyebrow">MUSIC FOR TODAY</span><h2>${app.language === 'kr' ? '취향을 찾았다면, 이제 한 곡을 만나볼까요?' : 'Your taste note is ready. Meet your next song.'}</h2><p>${app.language === 'kr' ? '지금의 상황을 고르면 내 취향에 맞는 다섯 곡과 추천 이유를 보여드려요.' : 'Choose a moment for five songs and a reason to try each one.'}</p></div><button type="button" data-route="now">${app.language === 'kr' ? '오늘 들을 곡 고르기' : 'Find music for today'} →</button></section>`;
 
-  if (returning) {
-    const anchor = app.returnStatus.anchorAt || latest?.windowEndAt || '';
+  if (returning && (previousReady || latest)) {
+    const anchor = previousReady ? previousAnchor : latest.windowEndAt;
     return `
       <section class="home-weekly-band home-weekly-band--return">
         <div class="home-weekly-band__mark" aria-hidden="true">7D</div>
-        <div><span class="eyebrow">${app.language === 'kr' ? '다시 왔네요' : 'WELCOME BACK'}</span><h2>${app.language === 'kr' ? '지난 방문까지의 음악 기록을 다시 열어보세요.' : 'Reopen the listening note from your last visit.'}</h2><p>${app.language === 'kr' ? `${app.returnStatus.daysSincePrevious}일 만의 방문이에요. 그때 머문 장면과 곡을 한 장으로 정리합니다.` : `It has been ${app.returnStatus.daysSincePrevious} days. See the moments and tracks that stayed with you then.`}</p></div>
+        <div><span class="eyebrow">${app.language === 'kr' ? '다시 왔네요' : 'WELCOME BACK'}</span><h2>${app.language === 'kr' ? '저장된 지난 음악 기록을 다시 열어보세요.' : 'Reopen a listening note from your earlier visits.'}</h2><p>${app.language === 'kr' ? `${app.returnStatus.daysSincePrevious}일 만의 방문이에요. 그때 머문 장면과 곡을 한 장으로 정리합니다.` : `It has been ${app.returnStatus.daysSincePrevious} days. See the moments and tracks that stayed with you then.`}</p></div>
         <button type="button" data-action="open-weekly" data-weekly-anchor="${escapeHtml(anchor)}">${app.language === 'kr' ? '지난 기록 보기' : 'Open the previous note'} →</button>
       </section>
     `;
@@ -132,7 +134,12 @@ export function renderHome(app) {
   const korean = app.language === 'kr';
   const question = PROFILE_QUESTIONS[0];
   const hasProfile = Boolean(app.profile);
-  const weeklyPrimary = hasProfile && (weeklyActivityStatus(loadInteractions(), new Date()).ready || Boolean(app.latestWeeklyVibe) || app.returnStatus?.eligible);
+  const homeInteractions = hasProfile ? loadInteractions() : [];
+  const weeklyReady = hasProfile && weeklyActivityStatus(homeInteractions, new Date()).ready;
+  const returnAnchor = app.returnStatus?.eligible ? app.returnStatus.anchorAt : '';
+  const returnReady = Boolean(returnAnchor && weeklyActivityStatus(homeInteractions, returnAnchor).ready);
+  const weeklyPrimary = hasProfile && (weeklyReady || Boolean(app.latestWeeklyVibe) || returnReady);
+  const weeklyAnchor = weeklyReady ? '' : returnReady ? returnAnchor : app.latestWeeklyVibe?.windowEndAt || '';
   const sampleArchetype = getProfileArchetype(sampleProfile);
   const friendArchetype = getProfileArchetype(sampleFriend);
   const sampleMatch = HOME_SHOWCASE.match;
@@ -152,7 +159,7 @@ export function renderHome(app) {
           <p class="editorial-dek">${escapeHtml(copy.homeDescription)}</p>
           <div class="editorial-hero__actions">
             ${hasProfile
-              ? `<button class="editorial-button editorial-button--ink" type="button" ${weeklyPrimary ? 'data-action="open-weekly"' : 'data-route="now"'}>${weeklyPrimary ? (korean ? '이번 주 기록 열기' : 'Open my weekly note') : (korean ? '오늘 들을 음악 찾기' : 'Find music for today')} <span aria-hidden="true">↗</span></button><button class="editorial-button editorial-button--line" type="button" data-route="profile">${korean ? '내 취향 다시 보기' : 'Revisit my taste'}</button>`
+              ? `<button class="editorial-button editorial-button--ink" type="button" ${weeklyPrimary ? `data-action="open-weekly" data-weekly-anchor="${escapeHtml(weeklyAnchor)}"` : 'data-route="now"'}>${weeklyPrimary ? (weeklyReady ? (korean ? '이번 주 기록 열기' : 'Open my weekly note') : (korean ? '지난 기록 다시 보기' : 'Reopen my saved note')) : (korean ? '오늘 들을 음악 찾기' : 'Find music for today')} <span aria-hidden="true">↗</span></button><button class="editorial-button editorial-button--line" type="button" data-route="profile">${korean ? '내 취향 다시 보기' : 'Revisit my taste'}</button>`
               : `<button class="editorial-button editorial-button--ink" type="button" data-action="focus-booth">${korean ? '내 취향 찾기' : 'Find my music taste'} <span aria-hidden="true">↗</span></button><button class="editorial-button editorial-button--line" type="button" data-action="scroll-sample">${korean ? '결과 먼저 둘러보기' : 'See a sample result'} <span aria-hidden="true">↓</span></button>`}
           </div>
           <p class="human-hero__whisper">${korean ? '가입 없이 · 10번의 선택 · 나만의 음악 기록' : 'No sign-up · Ten choices · A note that feels like you'}</p>

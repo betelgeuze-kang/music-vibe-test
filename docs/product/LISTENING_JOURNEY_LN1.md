@@ -14,7 +14,7 @@ Thirteen reviewed YouTube destinations join the nine existing direct links, givi
 
 Each service action distinguishes **Open track** from **Search**, includes a specific accessible name and opens without a referrer. Spotify and Apple retain explicit search fallbacks. Experience links to the 2013 London live performance, labelled on its essay. No commercial audio or embedded player is added.
 
-Song cards separate the listening description from the connection to the saved taste. A contrast compares the track with the user's recorded profile, rather than claiming a comparison with other candidates. The deterministic recommendation ranking, feedback and 3/1/1 selection remain intact. A newly completed profile leads home into Music for Today; a ready, saved or return-eligible weekly note can become the main action. Weekly copy distinguishes actions within this site from external playback.
+Song cards separate the listening description from the connection to the saved taste. A contrast compares the track with the user's recorded profile, rather than claiming a comparison with other candidates. The deterministic recommendation ranking, feedback and 3/1/1 selection remain intact. A newly completed profile leads home into Music for Today; a ready or saved weekly note can become the main action. Earlier notes carry their own window anchor; returning with no usable note keeps Music for Today as the primary action. Weekly copy distinguishes actions within this site from external playback.
 
 ## 5. Independent situation pages
 
