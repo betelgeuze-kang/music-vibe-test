@@ -36,6 +36,13 @@ export function routeUrl(route, params = {}) {
   return `#/${ROUTES.has(route) ? route : 'home'}${query.size ? `?${query}` : ''}`;
 }
 
+export function parseWeeklyAnchor(value) {
+  const key = String(value || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
+  const date = new Date(`${key}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === key ? date.toISOString() : null;
+}
+
 export function axisDirection(axis, score, language) {
   return score >= 50 ? (axis.high?.[language] || axis.high?.en) : (axis.low?.[language] || axis.low?.en);
 }
@@ -107,20 +114,24 @@ export function trackCard(candidate, language, placement, options = {}) {
   ` : '';
 
   return `
-    <article class="track-card" data-track-id="${escapeHtml(item.id)}" data-track-artist="${escapeHtml(item.artist)}" data-strategy="${escapeHtml(candidate.strategy || 'recommended')}" data-placement="${escapeHtml(placement)}">
+    <article class="track-card" data-track-id="${escapeHtml(item.id)}" data-track-artist="${escapeHtml(item.artist)}" data-context-id="${escapeHtml(contextId)}" data-strategy="${escapeHtml(candidate.strategy || 'recommended')}" data-placement="${escapeHtml(placement)}">
       <div class="track-card__score"><span class="sr-only">${escapeHtml(scoreLabel)} </span>${score}</div>
       <div class="track-card__body">
         <div class="track-card__kicker"><span>${escapeHtml(strategy)}</span><span>${escapeHtml(item.region)} · ${item.year}</span>${exact}${feedbackApplied}</div>
         <strong>${escapeHtml(item.title)}</strong>
         <span>${escapeHtml(item.artist)}</span>
-        <p>${escapeHtml(reason)}</p>
+        <p class="track-card__reason">${escapeHtml(candidate.listeningNote || reason)}</p>
+        ${candidate.tasteNote ? `<p class="track-card__taste-note"><span>${language === 'kr' ? '내 취향과의 연결' : 'THE TASTE CONNECTION'}</span>${escapeHtml(candidate.tasteNote)}</p>` : ''}
         ${matchMetrics}
         ${feedbackControls}
       </div>
       <div class="track-card__actions" role="group" aria-label="${escapeHtml(serviceLabel)}">
-        <a href="${escapeHtml(urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
-        <a href="${escapeHtml(urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">YouTube</a>
-        <a href="${escapeHtml(urls.apple)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="apple" data-placement="${placement}">Apple</a>
+        ${['spotify', 'youtube', 'apple'].map((platform) => {
+          const direct = candidate.exactPlatforms?.includes(platform);
+          const name = { spotify: 'Spotify', youtube: 'YouTube', apple: 'Apple' }[platform];
+          const label = direct ? (language === 'kr' ? '곡 열기' : 'Open track') : (language === 'kr' ? '검색' : 'Search');
+          return `<a href="${escapeHtml(urls[platform])}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="${platform}" data-link-kind="${direct ? 'direct' : 'search'}" data-placement="${escapeHtml(placement)}" aria-label="${escapeHtml(`${item.title} · ${name} · ${label}${language === 'kr' ? ' · 새 창' : ' · new tab'}`)}">${name}<small>${label} ↗</small></a>`;
+        }).join('')}
       </div>
     </article>
   `;

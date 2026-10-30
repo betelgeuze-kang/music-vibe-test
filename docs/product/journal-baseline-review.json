@@ -1,0 +1,105 @@
+{
+  "phase": "capture and preservation audit, followed by a separate comparison run",
+  "sourceBefore": "c935bcbf2e636ffe05f527f9ebd310b51d14c7fe",
+  "baselineCommit": "87d68cfe56630863f0241e1d66374d1fc87cab17",
+  "approvedChanged": 4,
+  "preserved": 12,
+  "images": [
+    {
+      "file": "chromium-discover.png",
+      "beforeSha256": "6860d0921e48c0f34d02f91295877c931507730b5925d5301364ed2115dd742e",
+      "afterSha256": "6860d0921e48c0f34d02f91295877c931507730b5925d5301364ed2115dd742e",
+      "changed": false
+    },
+    {
+      "file": "chromium-home.png",
+      "beforeSha256": "19f096c54bd8f018d67069bb24d66f16b0c64ecb34de8dca55044059de8b29da",
+      "afterSha256": "19f096c54bd8f018d67069bb24d66f16b0c64ecb34de8dca55044059de8b29da",
+      "changed": false
+    },
+    {
+      "file": "chromium-listening-essay.png",
+      "beforeSha256": "8b83d2811b6c4b692cc06ba3efb720a4247a4195aaef92293591e1cb220c9e67",
+      "afterSha256": "8b83d2811b6c4b692cc06ba3efb720a4247a4195aaef92293591e1cb220c9e67",
+      "changed": false
+    },
+    {
+      "file": "chromium-listening-index.png",
+      "beforeSha256": "0617d32c1b1a8179b487f6e720f72a9996e6bbe6dbe8818da887214bbe2b8fe3",
+      "afterSha256": "0617d32c1b1a8179b487f6e720f72a9996e6bbe6dbe8818da887214bbe2b8fe3",
+      "changed": false
+    },
+    {
+      "file": "chromium-match.png",
+      "beforeSha256": "3f6383ef985594dd80143f6db240d06621a8243c441e93bedc6e4b86f93cfa5a",
+      "afterSha256": "98b0e449cb1d031b53cde1f4b9d25d688f696ac06004717887901089b93684d9",
+      "changed": true
+    },
+    {
+      "file": "chromium-now.png",
+      "beforeSha256": "1cb397f82ca8044c32537a54ae4cc35234bfa84142168c8ff758f68023c2cb47",
+      "afterSha256": "1cb397f82ca8044c32537a54ae4cc35234bfa84142168c8ff758f68023c2cb47",
+      "changed": false
+    },
+    {
+      "file": "chromium-profile.png",
+      "beforeSha256": "2e2648c0ab28646a50c468692654e9d93598288f2003dd63c63b1fcb14eaf0fc",
+      "afterSha256": "2e2648c0ab28646a50c468692654e9d93598288f2003dd63c63b1fcb14eaf0fc",
+      "changed": false
+    },
+    {
+      "file": "chromium-weekly.png",
+      "beforeSha256": "f12227dce37dc1aec012015fc5adbd69eb6af5757abf4632c802b84588d414ba",
+      "afterSha256": "e17d23483b3129c386d562eb6e35d5c8a761a9e09b2d08aa38a4fb1168df1ea5",
+      "changed": true
+    },
+    {
+      "file": "mobile-chromium-discover.png",
+      "beforeSha256": "58819b0dfea12211b413fb8b0adbd575a8985cf0a3f35263b5f0987f3f634d9c",
+      "afterSha256": "58819b0dfea12211b413fb8b0adbd575a8985cf0a3f35263b5f0987f3f634d9c",
+      "changed": false
+    },
+    {
+      "file": "mobile-chromium-home.png",
+      "beforeSha256": "a67d8fca9d68c16ffbdbd556b92a29373be9c126d4c21b8059281b5c8f30dd16",
+      "afterSha256": "a67d8fca9d68c16ffbdbd556b92a29373be9c126d4c21b8059281b5c8f30dd16",
+      "changed": false
+    },
+    {
+      "file": "mobile-chromium-listening-essay.png",
+      "beforeSha256": "bd325a142cb182d936da59ead838b6e482c209b29f338e6a7c1c83ea5d3e8065",
+      "afterSha256": "bd325a142cb182d936da59ead838b6e482c209b29f338e6a7c1c83ea5d3e8065",
+      "changed": false
+    },
+    {
+      "file": "mobile-chromium-listening-index.png",
+      "beforeSha256": "cf99628e9a9ca56bd689363ea17432c98945275cccb087ad5615d4f3aa52ff9e",
+      "afterSha256": "cf99628e9a9ca56bd689363ea17432c98945275cccb087ad5615d4f3aa52ff9e",
+      "changed": false
+    },
+    {
+      "file": "mobile-chromium-match.png",
+      "beforeSha256": "313f24f84ea2ad9d267c19a2046aa50682bbe9713f658a2527b7c5c0cad2a008",
+      "afterSha256": "197cd63afcba91f4367489ac58e8b00ceb92bdcadf09616439ab3e11ff85b4e5",
+      "changed": true
+    },
+    {
+      "file": "mobile-chromium-now.png",
+      "beforeSha256": "37003d39dea6088fe93dfb8836ae0be168cdf504906b2a9f1443d916e1e00e11",
+      "afterSha256": "37003d39dea6088fe93dfb8836ae0be168cdf504906b2a9f1443d916e1e00e11",
+      "changed": false
+    },
+    {
+      "file": "mobile-chromium-profile.png",
+      "beforeSha256": "c9b6622421f7abcecdd06cf180067559cc7ca0e639aba5ab638a2aaebae6dc0c",
+      "afterSha256": "c9b6622421f7abcecdd06cf180067559cc7ca0e639aba5ab638a2aaebae6dc0c",
+      "changed": false
+    },
+    {
+      "file": "mobile-chromium-weekly.png",
+      "beforeSha256": "ac5cd90366050cc74b79c76460356a9f31dd095bb37d5a6adcde7ee6cc52f9e8",
+      "afterSha256": "6e62f3eb6ff7b2fff08004fa65c3aae8478de95f5de9f462e10bb1fda3bb8519",
+      "changed": true
+    }
+  ]
+}

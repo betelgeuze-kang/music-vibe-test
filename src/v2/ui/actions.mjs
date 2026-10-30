@@ -1,4 +1,5 @@
 import { PROFILE_QUESTIONS } from '../data/questions.mjs?v=qg1';
+import { clearQuizDraft, makeQuizDraft, saveQuizDraft } from '../infrastructure/quiz-draft.mjs?listening=ln1';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs?v=qg1';
 import { toggleFeedbackValue } from '../domain/feedback.mjs';
 import { createProfileFromAnswers, decodeProfile, getProfileArchetype } from '../domain/profile.mjs?v=qg1';
@@ -10,8 +11,8 @@ import {
   saveProfile,
   setTrackFeedback as persistTrackFeedback
 } from '../infrastructure/storage.mjs?engagement=m4f1';
-import { buildInviteUrl, copyText, downloadProfileCard, shareProfileInvite } from '../infrastructure/share.mjs?v=qg1';
-import { extractToken, fragmentState, routeUrl, track } from './helpers.mjs?engagement=m4f1';
+import { buildInviteUrl, copyText, downloadProfileCard, shareProfileInvite } from '../infrastructure/share.mjs?result=rs1&journal=jn1';
+import { extractToken, fragmentState, routeUrl, track } from './helpers.mjs?engagement=m4f1&listening=ln1&journal=jn1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 20;
 const HOME_PREVIEW_LIMIT_SECONDS = 15;
@@ -62,7 +63,7 @@ export const actionMethods = {
         track_id: card?.dataset.trackId || '',
         platform: trackLink.dataset.platform,
         placement: trackLink.dataset.placement,
-        context_id: this.selectedContextId,
+        context_id: trackLink.dataset.contextId || card?.dataset.contextId || this.selectedContextId,
         strategy: card?.dataset.strategy || ''
       };
       track('playlist_click', payload);
@@ -92,15 +93,22 @@ export const actionMethods = {
       else if (action === 'focus-booth' || action === 'brand-focus-booth') this.focusListeningBooth();
       else if (action === 'scroll-sample' || action === 'brand-scroll-sample') this.scrollToSample();
       else if (action === 'retake-profile') this.startQuiz(true);
+      else if (action === 'resume-quiz') this.startQuiz(false);
+      else if (action === 'clear-quiz-draft') this.discardQuizDraft();
       else if (action === 'clear-profile') this.deleteProfile();
       else if (action === 'share-profile') this.shareProfile();
       else if (action === 'copy-invite') this.copyInvite();
-      else if (action === 'download-card') this.downloadCard();
+      else if (action === 'download-card' || action === 'open-profile-card') this.openProfileCard();
       else if (action === 'select-context' || action === 'restore-context') this.selectContext(actionTarget.dataset.contextId);
       else if (action === 'change-context') this.changeContext();
       else if (action === 'track-feedback') this.updateTrackFeedback(actionTarget);
       else if (action === 'refresh-recommendations') this.refreshRecommendations();
       else if (action === 'clear-friend') this.clearFriend();
+      else if (action === 'focus-bridge') {
+        const heading = this.root.querySelector('#match-playlist-title');
+        heading?.focus({ preventScroll: true });
+        heading?.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
       else if (action === 'privacy') this.showPrivacy();
       else if (action === 'analytics-consent') window.MusicVibeAnalytics?.openConsentPreferences?.();
       return;
@@ -119,16 +127,23 @@ export const actionMethods = {
     event.preventDefault();
     const token = extractToken(new FormData(form).get('invite'));
     const profile = decodeProfile(token);
-    if (!profile) { this.setNotice(this.copy().invalidInvite, 'error'); return; }
+    if (!profile) {
+      const input = form.querySelector('[name="invite"]');
+      const error = form.querySelector('#invite-error');
+      if (error) error.textContent = this.copy().invalidInvite;
+      input?.setAttribute('aria-invalid', 'true');
+      input?.focus();
+      return;
+    }
     this.friendProfile = profile;
     this.friendSource = 'manual';
     this.matchResult = null;
     this.feedbackChangesSinceRefresh = 0;
-    this.renderMatch();
+    this.navigate('match');
   },
 
   handleKeydown(event) {
-    if (this.route !== 'discover' || event.defaultPrevented || /INPUT|TEXTAREA|SELECT/.test(event.target?.tagName || '')) return;
+    if (this.route !== 'discover' || event.defaultPrevented || /INPUT|TEXTAREA|SELECT/.test(event.target?.tagName || '') || event.target?.isContentEditable || event.target?.closest('dialog')) return;
     const key = event.key.toLowerCase();
     if (key === 'arrowleft') { event.preventDefault(); this.previousQuestion(); return; }
     const question = PROFILE_QUESTIONS[this.quizIndex];
@@ -158,21 +173,32 @@ export const actionMethods = {
   },
 
   startQuiz(force = false) {
+    window.clearTimeout(this.selectionTimer);
+    this.selectionLocked = false;
+    const resuming = Boolean(!force && this.quizDraft);
+    if (!force && this.quizDraft) {
+      this.answers = this.quizDraft.answers;
+      this.quizIndex = this.quizDraft.index;
+      this.startedAt = this.quizDraft.startedAt;
+    }
     if (force || !this.startedAt) {
       this.answers = [];
       this.quizIndex = 0;
       this.startedAt = Date.now();
     }
     if (force) {
+      clearQuizDraft();
       this.heardOptionIds.clear();
       this.audioProgress.clear();
       this.audioErrorIds.clear();
     }
+    this.persistQuizDraft();
     this.navigate('discover');
-    track('start_test', { product_version: PRODUCT_VERSION, test_mode: 'vibe_profile_10', question_count: PROFILE_QUESTIONS.length });
+    track(resuming ? 'test_resume' : 'start_test', { product_version: PRODUCT_VERSION, test_mode: 'vibe_profile_10', question_count: PROFILE_QUESTIONS.length, question_number: this.quizIndex + 1 });
   },
 
   startFromHomeChoice(optionId) {
+    if (this.quizDraft?.answers.length) { this.startQuiz(false); return; }
     const question = PROFILE_QUESTIONS[0];
     const option = question.options.find((candidate) => candidate.id === optionId);
     if (!option) return;
@@ -181,6 +207,7 @@ export const actionMethods = {
     this.quizIndex = 1;
     this.startedAt = Date.now();
     this.selectionLocked = false;
+    this.persistQuizDraft();
     track('start_test', { product_version: PRODUCT_VERSION, test_mode: 'vibe_profile_10', question_count: PROFILE_QUESTIONS.length, entry_point: 'home_listening_booth' });
     track('question_answer', { product_version: PRODUCT_VERSION, test_mode: 'vibe_profile_10', question_id: question.id, question_number: 1, question_kind: question.kind, selected_option: option.id, entry_point: 'home_listening_booth' });
     this.navigate('discover');
@@ -197,6 +224,8 @@ export const actionMethods = {
   },
 
   quitQuiz() {
+    window.clearTimeout(this.selectionTimer);
+    this.selectionLocked = false;
     this.stopPreview();
     track('test_abandon', { product_version: PRODUCT_VERSION, test_mode: 'vibe_profile_10', last_question: this.quizIndex + 1, question_count: PROFILE_QUESTIONS.length, elapsed_ms: this.startedAt ? Date.now() - this.startedAt : 0 });
     this.navigate('home');
@@ -208,6 +237,7 @@ export const actionMethods = {
     this.selectionLocked = false;
     this.stopPreview(false);
     this.quizIndex -= 1;
+    this.persistQuizDraft();
     track('question_back', { question_number: this.quizIndex + 1, test_mode: 'vibe_profile_10', product_version: PRODUCT_VERSION });
     this.renderDiscover();
   },
@@ -226,6 +256,7 @@ export const actionMethods = {
       answer_changed: Boolean(previous && previous !== option.id)
     });
     this.selectionLocked = true;
+    this.persistQuizDraft(this.quizIndex + 1);
     this.renderDiscover();
     this.selectionTimer = window.setTimeout(() => {
       this.selectionLocked = false;
@@ -235,6 +266,10 @@ export const actionMethods = {
   },
 
   finishProfile() {
+    window.clearTimeout(this.selectionTimer);
+    this.selectionLocked = false;
+    clearQuizDraft();
+    this.quizDraft = null;
     const profile = createProfileFromAnswers(PROFILE_QUESTIONS, this.answers, 'v2_onboarding_m4');
     saveProfile(profile);
     this.profile = profile;
@@ -244,6 +279,22 @@ export const actionMethods = {
     track('profile_complete', { product_version: PRODUCT_VERSION, result_type: archetype.id, profile_id: profile.id, archetype_confidence: profile.archetypeConfidence });
     this.startedAt = 0;
     this.navigate(this.friendProfile ? 'match' : 'profile');
+  },
+
+  persistQuizDraft(index = this.quizIndex) {
+    const draft = makeQuizDraft(this.answers, index, this.startedAt || Date.now());
+    this.quizStorageAvailable = Boolean(draft && saveQuizDraft(draft));
+    this.quizDraft = draft;
+  },
+
+  discardQuizDraft() {
+    const removed = clearQuizDraft();
+    this.quizDraft = null;
+    this.answers = [];
+    this.quizIndex = 0;
+    this.startedAt = 0;
+    this.renderHome();
+    if (!removed) this.setNotice(this.language === 'kr' ? '브라우저 저장소를 사용할 수 없어 삭제를 확인하지 못했어요.' : 'Storage is unavailable; removal could not be confirmed.', 'error');
   },
 
   togglePreview(optionId) {
@@ -428,12 +479,26 @@ export const actionMethods = {
     }
   },
 
+  async openProfileCard() {
+    if (!this.profile || this.cardDialogOpening) return;
+    const profile = this.profile;
+    const ticket = this.renderTicket;
+    const opener = document.activeElement;
+    this.cardDialogOpening = true;
+    try {
+      const { showProfileCardDialog } = await import('./profile-card-dialog.mjs?result=rs1&listening=ln1');
+      if (this.profile === profile && this.route === 'profile' && this.renderTicket === ticket) showProfileCardDialog(this, opener);
+    } catch (_) {
+      this.setNotice(this.language === 'kr' ? '카드를 열지 못했어요. 다시 시도해 주세요.' : 'Could not open the card. Please try again.', 'error');
+    } finally { this.cardDialogOpening = false; }
+  },
+
   async downloadCard() {
     if (!this.profile) return;
-    track('image_save', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'svg-glyph-e1' });
+    track('image_save', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'rs1' });
     try {
       await downloadProfileCard(this.profile, this.language);
-      track('image_save_success', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'svg-glyph-e1' });
+      track('image_save_success', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'rs1' });
     } catch (error) {
       track('test_error', { product_version: PRODUCT_VERSION, error_type: 'profile_card', error_message: error?.message || 'Card export failed' });
       this.setNotice(this.language === 'kr' ? '카드를 저장하지 못했어요.' : 'Could not save the card.', 'error');
@@ -442,7 +507,7 @@ export const actionMethods = {
 
   async selectContext(contextId) {
     if (!CONTEXT_BY_ID[contextId] || !this.profile) return;
-    const { recommendTracks } = await import('../domain/recommendation.mjs?engagement=m4f1');
+    const { recommendTracks } = await import('../domain/recommendation.mjs?engagement=m4f1&listening=ln1');
     this.selectedContextId = contextId;
     this.recommendations = recommendTracks(this.profile, contextId, { language: this.language, limit: 5, feedbackRecords: this.trackFeedback });
     this.feedbackChangesSinceRefresh = 0;
@@ -460,7 +525,7 @@ export const actionMethods = {
     const contextId = String(target?.dataset.contextId || this.selectedContextId || (placement === 'bridge_playlist' ? 'together' : ''));
     if (!trackId || !requestedValue || !this.profile) return;
 
-    const { TRACK_BY_ID } = await import('../domain/recommendation.mjs?engagement=m4f1');
+    const { TRACK_BY_ID } = await import('../domain/recommendation.mjs?engagement=m4f1&listening=ln1');
     const item = TRACK_BY_ID[trackId];
     if (!item) return;
 
@@ -516,7 +581,7 @@ export const actionMethods = {
     if (!this.profile || this.feedbackChangesSinceRefresh < 1) return;
 
     if (this.route === 'now' && this.selectedContextId) {
-      const { recommendTracks } = await import('../domain/recommendation.mjs?engagement=m4f1');
+      const { recommendTracks } = await import('../domain/recommendation.mjs?engagement=m4f1&listening=ln1');
       const previous = this.recommendations;
       const next = recommendTracks(this.profile, this.selectedContextId, { language: this.language, limit: 5, feedbackRecords: this.trackFeedback });
       const changed = changedTrackCount(previous, next);
@@ -538,7 +603,7 @@ export const actionMethods = {
     }
 
     if (this.route === 'match' && this.friendProfile) {
-      const { compareProfiles } = await import('../domain/match.mjs?engagement=m4f1');
+      const { compareProfiles } = await import('../domain/match.mjs?engagement=m4f1&listening=ln1&journal=jn1');
       const previous = this.matchResult?.bridgeTracks || [];
       this.matchResult = compareProfiles(this.profile, this.friendProfile, this.language, { feedbackRecords: this.trackFeedback });
       const changed = changedTrackCount(previous, this.matchResult.bridgeTracks);
@@ -564,7 +629,7 @@ export const actionMethods = {
     this.renderNow();
   },
 
-  clearFriend() {
+  async clearFriend() {
     this.friendProfile = null;
     this.friendSource = '';
     this.matchResult = null;
@@ -574,7 +639,10 @@ export const actionMethods = {
     url.searchParams.delete('ref');
     url.hash = routeUrl('match').slice(1);
     window.history.replaceState({}, '', url);
-    this.renderMatch();
+    await this.renderMatch();
+    const heading = this.root.querySelector('h1');
+    heading?.setAttribute('tabindex', '-1');
+    heading?.focus();
   },
 
   showPrivacy() {

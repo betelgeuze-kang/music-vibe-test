@@ -1,9 +1,9 @@
 import { BRAND_COPY } from './copy.mjs?brand=bd1';
 import { PROFILE_QUESTIONS } from '../data/questions.mjs?v=qg1';
-import { HOME_SHOWCASE, localizedShowcaseReason } from '../data/home-showcase.mjs';
+import { HOME_SHOWCASE, localizedShowcaseReason } from '../data/home-showcase.mjs?listening=ln1';
 import { profileFromArchetype, getProfileArchetype, localize } from '../domain/profile.mjs?v=qg1';
-import { renderVibeGlyph } from '../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track } from '../ui/helpers.mjs?v=qg1';
+import { renderVibeGlyph } from '../quality/visuals.mjs?v=qg1&listening=ln1';
+import { escapeHtml, track } from '../ui/helpers.mjs?v=qg1&listening=ln1';
 
 const BRAND_RELEASE = 'bd1';
 const HOME_PREVIEW_SECONDS = 15;

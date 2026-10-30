@@ -33,10 +33,10 @@ assert.equal(buildInfo.engagementRelease, 'm4f1');
 assert.equal(buildInfo.timelineRelease, 'm4t1');
 assert.equal(buildInfo.weeklyRelease, 'm4w1');
 assert.equal(buildInfo.frontendQualityRelease, 'fq1');
-assert.equal(buildInfo.humanEditorialRelease, 'he1');
+assert.equal(buildInfo.humanEditorialRelease, 'he2');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
 assert(index.includes('data-stability-release="sr1"'));
-assert(index.includes('data-human-editorial-release="he1"'));
+assert(index.includes('data-human-editorial-release="he2"'));
 assert(index.includes('data-commercial-readiness-release="cr1"'));
 assert(index.includes('v2-app.css?commercial=cr1'));
 assert(cssEntry.includes('v2-stabilization.css?stability=sr1'));
@@ -45,7 +45,7 @@ assert(cssEntry.includes('v2-m4.css?engagement=m4f1'));
 assert(cssEntry.includes('v2-m4-timeline.css?timeline=m4t1'));
 assert(cssEntry.includes('v2-m4-weekly.css?frontend=fq1'));
 assert(cssEntry.includes('v2-frontend-quality.css?frontend=fq1'));
-assert(cssEntry.includes('v2-human-editorial.css?home=he1'));
+assert(cssEntry.includes('v2-human-editorial.css?home=he2'));
 assert(cssEntry.includes('v2-commercial-readiness.css?commercial=cr1'));
 
 for (const token of ['body[data-route="home"] .editorial-nav.site-nav', 'body[data-route="discover"] .editorial-nav.site-nav', 'env(safe-area-inset-bottom)', '.profile-hero__radar.quality-glyph-shell', '.editorial-hero h1 br', 'word-break: keep-all', '--muted: #b5b0a7', 'font-size: 15px']) assert(css.includes(token));
@@ -66,7 +66,7 @@ assert(timelineCss.includes('.timeline-entry__restore'));
 assert(weeklyCss.includes('.weekly-context-grid.is-count-1'));
 assert(frontendCss.includes('Frontend Quality Sweep FQ1'));
 assert(frontendCss.includes('min-height: 44px'));
-assert(humanCss.includes('Human Editorial Home HE1'));
+assert(humanCss.includes('Human Editorial Home HE2'));
 assert(humanCss.includes('body[data-route="home"] .site-header'));
 assert(humanCss.includes('position: static'));
 assert(commercialCss.includes('Commercial Readiness CR1'));
@@ -77,23 +77,24 @@ assert(commercialCss.includes('.commercial-footer__links'));
 assert(!qualitySpec.includes("disableRules(['color-contrast'])"));
 for (const route of ['home', 'discover', 'profile', 'today listen', 'listen together']) assert(qualitySpec.includes(`'${route}'`));
 assert(weeklySpec.includes('Weekly Vibe passes accessibility including color contrast'));
-for (const phrase of ['privacy dialog has an accessible name', 'destructive actions use the application confirm dialog', 'optional analytics consent is a non-blocking labelled region', 'responsive matrix has no horizontal overflow', 'mobile primary controls meet the 44px hit-target contract', 'HE1 home header never covers section titles and shared-listening copy stays readable']) assert(frontendSpec.includes(phrase));
+for (const phrase of ['privacy dialog has an accessible name', 'destructive actions use the application confirm dialog', 'optional analytics consent is a non-blocking labelled region', 'responsive matrix has no horizontal overflow', 'mobile primary controls meet the 44px hit-target contract', 'HE2 home header never covers section titles and shared-listening copy stays readable']) assert(frontendSpec.includes(phrase));
 if (commercialSpec) {
   for (const phrase of ['CR1 serves no advertising code by default', 'original commercial audio renders without MP3 requests', 'CR1 public legal pages pass accessibility']) assert(commercialSpec.includes(phrase));
 }
 
 const snapshotNames = [
   'chromium-home.png', 'chromium-discover.png', 'chromium-profile.png', 'chromium-weekly.png', 'chromium-now.png', 'chromium-match.png',
-  'mobile-chromium-home.png', 'mobile-chromium-discover.png', 'mobile-chromium-profile.png', 'mobile-chromium-weekly.png', 'mobile-chromium-now.png', 'mobile-chromium-match.png'
+  'mobile-chromium-home.png', 'mobile-chromium-discover.png', 'mobile-chromium-profile.png', 'mobile-chromium-weekly.png', 'mobile-chromium-now.png', 'mobile-chromium-match.png',
+  'chromium-listening-index.png', 'chromium-listening-essay.png', 'mobile-chromium-listening-index.png', 'mobile-chromium-listening-essay.png'
 ];
-for (const screen of ['home.png', 'discover.png', 'profile.png', 'weekly.png', 'now.png', 'match.png']) assert(visualSpec.includes(screen));
+for (const screen of ['home.png', 'discover.png', 'profile.png', 'weekly.png', 'now.png', 'match.png', 'listening-index.png', 'listening-essay.png']) assert(visualSpec.includes(screen));
 assert(visualSpec.includes("const baselineMarker = path.join(snapshotDir, '.ready')"));
 assert(visualSpec.includes("path.join(snapshotDir, '.refresh')"));
 assert(visualSpec.includes("scale: 'css'"));
 
-const refreshing = exists('tests/e2e/snapshots/.refresh');
+const refreshing = exists('tests/e2e/snapshots/.refresh') || exists('tests/e2e/snapshots/.refresh-profile') || exists('tests/e2e/snapshots/.refresh-journal');
 if (!refreshing) {
-  assert(/CR1 visual baselines approved by Browser Quality/.test(read('tests/e2e/snapshots/.ready').trim()));
+  assert.equal(read('tests/e2e/snapshots/.ready').trim(), `${(buildInfo.journalExperienceRelease || buildInfo.listeningExperienceRelease || buildInfo.resultSharingRelease || buildInfo.humanEditorialRelease).toUpperCase()} visual baselines approved by Browser Quality`);
   for (const snapshot of snapshotNames) {
     const relative = `tests/e2e/snapshots/${snapshot}`;
     assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);
@@ -101,4 +102,4 @@ if (!refreshing) {
   }
 }
 
-console.log('CR1 retains SR1/FQ1/HE1 frontend and visual quality contracts.');
+console.log('CR1 retains SR1/FQ1/HE2 frontend and visual quality contracts.');

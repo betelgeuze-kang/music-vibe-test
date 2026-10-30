@@ -48,12 +48,12 @@ for (const [meta, bodyAttribute, value] of markerContracts) {
   if (!index.includes(`${bodyAttribute}="${value}"`)) fail(`${bodyAttribute} does not match build-info.json`);
 }
 
-for (const marker of ['Canonical UI F1', 'M4 Feedback M4F1', 'Profile Timeline M4T1', 'Weekly Vibe M4W1', 'Frontend Quality FQ1', 'Human Editorial HE1', 'Commercial Readiness CR1']) {
+for (const marker of ['Canonical UI F1', 'M4 Feedback M4F1', 'Profile Timeline M4T1', 'Weekly Vibe M4W1', 'Frontend Quality FQ1', 'Human Editorial HE2', 'Commercial Readiness CR1']) {
   if (!index.includes(marker)) fail(`index release marker missing: ${marker}`);
 }
 if ((index.match(/rel="stylesheet"/g) || []).length !== 1) fail('index must load exactly one canonical stylesheet');
-if (!index.includes('v2-app.css?commercial=cr1')) fail('canonical stylesheet must be CR1-versioned');
-if (!index.includes('src/v2/main.mjs?commercial=cr1')) fail('canonical app entry must be CR1-versioned');
+if (!index.includes('v2-app.css?commercial=cr1&home=he2')) fail('canonical stylesheet must be CR1-versioned');
+if (!index.includes('src/v2/main.mjs?commercial=cr1&home=he2')) fail('canonical app entry must be CR1-versioned');
 if (!index.includes('data-ads-enabled="false"')) fail('advertising must be disabled by default');
 if (/pagead2\.googlesyndication\.com|adsbygoogle|doubleclick\.net/i.test(index)) fail('live advertising code must not be present in CR1');
 
@@ -73,6 +73,11 @@ const requiredFiles = [
   'src/v2/data/editorial-tracks.mjs', 'src/v2/data/home-showcase.mjs', 'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs', 'src/v2/domain/weekly.mjs', 'src/v2/domain/timeline.mjs',
   'src/v2/infrastructure/storage.mjs', 'src/v2/infrastructure/share.mjs',
+  'src/v2/ui/profile-card-dialog.mjs', 'src/v2/infrastructure/profile-card.mjs',
+  'src/v2/brand/record-art.mjs', 'src/v2/vendor/qrcode-generator.mjs', 'v2-result-editorial.css',
+  'src/v2/infrastructure/quiz-draft.mjs', 'src/v2/data/verified-track-links.mjs',
+  'src/v2/data/listening-guides.mjs', 'src/v2/data/listening-paths.mjs', 'src/v2/ui/listening-page.mjs',
+  'v2-listening-editorial.css', 'v2-listening-guides.css',
   'assets/audio/rights-manifest.json', 'ads.txt', 'about/index.html', 'privacy/index.html', 'audio-credits/index.html',
   'docs/legal/RETIRED_AUDIO_AUDIT.md', 'docs/operations/ADS_MONETIZATION_READINESS.md', 'docs/operations/ads.txt.example'
 ];
@@ -137,8 +142,8 @@ if (!about.includes('data-commercial-readiness-release="cr1"') || !about.include
 if (!privacy.includes('data-commercial-readiness-release="cr1"') || !privacy.includes('현재 광고 비활성') || !privacy.includes('맞춤형 광고') || !privacy.includes('pub-1386368370627622')) fail('privacy page is incomplete');
 if (!credits.includes('data-commercial-readiness-release="cr1"') || !credits.includes('직접 합성') || !credits.includes('rights-manifest.json')) fail('audio credits page is incomplete');
 
-if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1') fail('build-info entry contract is inconsistent');
-if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1') fail('build-info style contract is inconsistent');
+if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1') fail('build-info entry contract is inconsistent');
+if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1') fail('build-info style contract is inconsistent');
 if (buildInfo.audioSource !== '/src/v2/audio/original-clips.mjs?commercial=cr1') fail('build-info audio source contract is inconsistent');
 if (buildInfo.audioRightsManifest !== '/assets/audio/rights-manifest.json') fail('build-info rights manifest contract is inconsistent');
 if (buildInfo.adsEnabled !== false || buildInfo.runtimeOverrides !== false) fail('build-info commercial safety flags are invalid');
@@ -151,3 +156,17 @@ if (editorialTable.trim().split('\n').filter(Boolean).length !== 60) fail('edito
 if (!exists('ko/results/enfp/index.html') && !exists('ko/results/enfp/index.md')) fail('legacy static result continuity is missing');
 
 console.log(`CR1 commercial-readiness release verified at ${root}`);
+
+// Both source and generated Pages builds must contain the crawlable essays.
+if (buildInfo.listeningExperienceRelease !== 'ln1') fail('listening experience release is missing');
+if (buildInfo.journalExperienceRelease !== 'jn1') fail('journal experience release is missing');
+for (const asset of buildInfo.journalExperienceData || []) {
+  if (!exists(asset.split('?')[0].replace(/^\//, ''))) fail(`journal asset is missing: ${asset}`);
+}
+if (buildInfo.journalExperienceData?.length !== 3) fail('journal experience assets are incomplete');
+for (const language of ['', 'en/']) for (const slug of ['', 'night-walk/', 'focused-afternoon/', 'a-little-lift/', 'between-conversations/']) {
+  const file = `${language}listening/${slug}index.html`;
+  if (!exists(file)) fail(`listening page is missing: ${file}`);
+  const html = read(file);
+  if (!html.includes('<h1>') || !html.includes('rel="canonical"') || !html.includes('data-ads-enabled="false"')) fail(`incomplete listening page: ${file}`);
+}

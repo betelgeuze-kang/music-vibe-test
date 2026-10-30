@@ -44,6 +44,7 @@ test('home listening booth, keyboard editing, and profile persistence work toget
   }
 
   await expect(page.locator('.profile-hero')).toBeVisible();
+  await page.locator('[data-profile-disclosure="axes"] > summary').click();
   await expect(page.locator('.vibe-glyph')).toBeVisible();
   await expect(page.locator('.bipolar-axis')).toHaveCount(6);
   await expect(page.locator('.profile-signature .track-card')).toHaveCount(3);
@@ -141,7 +142,7 @@ test('mobile navigation is hidden during discovery and stays above all product c
   test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile-only layout contract');
   await page.goto('/?lang=kr#/home');
   await expect(page.locator('.site-nav')).toBeHidden();
-  await expect(page.locator('[data-action="focus-booth"]')).toBeVisible();
+  await expect(page.locator('.human-hero [data-action="focus-booth"]')).toBeVisible();
   await page.locator('[data-action="home-choose"]').first().click();
   await expect(page.locator('.site-nav')).toBeHidden();
   await completeProfile(page, 'a', { start: false });

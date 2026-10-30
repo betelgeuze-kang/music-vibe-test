@@ -1,9 +1,9 @@
 import { VIBE_CONTEXTS, CONTEXT_BY_ID } from '../../data/contexts.mjs?v=qg1';
 import { localize } from '../../domain/profile.mjs?v=qg1';
-import { recommendationSummary } from '../../domain/recommendation.mjs?engagement=m4f1';
+import { recommendationSummary } from '../../domain/recommendation.mjs?engagement=m4f1&listening=ln1';
 import { loadNowHistory } from '../../infrastructure/storage.mjs?engagement=m4f1';
-import { escapeHtml, track, trackCard } from '../helpers.mjs?engagement=m4f1';
-import { renderEmptyProfile } from './empty.mjs?ui=f1';
+import { escapeHtml, track, trackCard } from '../helpers.mjs?engagement=m4f1&listening=ln1';
+import { renderEmptyProfile } from './empty.mjs?ui=f1&listening=ln1';
 
 function refreshPanel(app) {
   if (app.feedbackChangesSinceRefresh < 2) return '';
@@ -12,7 +12,7 @@ function refreshPanel(app) {
       <div>
         <span class="eyebrow">${app.language === 'kr' ? '내 반응 반영' : 'USE MY FEEDBACK'}</span>
         <h2>${app.language === 'kr' ? '반응을 반영해 5곡을 다시 골라볼까요?' : 'Refresh these five tracks using your feedback?'}</h2>
-        <p>${app.language === 'kr' ? '현재 취향과 3·1·1 구성은 유지하고, 각 자리 안에서 더 잘 맞는 곡을 찾습니다.' : 'Your taste profile and the 3/1/1 mix stay intact; only the candidates within each slot are reconsidered.'}</p>
+        <p>${app.language === 'kr' ? '지금 취향과 상황은 유지하며, 남긴 반응을 다음 다섯 곡에 반영해요.' : 'Keep your taste and moment, and use your reactions to choose the next five tracks.'}</p>
       </div>
       <button class="button button--primary" type="button" data-action="refresh-recommendations">${app.language === 'kr' ? '반응을 반영해 다시 고르기' : 'Refresh the five tracks'}</button>
     </section>
@@ -59,6 +59,7 @@ export function renderNow(app) {
       <h1>${escapeHtml(localize(context.label, app.language))}</h1>
       <p>${escapeHtml(recommendationSummary(app.profile, context.id, app.language))}</p>
     </section>
+    <p class="listening-service-note">${app.language === 'kr' ? '‘곡 열기’는 확인한 영상으로, ‘검색’은 곡·아티스트 검색으로 연결해요. 서비스에 따라 재생 조건이 달라질 수 있어요.' : 'Open track leads to a reviewed video; Search looks up the song and artist. Playback conditions vary by service.'}</p>
     <section class="recommendation-list" aria-label="${escapeHtml(copy.nowResultTitle)}">
       <div class="list-heading"><h2>${escapeHtml(copy.nowResultTitle)}</h2><span>${app.recommendations.length} TRACKS</span></div>
       ${app.recommendations.map((candidate) => trackCard(candidate, app.language, 'vibe_now', {

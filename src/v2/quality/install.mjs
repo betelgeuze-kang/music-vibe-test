@@ -1,9 +1,9 @@
 import { PROFILE_QUESTIONS } from '../data/questions.mjs?v=qg1';
 import { localize, getProfileArchetype } from '../domain/profile.mjs?v=qg1';
-import { recommendProfileTracks } from '../domain/recommendation.mjs?v=qg1';
-import { compareProfiles } from '../domain/match.mjs?v=qg1';
-import { escapeHtml, track, trackCard } from '../ui/helpers.mjs?v=qg1';
-import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from './visuals.mjs?v=qg1';
+import { recommendProfileTracks } from '../domain/recommendation.mjs?v=qg1&listening=ln1';
+import { compareProfiles } from '../domain/match.mjs?v=qg1&listening=ln1';
+import { escapeHtml, track, trackCard } from '../ui/helpers.mjs?v=qg1&listening=ln1';
+import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from './visuals.mjs?v=qg1&listening=ln1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 20;
 const AUDIO_ERROR_WATCHDOG_MS = 2500;

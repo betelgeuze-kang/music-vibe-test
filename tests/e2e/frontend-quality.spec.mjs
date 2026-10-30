@@ -156,21 +156,21 @@ test('mobile primary controls meet the 44px hit-target contract', async ({ page 
   await expectTouchTargets(page, ['.site-nav__link', '.button', '.editorial-text-link'], '390px weekly');
 });
 
-test('HE1 home header never covers section titles and shared-listening copy stays readable', async ({ page }, testInfo) => {
+test('HE2 home header never covers section titles and shared-listening copy stays readable', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'single Chromium responsive matrix');
   test.setTimeout(90_000);
   await declineAnalytics(page);
 
   for (const width of [390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: width <= 768 ? 900 : 1000 });
-    await page.goto(`/?lang=kr&he1=${width}#/home`);
-    await expect(page.locator('body')).toHaveAttribute('data-human-editorial-release', 'he1');
+    await page.goto(`/?lang=kr&he2=${width}#/home`);
+    await expect(page.locator('body')).toHaveAttribute('data-human-editorial-release', 'he2');
     await expect(page.locator('body')).toHaveAttribute('data-commercial-readiness-release', 'cr1');
     await expect(page.locator('.human-editorial-home')).toBeVisible();
     await expect(page.locator('.sample-match__scores')).toHaveCount(0);
     await expect(page.locator('.human-match__person')).toHaveCount(2);
     await expect(page.locator('.human-match__meter')).toHaveCount(2);
-    await expectNoHorizontalOverflow(page, `${width}px HE1/CR1 home`);
+    await expectNoHorizontalOverflow(page, `${width}px HE2/CR1 home`);
     const headerPosition = await page.locator('.site-header').evaluate((node) => getComputedStyle(node).position);
     expect(headerPosition, `${width}px home header must not be sticky`).toBe('static');
     const togetherHeading = page.locator('.human-together > header h2');

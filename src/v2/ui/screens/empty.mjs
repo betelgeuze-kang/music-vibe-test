@@ -1,4 +1,4 @@
-import { escapeHtml } from '../helpers.mjs?ui=f1';
+import { escapeHtml } from '../helpers.mjs?ui=f1&listening=ln1';
 
 export function renderEmptyProfile(app, description, buttonLabel) {
   app.root.innerHTML = `

@@ -5,6 +5,8 @@ import { completeProfile, declineAnalytics } from './helpers.mjs';
 
 const snapshotDir = path.resolve('tests/e2e/snapshots');
 const baselineMarker = path.join(snapshotDir, '.ready');
+const profileRefreshMarker = path.join(snapshotDir, '.refresh-profile');
+const journalRefreshMarker = path.join(snapshotDir, '.refresh-journal');
 const refreshMarkers = [
   path.join(snapshotDir, '.refresh'),
   path.join(snapshotDir, '.refresh-css-scale')
@@ -36,7 +38,9 @@ async function stabilize(page) {
 async function captureOrCompare(page, testInfo, baseName) {
   const name = `${testInfo.project.name}-${baseName}`;
   await stabilize(page);
-  if (baselinesReady) {
+  const refreshingProfile = baseName === 'profile.png' && fs.existsSync(profileRefreshMarker);
+  const refreshingJournal = ['weekly.png', 'match.png'].includes(baseName) && fs.existsSync(journalRefreshMarker);
+  if (baselinesReady && !refreshingProfile && !refreshingJournal) {
     await expect(page).toHaveScreenshot(name, screenshotOptions);
     return;
   }
@@ -99,4 +103,16 @@ test('listen-together visual snapshot', async ({ page }, testInfo) => {
   await page.locator('[data-route="match"]').first().click();
   await expect(page.locator('.invite-builder')).toBeVisible();
   await captureOrCompare(page, testInfo, 'match.png');
+});
+
+test('listening index visual snapshot', async ({ page }, testInfo) => {
+  await page.goto('/listening/');
+  await expect(page.locator('.guide-index-grid')).toBeVisible();
+  await captureOrCompare(page,testInfo,'listening-index.png');
+});
+
+test('listening essay visual snapshot', async ({ page }, testInfo) => {
+  await page.goto('/listening/night-walk/');
+  await expect(page.locator('.guide-tracks')).toBeVisible();
+  await captureOrCompare(page,testInfo,'listening-essay.png');
 });

@@ -1,7 +1,8 @@
+import { recordTheme, renderRecordArt } from '../../brand/record-art.mjs?result=rs1';
 import { AXES } from '../../data/axes.mjs?v=qg1';
 import { getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
 import { axisReading, roundedScore, scoreBand } from '../../domain/presentation.mjs';
-import { recommendProfileTracks } from '../../domain/recommendation.mjs';
+import { recommendProfileTracks } from '../../domain/recommendation.mjs?listening=ln1';
 import {
   compareProfileSnapshots,
   findReferenceSnapshot,
@@ -11,13 +12,13 @@ import {
   TIMELINE_VISIBLE_LIMIT
 } from '../../domain/timeline.mjs?timeline=m4t1';
 import { loadProfileHistory } from '../../infrastructure/storage.mjs?timeline=m4t1';
-import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track, trackCard } from '../helpers.mjs?weekly=m4w1';
-import { renderEmptyProfile } from './empty.mjs?ui=f1';
+import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1&listening=ln1';
+import { escapeHtml, track, trackCard } from '../helpers.mjs?weekly=m4w1&listening=ln1';
+import { renderEmptyProfile } from './empty.mjs?ui=f1&listening=ln1';
 
 function timelineHighlights(profile, language) {
   return AXES
-    .map((axis) => ({ axis, score: Number(profile.scores[axis.id] || 50), distance: Math.abs(Number(profile.scores[axis.id] || 50) - 50) }))
+    .map((axis) => ({ axis, score: Number(profile.scores[axis.id] ?? 50), distance: Math.abs(Number(profile.scores[axis.id] ?? 50) - 50) }))
     .sort((left, right) => right.distance - left.distance || left.axis.id.localeCompare(right.axis.id))
     .slice(0, 2)
     .map(({ axis, score }) => `<span><b>${escapeHtml(localize(axis.label, language))}</b>${escapeHtml(axisReading(axis, score, language))}</span>`)
@@ -114,94 +115,57 @@ export function renderProfile(app) {
     renderEmptyProfile(app, copy.profileMeaning, copy.beginProfile);
     return;
   }
-
+  const korean = app.language !== 'en';
   const archetype = getProfileArchetype(app.profile);
-  const [start, middle, end] = archetype.gradient;
+  const theme = recordTheme(archetype.id);
+  const name = localize(archetype.name, app.language);
   const strongest = AXES
     .map((axis) => ({ axis, distance: Math.abs(app.profile.scores[axis.id] - 50), score: app.profile.scores[axis.id] }))
     .sort((left, right) => right.distance - left.distance)
     .slice(0, 3);
   const signature = recommendProfileTracks(app.profile, { language: app.language, limit: 3, feedbackRecords: app.trackFeedback });
+  const timeline = timelineSection(app);
+  const open = (section) => app.profileDetailsOpen?.[section] ? 'open' : '';
 
   app.root.innerHTML = `
     <div id="app-notice" class="app-notice"></div>
-    <section class="profile-hero" style="--profile-start:${start};--profile-middle:${middle};--profile-end:${end}">
-      <div class="profile-hero__copy">
-        <span class="eyebrow">${escapeHtml(copy.profileEyebrow)}</span>
-        <span class="profile-hero__symbol" aria-hidden="true">${escapeHtml(archetype.symbol)}</span>
-        <h1>${escapeHtml(localize(archetype.name, app.language))}</h1>
-        <p class="profile-hero__tagline">${escapeHtml(localize(archetype.tagline, app.language))}</p>
-        <div class="keyword-row">${localize(archetype.keywords, app.language).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join('')}</div>
-        <p class="profile-confidence">${escapeHtml(confidenceLabel(app.profile, app.language))}</p>
-        <small>${escapeHtml(formatProfileDate(app.profile, app.language))} · ${escapeHtml(copy.profileSaved)}</small>
-      </div>
-      <div class="profile-hero__radar quality-glyph-shell">
-        ${renderVibeGlyph(app.profile, app.language, { id: `profile-${app.profile.id}-${Date.parse(app.profile.createdAt) || 0}`, size: 300 })}
-      </div>
-    </section>
+    <div class="result-editorial" style="--record-paper:${theme.paper};--record-ink:${theme.ink}">
+      <section class="profile-hero result-hero" aria-labelledby="result-name">
+        <div class="profile-hero__copy">
+          <span class="notes-kicker">${korean ? '열 번의 선택, 한 장의 음악 기록' : 'TEN CHOICES. ONE LISTENING NOTE.'}</span>
+          <h1 id="result-name">${escapeHtml(name)}</h1>
+          <p class="profile-hero__tagline">${escapeHtml(localize(archetype.tagline, app.language))}</p>
+          <div class="keyword-row">${localize(archetype.keywords, app.language).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join('')}</div>
+          <div class="result-hero__actions"><button type="button" class="notes-button notes-button--primary" data-action="download-card">${korean ? '내 취향 카드 공유' : 'Share my taste card'} ↗</button><button type="button" class="notes-button" data-action="share-profile">${korean ? '친구에게 비교 링크 보내기' : 'Invite a friend to compare'} ↗</button></div>
+          <small>${escapeHtml(formatProfileDate(app.profile, app.language))} · ${escapeHtml(copy.profileSaved)}</small>
+        </div>
+        <figure class="result-record" aria-hidden="true"><div class="result-record__vinyl"></div><div class="result-record__sleeve"><div class="result-record__label"><span>LISTENING NOTE</span><span>SIDE A</span></div>${renderRecordArt(archetype.id)}<p>${escapeHtml(name)}</p><small>THE WAY YOU LISTEN.</small></div></figure>
+      </section>
 
-    <section class="profile-layout">
-      <article class="panel">
-        <span class="eyebrow">${escapeHtml(copy.profileWhy)}</span>
-        <h2>${escapeHtml(localize(archetype.tagline, app.language))}</h2>
-        <p class="long-copy">${escapeHtml(localize(archetype.description, app.language))}</p>
-        <ul class="why-list">
-          ${strongest.map(({ axis, score }) => `
-            <li>
-              <strong>${escapeHtml(localize(axis.label, app.language))}</strong>
-              <span>${escapeHtml(axisReading(axis, score, app.language))} <small>${roundedScore(score)}</small></span>
-            </li>
-          `).join('')}
-        </ul>
-        <p class="fine-print">${escapeHtml(copy.profileMeaning)}</p>
-      </article>
-      <article class="panel panel--axes">
-        <span class="eyebrow">${escapeHtml(copy.profileAxes)}</span>
-        ${renderBipolarAxes(app.profile, app.language)}
-      </article>
-    </section>
+      <section class="profile-signature recommendation-list result-signature" aria-labelledby="result-songs-title">
+        <div class="result-section-heading"><div><span class="notes-kicker">YOUR FIRST THREE TRACKS</span><h2 id="result-songs-title">${korean ? '이 취향을 들려주는 세 곡.' : 'Three songs that sound like you.'}</h2></div><p>${korean ? '어떤 음악인지 직접 들어보세요. 곡은 선택한 음악 서비스에서 열립니다.' : 'Let the music tell the story. Each song opens on your chosen music service.'}</p></div>
+        <div class="result-track-grid">${signature.map((candidate) => trackCard(candidate, app.language, 'profile_signature')).join('')}</div>
+        <div class="result-listen-next"><span>${korean ? '지금의 장면까지 더해볼까요?' : 'Add the moment you are in.'}</span><button type="button" class="notes-text-button" data-route="now">${korean ? '오늘 들을 다섯 곡 찾기' : 'Find five songs for today'} ↗</button></div>
+      </section>
 
-    ${timelineSection(app)}
+      <section class="result-share-band" aria-labelledby="result-share-title"><div><span class="notes-kicker">PASS THE RECORD.</span><h2 id="result-share-title">${korean ? '좋아하는 소리도,<br>나누면 새로운 음악이 돼요.' : 'Pass your taste along.<br>Find something new together.'}</h2><p>${korean ? '내 취향을 카드 한 장에 담아보세요. 친구가 QR이나 초대 링크로 들어오면 두 사람 사이의 음악을 찾을 수 있어요.' : 'Put your taste on a card. A friend can use its QR or your invite link to discover the music between you.'}</p></div><div class="result-share-band__actions"><button type="button" class="notes-button notes-button--primary" data-action="open-profile-card">${korean ? '카드 미리보기 · 저장' : 'Preview & save my card'} ↗</button><button type="button" class="notes-text-button" data-route="match">${korean ? '친구와 함께 들을 곡 찾기' : 'Find music for two'} ↗</button><span>${korean ? '피드 4:5 · 스토리 9:16' : 'FEED 4:5 · STORY 9:16'}</span></div></section>
 
-    <section class="profile-signature recommendation-list">
-      <div class="list-heading"><div><span class="eyebrow">${app.language === 'kr' ? '이 취향을 설명하는 음악' : 'SIGNATURE LISTEN'}</span><h2>${app.language === 'kr' ? '지금의 취향을 가장 잘 들려주는 3곡' : 'Three tracks that explain this taste'}</h2></div><span>3 TRACKS</span></div>
-      <p class="profile-signature__intro">${app.language === 'kr' ? '결과 이름보다 실제 음악으로 내 취향을 확인해보세요.' : 'Validate the result through music, not only a label.'}</p>
-      ${signature.map((candidate) => trackCard(candidate, app.language, 'profile_signature')).join('')}
-    </section>
+      <section class="result-details" aria-labelledby="result-details-title">
+        <div class="result-section-heading"><div><span class="notes-kicker">A CLOSER LISTEN</span><h2 id="result-details-title">${korean ? '내 취향, 조금 더 들여다보기.' : 'A closer look at your listening.'}</h2></div><p>${escapeHtml(copy.profileMeaning)}</p></div>
+        <details class="result-disclosure" data-profile-disclosure="axes" ${open('axes')}><summary><span><b>${korean ? '왜 이런 취향이 나왔나요?' : 'Why does this taste fit me?'}</b><small>${korean ? '취향 설명과 여섯 가지 방향' : 'The story and six directions'}</small></span><i aria-hidden="true">＋</i></summary>
+          <div class="profile-layout"><article class="panel"><span class="notes-kicker">${escapeHtml(copy.profileWhy)}</span><h3>${escapeHtml(localize(archetype.tagline, app.language))}</h3><p class="long-copy">${escapeHtml(localize(archetype.description, app.language))}</p><ul class="why-list">${strongest.map(({ axis, score }) => `<li><strong>${escapeHtml(localize(axis.label, app.language))}</strong><span>${escapeHtml(axisReading(axis, score, app.language))}</span></li>`).join('')}</ul><p class="profile-confidence">${escapeHtml(confidenceLabel(app.profile, app.language))}</p><div class="result-glyph">${renderVibeGlyph(app.profile, app.language, { id: 'result-profile-glyph', size: 300 })}</div></article><article class="panel panel--axes"><span class="notes-kicker">${escapeHtml(copy.profileAxes)}</span>${renderBipolarAxes(app.profile, app.language)}</article></div>
+        </details>
+        <details class="result-disclosure" data-profile-disclosure="timeline" ${open('timeline')}><summary><span><b>${korean ? '지난 취향 기록' : 'My listening timeline'}</b><small>${korean ? `${app.profileHistory.length}개의 기록 · 비교하고 다시 열기` : `${app.profileHistory.length} notes · compare and revisit`}</small></span><i aria-hidden="true">＋</i></summary>${timeline}</details>
+      </section>
+      <section class="result-continue"><div><span class="notes-kicker">KEEP LISTENING.</span><h2>${korean ? '취향은, 계속 이어지는 기록.' : 'Your taste keeps a record.'}</h2><p>${korean ? '다시 선택하거나, 이번 주에 머문 음악을 모아보세요.' : 'Listen again, or revisit the music that stayed with you this week.'}</p></div><div><button type="button" class="notes-button" data-action="retake-profile">${escapeHtml(copy.profileRetake)} ↗</button><button type="button" class="notes-text-button" data-action="open-weekly">${korean ? '이번 주 기록 보기' : 'Open Weekly Vibe'} ↗</button></div></section>
+      <section class="utility-actions result-data-actions"><span>${korean ? '취향 기록은 이 브라우저에 저장됩니다.' : 'Taste notes stay in this browser.'}</span><button type="button" data-action="clear-profile" class="danger-link">${korean ? '저장된 취향과 기록 삭제' : 'Delete saved taste and notes'}</button></section>
+    </div>`;
 
-    <section class="action-band">
-      <div><span class="eyebrow">${app.language === 'kr' ? '다음에 들을 것' : 'NEXT LISTEN'}</span><h2>${app.language === 'kr' ? '이 기록을 이번 주의 흐름, 오늘의 선곡, 친구 사이의 음악으로 이어보세요.' : 'Continue these notes into your week, music for today, or music for two.'}</h2></div>
-      <div class="action-band__buttons">
-        <button class="button button--light" type="button" data-action="open-weekly">${app.language === 'kr' ? '이번 주 기록 보기' : 'Open Weekly Vibe'}</button>
-        <button class="button button--ghost" type="button" data-route="now">${escapeHtml(copy.profileNow)}</button>
-        <button class="button button--ghost" type="button" data-route="match">${escapeHtml(copy.profileMatch)}</button>
-      </div>
-    </section>
-
-    <section class="utility-actions">
-      <button type="button" data-action="share-profile">${escapeHtml(copy.profileShare)}</button>
-      <button type="button" data-action="download-card">${escapeHtml(copy.profileDownload)}</button>
-      <button type="button" data-action="retake-profile">${escapeHtml(copy.profileRetake)}</button>
-      <button type="button" data-action="clear-profile" class="danger-link">${app.language === 'kr' ? '저장된 취향과 기록 삭제' : 'Delete saved taste and notes'}</button>
-    </section>
-  `;
-
-  track('result_view', {
-    product_version: 'v2-m4w1',
-    result_type: archetype.id,
-    profile_id: app.profile.id,
-    result_origin: app.profile.source,
-    strongest_band: scoreBand(strongest[0]?.score || 50, app.language)
-  });
-  track('profile_quality_view', {
-    result_type: archetype.id,
-    archetype_confidence: app.profile.archetypeConfidence,
-    product_version: 'v2-m4w1'
-  });
-  track('profile_timeline_view', {
-    product_version: 'v2-m4w1',
-    profile_id: app.profile.id,
-    snapshot_count: app.profileHistory.length,
-    comparison_available: app.profileHistory.length > 1
-  });
+  app.root.querySelectorAll('[data-profile-disclosure]').forEach((details) => details.addEventListener('toggle', () => {
+    app.profileDetailsOpen ||= {};
+    app.profileDetailsOpen[details.dataset.profileDisclosure] = details.open;
+    if (details.open && details.dataset.profileDisclosure === 'timeline') track('profile_timeline_view', { product_version: 'v2-rs1', snapshot_count: app.profileHistory.length, comparison_available: app.profileHistory.length > 1 });
+  }));
+  track('result_view', { product_version: 'v2-rs1', result_type: archetype.id, result_origin: app.profile.source, strongest_band: scoreBand(strongest[0]?.score ?? 50, app.language) });
+  track('profile_quality_view', { result_type: archetype.id, archetype_confidence: app.profile.archetypeConfidence, product_version: 'v2-rs1' });
 }

@@ -65,7 +65,7 @@ for (const token of [
   '@media (max-width: 920px)',
   '@media (max-width: 680px)'
 ]) {
-  assert(humanCss.includes(token), `HE1 frontend CSS is missing ${token}`);
+  assert(humanCss.includes(token), `HE2 frontend CSS is missing ${token}`);
 }
 
 assert(visualSpec.includes('window.__musicVibeV2?.clearNotice?.()'));
@@ -77,9 +77,9 @@ for (const phrase of [
   'route changes clear transient notices',
   'responsive matrix has no horizontal overflow',
   'mobile primary controls meet the 44px hit-target contract',
-  'HE1 home header never covers section titles and shared-listening copy stays readable'
+  'HE2 home header never covers section titles and shared-listening copy stays readable'
 ]) {
   assert(browserSpec.includes(phrase), `browser quality gate is missing: ${phrase}`);
 }
 
-console.log('Frontend quality sweep and HE1 contracts passed.');
+console.log('Frontend quality sweep and HE2 contracts passed.');

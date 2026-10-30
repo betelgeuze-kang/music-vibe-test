@@ -1,3 +1,5 @@
+> LN1 adds resumable test choices, reviewed song destinations and ten bilingual static listening pages. See [Listening journey LN1](docs/product/LISTENING_JOURNEY_LN1.md). Regenerate content with `node scripts/build-listening-guides.mjs`; CI checks parity with `--check`.
+
 # My Music Vibe
 
 My Music Vibe is a digital listening journal. Ten music-first choices become a six-direction taste note, five explainable tracks for the current moment, a shared list for two friends, and a local Weekly Vibe recap.
@@ -19,11 +21,12 @@ E1    manually edited recommendation content
 F1    canonical modular frontend
 M4    feedback, timeline, Weekly Vibe, return loop
 FQ1   dialogs, responsive matrix, hit targets, visual regression
-HE1   human editorial home
+HE2   listening editorial home, original record artwork, interactive listening moments
+RS1   listening-first result, expandable notes, offline feed/story share cards
 CR1   original test audio, rights manifest, public policies, ads-off safety
 ```
 
-The canonical runtime starts from `src/v2/main.mjs?commercial=cr1`. It does not load the historical brand installer, capture-phase interaction bridge, or quality mutation layer.
+The canonical runtime starts from `src/v2/main.mjs?commercial=cr1&home=he2&result=rs1`. It does not load the historical brand installer, capture-phase interaction bridge, or quality mutation layer.
 
 ## Audio and commercial readiness
 
@@ -46,7 +49,7 @@ npm run ci
 Browser gates run separately:
 
 ```bash
-npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2 jsqr@1.4.0
 npx playwright install chromium
 npx playwright test
 ```
@@ -57,7 +60,8 @@ npx playwright test
 - [V2 architecture and data contracts](docs/product/V2_ARCHITECTURE.md)
 - [Quality gates](docs/product/QUALITY_GATES.md)
 - [Editorial brand design](docs/product/BRAND_DESIGN.md)
-- [Human editorial home](docs/product/HUMAN_EDITORIAL_HOME_HE1.md)
+- [Listening editorial home](docs/product/LISTENING_HOME_HE2.md)
+- [Result and sharing](docs/product/RESULT_AND_SHARING_RS1.md)
 - [Profile-space audit](docs/product/PROFILE_AUDIT.md)
 - [Retired audio audit](docs/legal/RETIRED_AUDIO_AUDIT.md)
 - [Advertising monetization readiness](docs/operations/ADS_MONETIZATION_READINESS.md)

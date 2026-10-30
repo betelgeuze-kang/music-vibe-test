@@ -1,5 +1,5 @@
 import { AXES, AXIS_IDS } from '../data/axes.mjs';
-import { TRACKS } from '../data/tracks.mjs';
+import { TRACKS } from '../data/tracks.mjs?listening=ln1';
 import { enrichTrack } from '../data/editorial-tracks.mjs';
 import { CONTEXT_BY_ID } from '../data/contexts.mjs';
 import { feedbackAdjustmentForTrack } from './feedback.mjs';
@@ -102,12 +102,12 @@ function contrastSentence(profile, candidate, language) {
     : (language === 'kr' ? '낮은' : 'lower');
   if (language === 'kr') {
     return candidate.strategy === 'adjacent'
-      ? `다른 핵심 후보보다 ${axes[contrast.axisId]}를 조금 더 ${direction} 쪽으로 넓혀줘요.`
-      : `핵심 후보보다 ${axes[contrast.axisId]}가 더 ${direction} 방향이라 새로운 감각을 만들어요.`;
+      ? `내 취향 기록보다 ${axes[contrast.axisId]}가 ${direction} 쪽으로 한 걸음 옮겨봤어요.`
+      : `내 취향 기록보다 ${axes[contrast.axisId]}가 ${direction} 방향을 탐색하는 곡이에요.`;
   }
   return candidate.strategy === 'adjacent'
-    ? `Compared with the core candidates, it moves slightly ${direction} on ${axes[contrast.axisId]}.`
-    : `Compared with the core candidates, it moves further ${direction} on ${axes[contrast.axisId]} and creates a new edge.`;
+    ? `Compared with your taste note, it takes a step ${direction} on ${axes[contrast.axisId]}.`
+    : `It explores a direction ${direction} on ${axes[contrast.axisId]} than your taste note.`;
 }
 
 function buildReason(profile, candidate, context, language) {
@@ -177,9 +177,16 @@ function decorateSelected(profile, context, candidate, language, strategy) {
     strategy,
     strategyLabel: STRATEGY_COPY[language]?.[strategy] || STRATEGY_COPY.en[strategy]
   };
+  const aligned = AXIS_IDS.slice().sort((a, b) => axisSimilarity(profile.scores, candidate.track.profile, b) - axisSimilarity(profile.scores, candidate.track.profile, a)).slice(0, 2);
+  const axes = AXIS_COPY[language] || AXIS_COPY.en;
+  const tasteNote = strategy === 'safe'
+    ? (language === 'kr' ? `지금 기록의 ${axes[aligned[0]]}와 ${axes[aligned[1]]}에 가까운 곡이에요.` : `Close to the ${axes[aligned[0]]} and ${axes[aligned[1]]} in your current taste note.`)
+    : contrastSentence(profile, selected, language);
   return Object.freeze({
     ...selected,
     reason: buildReason(profile, selected, context, language),
+    listeningNote: localize(candidate.track.editorialNote, language) || buildReason(profile, selected, context, language),
+    tasteNote,
     urls: Object.freeze({
       spotify: platformUrl(candidate.track, 'spotify'),
       youtube: platformUrl(candidate.track, 'youtube'),

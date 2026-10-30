@@ -1,3 +1,4 @@
+import { VERIFIED_TRACK_LINKS } from './verified-track-links.mjs?listening=ln1';
 import { ARCHETYPE_BY_ID } from './archetypes.mjs?v=qg1';
 
 const RAW_TRACKS = `space-song|Space Song|Beach House|US|2015|dream-pop,indie|midnight-dreamer|night,reset|en|
@@ -176,7 +177,7 @@ function hashNumber(value) {
 
 function parseTrack(line) {
   const [id, title, artist, region, year, genres, preset, contexts, language, youtube] = line.split('|');
-  const platforms = youtube ? { youtube } : {};
+  const platforms = { ...(youtube ? { youtube } : {}), ...(VERIFIED_TRACK_LINKS[id]?.platforms || {}) };
   const baseTags = {
     'midnight-dreamer': ['dreamy', 'night', 'emotional'],
     'neon-runner': ['drive', 'impact', 'urban'],

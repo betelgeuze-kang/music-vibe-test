@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { PROFILE_QUESTIONS } from '../src/v2/data/questions.mjs';
+import { makeQuizDraft, normalizeQuizDraft, QUIZ_DRAFT_TTL_MS, loadQuizDraft, saveQuizDraft, clearQuizDraft } from '../src/v2/infrastructure/quiz-draft.mjs';
+const now = Date.now();
+const answers = PROFILE_QUESTIONS.slice(0, 3).map((q) => ({ questionId: q.id, optionId: q.options[0].id, token: 'must-not-survive' }));
+const draft = makeQuizDraft(answers, 3, now - 1000, now);
+assert.equal(draft.index, 3);
+assert.equal(draft.answers[0].token, undefined);
+for (const invalid of [null, {}, { ...draft, bank: 'old-bank' }, { ...draft, index: 4 }, { ...draft, index: -1 }, { ...draft, updatedAt: now + 1 }, { ...draft, updatedAt: now - QUIZ_DRAFT_TTL_MS }, { ...draft, answers: [answers[0], answers[0]] }, { ...draft, answers: [{ questionId: answers[0].questionId, optionId: 'bad-option' }] }]) assert.equal(normalizeQuizDraft(invalid, now), null);
+assert.equal(makeQuizDraft(PROFILE_QUESTIONS.map((q) => ({ questionId: q.id, optionId: q.options[0].id })), 10, now, now).index, 10);
+globalThis.window = { localStorage: { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); }, removeItem() { throw Error('blocked'); } } };
+assert.equal(loadQuizDraft(), null);
+assert.equal(saveQuizDraft(draft), false);
+assert.equal(clearQuizDraft(), false);
+console.log('quiz-draft: bounded choices, expiry, incompatible bank, tampering, completion and blocked storage PASS');

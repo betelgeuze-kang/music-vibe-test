@@ -1,12 +1,12 @@
 import { recordInteraction } from '../infrastructure/storage.mjs?weekly=m4w1';
-import { track } from './helpers.mjs?weekly=m4w1';
+import { track } from './helpers.mjs?weekly=m4w1&listening=ln1&journal=jn1';
 
 const PRODUCT_VERSION = 'v2-m4w1';
 
 function openWeekly(app, target) {
   const anchor = String(target?.dataset.weeklyAnchor || '');
   app.weeklyAnchorAt = anchor || null;
-  app.navigate('weekly');
+  app.navigate('weekly', anchor ? { week: anchor.slice(0, 10) } : {});
 }
 
 function listenFromWeekly(app, target) {
@@ -33,8 +33,8 @@ async function shareWeeklyCard(app) {
   const vibe = app.latestWeeklyVibe;
   if (!vibe || !app.profile) return;
   const [{ TRACK_BY_ID }, { shareWeeklyVibeCard }] = await Promise.all([
-    import('../domain/recommendation.mjs?weekly=m4w1'),
-    import('../infrastructure/share.mjs?weekly=m4w1')
+    import('../domain/recommendation.mjs?weekly=m4w1&listening=ln1'),
+    import('../infrastructure/share.mjs?weekly=m4w1&journal=jn1')
   ]);
 
   try {
