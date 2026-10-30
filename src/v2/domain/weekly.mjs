@@ -236,14 +236,13 @@ export function formatWeeklyRange(vibeOrAnchor, language = 'kr') {
 
 export function weeklySummary(vibe, language = 'kr') {
   const archetype = getProfileArchetype(vibe || {});
-  const alias = weeklyAlias(vibe, language);
   const context = CONTEXT_BY_ID[vibe?.dominantContextId];
   if (language === 'kr') {
-    const contextCopy = context ? `${localize(context.shortLabel, 'kr')} 장면을 가장 자주 골랐고` : '여러 장면을 고르게 오갔고';
-    return `${alias}. ${contextCopy}, ${localize(archetype.name, 'kr')}에 가까운 소리에 오래 머물렀어요.`;
+    const contextCopy = context ? `${localize(context.shortLabel, 'kr')} 분위기가 이번 기록의 중심이에요.` : '여러 장면의 선택과 반응이 모인 기록이에요.';
+    return `${contextCopy} 사이트에서 남긴 반응은 ${localize(archetype.name, 'kr')} 방향에 가까웠어요.`;
   }
-  const contextCopy = context ? `You returned most often to ${localize(context.shortLabel, 'en').toLowerCase()}` : 'You moved across several listening moments';
-  return `${alias}. ${contextCopy}, with listening closest to ${localize(archetype.name, 'en')}.`;
+  const contextCopy = context ? `The leading moment in this note was ${localize(context.shortLabel, 'en').toLowerCase()}` : 'This note brings together several listening moments';
+  return `${contextCopy}. Your actions on this site leaned toward ${localize(archetype.name, 'en')}.`;
 }
 
 export function daysBetween(left, right) {

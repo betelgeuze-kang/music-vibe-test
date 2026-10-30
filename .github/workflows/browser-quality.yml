@@ -61,7 +61,8 @@ jobs:
           refresh_marker="${snapshot_dir}/.refresh"
           legacy_refresh_marker="${snapshot_dir}/.refresh-css-scale"
           profile_refresh_marker="${snapshot_dir}/.refresh-profile"
-          if [ -f "${snapshot_dir}/.ready" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ] && [ ! -f "$profile_refresh_marker" ]; then
+          journal_refresh_marker="${snapshot_dir}/.refresh-journal"
+          if [ -f "${snapshot_dir}/.ready" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ] && [ ! -f "$profile_refresh_marker" ] && [ ! -f "$journal_refresh_marker" ]; then
             echo 'Visual baselines are already active; comparison mode completed.'
             exit 0
           fi
@@ -88,13 +89,17 @@ jobs:
           if [ -f "${snapshot_dir}/.ready" ] && [ -f "$profile_refresh_marker" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ]; then
             expected=(chromium-profile.png mobile-chromium-profile.png)
           fi
+          if [ -f "${snapshot_dir}/.ready" ] && [ -f "$journal_refresh_marker" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ]; then
+            test ! -f "$profile_refresh_marker"
+            expected=(chromium-weekly.png mobile-chromium-weekly.png chromium-match.png mobile-chromium-match.png)
+          fi
           for image in "${expected[@]}"; do test -s "${capture_dir}/${image}"; done
 
-          release_label="$(jq -r '.listeningExperienceRelease // .resultSharingRelease // .humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
+          release_label="$(jq -r '.journalExperienceRelease // .listeningExperienceRelease // .resultSharingRelease // .humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
           for image in "${expected[@]}"; do cp "${capture_dir}/${image}" "$snapshot_dir/"; done
           printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"
-          rm -f "$refresh_marker" "$legacy_refresh_marker" "$profile_refresh_marker"
+          rm -f "$refresh_marker" "$legacy_refresh_marker" "$profile_refresh_marker" "$journal_refresh_marker"
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

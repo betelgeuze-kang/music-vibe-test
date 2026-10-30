@@ -70,7 +70,7 @@ components:
 
 ## Overview
 
-An independent music journal: warm paper, forest-green ink, record sleeves and carefully written listening notes. The first screen explains the useful outcome and offers one clear starting action. HE2 applies this direction to home. RS1 extends it to the result page and feed/story share cards. LN1 extends the paper/forest design to the test, music-for-today route, and static listening essays. Weekly and match retain their established design while using the clearer shared song notes and service actions.
+An independent music journal: warm paper, forest-green ink, record sleeves and carefully written listening notes. The first screen explains the useful outcome and offers one clear starting action. HE2 applies this direction to home. RS1 extends it to the result page and feed/story share cards. LN1 extends the paper/forest design to the test, music-for-today route, and static listening essays. JN1 completes this direction for invitations, friend comparisons, dated weekly notes and their exported card.
 
 ## Colors
 
@@ -90,6 +90,10 @@ The test separates outlined preview controls from filled A/B choice controls. Ke
 
 Music for Today separates the sound description from the connection to a taste profile. Label reviewed destinations as Open track and discovery destinations as Search. On home, a new profile leads to music for today; a ready or saved weekly note can lead the return visit. Weekly summaries describe actions on this site, not verified external playback.
 
+Friend invitations show the two listening notes and three short steps, without printing raw tokens or profile IDs. Keep a received invitation in the fragment through test resume; never put it in an HTTP query or a new storage key. Show index explanations in a disclosure, then offer five shared songs. Feedback belongs only to the current listener.
+
+Weekly notes lead with an actual date range and original sleeve. Saved dates reopen the same seven-day window after refresh. Site choices, link clicks and feedback are the source; do not imply verified playback or time spent listening. Keep changes and sound textures optional. The weekly export uses the same paper palette without IDs or invitation tokens.
+
 Static listening pages use an original sleeve and editorial introduction, three tracks with a listening point each, a sequence note and a personal-taste action. The article, links, navigation and metadata remain readable without JavaScript. Korean and English have parallel URLs, canonical references and language alternates. Never auto-play or embed commercial songs.
 
 ## Elevation & Depth
@@ -102,7 +106,7 @@ Small radii on paper surfaces and rectangular primary actions. Rounded moment se
 
 ## Components
 
-Reuse the existing audio controls, track-link instrumentation, consent controls and route actions. Moment buttons change editorial selections without navigating, replacing focus or replaying landing events. FAQs use native details/summary. Home and result header/footer hide internal release codes. Share cards use the same original record art and palette in 1080×1350 and 1080×1920. Prepare the PNG before enabling native sharing, keep its preview identical to export, and retain download/link fallbacks. A local QR encoder supports offline comparison links; never fetch a remote QR service. The image has no visible profile ID.
+Reuse the existing audio controls, track-link instrumentation, consent controls and route actions. Moment buttons change editorial selections without navigating, replacing focus or replaying landing events. FAQs use native details/summary. All app header/footer views hide internal release codes. Share cards use the same original record art and palette in 1080×1350 and 1080×1920. Prepare the PNG before enabling native sharing, keep its preview identical to export, and retain download/link fallbacks. A local QR encoder supports offline comparison links; never fetch a remote QR service. The image has no visible profile ID.
 
 ## Do's and Don'ts
 

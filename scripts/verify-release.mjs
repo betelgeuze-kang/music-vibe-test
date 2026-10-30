@@ -142,8 +142,8 @@ if (!about.includes('data-commercial-readiness-release="cr1"') || !about.include
 if (!privacy.includes('data-commercial-readiness-release="cr1"') || !privacy.includes('현재 광고 비활성') || !privacy.includes('맞춤형 광고') || !privacy.includes('pub-1386368370627622')) fail('privacy page is incomplete');
 if (!credits.includes('data-commercial-readiness-release="cr1"') || !credits.includes('직접 합성') || !credits.includes('rights-manifest.json')) fail('audio credits page is incomplete');
 
-if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1') fail('build-info entry contract is inconsistent');
-if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1') fail('build-info style contract is inconsistent');
+if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1') fail('build-info entry contract is inconsistent');
+if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1') fail('build-info style contract is inconsistent');
 if (buildInfo.audioSource !== '/src/v2/audio/original-clips.mjs?commercial=cr1') fail('build-info audio source contract is inconsistent');
 if (buildInfo.audioRightsManifest !== '/assets/audio/rights-manifest.json') fail('build-info rights manifest contract is inconsistent');
 if (buildInfo.adsEnabled !== false || buildInfo.runtimeOverrides !== false) fail('build-info commercial safety flags are invalid');
@@ -159,6 +159,11 @@ console.log(`CR1 commercial-readiness release verified at ${root}`);
 
 // Both source and generated Pages builds must contain the crawlable essays.
 if (buildInfo.listeningExperienceRelease !== 'ln1') fail('listening experience release is missing');
+if (buildInfo.journalExperienceRelease !== 'jn1') fail('journal experience release is missing');
+for (const asset of buildInfo.journalExperienceData || []) {
+  if (!exists(asset.split('?')[0].replace(/^\//, ''))) fail(`journal asset is missing: ${asset}`);
+}
+if (buildInfo.journalExperienceData?.length !== 3) fail('journal experience assets are incomplete');
 for (const language of ['', 'en/']) for (const slug of ['', 'night-walk/', 'focused-afternoon/', 'a-little-lift/', 'between-conversations/']) {
   const file = `${language}listening/${slug}index.html`;
   if (!exists(file)) fail(`listening page is missing: ${file}`);

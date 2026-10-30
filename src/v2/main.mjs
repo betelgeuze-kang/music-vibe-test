@@ -1,4 +1,4 @@
-import { VibeApp } from './ui/app.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1';
+import { VibeApp } from './ui/app.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1';
 import { installConsentAccessibility } from './ui/consent-a11y.mjs?frontend=fq1';
 
 async function retireLegacyRuntime() {
@@ -21,7 +21,7 @@ async function loadBuildInfo() {
     const response = await fetch('/build-info.json?commercial=cr1', { cache: 'no-store' });
     if (!response.ok) return;
     const info = await response.json();
-    document.documentElement.dataset.buildId = info.listeningExperienceRelease || info.resultSharingRelease || info.commercialReadinessRelease || info.humanEditorialRelease || info.frontendQualityRelease || info.weeklyRelease || info.timelineRelease || info.engagementRelease || info.uiRelease || info.releaseId || 'cr1';
+    document.documentElement.dataset.buildId = info.journalExperienceRelease || info.listeningExperienceRelease || info.resultSharingRelease || info.commercialReadinessRelease || info.humanEditorialRelease || info.frontendQualityRelease || info.weeklyRelease || info.timelineRelease || info.engagementRelease || info.uiRelease || info.releaseId || 'cr1';
     window.__musicVibeBuild = Object.freeze(info);
   } catch (_) {
     document.documentElement.dataset.buildId = 'cr1';

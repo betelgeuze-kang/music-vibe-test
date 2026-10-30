@@ -11,8 +11,8 @@ import {
   saveProfile,
   setTrackFeedback as persistTrackFeedback
 } from '../infrastructure/storage.mjs?engagement=m4f1';
-import { buildInviteUrl, copyText, downloadProfileCard, shareProfileInvite } from '../infrastructure/share.mjs?result=rs1';
-import { extractToken, fragmentState, routeUrl, track } from './helpers.mjs?engagement=m4f1&listening=ln1';
+import { buildInviteUrl, copyText, downloadProfileCard, shareProfileInvite } from '../infrastructure/share.mjs?result=rs1&journal=jn1';
+import { extractToken, fragmentState, routeUrl, track } from './helpers.mjs?engagement=m4f1&listening=ln1&journal=jn1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 20;
 const HOME_PREVIEW_LIMIT_SECONDS = 15;
@@ -63,7 +63,7 @@ export const actionMethods = {
         track_id: card?.dataset.trackId || '',
         platform: trackLink.dataset.platform,
         placement: trackLink.dataset.placement,
-        context_id: this.selectedContextId,
+        context_id: trackLink.dataset.contextId || card?.dataset.contextId || this.selectedContextId,
         strategy: card?.dataset.strategy || ''
       };
       track('playlist_click', payload);
@@ -104,6 +104,11 @@ export const actionMethods = {
       else if (action === 'track-feedback') this.updateTrackFeedback(actionTarget);
       else if (action === 'refresh-recommendations') this.refreshRecommendations();
       else if (action === 'clear-friend') this.clearFriend();
+      else if (action === 'focus-bridge') {
+        const heading = this.root.querySelector('#match-playlist-title');
+        heading?.focus({ preventScroll: true });
+        heading?.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
       else if (action === 'privacy') this.showPrivacy();
       else if (action === 'analytics-consent') window.MusicVibeAnalytics?.openConsentPreferences?.();
       return;
@@ -122,12 +127,19 @@ export const actionMethods = {
     event.preventDefault();
     const token = extractToken(new FormData(form).get('invite'));
     const profile = decodeProfile(token);
-    if (!profile) { this.setNotice(this.copy().invalidInvite, 'error'); return; }
+    if (!profile) {
+      const input = form.querySelector('[name="invite"]');
+      const error = form.querySelector('#invite-error');
+      if (error) error.textContent = this.copy().invalidInvite;
+      input?.setAttribute('aria-invalid', 'true');
+      input?.focus();
+      return;
+    }
     this.friendProfile = profile;
     this.friendSource = 'manual';
     this.matchResult = null;
     this.feedbackChangesSinceRefresh = 0;
-    this.renderMatch();
+    this.navigate('match');
   },
 
   handleKeydown(event) {
@@ -591,7 +603,7 @@ export const actionMethods = {
     }
 
     if (this.route === 'match' && this.friendProfile) {
-      const { compareProfiles } = await import('../domain/match.mjs?engagement=m4f1&listening=ln1');
+      const { compareProfiles } = await import('../domain/match.mjs?engagement=m4f1&listening=ln1&journal=jn1');
       const previous = this.matchResult?.bridgeTracks || [];
       this.matchResult = compareProfiles(this.profile, this.friendProfile, this.language, { feedbackRecords: this.trackFeedback });
       const changed = changedTrackCount(previous, this.matchResult.bridgeTracks);
@@ -617,7 +629,7 @@ export const actionMethods = {
     this.renderNow();
   },
 
-  clearFriend() {
+  async clearFriend() {
     this.friendProfile = null;
     this.friendSource = '';
     this.matchResult = null;
@@ -627,7 +639,10 @@ export const actionMethods = {
     url.searchParams.delete('ref');
     url.hash = routeUrl('match').slice(1);
     window.history.replaceState({}, '', url);
-    this.renderMatch();
+    await this.renderMatch();
+    const heading = this.root.querySelector('h1');
+    heading?.setAttribute('tabindex', '-1');
+    heading?.focus();
   },
 
   showPrivacy() {

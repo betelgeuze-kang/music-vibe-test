@@ -1,9 +1,9 @@
 import { CONTEXT_BY_ID } from '../data/contexts.mjs?v=qg1';
 import { BRAND_COPY } from '../brand/copy.mjs?home=he2';
 import { loadQuizDraft } from '../infrastructure/quiz-draft.mjs?listening=ln1';
-import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
+import { decodeProfile, encodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
 import { mergeActiveSnapshot } from '../domain/timeline.mjs?timeline=m4t1';
-import { sevenDayReturnStatus } from '../domain/weekly.mjs?weekly=m4w1';
+import { sevenDayReturnStatus } from '../domain/weekly.mjs?weekly=m4w1&journal=jn1';
 import {
   loadLatestWeeklyVibe,
   loadProfile,
@@ -14,15 +14,15 @@ import {
   registerVisit,
   returnVisitAlreadyTracked
 } from '../infrastructure/storage.mjs?weekly=m4w1';
-import { actionMethods } from './actions.mjs?weekly=m4w1&result=rs1&listening=ln1';
+import { actionMethods } from './actions.mjs?weekly=m4w1&result=rs1&listening=ln1&journal=jn1';
 import { commercialAudioMethods } from './commercial-audio-actions.mjs?commercial=cr1&listening=ln1';
-import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1';
+import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1';
 import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?commercial=cr1&listening=ln1';
 import { renderDiscover } from './screens/discover.mjs?commercial=cr1&listening=ln1';
 import { renderHome } from './screens/home.mjs?home=he2&listening=ln1';
-import { escapeHtml, detectLanguage, extractToken, fragmentState, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1&listening=ln1';
+import { escapeHtml, detectLanguage, extractToken, fragmentState, parseRoute, parseWeeklyAnchor, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1&listening=ln1&journal=jn1';
 import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1&listening=ln1';
-import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1&listening=ln1';
+import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1&listening=ln1&journal=jn1';
 
 export const ENGAGEMENT_RELEASE = 'm4f1';
 export const TIMELINE_RELEASE = 'm4t1';
@@ -30,6 +30,7 @@ export const WEEKLY_RELEASE = 'm4w1';
 export const FRONTEND_QUALITY_RELEASE = 'fq1';
 export const HUMAN_EDITORIAL_RELEASE = 'he2';
 export const RESULT_SHARING_RELEASE = 'rs1';
+export const JOURNAL_EXPERIENCE_RELEASE = 'jn1';
 export const LISTENING_EXPERIENCE_RELEASE = 'ln1';
 export const COMMERCIAL_READINESS_RELEASE = 'cr1';
 
@@ -42,7 +43,7 @@ export class VibeApp {
     this.profile = loadProfile();
     this.profileHistory = mergeActiveSnapshot(this.profile, loadProfileHistory());
     this.latestWeeklyVibe = loadLatestWeeklyVibe(this.profile?.id || '');
-    this.weeklyAnchorAt = null;
+    this.weeklyAnchorAt = parseWeeklyAnchor(fragmentState().params.get('week'));
     const incomingContext = fragmentState().params.get('context');
     this.pendingWeeklyContextId = Object.hasOwn(CONTEXT_BY_ID, incomingContext) ? incomingContext : '';
     this.visitRegistration = null;
@@ -96,6 +97,7 @@ export class VibeApp {
     document.documentElement.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     document.documentElement.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
     document.documentElement.dataset.listeningExperienceRelease = LISTENING_EXPERIENCE_RELEASE;
+    document.documentElement.dataset.journalExperienceRelease = JOURNAL_EXPERIENCE_RELEASE;
     document.documentElement.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
@@ -152,13 +154,21 @@ export class VibeApp {
 
   navigate(route, params = null) {
     const safeRoute = ROUTES.has(route) ? route : 'home';
-    if (parseRoute() === safeRoute && !params) {
+    const nextParams = { ...params };
+    // Keep the invitation across a test refresh without adding browser storage
+    // or moving its contents into an HTTP query/referrer.
+    if (this.friendProfile) {
+      nextParams.compare = encodeProfile(this.friendProfile);
+      nextParams.lang = this.language;
+    }
+    const hash = routeUrl(safeRoute, nextParams);
+    if (window.location.hash === hash) {
       this.route = safeRoute;
       this.clearNotice();
       this.render();
       return;
     }
-    window.location.hash = routeUrl(safeRoute, params || {});
+    window.location.hash = hash;
   }
 
   handleRouteChange() {
@@ -169,11 +179,19 @@ export class VibeApp {
     this.clearNotice();
     closeOpenAppDialogs();
     this.route = parseRoute();
+    if (fragmentState().params.has('compare')) {
+      const incoming = this.resolveIncomingProfile();
+      if ((incoming ? encodeProfile(incoming) : '') !== (this.friendProfile ? encodeProfile(this.friendProfile) : '')) {
+        this.friendProfile = incoming;
+        this.friendSource = incoming?.source || '';
+        this.matchResult = null;
+      }
+    }
     if (this.route === 'now') {
       const contextId = fragmentState().params.get('context');
       if (Object.hasOwn(CONTEXT_BY_ID, contextId)) this.pendingWeeklyContextId = contextId;
     }
-    if (this.route !== 'weekly') this.weeklyAnchorAt = null;
+    this.weeklyAnchorAt = this.route === 'weekly' ? parseWeeklyAnchor(fragmentState().params.get('week')) : null;
     track('route_view', { route: this.route, product_version: 'v2-cr1', has_profile: Boolean(this.profile) });
     this.render();
   }
@@ -216,7 +234,7 @@ export class VibeApp {
   }
 
   async renderWeekly() {
-    const module = await import('./screens/weekly.mjs?frontend=fq1&listening=ln1');
+    const module = await import('./screens/weekly.mjs?frontend=fq1&listening=ln1&journal=jn1');
     await module.renderWeekly(this);
   }
 
@@ -232,7 +250,7 @@ export class VibeApp {
   }
 
   async renderMatch() {
-    const module = await import('./screens/match.mjs?engagement=m4f1&listening=ln1');
+    const module = await import('./screens/match.mjs?engagement=m4f1&listening=ln1&journal=jn1');
     module.renderMatch(this);
   }
 
@@ -247,6 +265,7 @@ export class VibeApp {
     document.body.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
     document.body.dataset.resultSharingRelease = RESULT_SHARING_RELEASE;
     document.body.dataset.listeningExperienceRelease = LISTENING_EXPERIENCE_RELEASE;
+    document.body.dataset.journalExperienceRelease = JOURNAL_EXPERIENCE_RELEASE;
     document.body.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     this.renderHeader();
     this.renderFooter();

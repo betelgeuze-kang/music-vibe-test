@@ -1,4 +1,4 @@
-import { escapeHtml } from '../helpers.mjs?weekly=m4w1&listening=ln1';
+import { escapeHtml } from '../helpers.mjs?weekly=m4w1&listening=ln1&journal=jn1';
 
 export const UI_RELEASE = 'f1';
 
@@ -16,7 +16,7 @@ export function renderHeader(app) {
     <div class="site-header__inner editorial-header">
       <button class="brand editorial-wordmark" type="button" data-route="home" aria-label="${korean ? 'My Music Vibe 처음 화면' : 'My Music Vibe home'}">
         <span class="editorial-wordmark__name">MY MUSIC VIBE</span>
-        <span class="editorial-wordmark__issue">${['home', 'profile', 'discover', 'now'].includes(app.route) ? 'YOUR EVERYDAY SOUNDTRACK' : 'LISTENING NOTES / CR1'}</span>
+        <span class="editorial-wordmark__issue">YOUR EVERYDAY SOUNDTRACK</span>
       </button>
       <nav class="site-nav editorial-nav" aria-label="${korean ? '주요 메뉴' : 'Primary navigation'}">
         ${nav('home', copy.navHome, korean ? '처음' : 'Home', '⌂')}
@@ -35,7 +35,7 @@ export function renderFooter(app) {
   const korean = app.language === 'kr';
   app.footer.innerHTML = `
     <div class="site-footer__inner editorial-footer commercial-footer">
-      <div class="commercial-footer__brand"><strong>MY MUSIC VIBE</strong><span>© ${new Date().getFullYear()}${['home', 'profile', 'discover', 'now'].includes(app.route) ? ' · Made for listening.' : ' · CR1'}</span></div>
+      <div class="commercial-footer__brand"><strong>MY MUSIC VIBE</strong><span>© ${new Date().getFullYear()} · Made for listening.</span></div>
       <p>${escapeHtml(copy.footerNote)}</p>
       <nav class="commercial-footer__links" aria-label="${korean ? '운영·권리 정보' : 'Operation and rights information'}">
         <a href="/about/">${korean ? '서비스 소개' : 'About'}</a>

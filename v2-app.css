@@ -16,6 +16,8 @@
 
 @import url("v2-result-editorial.css?result=rs1") layer(result-editorial);
 
-@import url("v2-listening-editorial.css?listening=ln1") layer(listening-editorial);
+@import url("v2-listening-editorial.css?listening=ln1&journal=jn1") layer(listening-editorial);
 
-@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, commercial-readiness, human-editorial, result-editorial, listening-editorial;
+@import url("v2-journal-editorial.css?journal=jn1") layer(journal-editorial);
+
+@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, commercial-readiness, human-editorial, result-editorial, listening-editorial, journal-editorial;

@@ -1,5 +1,5 @@
 {
-  "schema": 14,
+  "schema": 15,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -12,11 +12,11 @@
   "frontendQualityRelease": "fq1",
   "humanEditorialRelease": "he2",
   "commercialReadinessRelease": "cr1",
-  "productVersion": "v2-listening-journey-and-guides",
-  "assetVersion": "ln1",
-  "builtAt": "2026-10-30T18:22:15+09:00",
-  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1",
-  "styleEntry": "/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1",
+  "productVersion": "v2-listening-notes-journal",
+  "assetVersion": "jn1",
+  "builtAt": "2026-10-30T23:36:52+09:00",
+  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1",
+  "styleEntry": "/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1",
   "canonicalCopy": "/src/v2/brand/copy.mjs?home=he2",
   "homeScreen": "/src/v2/ui/screens/home.mjs?home=he2&listening=ln1",
   "audioSource": "/src/v2/audio/original-clips.mjs?commercial=cr1",
@@ -33,9 +33,9 @@
   ],
   "lazyRoutes": [
     "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1&listening=ln1",
-    "/src/v2/ui/screens/weekly.mjs?frontend=fq1&listening=ln1",
+    "/src/v2/ui/screens/weekly.mjs?frontend=fq1&listening=ln1&journal=jn1",
     "/src/v2/ui/screens/now.mjs?engagement=m4f1&listening=ln1",
-    "/src/v2/ui/screens/match.mjs?engagement=m4f1&listening=ln1"
+    "/src/v2/ui/screens/match.mjs?engagement=m4f1&listening=ln1&journal=jn1"
   ],
   "editorialData": [
     "/src/v2/data/editorial-tracks.mjs",
@@ -54,11 +54,11 @@
     "/v2-m4-timeline.css?timeline=m4t1"
   ],
   "weeklyData": [
-    "/src/v2/domain/weekly.mjs?weekly=m4w1",
-    "/src/v2/ui/weekly-actions.mjs?weekly=m4w1&listening=ln1",
-    "/src/v2/ui/screens/weekly.mjs?frontend=fq1&listening=ln1",
+    "/src/v2/domain/weekly.mjs?weekly=m4w1&journal=jn1",
+    "/src/v2/ui/weekly-actions.mjs?weekly=m4w1&listening=ln1&journal=jn1",
+    "/src/v2/ui/screens/weekly.mjs?frontend=fq1&listening=ln1&journal=jn1",
     "/src/v2/infrastructure/storage.mjs?weekly=m4w1",
-    "/src/v2/infrastructure/share.mjs?weekly=m4w1",
+    "/src/v2/infrastructure/share.mjs?weekly=m4w1&journal=jn1",
     "/v2-m4-weekly.css?frontend=fq1"
   ],
   "frontendQualityData": [
@@ -128,7 +128,10 @@
     "quiz-draft-resume",
     "bilingual-listening-guides",
     "static-content-parity",
-    "reviewed-track-destinations"
+    "reviewed-track-destinations",
+    "invitation-test-resume",
+    "weekly-date-navigation",
+    "journal-copy-integrity"
   ],
   "resultSharingRelease": "rs1",
   "resultSharingData": [
@@ -149,5 +152,11 @@
     "/v2-listening-guides.css?listening=ln1",
     "/listening/",
     "/en/listening/"
+  ],
+  "journalExperienceRelease": "jn1",
+  "journalExperienceData": [
+    "/src/v2/ui/components/listener-card.mjs?journal=jn1",
+    "/src/v2/infrastructure/weekly-card.mjs?journal=jn1",
+    "/v2-journal-editorial.css?journal=jn1"
   ]
 }

@@ -101,6 +101,8 @@ export function compareProfiles(leftProfile, rightProfile, language = 'kr', opti
     ...candidate,
     sharedFit: Math.round((candidate.leftFit + candidate.rightFit) / 2),
     reason: bridgeReason(candidate, language),
+    exactPlatforms: Object.freeze(Object.keys(candidate.track.platforms || {})),
+    strategyLabel: language === 'kr' ? '함께 듣는 선곡' : 'A shared pick',
     urls: Object.freeze({ spotify: platformUrl(candidate.track, 'spotify'), youtube: platformUrl(candidate.track, 'youtube'), apple: platformUrl(candidate.track, 'apple') }),
     editorial: Boolean(candidate.track.editorial)
   }));

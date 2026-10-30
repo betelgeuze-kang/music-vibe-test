@@ -70,8 +70,8 @@ assert.equal(buildInfo.adProvider, 'google-adsense');
 assert.equal(buildInfo.adPublisherId, 'pub-1386368370627622');
 assert.equal(buildInfo.adsTxt, '/ads.txt');
 assert.equal(buildInfo.runtimeOverrides, false);
-assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1');
-assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1');
+assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1');
+assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1&journal=jn1');
 assert.equal(buildInfo.commercialReadinessData.length, 9);
 assert.equal(read('ads.txt').trim(), 'google.com, pub-1386368370627622, DIRECT, f08c47fec0942fa0');
 

@@ -36,6 +36,13 @@ export function routeUrl(route, params = {}) {
   return `#/${ROUTES.has(route) ? route : 'home'}${query.size ? `?${query}` : ''}`;
 }
 
+export function parseWeeklyAnchor(value) {
+  const key = String(value || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
+  const date = new Date(`${key}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === key ? date.toISOString() : null;
+}
+
 export function axisDirection(axis, score, language) {
   return score >= 50 ? (axis.high?.[language] || axis.high?.en) : (axis.low?.[language] || axis.low?.en);
 }
@@ -107,7 +114,7 @@ export function trackCard(candidate, language, placement, options = {}) {
   ` : '';
 
   return `
-    <article class="track-card" data-track-id="${escapeHtml(item.id)}" data-track-artist="${escapeHtml(item.artist)}" data-strategy="${escapeHtml(candidate.strategy || 'recommended')}" data-placement="${escapeHtml(placement)}">
+    <article class="track-card" data-track-id="${escapeHtml(item.id)}" data-track-artist="${escapeHtml(item.artist)}" data-context-id="${escapeHtml(contextId)}" data-strategy="${escapeHtml(candidate.strategy || 'recommended')}" data-placement="${escapeHtml(placement)}">
       <div class="track-card__score"><span class="sr-only">${escapeHtml(scoreLabel)} </span>${score}</div>
       <div class="track-card__body">
         <div class="track-card__kicker"><span>${escapeHtml(strategy)}</span><span>${escapeHtml(item.region)} · ${item.year}</span>${exact}${feedbackApplied}</div>
