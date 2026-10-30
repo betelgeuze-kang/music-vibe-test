@@ -155,7 +155,9 @@ test('saved weekly dates reopen exactly after refresh and expose no playback cla
 });
 
 test('journal layouts fit narrow phones and English with usable primary controls', async ({ page }, testInfo) => {
-  await page.goto('/?lang=en#/home');
+  await page.goto('/?lang=en#/weekly');
+  await expect(page.locator('.empty-state')).toBeVisible();
+  await accessible(page);
   await completeProfile(page, 'a');
   await page.locator('[data-route="match"]').first().click();
   for (const width of [320, 768, 1280]) {

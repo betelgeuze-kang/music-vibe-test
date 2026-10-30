@@ -3,6 +3,7 @@ body:is([data-route="match"],[data-route="weekly"]) #app { padding-top:0; }
 body:is([data-route="match"],[data-route="weekly"]) :is(h1,h2,h3,p) { word-break:keep-all; overflow-wrap:anywhere; }
 body:is([data-route="match"],[data-route="weekly"]) .eyebrow { color:var(--notes-muted); }
 body:is([data-route="match"],[data-route="weekly"]) .empty-state { color:var(--notes-ink); background:var(--notes-surface); border-color:var(--notes-line); border-radius:4px; }
+body:is([data-route="match"],[data-route="weekly"]) .empty-state p { color:var(--notes-muted); }
 body:is([data-route="match"],[data-route="weekly"]) .empty-state__symbol { color:var(--notes-accent); }
 body:is([data-route="match"],[data-route="weekly"]) .empty-state .button--primary { background:var(--notes-ink); }
 .match-editorial { min-width:0; }
