@@ -47,7 +47,7 @@ npm run ci
 Browser gates run separately:
 
 ```bash
-npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2 jsqr@1.4.0
 npx playwright install chromium
 npx playwright test
 ```

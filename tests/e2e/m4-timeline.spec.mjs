@@ -9,7 +9,7 @@ test('profile timeline compares two notes, restores one, and clears earlier hist
   await page.goto('/?lang=ko#/home');
   await completeProfile(page, 'a');
 
-  if (!(await page.locator('[data-profile-disclosure="timeline"]').getAttribute('open') !== null)) await page.locator('[data-profile-disclosure="timeline"] > summary').click();
+  if (await page.locator('[data-profile-disclosure="timeline"]').getAttribute('open') === null) await page.locator('[data-profile-disclosure="timeline"] > summary').click();
   await expect(page.locator('.profile-timeline')).toBeVisible();
   await expect(page.locator('[data-timeline-entry]')).toHaveCount(1);
   await expect(page.locator('.timeline-empty')).toBeVisible();
@@ -19,7 +19,7 @@ test('profile timeline compares two notes, restores one, and clears earlier hist
   await expect(page.locator('.quiz-topline')).toContainText('1 / 10');
   await completeProfile(page, 'b', { start: false });
 
-  if (!(await page.locator('[data-profile-disclosure="timeline"]').getAttribute('open') !== null)) await page.locator('[data-profile-disclosure="timeline"] > summary').click();
+  if (await page.locator('[data-profile-disclosure="timeline"]').getAttribute('open') === null) await page.locator('[data-profile-disclosure="timeline"] > summary').click();
   await expect(page.locator('.profile-timeline')).toBeVisible();
   await expect(page.locator('[data-timeline-entry]')).toHaveCount(2);
   await expect(page.locator('.timeline-comparison')).toBeVisible();
@@ -56,7 +56,7 @@ test('profile timeline compares two notes, restores one, and clears earlier hist
   expect(storedAfterClear.history[0].createdAt).toBe(storedAfterClear.active.createdAt);
 
   await page.reload();
-  if (!(await page.locator('[data-profile-disclosure="timeline"]').getAttribute('open') !== null)) await page.locator('[data-profile-disclosure="timeline"] > summary').click();
+  if (await page.locator('[data-profile-disclosure="timeline"]').getAttribute('open') === null) await page.locator('[data-profile-disclosure="timeline"] > summary').click();
   await expect(page.locator('.profile-timeline')).toBeVisible();
   await expect(page.locator('[data-timeline-entry]')).toHaveCount(1);
   await expect(page.locator('[data-timeline-entry].is-current')).toHaveCount(1);
