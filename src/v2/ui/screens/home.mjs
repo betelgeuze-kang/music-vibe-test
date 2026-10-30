@@ -1,10 +1,11 @@
+import { guidePath } from '../../data/listening-paths.mjs?listening=ln1';
 import { PROFILE_QUESTIONS } from '../../data/questions.mjs?commercial=cr1';
-import { HOME_SHOWCASE, HOME_SCENES, localizedShowcaseReason } from '../../data/home-showcase.mjs?home=he2';
+import { HOME_SHOWCASE, HOME_SCENES, localizedShowcaseReason } from '../../data/home-showcase.mjs?home=he2&listening=ln1';
 import { profileFromArchetype, getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
 import { formatWeeklyRange, weeklyActivityStatus, weeklyAlias } from '../../domain/weekly.mjs?weekly=m4w1';
 import { loadInteractions } from '../../infrastructure/storage.mjs?weekly=m4w1';
-import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track } from '../helpers.mjs?weekly=m4w1';
+import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1&listening=ln1';
+import { escapeHtml, track } from '../helpers.mjs?weekly=m4w1&listening=ln1';
 
 const sampleProfile = profileFromArchetype(HOME_SHOWCASE.profileArchetypeId, 'home_showcase');
 const sampleFriend = profileFromArchetype(HOME_SHOWCASE.friendArchetypeId, 'home_showcase');
@@ -19,8 +20,8 @@ function trackRows(candidates, language, placement, limit = candidates.length) {
         <p>${escapeHtml(localizedShowcaseReason(candidate, language))}</p>
       </div>
       <div class="editorial-track__links" role="group" aria-label="${language === 'kr' ? '음악 서비스에서 듣기' : 'Listen on a music service'}">
-        <a href="${escapeHtml(candidate.urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
-        <a href="${escapeHtml(candidate.urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">YouTube</a>
+        <a href="${escapeHtml(candidate.urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">${language === 'kr' ? 'Spotify 검색' : 'Spotify search'}</a>
+        <a href="${escapeHtml(candidate.urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">${candidate.exactPlatforms?.includes('youtube') ? (language === 'kr' ? 'YouTube 곡 열기' : 'Open on YouTube') : (language === 'kr' ? 'YouTube 검색' : 'YouTube search')}</a>
       </div>
     </article>
   `).join('');
@@ -41,7 +42,7 @@ function homeOption(app, question, option, index) {
         <div class="listening-choice__progress" aria-hidden="true"><i data-home-progress="${escapeHtml(option.id)}"></i></div>
         <time data-home-time="${escapeHtml(option.id)}">0:00</time>
       </div>
-      <button type="button" class="listening-choice__choose" data-action="home-choose" data-option-id="${escapeHtml(option.id)}">${escapeHtml(copy.boothContinue)} <span aria-hidden="true">→</span></button>
+      <button type="button" class="listening-choice__choose" data-action="home-choose" data-option-id="${escapeHtml(option.id)}">${escapeHtml(app.quizDraft?.answers.length ? (app.language === 'kr' ? '이어서 선택하기' : 'Continue my choices') : copy.boothContinue)} <span aria-hidden="true">→</span></button>
     </article>
   `;
 }
@@ -52,6 +53,8 @@ function weeklyBand(app) {
   const current = weeklyActivityStatus(interactions, new Date());
   const latest = app.latestWeeklyVibe;
   const returning = app.returnStatus?.eligible;
+
+  if (!current.count && !latest && !returning) return `<section class="home-weekly-band home-weekly-band--first"><div class="home-weekly-band__mark" aria-hidden="true">♫</div><div><span class="eyebrow">MUSIC FOR TODAY</span><h2>${app.language === 'kr' ? '취향을 찾았다면, 이제 한 곡을 만나볼까요?' : 'Your taste note is ready. Meet your next song.'}</h2><p>${app.language === 'kr' ? '지금의 상황을 고르면 내 취향에 맞는 다섯 곡과 추천 이유를 보여드려요.' : 'Choose a moment for five songs and a reason to try each one.'}</p></div><button type="button" data-route="now">${app.language === 'kr' ? '오늘 들을 곡 고르기' : 'Find music for today'} →</button></section>`;
 
   if (returning) {
     const anchor = app.returnStatus.anchorAt || latest?.windowEndAt || '';
@@ -68,7 +71,7 @@ function weeklyBand(app) {
     return `
       <section class="home-weekly-band">
         <div class="home-weekly-band__mark" aria-hidden="true">W</div>
-        <div><span class="eyebrow">${app.language === 'kr' ? '이번 주 기록 준비됨' : 'WEEKLY NOTE READY'}</span><h2>${app.language === 'kr' ? '최근에 머문 음악을 한 장으로 모았어요.' : 'Your recent listening is ready as one weekly note.'}</h2><p>${app.language === 'kr' ? `${current.count}개의 청취 행동에서 자주 고른 장면과 곡을 정리합니다.` : `A recap built from ${current.count} listening actions.`}</p></div>
+        <div><span class="eyebrow">${app.language === 'kr' ? '이번 주 기록 준비됨' : 'WEEKLY NOTE READY'}</span><h2>${app.language === 'kr' ? '최근에 머문 음악을 한 장으로 모았어요.' : 'Your recent listening is ready as one weekly note.'}</h2><p>${app.language === 'kr' ? `${current.count}개의 사이트 내 선택·곡 열기·반응을 정리합니다. 외부 서비스의 실제 재생 기록은 아니에요.` : `A recap built from ${current.count} actions on this site, not external playback history.`}</p></div>
         <button type="button" data-action="open-weekly">${app.language === 'kr' ? '이번 주 기록 보기' : 'Open Weekly Vibe'} →</button>
       </section>
     `;
@@ -120,7 +123,7 @@ function homeScene(app, sceneId) {
   const korean = app.language === 'kr';
   return `<div class="scene-note scene-note--${scene.id}">
     <div class="scene-note__art" aria-hidden="true"><span>${scene.symbol}</span><i></i><b>${scene.number}</b></div>
-    <div class="scene-note__copy"><span class="editorial-kicker">${korean ? '편집 선곡 · 세 곡의 이야기' : 'EDITORIAL SELECTION · THREE TRACKS'}</span><h3>${escapeHtml(localize(scene.title, app.language))}</h3><p>${escapeHtml(localize(scene.description, app.language))}</p><small>${korean ? '곡은 선택한 음악 서비스의 검색 화면에서 찾을 수 있어요.' : 'Links open a search on your chosen music service.'}</small></div>
+    <div class="scene-note__copy"><span class="editorial-kicker">${korean ? '편집 선곡 · 세 곡의 이야기' : 'EDITORIAL SELECTION · THREE TRACKS'}</span><h3>${escapeHtml(localize(scene.title, app.language))}</h3><p>${escapeHtml(localize(scene.description, app.language))}</p><small>${korean ? 'YouTube는 확인한 곡으로, Spotify는 검색으로 연결해요.' : 'YouTube opens the reviewed track; Spotify opens a search.'}</small><a class="editorial-text-link" href="${guidePath(scene.id, app.language)}">${korean ? '선곡 이야기와 듣기 포인트' : 'Read the story and listening notes'} ↗</a></div>
   </div><div class="scene-tracklist">${trackRows(scene.tracks, app.language, 'home_now_sample', 3)}</div>`;
 }
 
@@ -129,6 +132,7 @@ export function renderHome(app) {
   const korean = app.language === 'kr';
   const question = PROFILE_QUESTIONS[0];
   const hasProfile = Boolean(app.profile);
+  const weeklyPrimary = hasProfile && (weeklyActivityStatus(loadInteractions(), new Date()).ready || Boolean(app.latestWeeklyVibe) || app.returnStatus?.eligible);
   const sampleArchetype = getProfileArchetype(sampleProfile);
   const friendArchetype = getProfileArchetype(sampleFriend);
   const sampleMatch = HOME_SHOWCASE.match;
@@ -140,6 +144,7 @@ export function renderHome(app) {
     <div id="app-notice" class="app-notice"></div>
     <div class="editorial-home human-editorial-home">
       ${invite}
+      ${app.quizDraft?.answers.length ? `<section class="home-resume-note" aria-label="${korean ? '진행 중인 테스트' : 'Saved test'}"><div><span class="editorial-kicker">KEEP YOUR PLACE</span><p>${app.quizStorageAvailable ? (korean ? `${app.quizDraft.answers.length}개의 선택을 임시 저장했어요. 이어서 취향을 완성해 보세요.` : `${app.quizDraft.answers.length} choices are saved. Continue your taste note.`) : (korean ? '이번 방문의 선택을 이어갈 수 있어요. 브라우저에 저장할 수 없어 새로고침하면 사라질 수 있습니다.' : 'Continue the choices from this visit. Storage is unavailable, so a refresh may lose them.')}</p></div><button class="editorial-button editorial-button--ink" type="button" data-action="resume-quiz">${korean ? '이어서 선택하기' : 'Continue my choices'} →</button><button class="editorial-text-link" type="button" data-action="clear-quiz-draft">${korean ? '임시 답변 지우기' : 'Delete saved choices'}</button></section>` : ''}
       <section class="editorial-hero human-hero">
         <div class="editorial-hero__copy">
           <span class="editorial-kicker"><i class="home-live-dot" aria-hidden="true"></i>${escapeHtml(copy.homeEyebrow)}</span>
@@ -147,7 +152,7 @@ export function renderHome(app) {
           <p class="editorial-dek">${escapeHtml(copy.homeDescription)}</p>
           <div class="editorial-hero__actions">
             ${hasProfile
-              ? `<button class="editorial-button editorial-button--ink" type="button" data-route="now">${korean ? '오늘 들을 음악 찾기' : 'Find music for today'} <span aria-hidden="true">↗</span></button><button class="editorial-button editorial-button--line" type="button" data-route="profile">${korean ? '내 취향 다시 보기' : 'Revisit my taste'}</button>`
+              ? `<button class="editorial-button editorial-button--ink" type="button" ${weeklyPrimary ? 'data-action="open-weekly"' : 'data-route="now"'}>${weeklyPrimary ? (korean ? '이번 주 기록 열기' : 'Open my weekly note') : (korean ? '오늘 들을 음악 찾기' : 'Find music for today')} <span aria-hidden="true">↗</span></button><button class="editorial-button editorial-button--line" type="button" data-route="profile">${korean ? '내 취향 다시 보기' : 'Revisit my taste'}</button>`
               : `<button class="editorial-button editorial-button--ink" type="button" data-action="focus-booth">${korean ? '내 취향 찾기' : 'Find my music taste'} <span aria-hidden="true">↗</span></button><button class="editorial-button editorial-button--line" type="button" data-action="scroll-sample">${korean ? '결과 먼저 둘러보기' : 'See a sample result'} <span aria-hidden="true">↓</span></button>`}
           </div>
           <p class="human-hero__whisper">${korean ? '가입 없이 · 10번의 선택 · 나만의 음악 기록' : 'No sign-up · Ten choices · A note that feels like you'}</p>
@@ -186,7 +191,7 @@ export function renderHome(app) {
         <header><span class="editorial-kicker">MUSIC FOR THE MOMENT</span><h2 id="today-heading">${heading(copy.todayTitle)}</h2><p>${escapeHtml(copy.todayBody)}</p></header>
         <div class="editorial-scene-tabs" data-home-scenes role="group" aria-label="${korean ? '선곡 장면 선택' : 'Choose a listening moment'}">${HOME_SCENES.map((scene) => `<button type="button" data-home-scene="${scene.id}" aria-pressed="${scene.id === sceneId}" aria-controls="home-scene-panel"><span aria-hidden="true">${scene.symbol}</span>${escapeHtml(localize(scene.label, app.language))}</button>`).join('')}</div>
         <div class="home-scene-panel" id="home-scene-panel" data-home-scene-panel aria-live="polite" aria-atomic="true">${homeScene(app, sceneId)}</div>
-        <div class="home-section-end"><p>${korean ? '내 취향을 더하면, 지금에 맞는 다섯 곡을 찾을 수 있어요.' : 'Add your taste to find five songs for this moment.'}</p><button class="editorial-text-link" type="button" data-route="now">${escapeHtml(copy.openNow)} ↗</button></div>
+        <div class="home-section-end"><a class="editorial-text-link" href="${guidePath('', app.language)}">${korean ? '상황별 선곡 모두 보기' : 'Browse all listening notes'} ↗</a><p>${korean ? '내 취향을 더하면, 지금에 맞는 다섯 곡을 찾을 수 있어요.' : 'Add your taste to find five songs for this moment.'}</p><button class="editorial-text-link" type="button" data-route="now">${escapeHtml(copy.openNow)} ↗</button></div>
       </section>
 
       <section class="editorial-section editorial-section--together human-together">
@@ -203,7 +208,7 @@ export function renderHome(app) {
 
       <section class="home-notes" aria-labelledby="home-notes-title"><div><span class="editorial-kicker">GOOD TO KNOW</span><h2 id="home-notes-title">${korean ? '시작 전에,<br>궁금할 수 있는 것들.' : 'A few notes<br>before you begin.'}</h2></div><div class="home-notes__questions">
         <details><summary>${korean ? '음악을 잘 몰라도 할 수 있나요?' : 'Do I need to know much about music?'}</summary><p>${korean ? '물론이에요. 장르나 아티스트 이름을 몰라도 괜찮아요. 짧은 소리와 일상의 장면 중 더 마음에 드는 쪽을 선택하면 됩니다.' : 'Not at all. Choose the short sounds and everyday scenes you prefer. No genre or artist knowledge is needed.'}</p></details>
-        <details><summary>${korean ? '실제 노래를 여기서 들을 수 있나요?' : 'Can I play the recommended songs here?'}</summary><p>${korean ? '테스트에서는 직접 만든 짧은 소리를 사용해요. 추천곡은 Spotify·YouTube 등 선택한 음악 서비스에서 검색해 들을 수 있습니다. 각 서비스의 이용 조건이 적용돼요.' : 'The test uses original short sounds. Recommended songs open in searches on services such as Spotify and YouTube, under their own access conditions.'}</p></details>
+        <details><summary>${korean ? '실제 노래를 여기서 들을 수 있나요?' : 'Can I play the recommended songs here?'}</summary><p>${korean ? '테스트에서는 직접 만든 짧은 소리를 사용해요. 추천곡은 선택한 음악 서비스에서 열 수 있습니다. 확인한 YouTube 링크는 곡으로 바로 연결하고, Spotify·Apple 링크는 검색 화면으로 연결해요. 각 서비스의 이용 조건이 적용돼요.' : 'The test uses original short sounds. Reviewed YouTube links open the track; Spotify and Apple Music links open a search, under their own access conditions.'}</p></details>
         <details><summary>${korean ? '취향 결과가 바뀔 수도 있나요?' : 'Can my taste change?'}</summary><p>${korean ? '그럼요. 이 결과는 성격 진단이 아니라 지금의 선택을 정리한 음악 기록이에요. 나중에 다시 선택하고, 추천곡에 피드백을 남기며 취향을 이어갈 수 있어요.' : 'Of course. This is a music note based on your choices, not a personality diagnosis. Return, try again, and leave feedback on your recommendations.'}</p></details>
       </div></section>
 

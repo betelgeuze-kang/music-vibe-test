@@ -47,10 +47,10 @@ assert(main.includes('./ui/app.mjs?commercial=cr1'));
 assert(main.includes('./ui/consent-a11y.mjs?frontend=fq1'));
 assert(app.includes("../brand/copy.mjs?home=he2"));
 assert(app.includes("./screens/home.mjs?home=he2"));
-assert(app.includes("import('./screens/profile.mjs?timeline=m4t1&result=rs1')"));
-assert(app.includes("import('./screens/weekly.mjs?frontend=fq1')"));
-assert(app.includes("import('./screens/now.mjs?engagement=m4f1')"));
-assert(app.includes("import('./screens/match.mjs?engagement=m4f1')"));
+assert(app.includes("import('./screens/profile.mjs?timeline=m4t1&result=rs1&listening=ln1')"));
+assert(app.includes("import('./screens/weekly.mjs?frontend=fq1&listening=ln1')"));
+assert(app.includes("import('./screens/now.mjs?engagement=m4f1&listening=ln1')"));
+assert(app.includes("import('./screens/match.mjs?engagement=m4f1&listening=ln1')"));
 assert(app.includes('handleTimelineClick'));
 assert(app.includes('handleWeeklyClick'));
 assert(app.includes('closeOpenAppDialogs'));
@@ -75,7 +75,7 @@ for (const staticSource of [main, app, actions, timelineActions, home]) {
   assert(!/from ['"].*domain\/match\.mjs/.test(staticSource));
   assert(!/from ['"].*data\/tracks\.mjs/.test(staticSource));
 }
-assert(actions.includes("await import('../domain/recommendation.mjs?engagement=m4f1')"));
+assert(actions.includes("await import('../domain/recommendation.mjs?engagement=m4f1&listening=ln1')"));
 assert(home.includes('HOME_SHOWCASE'));
 assert(home.includes('weeklyActivityStatus'));
 
@@ -86,8 +86,8 @@ assert(cssEntry.includes('v2-commercial-readiness.css?commercial=cr1'));
 assert.equal(buildInfo.uiRelease, 'f1');
 assert.equal(buildInfo.humanEditorialRelease, 'he2');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
-assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1');
-assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1');
+assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1');
+assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1');
 assert.equal(buildInfo.runtimeOverrides, false);
 assert.equal(buildInfo.adsEnabled, false);
 assert.equal(buildInfo.adProvider, 'google-adsense');

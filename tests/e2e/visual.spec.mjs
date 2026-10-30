@@ -101,3 +101,15 @@ test('listen-together visual snapshot', async ({ page }, testInfo) => {
   await expect(page.locator('.invite-builder')).toBeVisible();
   await captureOrCompare(page, testInfo, 'match.png');
 });
+
+test('listening index visual snapshot', async ({ page }, testInfo) => {
+  await page.goto('/listening/');
+  await expect(page.locator('.guide-index-grid')).toBeVisible();
+  await captureOrCompare(page,testInfo,'listening-index.png');
+});
+
+test('listening essay visual snapshot', async ({ page }, testInfo) => {
+  await page.goto('/listening/night-walk/');
+  await expect(page.locator('.guide-tracks')).toBeVisible();
+  await captureOrCompare(page,testInfo,'listening-essay.png');
+});

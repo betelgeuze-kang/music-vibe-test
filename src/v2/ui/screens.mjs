@@ -2,11 +2,11 @@ import { AXES } from '../data/axes.mjs';
 import { PROFILE_QUESTIONS } from '../data/questions.mjs';
 import { VIBE_CONTEXTS, CONTEXT_BY_ID } from '../data/contexts.mjs';
 import { getProfileArchetype, localize } from '../domain/profile.mjs';
-import { recommendationSummary } from '../domain/recommendation.mjs';
-import { compareProfiles } from '../domain/match.mjs';
+import { recommendationSummary } from '../domain/recommendation.mjs?listening=ln1';
+import { compareProfiles } from '../domain/match.mjs?listening=ln1';
 import { loadNowHistory } from '../infrastructure/storage.mjs';
 import { buildInviteUrl } from '../infrastructure/share.mjs';
-import { axisDirection, escapeHtml, profileMiniCard, track, trackCard } from './helpers.mjs';
+import { axisDirection, escapeHtml, profileMiniCard, track, trackCard } from './helpers.mjs?listening=ln1';
 
 export const screenMethods = {
   renderHome() {

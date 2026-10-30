@@ -1,3 +1,4 @@
+import { VERIFIED_TRACK_LINKS } from '../../src/v2/data/verified-track-links.mjs';
 import { test, expect } from '@playwright/test';
 import { declineAnalytics } from './helpers.mjs';
 
@@ -28,8 +29,13 @@ test('editorial moments change real track links with keyboard focus retained', a
     await expect(row).toContainText(artist);
     for (const link of await row.locator('a').all()) {
       const url = decodeURIComponent(await link.getAttribute('href'));
-      expect(url).toContain(title);
-      expect(url).toContain(artist);
+      if (await link.getAttribute('data-platform') === 'youtube') {
+        const id = await row.getAttribute('data-track-id');
+        expect(url).toBe(VERIFIED_TRACK_LINKS[id].platforms.youtube);
+      } else {
+        expect(url).toContain(title);
+        expect(url).toContain(artist);
+      }
       await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     }
   }

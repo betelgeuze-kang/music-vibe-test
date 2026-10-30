@@ -1,6 +1,6 @@
 import { PROFILE_QUESTIONS } from '../../data/questions.mjs?commercial=cr1';
 import { localize } from '../../domain/profile.mjs?v=qg1';
-import { escapeHtml } from '../helpers.mjs?ui=f1';
+import { escapeHtml } from '../helpers.mjs?ui=f1&listening=ln1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 12;
 
@@ -14,6 +14,10 @@ function formatTime(value) {
 }
 
 export function renderDiscover(app) {
+  const previousQuestionId = app.root.querySelector('[data-question-id]')?.dataset.questionId;
+  const active = document.activeElement;
+  const activeAction = active?.dataset.action;
+  const activeOption = active?.dataset.optionId;
   const copy = app.copy();
   const question = PROFILE_QUESTIONS[app.quizIndex];
   if (!question) {
@@ -29,19 +33,19 @@ export function renderDiscover(app) {
 
   app.root.innerHTML = `
     <div id="app-notice" class="app-notice"></div>
-    <section class="quiz-shell quality-quiz" aria-labelledby="question-title">
+    <section class="quiz-shell quality-quiz listening-quiz" data-question-id="${escapeHtml(question.id)}" aria-labelledby="question-title">
       <div class="quiz-topline">
         <div class="quiz-topline__left">
-          <button type="button" class="text-button" data-action="quit-quiz">${escapeHtml(copy.quitQuiz)}</button>
+          <button type="button" class="text-button" data-action="quit-quiz">${app.language === 'kr' ? '잠시 나가기' : 'Leave for now'}</button>
           <button type="button" class="text-button" data-action="previous-question" ${app.quizIndex === 0 ? 'disabled' : ''}>← ${app.language === 'kr' ? '이전 질문' : 'Previous'}</button>
         </div>
-        <span>${app.quizIndex + 1} / ${PROFILE_QUESTIONS.length}</span>
+        <span><b>${String(app.quizIndex + 1).padStart(2, '0')}</b> / ${PROFILE_QUESTIONS.length}</span>
       </div>
       <div class="progress" role="progressbar" aria-label="${app.language === 'kr' ? '프로필 진행률' : 'Profile progress'}" aria-valuemin="1" aria-valuemax="${PROFILE_QUESTIONS.length}" aria-valuenow="${app.quizIndex + 1}"><i style="width:${progress}%"></i></div>
       <div class="quiz-copy">
         <span class="eyebrow">${escapeHtml(copy.quizEyebrow)}</span>
         <div class="quiz-kind"><span aria-hidden="true">${isAudio ? '♫' : '◇'}</span>${escapeHtml(isAudio ? copy.quizAudio : copy.quizChoice)}</div>
-        <h1 id="question-title">${escapeHtml(localize(question.prompt, app.language))}</h1>
+        <h1 id="question-title" tabindex="-1">${escapeHtml(localize(question.prompt, app.language))}</h1>
         <p>${escapeHtml(localize(question.helper, app.language))}</p>
         <small class="keyboard-help">${escapeHtml(keyboardHelp)}</small>
       </div>
@@ -58,20 +62,29 @@ export function renderDiscover(app) {
               <div class="option-card__top"><span>${index === 0 ? 'A' : 'B'}</span><div><h2>${escapeHtml(localize(option.label, app.language))}</h2><p>${escapeHtml(localize(option.description, app.language))}</p></div></div>
               ${isAudio ? `
                 <div class="audio-preview-state ${error ? 'has-error' : ''}">
-                  <button type="button" class="preview-button ${playing ? 'is-playing' : ''}" data-action="preview" data-option-id="${escapeHtml(option.id)}" aria-pressed="${playing}">
+                  <button type="button" class="preview-button ${playing ? 'is-playing' : ''}" data-action="preview" data-option-id="${escapeHtml(option.id)}" aria-label="${escapeHtml(`${index === 0 ? 'A' : 'B'} · ${localize(option.label, app.language)} · ${playing ? copy.stop : copy.preview}`)}" aria-pressed="${playing}">
                     <span aria-hidden="true">${playing ? 'Ⅱ' : '▶'}</span>${escapeHtml(playing ? copy.stop : copy.preview)}
                   </button>
                   <div class="audio-progress" aria-hidden="true"><i data-audio-fill="${escapeHtml(option.id)}" style="width:${Math.round(ratio * 100)}%"></i></div>
                   <div class="audio-meta"><span data-audio-time="${escapeHtml(option.id)}">${formatTime(progressState.current)} / ${formatTime(duration)}</span><b>${error ? (app.language === 'kr' ? '재생 실패 · 텍스트로 선택 가능' : 'Preview unavailable · text choice still works') : heard ? (app.language === 'kr' ? '✓ 들어봄' : '✓ Heard') : (app.language === 'kr' ? '직접 만든 소리 · 비교 후 선택' : 'Original clip · preview and compare')}</b></div>
                 </div>
               ` : ''}
-              <button type="button" class="button button--option" data-action="choose-option" data-option-id="${escapeHtml(option.id)}" ${app.selectionLocked ? 'disabled' : ''}>${selected === option.id ? (app.language === 'kr' ? '선택했어요' : 'Selected') : escapeHtml(copy.choose)} <span aria-hidden="true">→</span></button>
+              <button type="button" class="button button--option" data-action="choose-option" data-option-id="${escapeHtml(option.id)}" aria-label="${escapeHtml(`${index === 0 ? 'A' : 'B'} · ${localize(option.label, app.language)} · ${copy.choose}`)}" ${app.selectionLocked ? 'disabled' : ''}>${selected === option.id ? (app.language === 'kr' ? '선택했어요' : 'Selected') : (app.language === 'kr' ? `${index === 0 ? 'A' : 'B'}로 선택` : `Choose ${index === 0 ? 'A' : 'B'}`)} <span aria-hidden="true">→</span></button>
             </article>
           `;
         }).join('')}
       </div>
       <div class="selection-live" aria-live="polite">${app.selectionLocked ? (app.language === 'kr' ? '선택을 반영하고 있어요.' : 'Applying your choice.') : ''}</div>
+      <footer class="quiz-save-note"><p role="status">${app.quizStorageAvailable
+        ? (app.language === 'kr' ? '답은 이 브라우저에 7일간 임시 저장돼요. 새로고침해도 이어갈 수 있어요.' : 'Choices stay in this browser for 7 days. Refresh and continue where you left off.')
+        : (app.language === 'kr' ? '브라우저 저장소를 사용할 수 없어요. 이 화면에서는 계속할 수 있지만 새로고침 후 이어하기는 제한돼요.' : 'Storage is unavailable. You can continue now, but progress may be lost after a refresh.')}</p><button type="button" class="text-button" data-action="retake-profile">${app.language === 'kr' ? '처음부터 다시 선택' : 'Start again'}</button></footer>
     </section>
   `;
   app.renderNotice();
+  if (previousQuestionId && previousQuestionId !== question.id) {
+    app.root.querySelector('#question-title')?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  } else if (activeAction && activeOption) {
+    app.root.querySelector(`[data-action="${CSS.escape(activeAction)}"][data-option-id="${CSS.escape(activeOption)}"]`)?.focus({ preventScroll: true });
+  }
 }

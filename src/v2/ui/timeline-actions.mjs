@@ -7,8 +7,8 @@ import {
   recordInteraction,
   restoreProfileSnapshot
 } from '../infrastructure/storage.mjs?timeline=m4t1';
-import { showConfirmDialog } from './dialogs.mjs?weekly=m4w1';
-import { track } from './helpers.mjs?engagement=m4f1';
+import { showConfirmDialog } from './dialogs.mjs?weekly=m4w1&listening=ln1';
+import { track } from './helpers.mjs?engagement=m4f1&listening=ln1';
 
 const PRODUCT_VERSION = 'v2-m4t1';
 

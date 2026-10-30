@@ -1,6 +1,6 @@
 import { PROFILE_QUESTIONS } from '../data/questions.mjs?commercial=cr1';
 import { createOriginalAudioUrl, isCommercialAudioClip } from '../audio/original-clips.mjs?commercial=cr1';
-import { track } from './helpers.mjs?weekly=m4w1';
+import { track } from './helpers.mjs?weekly=m4w1&listening=ln1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 12;
 const HOME_PREVIEW_LIMIT_SECONDS = 12;

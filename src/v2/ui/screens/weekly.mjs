@@ -16,9 +16,9 @@ import {
   loadWeeklyVibes,
   saveWeeklyVibe
 } from '../../infrastructure/storage.mjs?weekly=m4w1';
-import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track } from '../helpers.mjs?weekly=m4w1';
-import { renderEmptyProfile } from './empty.mjs?ui=f1';
+import { renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1&listening=ln1';
+import { escapeHtml, track } from '../helpers.mjs?weekly=m4w1&listening=ln1';
+import { renderEmptyProfile } from './empty.mjs?ui=f1&listening=ln1';
 
 function activitySuggestions(app, status) {
   const items = app.language === 'kr'
@@ -137,7 +137,7 @@ export async function renderWeekly(app) {
   const window = weeklyWindow(anchor);
   const savedForWindow = loadWeeklyVibes({ profileId: app.profile.id }).find((item) => item.weekKey === window.weekKey) || null;
   const latest = loadLatestWeeklyVibe(app.profile.id);
-  const { TRACK_BY_ID, platformUrl } = await import('../../domain/recommendation.mjs?weekly=m4w1');
+  const { TRACK_BY_ID, platformUrl } = await import('../../domain/recommendation.mjs?weekly=m4w1&listening=ln1');
   const computed = buildWeeklyVibe({ profile: app.profile, interactions, trackById: TRACK_BY_ID, anchor });
   const rawVibe = computed.sufficientData ? computed : savedForWindow;
 

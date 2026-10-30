@@ -1,0 +1,123 @@
+{
+  "checkedAt": "2026-10-30",
+  "scope": "YouTube oEmbed title/publisher and HTTP status; regional playback unverified",
+  "rows": [
+    {
+      "trackId": "space-song",
+      "url": "https://www.youtube.com/watch?v=GAFwrXOsL68",
+      "status": 200,
+      "title": "Space Song - Beach House (OFFICIAL AUDIO)",
+      "author": "BeachHouseVideoZone",
+      "authorUrl": "https://www.youtube.com/@BeachHouseVideoZone",
+      "checkedAt": "2026-10-30T09:12:30.576421+00:00"
+    },
+    {
+      "trackId": "about-you",
+      "url": "https://www.youtube.com/watch?v=tGv7CUutzqU",
+      "status": 200,
+      "title": "The 1975 - About You (Official)",
+      "author": "The1975VEVO",
+      "authorUrl": "https://www.youtube.com/@The1975VEVO",
+      "checkedAt": "2026-10-30T09:12:30.567558+00:00"
+    },
+    {
+      "trackId": "apocalypse",
+      "url": "https://www.youtube.com/watch?v=sElE_BfQ67s",
+      "status": 200,
+      "title": "Apocalypse - Cigarettes After Sex",
+      "author": "Cigarettes After Sex",
+      "authorUrl": "https://www.youtube.com/@CigarettesAfterSex",
+      "checkedAt": "2026-10-30T09:12:30.572904+00:00"
+    },
+    {
+      "trackId": "instagram-dean",
+      "url": "https://www.youtube.com/watch?v=wKyMIrBClYw",
+      "status": 200,
+      "title": "DEAN - instagram",
+      "author": "DEANTRBL",
+      "authorUrl": "https://www.youtube.com/@DEANTRBL",
+      "checkedAt": "2026-10-30T09:12:30.568550+00:00"
+    },
+    {
+      "trackId": "wait-m83",
+      "url": "https://www.youtube.com/watch?v=lAwYodrBr2Q",
+      "status": 200,
+      "title": "M83 - \"Wait\" (Official Video)",
+      "author": "Creators",
+      "authorUrl": "https://www.youtube.com/@TheCreatorsProject",
+      "checkedAt": "2026-10-30T09:12:30.567955+00:00"
+    },
+    {
+      "trackId": "through-the-night",
+      "url": "https://www.youtube.com/watch?v=BzYnNdJhZQw",
+      "status": 200,
+      "title": "[MV] IU(아이유) _ Through the Night(밤편지)",
+      "author": "1theK (원더케이)",
+      "authorUrl": "https://www.youtube.com/@1theK",
+      "checkedAt": "2026-10-30T09:12:30.727750+00:00"
+    },
+    {
+      "trackId": "river-flows",
+      "url": "https://www.youtube.com/watch?v=7maJOI3QMu0",
+      "status": 200,
+      "title": "Yiruma, (이루마) - River Flows in You",
+      "author": "YirumaVEVO",
+      "authorUrl": "https://www.youtube.com/@YirumaVEVO",
+      "checkedAt": "2026-10-30T09:12:30.713149+00:00"
+    },
+    {
+      "trackId": "experience-einaudi",
+      "url": "https://www.youtube.com/watch?v=hN_q-_nGv4U",
+      "status": 200,
+      "title": "Ludovico Einaudi - Experience (Live At Fabric, London / 2013)",
+      "author": "LudovicoEinaudiVEVO",
+      "authorUrl": "https://www.youtube.com/@LudovicoEinaudiVEVO",
+      "checkedAt": "2026-10-30T09:12:30.724531+00:00"
+    },
+    {
+      "trackId": "love-lee",
+      "url": "https://www.youtube.com/watch?v=EIz09kLzN9k",
+      "status": 200,
+      "title": "AKMU - ‘Love Lee’ M/V",
+      "author": "AKMU",
+      "authorUrl": "https://www.youtube.com/@AKMU",
+      "checkedAt": "2026-10-30T09:12:30.733370+00:00"
+    },
+    {
+      "trackId": "back-on-74",
+      "url": "https://www.youtube.com/watch?v=q3lX2p_Uy9I",
+      "status": 200,
+      "title": "Jungle - Back On 74 (Official Video)",
+      "author": "Jungle4eva",
+      "authorUrl": "https://www.youtube.com/@jungle4eva",
+      "checkedAt": "2026-10-30T09:12:30.737611+00:00"
+    },
+    {
+      "trackId": "get-lucky",
+      "url": "https://www.youtube.com/watch?v=5NV6Rdv1a3I",
+      "status": 200,
+      "title": "Daft Punk - Get Lucky (Official Audio) ft. Pharrell Williams, Nile Rodgers",
+      "author": "DaftPunkVEVO",
+      "authorUrl": "https://www.youtube.com/@DaftPunkVEVO",
+      "checkedAt": "2026-10-30T09:12:30.865363+00:00"
+    },
+    {
+      "trackId": "best-part",
+      "url": "https://www.youtube.com/watch?v=vBy7FaapGRo",
+      "status": 200,
+      "title": "Daniel Caesar - Best Part (Audio) ft. H.E.R.",
+      "author": "HERMusicVEVO",
+      "authorUrl": "https://www.youtube.com/@HERMusicVEVO",
+      "checkedAt": "2026-10-30T09:12:30.891676+00:00"
+    },
+    {
+      "trackId": "spring-day",
+      "url": "https://www.youtube.com/watch?v=xEeFrLSkMm8",
+      "status": 200,
+      "title": "BTS (방탄소년단) '봄날 (Spring Day)' Official MV",
+      "author": "HYBE LABELS",
+      "authorUrl": "https://www.youtube.com/@HYBELABELS",
+      "checkedAt": "2026-10-30T09:12:30.872236+00:00"
+    }
+  ]
+}

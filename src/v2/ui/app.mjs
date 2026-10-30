@@ -1,4 +1,6 @@
+import { CONTEXT_BY_ID } from '../data/contexts.mjs?v=qg1';
 import { BRAND_COPY } from '../brand/copy.mjs?home=he2';
+import { loadQuizDraft } from '../infrastructure/quiz-draft.mjs?listening=ln1';
 import { decodeProfile, profileFromLegacyType } from '../domain/profile.mjs?v=qg1';
 import { mergeActiveSnapshot } from '../domain/timeline.mjs?timeline=m4t1';
 import { sevenDayReturnStatus } from '../domain/weekly.mjs?weekly=m4w1';
@@ -12,15 +14,15 @@ import {
   registerVisit,
   returnVisitAlreadyTracked
 } from '../infrastructure/storage.mjs?weekly=m4w1';
-import { actionMethods } from './actions.mjs?weekly=m4w1&result=rs1';
-import { commercialAudioMethods } from './commercial-audio-actions.mjs?commercial=cr1';
-import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2&result=rs1';
-import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?commercial=cr1';
-import { renderDiscover } from './screens/discover.mjs?commercial=cr1';
-import { renderHome } from './screens/home.mjs?home=he2';
-import { escapeHtml, detectLanguage, extractToken, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1';
-import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1';
-import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1';
+import { actionMethods } from './actions.mjs?weekly=m4w1&result=rs1&listening=ln1';
+import { commercialAudioMethods } from './commercial-audio-actions.mjs?commercial=cr1&listening=ln1';
+import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1';
+import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?commercial=cr1&listening=ln1';
+import { renderDiscover } from './screens/discover.mjs?commercial=cr1&listening=ln1';
+import { renderHome } from './screens/home.mjs?home=he2&listening=ln1';
+import { escapeHtml, detectLanguage, extractToken, fragmentState, parseRoute, ROUTES, routeUrl, track } from './helpers.mjs?weekly=m4w1&listening=ln1';
+import { handleTimelineClick } from './timeline-actions.mjs?frontend=fq1&listening=ln1';
+import { handleWeeklyClick } from './weekly-actions.mjs?weekly=m4w1&listening=ln1';
 
 export const ENGAGEMENT_RELEASE = 'm4f1';
 export const TIMELINE_RELEASE = 'm4t1';
@@ -28,6 +30,7 @@ export const WEEKLY_RELEASE = 'm4w1';
 export const FRONTEND_QUALITY_RELEASE = 'fq1';
 export const HUMAN_EDITORIAL_RELEASE = 'he2';
 export const RESULT_SHARING_RELEASE = 'rs1';
+export const LISTENING_EXPERIENCE_RELEASE = 'ln1';
 export const COMMERCIAL_READINESS_RELEASE = 'cr1';
 
 export class VibeApp {
@@ -40,14 +43,17 @@ export class VibeApp {
     this.profileHistory = mergeActiveSnapshot(this.profile, loadProfileHistory());
     this.latestWeeklyVibe = loadLatestWeeklyVibe(this.profile?.id || '');
     this.weeklyAnchorAt = null;
-    this.pendingWeeklyContextId = '';
+    const incomingContext = fragmentState().params.get('context');
+    this.pendingWeeklyContextId = Object.hasOwn(CONTEXT_BY_ID, incomingContext) ? incomingContext : '';
     this.visitRegistration = null;
     this.returnStatus = Object.freeze({ eligible: false, daysSincePrevious: null, anchorAt: null, eventKey: '' });
     this.friendProfile = this.resolveIncomingProfile();
     this.friendSource = this.friendProfile?.source || '';
     this.route = parseRoute();
-    this.answers = [];
-    this.quizIndex = 0;
+    this.quizDraft = loadQuizDraft();
+    this.quizStorageAvailable = true;
+    this.answers = this.quizDraft?.answers || [];
+    this.quizIndex = this.quizDraft?.index || 0;
     this.previewAudio = null;
     this.previewOptionId = '';
     this.audioProgress = new Map();
@@ -69,7 +75,7 @@ export class VibeApp {
     this.notice = '';
     this.noticeTone = 'neutral';
     this.noticeTimer = null;
-    this.startedAt = 0;
+    this.startedAt = this.quizDraft?.startedAt || (this.route === 'discover' ? Date.now() : 0);
     this.renderTicket = 0;
     this.showPrivacy = () => showPrivacyDialog(this);
     this.boundHashChange = () => this.handleRouteChange();
@@ -89,6 +95,7 @@ export class VibeApp {
     document.documentElement.dataset.weeklyRelease = WEEKLY_RELEASE;
     document.documentElement.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     document.documentElement.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
+    document.documentElement.dataset.listeningExperienceRelease = LISTENING_EXPERIENCE_RELEASE;
     document.documentElement.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     window.addEventListener('hashchange', this.boundHashChange);
     document.addEventListener('click', this.boundClick);
@@ -125,6 +132,10 @@ export class VibeApp {
       track('ref_visit', { referral_stage: 'v2_landing', ref_type: this.friendProfile.archetypeId, referral_source: this.friendSource, product_version: 'v2-cr1' });
       if (this.profile && this.route === 'home') this.route = 'match';
     }
+    if (this.route === 'discover' && !this.quizDraft) {
+      this.persistQuizDraft();
+      track('start_test', { product_version:'v2-m4', test_mode:'vibe_profile_10', question_count:10, entry_point:'direct_test' });
+    }
     this.render();
   }
 
@@ -151,11 +162,17 @@ export class VibeApp {
   }
 
   handleRouteChange() {
+    window.clearTimeout(this.selectionTimer);
+    this.selectionLocked = false;
     this.stopPreview();
     this.stopHomePreview(true);
     this.clearNotice();
     closeOpenAppDialogs();
     this.route = parseRoute();
+    if (this.route === 'now') {
+      const contextId = fragmentState().params.get('context');
+      if (Object.hasOwn(CONTEXT_BY_ID, contextId)) this.pendingWeeklyContextId = contextId;
+    }
     if (this.route !== 'weekly') this.weeklyAnchorAt = null;
     track('route_view', { route: this.route, product_version: 'v2-cr1', has_profile: Boolean(this.profile) });
     this.render();
@@ -194,12 +211,12 @@ export class VibeApp {
   renderDiscover() { renderDiscover(this); }
 
   async renderProfile() {
-    const module = await import('./screens/profile.mjs?timeline=m4t1&result=rs1');
+    const module = await import('./screens/profile.mjs?timeline=m4t1&result=rs1&listening=ln1');
     module.renderProfile(this);
   }
 
   async renderWeekly() {
-    const module = await import('./screens/weekly.mjs?frontend=fq1');
+    const module = await import('./screens/weekly.mjs?frontend=fq1&listening=ln1');
     await module.renderWeekly(this);
   }
 
@@ -210,12 +227,12 @@ export class VibeApp {
       await this.selectContext(contextId);
       return;
     }
-    const module = await import('./screens/now.mjs?engagement=m4f1');
+    const module = await import('./screens/now.mjs?engagement=m4f1&listening=ln1');
     module.renderNow(this);
   }
 
   async renderMatch() {
-    const module = await import('./screens/match.mjs?engagement=m4f1');
+    const module = await import('./screens/match.mjs?engagement=m4f1&listening=ln1');
     module.renderMatch(this);
   }
 
@@ -229,6 +246,7 @@ export class VibeApp {
     document.body.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     document.body.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
     document.body.dataset.resultSharingRelease = RESULT_SHARING_RELEASE;
+    document.body.dataset.listeningExperienceRelease = LISTENING_EXPERIENCE_RELEASE;
     document.body.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     this.renderHeader();
     this.renderFooter();

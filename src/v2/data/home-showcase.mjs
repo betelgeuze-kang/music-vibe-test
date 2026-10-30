@@ -1,17 +1,11 @@
-function searchUrls(title, artist) {
-  const query = encodeURIComponent(`${title} ${artist}`);
-  return Object.freeze({
-    spotify: `https://open.spotify.com/search/${query}`,
-    youtube: `https://www.youtube.com/results?search_query=${query}`,
-    apple: `https://music.apple.com/us/search?term=${query}`
-  });
-}
+import { trackLinks, VERIFIED_TRACK_LINKS } from './verified-track-links.mjs?listening=ln1';
 
 function candidate({ id, title, artist, region, year, reason }) {
   return Object.freeze({
     track: Object.freeze({ id, title, artist, region, year }),
     reason: Object.freeze(reason),
-    urls: searchUrls(title, artist),
+    urls: trackLinks({ id, title, artist }),
+    exactPlatforms: Object.freeze(Object.keys(VERIFIED_TRACK_LINKS[id]?.platforms || {})),
     strategy: 'editorial-showcase',
     strategyLabel: Object.freeze({ kr: '편집 추천', en: 'Editorial pick' })
   });

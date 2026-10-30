@@ -113,14 +113,18 @@ export function trackCard(candidate, language, placement, options = {}) {
         <div class="track-card__kicker"><span>${escapeHtml(strategy)}</span><span>${escapeHtml(item.region)} · ${item.year}</span>${exact}${feedbackApplied}</div>
         <strong>${escapeHtml(item.title)}</strong>
         <span>${escapeHtml(item.artist)}</span>
-        <p>${escapeHtml(reason)}</p>
+        <p class="track-card__reason">${escapeHtml(candidate.listeningNote || reason)}</p>
+        ${candidate.tasteNote ? `<p class="track-card__taste-note"><span>${language === 'kr' ? '내 취향과의 연결' : 'THE TASTE CONNECTION'}</span>${escapeHtml(candidate.tasteNote)}</p>` : ''}
         ${matchMetrics}
         ${feedbackControls}
       </div>
       <div class="track-card__actions" role="group" aria-label="${escapeHtml(serviceLabel)}">
-        <a href="${escapeHtml(urls.spotify)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="spotify" data-placement="${placement}">Spotify</a>
-        <a href="${escapeHtml(urls.youtube)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="youtube" data-placement="${placement}">YouTube</a>
-        <a href="${escapeHtml(urls.apple)}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="apple" data-placement="${placement}">Apple</a>
+        ${['spotify', 'youtube', 'apple'].map((platform) => {
+          const direct = candidate.exactPlatforms?.includes(platform);
+          const name = { spotify: 'Spotify', youtube: 'YouTube', apple: 'Apple' }[platform];
+          const label = direct ? (language === 'kr' ? '곡 열기' : 'Open track') : (language === 'kr' ? '검색' : 'Search');
+          return `<a href="${escapeHtml(urls[platform])}" target="_blank" rel="noopener noreferrer" data-track-link data-platform="${platform}" data-link-kind="${direct ? 'direct' : 'search'}" data-placement="${escapeHtml(placement)}" aria-label="${escapeHtml(`${item.title} · ${name} · ${label}${language === 'kr' ? ' · 새 창' : ' · new tab'}`)}">${name}<small>${label} ↗</small></a>`;
+        }).join('')}
       </div>
     </article>
   `;

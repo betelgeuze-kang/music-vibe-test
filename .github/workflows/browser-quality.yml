@@ -14,6 +14,9 @@ on:
       - 'about/**'
       - 'privacy/**'
       - 'audio-credits/**'
+      - 'listening/**'
+      - 'en/listening/**'
+      - 'scripts/build-listening-guides.mjs'
       - 'tests/e2e/**'
       - 'playwright.config.mjs'
       - 'package.json'
@@ -71,19 +74,23 @@ jobs:
             chromium-weekly.png
             chromium-now.png
             chromium-match.png
+            chromium-listening-index.png
+            chromium-listening-essay.png
             mobile-chromium-home.png
             mobile-chromium-discover.png
             mobile-chromium-profile.png
             mobile-chromium-weekly.png
             mobile-chromium-now.png
             mobile-chromium-match.png
+            mobile-chromium-listening-index.png
+            mobile-chromium-listening-essay.png
           )
           if [ -f "${snapshot_dir}/.ready" ] && [ -f "$profile_refresh_marker" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ]; then
             expected=(chromium-profile.png mobile-chromium-profile.png)
           fi
           for image in "${expected[@]}"; do test -s "${capture_dir}/${image}"; done
 
-          release_label="$(jq -r '.resultSharingRelease // .humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
+          release_label="$(jq -r '.listeningExperienceRelease // .resultSharingRelease // .humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
           for image in "${expected[@]}"; do cp "${capture_dir}/${image}" "$snapshot_dir/"; done
           printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"

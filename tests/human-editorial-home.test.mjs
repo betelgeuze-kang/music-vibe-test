@@ -17,13 +17,13 @@ const app = read('src/v2/ui/app.mjs');
 
 assert.equal(buildInfo.humanEditorialRelease, 'he2');
 assert.equal(buildInfo.commercialReadinessRelease, 'cr1');
-assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1');
-assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1');
+assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1');
+assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1');
 assert.equal(buildInfo.canonicalCopy, '/src/v2/brand/copy.mjs?home=he2');
-assert.equal(buildInfo.homeScreen, '/src/v2/ui/screens/home.mjs?home=he2');
+assert.equal(buildInfo.homeScreen, '/src/v2/ui/screens/home.mjs?home=he2&listening=ln1');
 assert.deepEqual(buildInfo.humanEditorialData, [
   '/src/v2/brand/copy.mjs?home=he2',
-  '/src/v2/ui/screens/home.mjs?home=he2',
+  '/src/v2/ui/screens/home.mjs?home=he2&listening=ln1',
   '/v2-human-editorial.css?home=he2',
   '/assets/images/listening-room.svg'
 ]);

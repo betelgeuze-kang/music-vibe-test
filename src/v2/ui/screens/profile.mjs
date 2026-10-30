@@ -2,7 +2,7 @@ import { recordTheme, renderRecordArt } from '../../brand/record-art.mjs?result=
 import { AXES } from '../../data/axes.mjs?v=qg1';
 import { getProfileArchetype, localize } from '../../domain/profile.mjs?v=qg1';
 import { axisReading, roundedScore, scoreBand } from '../../domain/presentation.mjs';
-import { recommendProfileTracks } from '../../domain/recommendation.mjs';
+import { recommendProfileTracks } from '../../domain/recommendation.mjs?listening=ln1';
 import {
   compareProfileSnapshots,
   findReferenceSnapshot,
@@ -12,9 +12,9 @@ import {
   TIMELINE_VISIBLE_LIMIT
 } from '../../domain/timeline.mjs?timeline=m4t1';
 import { loadProfileHistory } from '../../infrastructure/storage.mjs?timeline=m4t1';
-import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1';
-import { escapeHtml, track, trackCard } from '../helpers.mjs?weekly=m4w1';
-import { renderEmptyProfile } from './empty.mjs?ui=f1';
+import { confidenceLabel, renderBipolarAxes, renderVibeGlyph } from '../../quality/visuals.mjs?v=qg1&listening=ln1';
+import { escapeHtml, track, trackCard } from '../helpers.mjs?weekly=m4w1&listening=ln1';
+import { renderEmptyProfile } from './empty.mjs?ui=f1&listening=ln1';
 
 function timelineHighlights(profile, language) {
   return AXES

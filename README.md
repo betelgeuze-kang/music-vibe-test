@@ -1,3 +1,5 @@
+> LN1 adds resumable test choices, reviewed song destinations and ten bilingual static listening pages. See [Listening journey LN1](docs/product/LISTENING_JOURNEY_LN1.md). Regenerate content with `node scripts/build-listening-guides.mjs`; CI checks parity with `--check`.
+
 # My Music Vibe
 
 My Music Vibe is a digital listening journal. Ten music-first choices become a six-direction taste note, five explainable tracks for the current moment, a shared list for two friends, and a local Weekly Vibe recap.

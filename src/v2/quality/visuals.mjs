@@ -1,7 +1,7 @@
 import { AXES } from '../data/axes.mjs?v=qg1';
 import { localize } from '../domain/profile.mjs?v=qg1';
 import { axisReading, pairReading, roundedScore, scoreBand } from '../domain/presentation.mjs';
-import { escapeHtml } from '../ui/helpers.mjs?v=qg1';
+import { escapeHtml } from '../ui/helpers.mjs?v=qg1&listening=ln1';
 
 function polarPoint(center, radius, angleDegrees) {
   const angle = (angleDegrees - 90) * Math.PI / 180;

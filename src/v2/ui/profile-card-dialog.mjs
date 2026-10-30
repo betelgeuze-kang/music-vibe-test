@@ -1,7 +1,7 @@
-import { closeOpenAppDialogs } from './dialogs.mjs?commercial=cr1';
+import { closeOpenAppDialogs } from './dialogs.mjs?commercial=cr1&listening=ln1';
 import { getProfileArchetype, localize } from '../domain/profile.mjs?v=qg1';
 import { buildInviteUrl, copyText, prepareProfileCard, savePreparedProfileCard, sharePreparedProfileCard } from '../infrastructure/share.mjs?result=rs1';
-import { escapeHtml, track } from './helpers.mjs?weekly=m4w1';
+import { escapeHtml, track } from './helpers.mjs?weekly=m4w1&listening=ln1';
 
 export function showProfileCardDialog(app, opener = document.activeElement) {
   if (!app.profile) return;

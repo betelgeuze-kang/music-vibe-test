@@ -1,5 +1,5 @@
 {
-  "schema": 13,
+  "schema": 14,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -12,13 +12,13 @@
   "frontendQualityRelease": "fq1",
   "humanEditorialRelease": "he2",
   "commercialReadinessRelease": "cr1",
-  "productVersion": "v2-listening-result-sharing",
-  "assetVersion": "rs1",
-  "builtAt": "2026-10-30T15:23:48+09:00",
-  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1",
-  "styleEntry": "/v2-app.css?commercial=cr1&home=he2&result=rs1",
+  "productVersion": "v2-listening-journey-and-guides",
+  "assetVersion": "ln1",
+  "builtAt": "2026-10-30T18:22:15+09:00",
+  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1",
+  "styleEntry": "/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1",
   "canonicalCopy": "/src/v2/brand/copy.mjs?home=he2",
-  "homeScreen": "/src/v2/ui/screens/home.mjs?home=he2",
+  "homeScreen": "/src/v2/ui/screens/home.mjs?home=he2&listening=ln1",
   "audioSource": "/src/v2/audio/original-clips.mjs?commercial=cr1",
   "audioRightsManifest": "/assets/audio/rights-manifest.json",
   "adsEnabled": false,
@@ -32,10 +32,10 @@
     "/audio-credits/"
   ],
   "lazyRoutes": [
-    "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1",
-    "/src/v2/ui/screens/weekly.mjs?frontend=fq1",
-    "/src/v2/ui/screens/now.mjs?engagement=m4f1",
-    "/src/v2/ui/screens/match.mjs?engagement=m4f1"
+    "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1&listening=ln1",
+    "/src/v2/ui/screens/weekly.mjs?frontend=fq1&listening=ln1",
+    "/src/v2/ui/screens/now.mjs?engagement=m4f1&listening=ln1",
+    "/src/v2/ui/screens/match.mjs?engagement=m4f1&listening=ln1"
   ],
   "editorialData": [
     "/src/v2/data/editorial-tracks.mjs",
@@ -49,27 +49,27 @@
   ],
   "timelineData": [
     "/src/v2/domain/timeline.mjs?timeline=m4t1",
-    "/src/v2/ui/timeline-actions.mjs?frontend=fq1",
+    "/src/v2/ui/timeline-actions.mjs?frontend=fq1&listening=ln1",
     "/src/v2/infrastructure/storage.mjs?timeline=m4t1",
     "/v2-m4-timeline.css?timeline=m4t1"
   ],
   "weeklyData": [
     "/src/v2/domain/weekly.mjs?weekly=m4w1",
-    "/src/v2/ui/weekly-actions.mjs?weekly=m4w1",
-    "/src/v2/ui/screens/weekly.mjs?frontend=fq1",
+    "/src/v2/ui/weekly-actions.mjs?weekly=m4w1&listening=ln1",
+    "/src/v2/ui/screens/weekly.mjs?frontend=fq1&listening=ln1",
     "/src/v2/infrastructure/storage.mjs?weekly=m4w1",
     "/src/v2/infrastructure/share.mjs?weekly=m4w1",
     "/v2-m4-weekly.css?frontend=fq1"
   ],
   "frontendQualityData": [
-    "/src/v2/ui/dialogs.mjs?commercial=cr1",
+    "/src/v2/ui/dialogs.mjs?commercial=cr1&listening=ln1",
     "/src/v2/ui/consent-a11y.mjs?frontend=fq1",
     "/src/v2/domain/tag-visibility.mjs?weekly=m4w1",
     "/v2-frontend-quality.css?frontend=fq1"
   ],
   "humanEditorialData": [
     "/src/v2/brand/copy.mjs?home=he2",
-    "/src/v2/ui/screens/home.mjs?home=he2",
+    "/src/v2/ui/screens/home.mjs?home=he2&listening=ln1",
     "/v2-human-editorial.css?home=he2",
     "/assets/images/listening-room.svg"
   ],
@@ -124,16 +124,30 @@
     "profile-disclosures",
     "offline-share-card",
     "native-image-share",
-    "feed-story-layouts"
+    "feed-story-layouts",
+    "quiz-draft-resume",
+    "bilingual-listening-guides",
+    "static-content-parity",
+    "reviewed-track-destinations"
   ],
   "resultSharingRelease": "rs1",
   "resultSharingData": [
-    "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1",
-    "/src/v2/ui/profile-card-dialog.mjs?result=rs1",
+    "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1&listening=ln1",
+    "/src/v2/ui/profile-card-dialog.mjs?result=rs1&listening=ln1",
     "/src/v2/brand/record-art.mjs?result=rs1",
     "/src/v2/infrastructure/profile-card.mjs?result=rs1",
     "/src/v2/infrastructure/share.mjs?result=rs1",
     "/src/v2/vendor/qrcode-generator.mjs",
     "/v2-result-editorial.css?result=rs1"
+  ],
+  "listeningExperienceRelease": "ln1",
+  "listeningExperienceData": [
+    "/src/v2/infrastructure/quiz-draft.mjs?listening=ln1",
+    "/src/v2/data/verified-track-links.mjs?listening=ln1",
+    "/src/v2/ui/listening-page.mjs?listening=ln1",
+    "/v2-listening-editorial.css?listening=ln1",
+    "/v2-listening-guides.css?listening=ln1",
+    "/listening/",
+    "/en/listening/"
   ]
 }

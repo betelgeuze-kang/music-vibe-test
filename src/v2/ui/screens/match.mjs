@@ -1,8 +1,8 @@
 import { getProfileArchetype } from '../../domain/profile.mjs?v=qg1';
-import { compareProfiles } from '../../domain/match.mjs?engagement=m4f1';
+import { compareProfiles } from '../../domain/match.mjs?engagement=m4f1&listening=ln1';
 import { buildInviteUrl } from '../../infrastructure/share.mjs?v=qg1';
-import { escapeHtml, profileMiniCard, track, trackCard } from '../helpers.mjs?engagement=m4f1';
-import { renderEmptyProfile } from './empty.mjs?ui=f1';
+import { escapeHtml, profileMiniCard, track, trackCard } from '../helpers.mjs?engagement=m4f1&listening=ln1';
+import { renderEmptyProfile } from './empty.mjs?ui=f1&listening=ln1';
 
 function refreshPanel(app) {
   if (app.feedbackChangesSinceRefresh < 2) return '';

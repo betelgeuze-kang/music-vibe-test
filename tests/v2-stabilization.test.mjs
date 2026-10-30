@@ -84,16 +84,17 @@ if (commercialSpec) {
 
 const snapshotNames = [
   'chromium-home.png', 'chromium-discover.png', 'chromium-profile.png', 'chromium-weekly.png', 'chromium-now.png', 'chromium-match.png',
-  'mobile-chromium-home.png', 'mobile-chromium-discover.png', 'mobile-chromium-profile.png', 'mobile-chromium-weekly.png', 'mobile-chromium-now.png', 'mobile-chromium-match.png'
+  'mobile-chromium-home.png', 'mobile-chromium-discover.png', 'mobile-chromium-profile.png', 'mobile-chromium-weekly.png', 'mobile-chromium-now.png', 'mobile-chromium-match.png',
+  'chromium-listening-index.png', 'chromium-listening-essay.png', 'mobile-chromium-listening-index.png', 'mobile-chromium-listening-essay.png'
 ];
-for (const screen of ['home.png', 'discover.png', 'profile.png', 'weekly.png', 'now.png', 'match.png']) assert(visualSpec.includes(screen));
+for (const screen of ['home.png', 'discover.png', 'profile.png', 'weekly.png', 'now.png', 'match.png', 'listening-index.png', 'listening-essay.png']) assert(visualSpec.includes(screen));
 assert(visualSpec.includes("const baselineMarker = path.join(snapshotDir, '.ready')"));
 assert(visualSpec.includes("path.join(snapshotDir, '.refresh')"));
 assert(visualSpec.includes("scale: 'css'"));
 
 const refreshing = exists('tests/e2e/snapshots/.refresh') || exists('tests/e2e/snapshots/.refresh-profile');
 if (!refreshing) {
-  assert.equal(read('tests/e2e/snapshots/.ready').trim(), `${(buildInfo.resultSharingRelease || buildInfo.humanEditorialRelease).toUpperCase()} visual baselines approved by Browser Quality`);
+  assert.equal(read('tests/e2e/snapshots/.ready').trim(), `${(buildInfo.listeningExperienceRelease || buildInfo.resultSharingRelease || buildInfo.humanEditorialRelease).toUpperCase()} visual baselines approved by Browser Quality`);
   for (const snapshot of snapshotNames) {
     const relative = `tests/e2e/snapshots/${snapshot}`;
     assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);

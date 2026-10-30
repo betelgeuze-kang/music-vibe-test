@@ -70,7 +70,7 @@ components:
 
 ## Overview
 
-An independent music journal: warm paper, forest-green ink, record sleeves and carefully written listening notes. The first screen explains the useful outcome and offers one clear starting action. HE2 applies this direction to home. RS1 extends it to the result page and feed/story share cards. Test, weekly, now and match routes retain their established design.
+An independent music journal: warm paper, forest-green ink, record sleeves and carefully written listening notes. The first screen explains the useful outcome and offers one clear starting action. HE2 applies this direction to home. RS1 extends it to the result page and feed/story share cards. LN1 extends the paper/forest design to the test, music-for-today route, and static listening essays. Weekly and match retain their established design while using the clearer shared song notes and service actions.
 
 ## Colors
 
@@ -85,6 +85,12 @@ Use the system serif stack for short expressive headlines and the existing sans-
 Hero and original record illustration → three-step orientation → first listening choice → clearly labelled sample result → interactive editorial moments → friend comparison example → practical questions → data controls. The desktop container remains 1240px. At 920px compress multi-column storytelling; at 680px stack it. Essential controls have at least 44px hit areas. The home header is not sticky.
 
 The result follows name → one-line interpretation → three recommended songs → sharing → expandable explanation and history. Use native details/summary and retain open sections when a record is restored. Sharing is reachable from the result hero.
+
+The test separates outlined preview controls from filled A/B choice controls. Keep text choices usable when audio or storage is unavailable. Save only bounded question/option IDs locally for seven days; explain resume, restart and deletion without implying a server account. Move keyboard focus to the next question, never on audio progress updates.
+
+Music for Today separates the sound description from the connection to a taste profile. Label reviewed destinations as Open track and discovery destinations as Search. On home, a new profile leads to music for today; a ready or saved weekly note can lead the return visit. Weekly summaries describe actions on this site, not verified external playback.
+
+Static listening pages use an original sleeve and editorial introduction, three tracks with a listening point each, a sequence note and a personal-taste action. The article, links, navigation and metadata remain readable without JavaScript. Korean and English have parallel URLs, canonical references and language alternates. Never auto-play or embed commercial songs.
 
 ## Elevation & Depth
 

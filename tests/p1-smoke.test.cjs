@@ -50,7 +50,7 @@ for (const type of resultTypes) {
   }
 }
 
-assert.equal((sitemap.match(/<url>/g) || []).length, 36, 'sitemap must preserve root, 32 legacy result pages, and 3 CR1 transparency pages');
+assert.equal((sitemap.match(/<url>/g) || []).length, 46, 'sitemap must preserve root, 32 legacy result pages, 3 transparency pages, and 10 listening pages');
 for (const required of ['/about/', '/privacy/', '/audio-credits/']) {
   assert(sitemap.includes(`<loc>https://my-music-vibe.com${required}</loc>`), `sitemap is missing CR1 page: ${required}`);
 }

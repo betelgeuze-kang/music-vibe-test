@@ -91,8 +91,8 @@ assert.equal(buildInfo.adsEnabled, false);
 assert.equal(buildInfo.adProvider, 'google-adsense');
 assert.equal(buildInfo.adPublisherId, 'pub-1386368370627622');
 assert.equal(buildInfo.adsTxt, '/ads.txt');
-assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1');
-assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1');
+assert.equal(buildInfo.entry, '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1&listening=ln1');
+assert.equal(buildInfo.styleEntry, '/v2-app.css?commercial=cr1&home=he2&result=rs1&listening=ln1');
 assert.equal(buildInfo.audioRightsManifest, '/assets/audio/rights-manifest.json');
 assert.deepEqual(buildInfo.publicPolicies, ['/about/', '/privacy/', '/audio-credits/']);
 
