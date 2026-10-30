@@ -1,5 +1,5 @@
 {
-  "schema": 12,
+  "schema": 13,
   "release": "qg1",
   "releaseId": "qg1",
   "brandRelease": "bd1",
@@ -12,11 +12,11 @@
   "frontendQualityRelease": "fq1",
   "humanEditorialRelease": "he2",
   "commercialReadinessRelease": "cr1",
-  "productVersion": "v2-editorial-listening-home",
-  "assetVersion": "he2",
-  "builtAt": "2026-10-25T14:21:25+09:00",
-  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2",
-  "styleEntry": "/v2-app.css?commercial=cr1&home=he2",
+  "productVersion": "v2-listening-result-sharing",
+  "assetVersion": "rs1",
+  "builtAt": "2026-10-30T15:23:48+09:00",
+  "entry": "/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1",
+  "styleEntry": "/v2-app.css?commercial=cr1&home=he2&result=rs1",
   "canonicalCopy": "/src/v2/brand/copy.mjs?home=he2",
   "homeScreen": "/src/v2/ui/screens/home.mjs?home=he2",
   "audioSource": "/src/v2/audio/original-clips.mjs?commercial=cr1",
@@ -32,7 +32,7 @@
     "/audio-credits/"
   ],
   "lazyRoutes": [
-    "/src/v2/ui/screens/profile.mjs?timeline=m4t1",
+    "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1",
     "/src/v2/ui/screens/weekly.mjs?frontend=fq1",
     "/src/v2/ui/screens/now.mjs?engagement=m4f1",
     "/src/v2/ui/screens/match.mjs?engagement=m4f1"
@@ -119,6 +119,21 @@
     "ads-disabled-default",
     "authorized-seller-record",
     "ad-placement-safety",
-    "no-third-party-audio-assets"
+    "no-third-party-audio-assets",
+    "profile-listening-first",
+    "profile-disclosures",
+    "offline-share-card",
+    "native-image-share",
+    "feed-story-layouts"
+  ],
+  "resultSharingRelease": "rs1",
+  "resultSharingData": [
+    "/src/v2/ui/screens/profile.mjs?timeline=m4t1&result=rs1",
+    "/src/v2/ui/profile-card-dialog.mjs?result=rs1",
+    "/src/v2/brand/record-art.mjs?result=rs1",
+    "/src/v2/infrastructure/profile-card.mjs?result=rs1",
+    "/src/v2/infrastructure/share.mjs?result=rs1",
+    "/src/v2/vendor/qrcode-generator.mjs",
+    "/v2-result-editorial.css?result=rs1"
   ]
 }

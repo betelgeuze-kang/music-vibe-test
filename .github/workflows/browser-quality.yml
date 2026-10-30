@@ -44,7 +44,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Install browser-test packages without changing the lockfile
-        run: npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+        run: npm install --no-save --no-package-lock @playwright/test@1.55.0 @axe-core/playwright@4.10.2 jsqr@1.4.0
       - run: npx playwright install --with-deps chromium
       - name: Run browser, accessibility, rights, and visual gates
         run: npx playwright test
@@ -57,7 +57,8 @@ jobs:
           snapshot_dir='tests/e2e/snapshots'
           refresh_marker="${snapshot_dir}/.refresh"
           legacy_refresh_marker="${snapshot_dir}/.refresh-css-scale"
-          if [ -f "${snapshot_dir}/.ready" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ]; then
+          profile_refresh_marker="${snapshot_dir}/.refresh-profile"
+          if [ -f "${snapshot_dir}/.ready" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ] && [ ! -f "$profile_refresh_marker" ]; then
             echo 'Visual baselines are already active; comparison mode completed.'
             exit 0
           fi
@@ -77,13 +78,16 @@ jobs:
             mobile-chromium-now.png
             mobile-chromium-match.png
           )
+          if [ -f "${snapshot_dir}/.ready" ] && [ -f "$profile_refresh_marker" ] && [ ! -f "$refresh_marker" ] && [ ! -f "$legacy_refresh_marker" ]; then
+            expected=(chromium-profile.png mobile-chromium-profile.png)
+          fi
           for image in "${expected[@]}"; do test -s "${capture_dir}/${image}"; done
 
-          release_label="$(jq -r '.humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
+          release_label="$(jq -r '.resultSharingRelease // .humanEditorialRelease // .commercialReadinessRelease // .frontendQualityRelease // .weeklyRelease // .timelineRelease // .engagementRelease // .uiRelease // .contentRelease // .stabilityRelease // .release' build-info.json)"
           mkdir -p "$snapshot_dir"
-          cp "${capture_dir}"/*.png "$snapshot_dir"/
+          for image in "${expected[@]}"; do cp "${capture_dir}/${image}" "$snapshot_dir/"; done
           printf '%s visual baselines approved by Browser Quality\n' "${release_label^^}" > "${snapshot_dir}/.ready"
-          rm -f "$refresh_marker" "$legacy_refresh_marker"
+          rm -f "$refresh_marker" "$legacy_refresh_marker" "$profile_refresh_marker"
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

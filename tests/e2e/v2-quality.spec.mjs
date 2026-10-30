@@ -44,6 +44,7 @@ test('home listening booth, keyboard editing, and profile persistence work toget
   }
 
   await expect(page.locator('.profile-hero')).toBeVisible();
+  await page.locator('[data-profile-disclosure="axes"] > summary').click();
   await expect(page.locator('.vibe-glyph')).toBeVisible();
   await expect(page.locator('.bipolar-axis')).toHaveCount(6);
   await expect(page.locator('.profile-signature .track-card')).toHaveCount(3);

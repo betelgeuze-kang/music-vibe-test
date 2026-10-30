@@ -73,6 +73,8 @@ const requiredFiles = [
   'src/v2/data/editorial-tracks.mjs', 'src/v2/data/home-showcase.mjs', 'src/v2/domain/recommendation.mjs',
   'src/v2/domain/match.mjs', 'src/v2/domain/weekly.mjs', 'src/v2/domain/timeline.mjs',
   'src/v2/infrastructure/storage.mjs', 'src/v2/infrastructure/share.mjs',
+  'src/v2/ui/profile-card-dialog.mjs', 'src/v2/infrastructure/profile-card.mjs',
+  'src/v2/brand/record-art.mjs', 'src/v2/vendor/qrcode-generator.mjs', 'v2-result-editorial.css',
   'assets/audio/rights-manifest.json', 'ads.txt', 'about/index.html', 'privacy/index.html', 'audio-credits/index.html',
   'docs/legal/RETIRED_AUDIO_AUDIT.md', 'docs/operations/ADS_MONETIZATION_READINESS.md', 'docs/operations/ads.txt.example'
 ];
@@ -137,8 +139,8 @@ if (!about.includes('data-commercial-readiness-release="cr1"') || !about.include
 if (!privacy.includes('data-commercial-readiness-release="cr1"') || !privacy.includes('현재 광고 비활성') || !privacy.includes('맞춤형 광고') || !privacy.includes('pub-1386368370627622')) fail('privacy page is incomplete');
 if (!credits.includes('data-commercial-readiness-release="cr1"') || !credits.includes('직접 합성') || !credits.includes('rights-manifest.json')) fail('audio credits page is incomplete');
 
-if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1&home=he2') fail('build-info entry contract is inconsistent');
-if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1&home=he2') fail('build-info style contract is inconsistent');
+if (buildInfo.entry !== '/src/v2/main.mjs?commercial=cr1&home=he2&result=rs1') fail('build-info entry contract is inconsistent');
+if (buildInfo.styleEntry !== '/v2-app.css?commercial=cr1&home=he2&result=rs1') fail('build-info style contract is inconsistent');
 if (buildInfo.audioSource !== '/src/v2/audio/original-clips.mjs?commercial=cr1') fail('build-info audio source contract is inconsistent');
 if (buildInfo.audioRightsManifest !== '/assets/audio/rights-manifest.json') fail('build-info rights manifest contract is inconsistent');
 if (buildInfo.adsEnabled !== false || buildInfo.runtimeOverrides !== false) fail('build-info commercial safety flags are invalid');

@@ -70,7 +70,7 @@ components:
 
 ## Overview
 
-An independent music journal: warm paper, forest-green ink, record sleeves and carefully written listening notes. The first screen explains the useful outcome and offers one clear starting action. HE2 applies this direction to the home route; existing result and test routes retain their established design.
+An independent music journal: warm paper, forest-green ink, record sleeves and carefully written listening notes. The first screen explains the useful outcome and offers one clear starting action. HE2 applies this direction to home. RS1 extends it to the result page and feed/story share cards. Test, weekly, now and match routes retain their established design.
 
 ## Colors
 
@@ -84,6 +84,8 @@ Use the system serif stack for short expressive headlines and the existing sans-
 
 Hero and original record illustration → three-step orientation → first listening choice → clearly labelled sample result → interactive editorial moments → friend comparison example → practical questions → data controls. The desktop container remains 1240px. At 920px compress multi-column storytelling; at 680px stack it. Essential controls have at least 44px hit areas. The home header is not sticky.
 
+The result follows name → one-line interpretation → three recommended songs → sharing → expandable explanation and history. Use native details/summary and retain open sections when a record is restored. Sharing is reachable from the result hero.
+
 ## Elevation & Depth
 
 Use thin rules and tonal section changes. Only the sample sleeve has a modest offset paper shadow. Avoid floating panels, glass effects and decorative motion. The original SVG is local, lightweight and requires no third-party image requests.
@@ -94,7 +96,7 @@ Small radii on paper surfaces and rectangular primary actions. Rounded moment se
 
 ## Components
 
-Reuse the existing audio controls, track-link instrumentation, consent controls and route actions. Moment buttons change editorial selections without navigating, replacing focus or replaying landing events. FAQs use native details/summary. Hero and footer hide internal release codes only on the redesigned home.
+Reuse the existing audio controls, track-link instrumentation, consent controls and route actions. Moment buttons change editorial selections without navigating, replacing focus or replaying landing events. FAQs use native details/summary. Home and result header/footer hide internal release codes. Share cards use the same original record art and palette in 1080×1350 and 1080×1920. Prepare the PNG before enabling native sharing, keep its preview identical to export, and retain download/link fallbacks. A local QR encoder supports offline comparison links; never fetch a remote QR service. The image has no visible profile ID.
 
 ## Do's and Don'ts
 

@@ -2,7 +2,7 @@
 @import url("v2-core.css?v=qg1") layer(core);
 @import url("v2-features.css?v=qg1") layer(features);
 @import url("v2-responsive.css?v=qg1") layer(responsive);
-@import url("v2-quality.css?v=qg1") layer(quality);
+@import url("v2-quality.css?v=qg1&result=rs1") layer(quality);
 @import url("v2-editorial.css?brand=bd1") layer(editorial);
 @import url("v2-stabilization.css?stability=sr1") layer(stability);
 @import url("v2-stabilization-a11y.css?stability=sr1&home=he2") layer(accessibility);
@@ -14,4 +14,6 @@
 
 @import url("v2-human-editorial.css?home=he2") layer(human-editorial);
 
-@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, commercial-readiness, human-editorial;
+@import url("v2-result-editorial.css?result=rs1") layer(result-editorial);
+
+@layer core, features, responsive, quality, editorial, stability, accessibility, engagement, timeline, weekly, frontend-quality, commercial-readiness, human-editorial, result-editorial;

@@ -91,9 +91,9 @@ assert(visualSpec.includes("const baselineMarker = path.join(snapshotDir, '.read
 assert(visualSpec.includes("path.join(snapshotDir, '.refresh')"));
 assert(visualSpec.includes("scale: 'css'"));
 
-const refreshing = exists('tests/e2e/snapshots/.refresh');
+const refreshing = exists('tests/e2e/snapshots/.refresh') || exists('tests/e2e/snapshots/.refresh-profile');
 if (!refreshing) {
-  assert.equal(read('tests/e2e/snapshots/.ready').trim(), `${buildInfo.humanEditorialRelease.toUpperCase()} visual baselines approved by Browser Quality`);
+  assert.equal(read('tests/e2e/snapshots/.ready').trim(), `${(buildInfo.resultSharingRelease || buildInfo.humanEditorialRelease).toUpperCase()} visual baselines approved by Browser Quality`);
   for (const snapshot of snapshotNames) {
     const relative = `tests/e2e/snapshots/${snapshot}`;
     assert(exists(relative), `approved visual baseline is missing: ${snapshot}`);

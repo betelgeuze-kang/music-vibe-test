@@ -20,10 +20,11 @@ F1    canonical modular frontend
 M4    feedback, timeline, Weekly Vibe, return loop
 FQ1   dialogs, responsive matrix, hit targets, visual regression
 HE2   listening editorial home, original record artwork, interactive listening moments
+RS1   listening-first result, expandable notes, offline feed/story share cards
 CR1   original test audio, rights manifest, public policies, ads-off safety
 ```
 
-The canonical runtime starts from `src/v2/main.mjs?commercial=cr1`. It does not load the historical brand installer, capture-phase interaction bridge, or quality mutation layer.
+The canonical runtime starts from `src/v2/main.mjs?commercial=cr1&home=he2&result=rs1`. It does not load the historical brand installer, capture-phase interaction bridge, or quality mutation layer.
 
 ## Audio and commercial readiness
 
@@ -58,6 +59,7 @@ npx playwright test
 - [Quality gates](docs/product/QUALITY_GATES.md)
 - [Editorial brand design](docs/product/BRAND_DESIGN.md)
 - [Listening editorial home](docs/product/LISTENING_HOME_HE2.md)
+- [Result and sharing](docs/product/RESULT_AND_SHARING_RS1.md)
 - [Profile-space audit](docs/product/PROFILE_AUDIT.md)
 - [Retired audio audit](docs/legal/RETIRED_AUDIO_AUDIT.md)
 - [Advertising monetization readiness](docs/operations/ADS_MONETIZATION_READINESS.md)

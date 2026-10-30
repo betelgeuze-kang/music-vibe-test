@@ -1,0 +1,1 @@
+RS1 changes the profile result page. Capture desktop/mobile profile only; compare every other route to its existing baseline. Follow with a full comparison run on the promoted commit.

@@ -5,6 +5,7 @@ import { completeProfile, declineAnalytics } from './helpers.mjs';
 
 const snapshotDir = path.resolve('tests/e2e/snapshots');
 const baselineMarker = path.join(snapshotDir, '.ready');
+const profileRefreshMarker = path.join(snapshotDir, '.refresh-profile');
 const refreshMarkers = [
   path.join(snapshotDir, '.refresh'),
   path.join(snapshotDir, '.refresh-css-scale')
@@ -36,7 +37,7 @@ async function stabilize(page) {
 async function captureOrCompare(page, testInfo, baseName) {
   const name = `${testInfo.project.name}-${baseName}`;
   await stabilize(page);
-  if (baselinesReady) {
+  if (baselinesReady && !(baseName === 'profile.png' && fs.existsSync(profileRefreshMarker))) {
     await expect(page).toHaveScreenshot(name, screenshotOptions);
     return;
   }

@@ -10,7 +10,7 @@ import {
   saveProfile,
   setTrackFeedback as persistTrackFeedback
 } from '../infrastructure/storage.mjs?engagement=m4f1';
-import { buildInviteUrl, copyText, downloadProfileCard, shareProfileInvite } from '../infrastructure/share.mjs?v=qg1';
+import { buildInviteUrl, copyText, downloadProfileCard, shareProfileInvite } from '../infrastructure/share.mjs?result=rs1';
 import { extractToken, fragmentState, routeUrl, track } from './helpers.mjs?engagement=m4f1';
 
 const AUDIO_PREVIEW_LIMIT_SECONDS = 20;
@@ -95,7 +95,7 @@ export const actionMethods = {
       else if (action === 'clear-profile') this.deleteProfile();
       else if (action === 'share-profile') this.shareProfile();
       else if (action === 'copy-invite') this.copyInvite();
-      else if (action === 'download-card') this.downloadCard();
+      else if (action === 'download-card' || action === 'open-profile-card') this.openProfileCard();
       else if (action === 'select-context' || action === 'restore-context') this.selectContext(actionTarget.dataset.contextId);
       else if (action === 'change-context') this.changeContext();
       else if (action === 'track-feedback') this.updateTrackFeedback(actionTarget);
@@ -428,12 +428,26 @@ export const actionMethods = {
     }
   },
 
+  async openProfileCard() {
+    if (!this.profile || this.cardDialogOpening) return;
+    const profile = this.profile;
+    const ticket = this.renderTicket;
+    const opener = document.activeElement;
+    this.cardDialogOpening = true;
+    try {
+      const { showProfileCardDialog } = await import('./profile-card-dialog.mjs?result=rs1');
+      if (this.profile === profile && this.route === 'profile' && this.renderTicket === ticket) showProfileCardDialog(this, opener);
+    } catch (_) {
+      this.setNotice(this.language === 'kr' ? '카드를 열지 못했어요. 다시 시도해 주세요.' : 'Could not open the card. Please try again.', 'error');
+    } finally { this.cardDialogOpening = false; }
+  },
+
   async downloadCard() {
     if (!this.profile) return;
-    track('image_save', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'svg-glyph-e1' });
+    track('image_save', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'rs1' });
     try {
       await downloadProfileCard(this.profile, this.language);
-      track('image_save_success', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'svg-glyph-e1' });
+      track('image_save_success', { product_version: PRODUCT_VERSION, profile_id: this.profile.id, card_version: 'rs1' });
     } catch (error) {
       track('test_error', { product_version: PRODUCT_VERSION, error_type: 'profile_card', error_message: error?.message || 'Card export failed' });
       this.setNotice(this.language === 'kr' ? '카드를 저장하지 못했어요.' : 'Could not save the card.', 'error');

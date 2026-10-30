@@ -12,9 +12,9 @@ import {
   registerVisit,
   returnVisitAlreadyTracked
 } from '../infrastructure/storage.mjs?weekly=m4w1';
-import { actionMethods } from './actions.mjs?weekly=m4w1';
+import { actionMethods } from './actions.mjs?weekly=m4w1&result=rs1';
 import { commercialAudioMethods } from './commercial-audio-actions.mjs?commercial=cr1';
-import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2';
+import { renderFooter, renderHeader, UI_RELEASE } from './components/shell.mjs?commercial=cr1&home=he2&result=rs1';
 import { closeOpenAppDialogs, showPrivacyDialog } from './dialogs.mjs?commercial=cr1';
 import { renderDiscover } from './screens/discover.mjs?commercial=cr1';
 import { renderHome } from './screens/home.mjs?home=he2';
@@ -27,6 +27,7 @@ export const TIMELINE_RELEASE = 'm4t1';
 export const WEEKLY_RELEASE = 'm4w1';
 export const FRONTEND_QUALITY_RELEASE = 'fq1';
 export const HUMAN_EDITORIAL_RELEASE = 'he2';
+export const RESULT_SHARING_RELEASE = 'rs1';
 export const COMMERCIAL_READINESS_RELEASE = 'cr1';
 
 export class VibeApp {
@@ -193,7 +194,7 @@ export class VibeApp {
   renderDiscover() { renderDiscover(this); }
 
   async renderProfile() {
-    const module = await import('./screens/profile.mjs?timeline=m4t1');
+    const module = await import('./screens/profile.mjs?timeline=m4t1&result=rs1');
     module.renderProfile(this);
   }
 
@@ -227,6 +228,7 @@ export class VibeApp {
     document.body.dataset.weeklyRelease = WEEKLY_RELEASE;
     document.body.dataset.frontendQualityRelease = FRONTEND_QUALITY_RELEASE;
     document.body.dataset.humanEditorialRelease = HUMAN_EDITORIAL_RELEASE;
+    document.body.dataset.resultSharingRelease = RESULT_SHARING_RELEASE;
     document.body.dataset.commercialReadinessRelease = COMMERCIAL_READINESS_RELEASE;
     this.renderHeader();
     this.renderFooter();
